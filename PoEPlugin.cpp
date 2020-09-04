@@ -9,9 +9,10 @@ public:
     const char* version;
     PoE* poe;
     DWORD thread_id;
+    buffer<wchar_t> log_buffer;
 
     PoEPlugin(const char* name, const char* version_string = "0.1")
-        : name(name), version(version_string)
+        : name(name), version(version_string), log_buffer(256)
     {
     }
 
@@ -27,5 +28,18 @@ public:
     }
 
     virtual void on_entity_changed(EntityList& all, EntityList& removed, EntityList& added) {
+    }
+
+    void log(const wchar_t* format, ...) {
+        va_list args;
+        wchar_t* buffer = log_buffer;
+
+        buffer += swprintf(buffer, L"[%s] ", (char*)name);
+        va_start(args, format);
+        vswprintf(buffer, format, args);
+        va_end(args);
+        PostThreadMessage(thread_id, WM_POEAPI_LOG, (WPARAM)log_buffer, 0);
+
+        std::wcout << buffer << std::endl;
     }
 };

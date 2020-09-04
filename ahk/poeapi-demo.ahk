@@ -200,7 +200,7 @@ return
 
 
 OnLog(message) {
-    rsyslog("#PoEapi", "<b>[PoEapi]</b> {}", StrGet(message))
+    rsyslog("#PoEapi", "<b>{}</b>", StrGet(message))
 }
 
 OnPlayerChanged(playerName, level) {

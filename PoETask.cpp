@@ -5,10 +5,9 @@
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
 #include "PoE.cpp"
-#include "PoEPlugin.cpp"
 #include "PoEapi.c"
 #include "Task.cpp"
-
+#include "PoEPlugin.cpp"
 #include "plugins/PlayerStatus.cpp"
 
 class PoETask : public PoE, public Task {

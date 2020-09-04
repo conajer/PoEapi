@@ -136,13 +136,15 @@ public:
 
     void log(const wchar_t* format, ...) {
         va_list args;
+        wchar_t* buffer = log_buffer;
 
+        buffer += swprintf(buffer, L"[PoEapi] ");
         va_start(args, format);
-        vswprintf(log_buffer, format, args);
+        vswprintf(buffer, format, args);
         va_end(args);
         PostThreadMessage(owner_thread_id, WM_POEAPI_LOG, (WPARAM)log_buffer, 0);
 
-        std::wcout << "[PoEapi] " << (const wchar_t*)log_buffer << std::endl;
+        std::wcout << buffer << std::endl;
     }
 };
 
