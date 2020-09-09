@@ -24,7 +24,7 @@ public:
     virtual void on_player(LocalPlayer* player, InGameState* in_game_state) {
     }
 
-    virtual void on_area_changed(AreaTemplate* world_area) {
+    virtual void on_area_changed(AreaTemplate* world_area, int hash_code) {
     }
 
     virtual void on_entity_changed(EntityList& all, EntityList& removed, EntityList& added) {

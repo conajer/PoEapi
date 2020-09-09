@@ -9,6 +9,7 @@
 #include "Task.cpp"
 #include "PoEPlugin.cpp"
 #include "plugins/PlayerStatus.cpp"
+#include "plugins/KillCounter.cpp"
 
 class PoETask : public PoE, public Task {
 public:
@@ -45,7 +46,7 @@ public:
             AreaTemplate* world_area = in_game_data->world_area();
             if (!world_area->name().empty()) {
                 for (auto i : plugins)
-                    i->on_area_changed(in_game_data->world_area());
+                    i->on_area_changed(in_game_data->world_area(), area_hash);
             }
         }
     }
@@ -73,6 +74,7 @@ public:
         
         /* add plugins */
         add_plugin(new PlayerStatus());
+        add_plugin(new KillCounter());
 
         /* create jobs */
         start_job(105, [=] {this->check_player();});

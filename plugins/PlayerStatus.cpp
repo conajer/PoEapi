@@ -64,18 +64,19 @@ public:
         if (action_id != last_action_id) {
             if (action_id & ACTION_MOVING)
                 PostThreadMessage(thread_id, WM_PLAYER_MOVE, 0, 0);
-            else if (action_id & ACTION_USING_SKILL) {
-                const wchar_t* skill = actor->action_skill->name.c_str();
-                AhkObj* target = *(actor->target);
-                PostThreadMessage(thread_id, WM_PLAYER_USE_SKILL, (WPARAM)skill, (LPARAM)target->ahkobj_ref);
-            } else if (action_id & ACTION_DEAD)
+            else if (action_id & ACTION_USING_SKILL)
+                PostThreadMessage(thread_id,
+                                  WM_PLAYER_USE_SKILL,
+                                  (WPARAM)actor->action_skill->name.c_str(),
+                                  (LPARAM)(AhkObjRef*)(*actor->target));
+            else if (action_id & ACTION_DEAD)
                 PostThreadMessage(thread_id, WM_PLAYER_DIED, 0, 0);
 
             last_action_id = action_id;
         }
     }
 
-    void on_area_changed(AreaTemplate* world_area) {
+    void on_area_changed(AreaTemplate* world_area, int hash_code) {
         PostThreadMessage(thread_id,
                           WM_AREA_CHANGED,
                           (WPARAM)world_area->name().c_str(),
