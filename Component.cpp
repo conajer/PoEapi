@@ -13,17 +13,6 @@ private:
 
     static std::map<string, std::function<Component* (addrtype)>> component_table;
 
-protected:
-
-    AhkObj* get_ahkobj(RemoteMemoryObject& obj) {
-        if (!ahkobj) {
-            ahkobj = RemoteMemoryObject::get_ahkobj(obj);
-            ahkobj->set("TypeName", type_name.c_str(), AHK_ASTR, 0);
-        }
-
-        return ahkobj;
-    }
-
 public:
   
     string type_name;
@@ -35,6 +24,10 @@ public:
 
     addrtype owner_address() {
         return PoEMemory::read<addrtype>(address + 0x8);
+    }
+
+    void __init() {
+        __set(L"TypeName", type_name.c_str(), AhkWString, 0);
     }
 
     void to_print() {

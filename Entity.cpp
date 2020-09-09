@@ -57,36 +57,6 @@ protected:
         }
     }
     
-    AhkObj* get_ahkobj(RemoteMemoryObject& obj) {
-        if (!ahkobj) {
-            ahkobj = RemoteMemoryObject::get_ahkobj(obj);
-
-            if (0)
-            ahkobj->set("Name", name().c_str(), AHK_WSTR,
-                        "Id", id, AHK_INT,
-                        "Path", path.c_str(), AHK_WSTR,
-                        "Components", 0, AHK_OBJECT,
-                        0);
-            else {
-            ahkobj->set("Name", name().c_str(), AHK_WSTR, 0);
-            ahkobj->set("Id", id, AHK_INT, 0);
-            ahkobj->set("Path", path.c_str(), AHK_WSTR, 0);
-            ahkobj->set("Components", 0, AHK_OBJECT, 0);
-            }
-
-            void* objref = ahkobj->get("Components");
-            if (objref) {
-                AhkObj ahkobj_components((AhkObjRef*)objref);
-                for (auto i : components) {
-                    AhkObj* ahkobj = *i.second;
-                    ahkobj_components.set(i.first.c_str(), ahkobj->ahkobj_ref, AHK_OBJECT, 0);
-                }
-            }
-        }
-
-        return ahkobj;
-    }
-
 public:
 
     wstring type_name;
@@ -107,14 +77,10 @@ public:
         id = read<int>("id");
 
         get_all_components();
-        is_monster = has_component("Monster");
-        if (is_monster) {
+        if (is_monster = has_component("Monster")) {
             rarity = get_component<ObjectMagicProperties>()->rarity();
             is_neutral = get_component<Positioned>()->is_neutral();
         }
-
-        // generate AhkObj automatically
-        ahkobj = get_ahkobj(*this);
     }
 
     wstring& name() {
@@ -125,6 +91,11 @@ public:
             type_name = path.substr(path.rfind(L'/') + 1);
 
         return type_name;            
+    }
+
+    bool is_dead() {
+        Life* life = get_component<Life>();
+        return life && life->life() == 0;
     }
 
     bool has_component(const string& name) {
@@ -142,9 +113,8 @@ public:
         strtol(typeid(T).name(), &component_name, 0);
 
         auto i = components.find(component_name);
-        if (i != components.end()) {
+        if (i != components.end())
             return dynamic_cast<T*>(i->second.get());
-        }
 
         return  nullptr;
     }
@@ -158,6 +128,31 @@ public:
             std::cout << "\t";
             components[name]->to_print();
             std::cout << endl;
+        }
+    }
+
+    void __init() {
+        RemoteMemoryObject::__init();
+        #if (0)
+        set(L"Name", name().c_str(), AhkWString,
+                    "Id", id, AhkInt,
+                    "Path", path.c_str(), AhkWString,
+                    "Components", 0, AhkObject,
+                    0);
+        #else
+        __set(L"Name", name().c_str(), AhkWString, 0);
+        __set(L"Id", id, AhkInt, 0);
+        __set(L"Path", path.c_str(), AhkWString, 0);
+        __set(L"Components", 0, AhkObject, 0);
+        #endif
+
+        AhkObjRef* objref;
+        __get(L"Components", (void*)&objref, AhkObject);
+        if (objref) {
+            AhkObj ahkobj_components((AhkObjRef*)objref);
+            for (auto i : components) {
+                //ahkobj_components.set(i.first.c_str(), (AhkObjRef*)(*i.second), AHK_OBJECT, 0);
+            }
         }
     }
 

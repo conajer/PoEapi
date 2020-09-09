@@ -12,23 +12,12 @@ template <typename T> using Factory = std::unordered_map<string, std::function<T
 static FieldOffsets default_offsets = {
 };
 
-class RemoteMemoryObject : public PoEMemory { //, public AhkObjStub {
+class RemoteMemoryObject : public PoEMemory, public AhkObj {
 private:
 
     static Factory<RemoteMemoryObject> remote_object_factory;
-
-protected:
-
-    AhkObj* ahkobj = nullptr;
-    
-    virtual AhkObj* get_ahkobj(RemoteMemoryObject& obj) {
-        if (!ahkobj) {
-            ahkobj = new AhkObjStub(obj, address);
-            ahkobj->set("Address", address, AHK_PTR, 0);
-        }
-
-        return ahkobj;
-    }
+    static byte* g_buffer;
+    static size_t g_buffer_size;
 
 public:
 
@@ -37,21 +26,19 @@ public:
     int verbose = 1;
 
     RemoteMemoryObject(addrtype address, FieldOffsets* offsets = &default_offsets)
-        : address(address), offsets(offsets)
+        : AhkObj(typeid(*this).name(), L"RemoteMemoryObject"),
+          address(address), offsets(offsets)
     {
     }
 
-    ~RemoteMemoryObject() {
-        delete ahkobj;
-        ahkobj = nullptr;
-    }
+    static byte* read(addrtype address, size_t size) {
+        if (!g_buffer || size > g_buffer_size) {
+            delete[] g_buffer;
+            g_buffer_size = std::max(g_buffer_size, size);
+            g_buffer = new byte[g_buffer_size];
+        }
 
-    bool operator==(RemoteMemoryObject& obj) {
-        return address == obj.address;
-    }
-
-    bool operator!=(RemoteMemoryObject& obj) {
-        return address != obj.address;
+        return ::read(process_handle, address, g_buffer, size);
     }
 
     template<typename T> T read(const string& field_name) {
@@ -106,14 +93,25 @@ public:
         return new T(address);
     }
 
-    virtual operator AhkObj*() {
-        return get_ahkobj(*this);
+    bool operator==(RemoteMemoryObject& obj) {
+        return address == obj.address;
+    }
+
+    bool operator!=(RemoteMemoryObject& obj) {
+        return address != obj.address;
+    }
+
+    void __init() {
+        __set(L"Address", address, AhkPointer, 0);
     }
 
     virtual void to_print() {
         printf("%llx:", address);
     }
 };
+
+byte* RemoteMemoryObject::g_buffer;
+size_t RemoteMemoryObject::g_buffer_size = 0x100;
 
 ostream& operator<<(ostream& os, RemoteMemoryObject& obj)
 {

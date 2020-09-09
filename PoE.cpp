@@ -15,10 +15,9 @@
 using namespace std;
 
 typedef unsigned __int64 addrtype;
-typedef unsigned char byte;
 
+#include "ahkpp"
 #include "PoEMemory.cpp"
-#include "AhkObj.cpp"
 #include "RemoteMemoryObject.cpp"
 
 class PoE : public PoEMemory {

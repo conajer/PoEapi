@@ -3,8 +3,8 @@
 #Persistent ; Stay open in background
 
 SetWorkingDir %A_ScriptDir%
-
-#include %A_ScriptDir%\Logger.ahk
+#Include, %A_ScriptDir%\ahkpp.ahk
+#include, %A_ScriptDir%\logger.ahk
 
 global logger := new Logger("PoEapi-demo log")
 
@@ -31,11 +31,11 @@ OnMessage(0x9008, "OnMove")
 OnMessage(0x900b, "OnAreaChanged")
 OnMessage(0x900c, "OnMonsterChanged")
 OnMessage(0x900d, "OnMinionChanged")
-;OnMessage(0x900e, "OnKilled")
+OnMessage(0x900e, "OnKilled")
 
 apiLib := DllCall("LoadLibrary", "str", "poeapi.dll", "ptr")
 if (Not apiLib) {
-    Msgbox, % "No PoEapi library found!"
+    Msgbox, % "PoEapi library not loaded!"
     ExitApp
 }
 
@@ -44,21 +44,12 @@ debug("PoEapi-demo v0.1 (powered by PoEapi v{}.{}.{})", major_version, minor_ver
 
 global __Classes := { "RemoteMemoryObject" : RemoteMemoryObject
                     , "Component"          : Component
-                    , "Entity"             : Entity
-                    , "Actor"              : Actor
-                    , "Life"               : Life
-                    , "Player"             : Player
-                    , "Positioned"         : Positioned
-                    , "Render"             : Render
-                    , "Targetable"         : Targetable }
+                    , "Entity"             : Entity }
 
 global __Entities := {}
 
-class RemoteMemoryObject {
-
-    __new(address) {
-    }
-
+class RemoteMemoryObject extends AhkObj {
+    
     read(address, size) {
         return DllCall("poeapi\ahkobj_read", "Ptr", address, "int", size, "Ptr")
     }
@@ -106,98 +97,8 @@ class RemoteMemoryObject {
     }
 }
 
-class Component extends RemoteMemoryObject {
-}
-class Entity extends RemoteMemoryObject {
-}
-class Actor extends Component {
-}
-class Life extends Component {
-    Life {
-        Get {
-            return this.getInt(this.address + 0x25c)
-        }
-    }
-}
-class Player extends Component {
-    Name {
-        Get {
-            this.Name := this.readString(this.address + 0x158)
-            return this.Name
-        }
-    }
-}
-class Positioned extends Component {
-}
-class Render extends Component {
-}
-class Targetable extends Component {
-}
-
-__New(className) {
-    className := StrGet(className, "utf-8")
-    if (!__Classes[className]) {
-        obj := {}
-    } else {
-        obj := new __Classes[className]
-        obj.__new()
-    }
-
-    if (className == "Entity")
-        __Entities[&obj] := obj
-
-    return Object(obj)
-}
-
-__Delete(obj) {
-    ;__Entities[&obj] = ""
-    ObjRelease(obj)
-}
-
-__Get(obj, key) {
-    value := Object(obj)[StrGet(key, "utf-8")]
-    return IsObject(value) ? Object(value) : value
-}
-
-__Set(obj, key, params*) {
-    params := NumGet(params + 0, "Ptr")
-    offset := 0
-    ;while (key) {
-        key := StrGet(key, "utf-8")
-        switch NumGet(params + offset + 8, "Int") {
-        case 0: ; Int
-            Object(obj)[key] := NumGet(params + offset, "Int")
-        case 1: ; String
-            Object(obj)[key] := StrGet(NumGet(params + offset, "Ptr"), "utf-8")
-        case 2: ; Unicode  String
-            Object(obj)[key] := StrGet(NumGet(params + offset, "Ptr"))
-        case 3: ; Float
-            Object(obj)[key] := NumGet(params + offset, "Double")
-        case 4: ; Object
-            objPtr := NumGet(params + offset, "Ptr")
-            Object(obj)[key] := objPtr ? Object(objPtr) : {}
-        case 5: ; Ptr
-            Object(obj)[key] := NumGet(params + offset, "Ptr")
-        }
-        key := NumGet(params + offset + 16, "Ptr")
-        offset += 24
-    ;}
-}
-
-__Call(obj, method, args) {
-    Object(obj).__Call(StrGet(method, "utf-8"), args)
-}
-
-DllCall("poeapi\ahkobj_set_callbacks"
-    , "Ptr", RegisterCallback("__New")
-    , "Ptr", RegisterCallback("__Delete", "F")
-    , "Ptr", RegisterCallback("__Get", "F")
-    , "Ptr", RegisterCallback("__Set", "F")
-    , "Ptr", RegisterCallback("__Call", "F"))
-
 ; end of auto-execute section
 return
-
 
 OnLog(message) {
     rsyslog("#PoEapi", "<b>{}</b>", StrGet(message))
@@ -234,18 +135,7 @@ OnDied() {
     debug("died")
 }
 
-dumpObj(prefix, obj) {
-    for k, v in obj {
-        debug(prefix k ", " v)
-        if (IsObject(v))
-            dumpObj(prefix "    ", v)
-    }
-}
-
 OnUseSkill(skillName, targetPtr) {
-    entity := Object(targetPtr)
-    debug("using {}, {}", StrGet(skillName), entity.Name)
-    dumpObj("", entity)
 }
 
 OnMove() {
@@ -272,7 +162,15 @@ OnMonsterChanged(numOfMonsters, charges) {
 }
 
 OnKilled(killed, total) {
-    debug("{}/{}", killed, total)
+    rdebug("#KILLED", "Killed: <b>{}</b>/{}", killed, total)
+}
+
+dumpObj(prefix, obj) {
+    for k, v in obj {
+        debug(prefix k ", " v)
+        if (IsObject(v))
+            dumpObj(prefix "    ", v)
+    }
 }
 
 ^r::
