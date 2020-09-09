@@ -3,143 +3,252 @@
 */
 
 #include <cstdarg>
-#include <algorithm>
-#include <unordered_map>
-#include <string>
+#include "ahkpp"
 
-class AhkObjRef;    /* AutoHotkey object reference */
-class AhkObj;       /* AutoHotkey object wrapper class */
-class AhkObjStub;   /* AutoHotkey object stub class */
+using PropertyType = std::tuple<void*, int>;
+using MethodType = void* (AhkObj::*)();
 
-enum AhkTypes {
-    AHK_INT,
-    AHK_ASTR,
-    AHK_WSTR,
-    AHK_FLOAT,
-    AHK_OBJECT,
-    AHK_PTR,
+static const wchar_t* ahk_types[] = {
+    L"Unknown",
+    L"Char",
+    L"Short",
+    L"Int",
+    L"UChar",
+    L"UShort",
+    L"UInt",
+    L"Int64",
+    L"AStr",
+    L"WStr",
+    L"Float",
+    L"Double",
+    L"Ptr",
+    L"UPtr",
+    0,
 };
 
-/* AutoHotkey object related callbacks */
-AhkObjRef* (*ahk_new)(const char* class_name, va_list args);
-void* (*ahk_delete)(AhkObjRef* obj);
-void* (*ahk_get)(AhkObjRef* obj, const char* key);
-void* (*ahk_set)(AhkObjRef* obj, const char* key, va_list args);
-void* (*ahk_call)(AhkObjRef* obj, const char* method, va_list args);
-
-class AhkObj {
-public:
-
-    AhkObjRef* ahkobj_ref;
-
-    AhkObj(const string& type_name, ...) : ahkobj_ref(0) {
-        if (ahk_new) {
-            va_list args;
-
-            /* if typename is a typeid's name, which has format 'N<typename>', 
-               N is length of the typename string. */
-            char* ahk_typename;
-            strtol(type_name.c_str(), &ahk_typename, 0);
-
-            va_start(args, type_name);
-            ahkobj_ref = ahk_new(ahk_typename, args);
-            va_end(args);
-        }
-    }
-
-    AhkObj(AhkObjRef* obj_ref) : ahkobj_ref(obj_ref) {
-    }
-
-    void* get(const char* key) {
-        if (!ahk_get || !ahkobj_ref)
-            return nullptr;
-
-        return ahk_get(ahkobj_ref, key);
-    }
-
-    void* set(const char* key, ...) {
-        if (!ahk_set || !ahkobj_ref)
-            return nullptr;
-
-        std::va_list args;
-        va_start(args, key);
-        void* result = ahk_set(ahkobj_ref, key, args);
-        va_end(args);
-
-        return result;
-    }
-
-    void* call(const char* method, ...) {
-        if (!ahk_call || !ahkobj_ref)
-            return nullptr;
-
-        std::va_list args;
-        va_start(args, method);
-        void* result = ahk_call(ahkobj_ref, method, args);
-        va_end(args);
-
-        return result;
-    }
-
-    virtual ~AhkObj() {
-        if (ahk_delete && ahkobj_ref)
-            ahk_delete(ahkobj_ref);
-    }
-};
-
-class AhkObjStub : public AhkObj, public PoEMemory {
-private:
-
-    static std::unordered_map<AhkObjRef*, AhkObjStub*> ahkobj_stubs;
-
-    /* AutoHotkey does not actually support multithreading, 
-       so one buffer makes some sense. */
-    static byte* g_buffer;
-    static size_t g_buffer_size;
-
-public:
-
-    AhkObjStub(PoEMemory& obj, addrtype address)
-        : AhkObj(typeid(obj).name(), address)
-    {
-        if (ahkobj_ref) {
-            ahkobj_stubs[ahkobj_ref] = this;
-        }
-    }
-
-    static byte* read(addrtype address, size_t size) {
-        if (!g_buffer || size > g_buffer_size) {
-            delete[] g_buffer;
-            g_buffer_size = std::max(g_buffer_size, size);
-            g_buffer = new byte[g_buffer_size];
-        }
-
-        return ::read<byte>(process_handle, address, g_buffer, size);
-    }
-
-    ~AhkObjStub() {
-        ahkobj_stubs.erase(ahkobj_ref);
-    }
-};
-
-DLLEXPORT void ahkobj_set_callbacks(
-    AhkObjRef* (*cb1)(const char* class_name, va_list args),
-    void* (*cb2)(AhkObjRef* obj),
-    void* (*cb3)(AhkObjRef* obj, const char* key),
-    void* (*cb4)(AhkObjRef* obj, const char* key, va_list args),
-    void* (*cb5)(AhkObjRef* obj, const char* method, va_list args))
-{
-    ahk_new = cb1;
-    ahk_delete = cb2;
-    ahk_get = cb3;
-    ahk_set = cb4;
-    ahk_call = cb5;
+DLLEXPORT AhkObj::AhkObj() : obj_ref(0) {
 }
 
-std::unordered_map<AhkObjRef*, AhkObjStub*> AhkObjStub::ahkobj_stubs;
-byte* AhkObjStub::g_buffer;
-size_t AhkObjStub::g_buffer_size = 0x100;
+DLLEXPORT AhkObj::AhkObj(const string& type_name, const wstring& basetype_name, ...)
+    : basetype_name(basetype_name), obj_ref(0)
+{
+    /* type_name comes from typeid(*).name(), a typeid's name has format 'N<typename>'
+       for reference when using GCC as compiler. N is length of the typename string. */
+    char *actural_type_name;
+    int len = strtol(type_name.c_str(), &actural_type_name, 0);
+    this->type_name.resize(len);
+    std::mbstowcs(&this->type_name[0], actural_type_name, len);
+}
 
-DLLEXPORT byte* ahkobj_read(addrtype address, int size) {
-    return AhkObjStub::read(address, size);
+DLLEXPORT AhkObj::AhkObj(AhkObjRef* obj_ref) : obj_ref(obj_ref) {
+    __init();
+    ahkpp_stubs[obj_ref] = this;
+}
+
+DLLEXPORT AhkObj::~AhkObj() {
+    if (obj_ref) {
+        ahkpp_stubs.erase(obj_ref);
+        ahk_delete(obj_ref);
+    }
+}
+
+DLLEXPORT AhkObj::operator AhkObjRef*() {
+    if (!obj_ref) {
+        if (obj_ref = ahk_new(type_name.c_str(), basetype_name.c_str())) {
+            __init();
+            ahkpp_stubs[obj_ref] = this;
+        }
+    }
+
+    return obj_ref;
+}
+
+void AhkObj::__new() {
+    if (obj_ref && !type_name.empty()) {
+        AhkObj* __properties = new AhkObj(ahk_new(L"", L""));
+        __set(L"__properties", __properties->obj_ref, AhkObject, 0);
+        for (auto p : properties)
+            __properties->__set(p.first.c_str(), ahk_types[std::get<1>(p.second)], AhkWString, 0);
+        delete __properties;
+
+        AhkObj* __methods = new AhkObj(ahk_new(L"", L""));
+        __set(L"__methods", __methods->obj_ref, AhkObject, 0);
+        for (auto m : methods) {
+            AhkObj* method = new AhkObj(ahk_new(L"", L""));
+            __methods->__set(m.first.c_str(), method->obj_ref, AhkObject, 0);
+            for (auto t : std::get<2>(m.second))
+                method->__set(L"", ahk_types[t], AhkWString, 0);
+            method->__set(L"", ahk_types[std::get<1>(m.second)], AhkWString, 0);
+            delete method;
+        }
+        delete __methods;
+    }
+}
+
+DLLEXPORT void AhkObj::__init() {
+}
+
+DLLEXPORT bool AhkObj::add_property(const wstring& key, void* value, AhkType type) {
+    properties[key] = std::make_tuple(value, type);
+    return true;
+}
+
+DLLEXPORT bool AhkObj::remove_property(const wstring& key) {
+    return properties.erase(key);
+}
+
+DLLEXPORT bool AhkObj::add_method(const wstring& name, MethodType fn, AhkType ret_type, std::vector<AhkType> args) {
+    methods[name] = std::make_tuple(fn, ret_type, args);
+    return true;
+}
+
+DLLEXPORT bool AhkObj::remove_method(const wstring& name) {
+    return methods.erase(name);
+}
+
+DLLEXPORT void* AhkObj::get(const wchar_t* key) {
+    auto i = properties.find(key);
+    if (i != properties.end()) {
+        void* value_ptr = std::get<0>(i->second);
+        AhkType type = std::get<1>(i->second);
+
+        switch (type) {
+        case AhkString:
+            return (void*)((string*)value_ptr)->c_str();
+
+        case AhkWString:
+            return (void*)((wstring*)value_ptr)->c_str();
+
+        case AhkFloat:
+        case AhkDouble:
+            {
+                /* Must do some floating opertions here, otherwise AutoHotkey can't
+                   correctly receive the return value. */
+                double f;
+                f = *(double*)value_ptr;
+                return (void*)(*(__int64*)&f);
+            }
+
+        default:
+            return (void*)(*(__int64*)value_ptr);
+        }
+    }
+
+    return nullptr;
+}
+
+DLLEXPORT void AhkObj::set(const wchar_t* key, void* value, AhkType type) {
+    auto i = properties.find(key);
+    if (i != properties.end()) {
+        void* value_ptr = std::get<0>(i->second);
+        type = std::get<1>(i->second);
+
+        switch (type) {
+        case AhkChar:
+        case AhkUChar:
+            *(char*)value_ptr = *(char*)value;
+            break;
+
+        case AhkShort:
+        case AhkUShort:
+            *(short*)value_ptr = *(short*)value;
+            break;
+
+        case AhkInt:
+        case AhkUInt:
+            *(int*)value_ptr = *(int*)&value;
+            break;
+
+        case AhkInt64:
+        case AhkPointer:
+        case AhkObject:
+            *(__int64*)value_ptr = *(__int64*)&value;
+            break;
+
+        case AhkFloat:
+            *(float*)value_ptr = *(float*)&value;
+            break;
+
+        case AhkDouble:
+            *(double*)value_ptr = *(double*)&value;
+            break;
+
+        case AhkString:
+            *(string*)value_ptr = (char*)value;
+            break;
+
+        case AhkWString:
+            *(wstring*)value_ptr = (wchar_t*)value;
+            break;
+
+        default:
+            ;
+        }
+    }
+}
+
+DLLEXPORT void AhkObj::__get(const wchar_t* key, void* value, AhkType type) {
+    if (obj_ref) {
+        void* value_ptr = ahk_get(obj_ref, key);
+
+        switch (type) {
+        case AhkChar:
+        case AhkUChar:
+            *(char*)value = wcstol((wchar_t*)value_ptr, 0, 0);
+            break;
+
+        case AhkShort:
+        case AhkUShort:
+            *(short*)value = wcstol((wchar_t*)value_ptr, 0, 0);
+            break;
+
+        case AhkInt:
+        case AhkUInt:
+            *(int*)value = wcstol((wchar_t*)value_ptr, 0, 0);
+            break;
+
+        case AhkInt64:
+        case AhkPointer:
+        case AhkObject:
+            *(__int64*)value = wcstol((wchar_t*)value_ptr, 0, 0);
+            break;
+
+        case AhkFloat:
+            *(float*)value = wcstof((wchar_t*)value_ptr, 0);
+            break;
+
+        case AhkDouble:
+            *(double*)value = wcstof((wchar_t*)value_ptr, 0);
+            break;
+
+        case AhkString:
+            *(char**)value = (char*)value_ptr;
+            break;
+
+        case AhkWString:
+            *(wchar_t**)value = (wchar_t*)value_ptr;
+            break;
+        }
+    }
+}
+
+DLLEXPORT void AhkObj::__set(const wchar_t* key, ...) {
+    if (obj_ref) {
+        std::va_list ap;
+        va_start(ap, key);
+        ahk_set(obj_ref, key, ap);
+        va_end(ap);
+    }
+}
+
+DLLEXPORT void* AhkObj::__call(const wchar_t* method_name, ...) {
+    void* result = nullptr;
+    if (obj_ref) {
+        std::va_list ap;
+        va_start(ap, method_name);
+        void* result = ahk_call(obj_ref, method_name, ap);
+        va_end(ap);
+    }
+
+    return result;
 }
