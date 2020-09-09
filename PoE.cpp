@@ -226,4 +226,23 @@ public:
             wprintf(L"%S\n", i.first.c_str());
         }
     }
+
+    int toggle_maphack() {
+        char pattern[] = "66 c7 ?? 78 00 ?? c6";
+        addrtype addr;
+        DWORD old_protect;
+        byte buffer[8];
+
+        if (addr = find_pattern(pattern)) {
+            VirtualProtectEx(process_handle, (LPVOID)addr, 7, PAGE_EXECUTE_READWRITE, &old_protect);
+            ReadProcessMemory(process_handle, (LPVOID)addr, buffer, 7, 0);
+            buffer[5] = !buffer[5];
+            WriteProcessMemory(process_handle, (LPVOID)addr, buffer, 7, 0);
+            VirtualProtectEx(process_handle, (LPVOID)addr, 7, old_protect, &old_protect);
+
+            return buffer[5];
+        }
+
+        return -1;
+    }
 };

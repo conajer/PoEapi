@@ -173,6 +173,10 @@ dumpObj(prefix, obj) {
     }
 }
 
+^m::
+    DllCall("poeapi\poeapi_toggle_maphack")
+return
+
 ^r::
     DllCall("FreeLibrary", "ptr", apiLib)
     reload

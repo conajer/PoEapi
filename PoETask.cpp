@@ -88,6 +88,11 @@ public:
 /* Global PoE task object. */
 PoETask ptask;
 
+DLLEXPORT void poeapi_toggle_maphack() {
+    int flag = ptask.toggle_maphack();
+    ptask.log(L"Maphack %S.", flag == -1 ? L"failed" : (flag ? L"enabled" : L"disabled"));
+}
+
 extern "C" WINAPI
 BOOL DllMain (HINSTANCE instance, DWORD reason, LPVOID reserved) {
     switch (reason) {
@@ -105,10 +110,4 @@ BOOL DllMain (HINSTANCE instance, DWORD reason, LPVOID reserved) {
     }
 
     return true;
-}
-
-int main(int argc, char* argv[]) {
-    /* Start the main task of PoEapi */
-    ptask.start();
-    ptask.join(INFINITE);
 }
