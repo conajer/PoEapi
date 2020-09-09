@@ -156,11 +156,11 @@ public:
 };
 
 static std::map<string, int> server_data_offsets {
-    {"league",       0x7350},
+    {"league",       0x7450},
     {"latency",      0x73c8},
     {"party_status", 0x7500},
-    {"stash_tabs",   0x73d8},
-    {"inventories",  0x76f0},
+    {"stash_tabs",   0x74d8},
+    {"inventories",  0x77f0},
 };
 
 class ServerData : public RemoteMemoryObject {
