@@ -9,6 +9,7 @@
 #include "Task.cpp"
 #include "PoEPlugin.cpp"
 #include "plugins/AutoOpen.cpp"
+#include "plugins/DelveChest.cpp"
 #include "plugins/PlayerStatus.cpp"
 #include "plugins/KillCounter.cpp"
 
@@ -76,12 +77,13 @@ public:
         
         /* add plugins */
         add_plugin(new AutoOpen());
+        add_plugin(new DelveChest());
         add_plugin(new PlayerStatus());
         add_plugin(new KillCounter());
 
         /* create jobs */
-        start_job(105, [=] {this->check_player();});
-        start_job(520, [=] {this->check_entities();});
+        start_job(51, [=] {this->check_player();});
+        start_job(55, [=] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
         join(); /* wait for the jobs finish */
@@ -114,4 +116,11 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     }
 
     return true;
+}
+
+int main(int argc, char* argv[]) {
+    SetProcessDPIAware();
+    /* Start the main task of PoEapi */
+    ptask.start();
+    ptask.join(INFINITE);
 }

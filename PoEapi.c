@@ -20,6 +20,7 @@ enum EventTypes {
     WM_MONSTER_CHANGED,
     WM_MINION_CHANGED,
     WM_KILLED,
+    WM_DELVE_CHEST,
 };
 
 int major_version = 0;

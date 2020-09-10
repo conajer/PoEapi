@@ -32,6 +32,7 @@ OnMessage(0x900b, "OnAreaChanged")
 OnMessage(0x900c, "OnMonsterChanged")
 OnMessage(0x900d, "OnMinionChanged")
 OnMessage(0x900e, "OnKilled")
+OnMessage(0x900f, "OnDelveChest")
 
 apiLib := DllCall("LoadLibrary", "str", "poeapi.dll", "ptr")
 if (Not apiLib) {
@@ -163,6 +164,13 @@ OnMonsterChanged(numOfMonsters, charges) {
 
 OnKilled(killed, total) {
     rdebug("#KILLED", "Killed: <b>{}</b>/{}", killed, total)
+}
+
+OnDelveChest(chestName, lParam) {
+    chestName := StrGet(chestName)
+    x := lParam << 32 >> 48
+    y := lParam << 48 >> 48
+    entityId := lParam >> 32
 }
 
 dumpObj(prefix, obj) {

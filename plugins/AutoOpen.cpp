@@ -62,8 +62,9 @@ public:
             case 1: { // MinimapIcon
                 Targetable* targetable = i.second->get_component<Targetable>();
                 MinimapIcon* minimap_icon = i.second->get_component<MinimapIcon>();
-                if (targetable->is_targetable() && entity_names.find(minimap_icon->name()) != string::npos)
-                    try_open(i.second.get());
+                if (targetable && targetable->is_targetable())
+                    if (entity_names.find(minimap_icon->name()) != string::npos)
+                        try_open(i.second.get());
                 break;
             }
 
@@ -75,7 +76,7 @@ public:
             }
 
             case 3: // Transitionable
-                if (entity_names.find(i.second->name()))
+                if (entity_names.find(i.second->name()) != string::npos)
                     try_open(i.second.get());
                 break;
 
