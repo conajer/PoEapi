@@ -82,8 +82,8 @@ public:
         add_plugin(new KillCounter());
 
         /* create jobs */
-        start_job(51, [=] {this->check_player();});
-        start_job(55, [=] {this->check_entities();});
+        start_job(77, [=] {this->check_player();});
+        start_job(97, [=] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
         join(); /* wait for the jobs finish */

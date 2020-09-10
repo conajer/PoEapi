@@ -144,7 +144,7 @@ public:
         va_end(args);
         PostThreadMessage(owner_thread_id, WM_POEAPI_LOG, (WPARAM)log_buffer, 0);
 
-        std::wcout << buffer << std::endl;
+        std::wcout << (const wchar_t*)log_buffer << std::endl;
     }
 };
 

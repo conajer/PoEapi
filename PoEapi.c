@@ -25,9 +25,9 @@ enum EventTypes {
 
 int major_version = 0;
 int minor_version = 6;
-int patch_level = 2;
+int patch_level = 5;
 
-const char* supported_PoE_version = "3.11.1f";
+const char* supported_PoE_version = "3.11.1g";
 
 DLLEXPORT void poeapi_get_version(int& major, int& minor, int &patch) {
     major = major_version;

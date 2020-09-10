@@ -82,6 +82,6 @@ public:
                           (WPARAM)world_area->name().c_str(),
                           (LPARAM)world_area->level());
 
-        wprintf(L"%llx: %S\n", world_area->address, world_area->name().c_str());
+        log(L"entered %S", world_area->name().c_str());
     }
 };
