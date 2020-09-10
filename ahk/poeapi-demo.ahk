@@ -132,7 +132,7 @@ OnEnergyShieldChanged(current, maximum) {
 }
 
 OnDied() {
-    debug("died")
+    debug("DIED!!!")
 }
 
 OnUseSkill(skillName, targetPtr) {
@@ -180,6 +180,10 @@ return
 ^r::
     DllCall("FreeLibrary", "ptr", apiLib)
     reload
+return
+
+^q::
+    ExitApp
 return
 
 F10::

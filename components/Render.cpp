@@ -4,12 +4,6 @@
 
 #include <iomanip>
 
-struct Vector3 {
-    float x;
-    float y;
-    float z;
-};
-
 ostream& operator<<(ostream& os, const Vector3& vec)
 {
     cout << fixed << setprecision(0) << vec.x << ", " << vec.y << ", " << vec.z;
@@ -21,6 +15,7 @@ ostream& operator<<(ostream& os, const Vector3& vec)
 static FieldOffsets render_component_offsets {
     {"name",     0xb0},
     {"position", 0x90},
+    {"bounds",   0x9c},
 };
 
 class Render : public Component {
@@ -39,8 +34,12 @@ public:
         return render_name;
     }
 
-    Vector3 get_position() {
+    Vector3 position() {
         return read<Vector3>("position");
+    }
+
+    Vector3 bounds() {
+        return read<Vector3>("bounds");
     }
 
     void to_print() {

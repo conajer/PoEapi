@@ -56,4 +56,5 @@ public:
 #include "components/Sockets.cpp"
 #include "components/Stack.cpp"
 #include "components/Targetable.cpp"
+#include "components/TriggerableBlockage.cpp"
 #include "components/WorldItem.cpp"

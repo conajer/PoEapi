@@ -5,7 +5,7 @@
 /* Targetable component offsets */
 
 static std::map<string, int> targetable_component_offsets {
-    {"is_targetable ", 0x48},
+    {"is_targetable", 0x48},
 };
 
 class Targetable : public Component {

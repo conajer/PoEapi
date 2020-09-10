@@ -204,16 +204,6 @@ public:
         return false;
     }
 
-    Point get_position(Entity *entity) {
-        if (!in_game_state || !entity || !entity->has_component("Render"))
-            return Point();
-
-        Vector3 vec = entity->get_component<Render>()->get_position();
-        in_game_state->transform(vec);
-
-        return Point(vec.x, vec.y);
-    }
-
     void list_game_states() {
         GameState *active_game_state = get_active_game_state();
 
@@ -224,6 +214,20 @@ public:
         for (auto  i : game_state_controller->get_all_game_states()) {
             printf("    %llx => %c", i.second.address, (*active_game_state == i.second) ? '*' : ' ');
             wprintf(L"%S\n", i.first.c_str());
+        }
+    }
+
+    void get_pos(Entity* entity, int& x, int& y) {
+        if (!in_game_state || !entity)
+            return;
+
+        Render* render = entity->get_component<Render>();
+        if (render) {
+            Vector3 vec = render->position();
+            in_game_state->transform(vec);
+
+            x = vec.x;
+            y = vec.y;
         }
     }
 
@@ -244,5 +248,41 @@ public:
         }
 
         return -1;
+    }
+    
+    void mouse_click(int x, int y) {
+        RECT r;
+        GetWindowRect(hwnd, &r);
+        SetCursorPos (r.left + x, r.top + y);
+
+        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+    }
+
+    void mouse_move(int x, int y) {
+        RECT r;
+        GetWindowRect(hwnd, &r);
+        SetCursorPos (r.left + x, r.top + y);
+    }
+
+    void mouse_click_and_return(int x, int y, POINT where, int is_moving, int is_pressed) {
+        RECT r;
+        GetWindowRect(hwnd, &r);
+        if (is_pressed)
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
+        SetCursorPos (r.left + x, r.top + y);
+        Sleep(10);
+        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
+        Sleep(10);
+        SetCursorPos (where.x, where.y);
+        if (is_pressed) {
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        } else if (is_moving) {
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        }
     }
 };

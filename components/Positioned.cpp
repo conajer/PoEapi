@@ -15,6 +15,12 @@ struct Point {
     }
 };
 
+struct Vector3 {
+    float x;
+    float y;
+    float z;
+};
+
 static std::map<string, int> positioned_component_offsets {
     {"is_neutral",      0x158},
     {"grid_position",   0x1e8},
@@ -33,13 +39,19 @@ public:
         return read<byte>("is_neutral") & 0x7f;
     }
 
-    Point get_position() {
+    Point grid_position() {
         return read<Point>("grid_position");
+    }
+
+    Vector3 position() {
+        Vector3 vec = read<Vector3>("position");
+        vec.z = 0;
+        return vec;
     }
 
     void to_print() {
         Component::to_print();
-        Point pos = get_position();
+        Point pos = grid_position();
         printf("\t\t\t! %d, %d", pos.x, pos.y);
     }
 };

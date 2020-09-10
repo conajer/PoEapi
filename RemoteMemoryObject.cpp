@@ -161,5 +161,6 @@ Factory<RemoteMemoryObject> RemoteMemoryObject::remote_object_factory = {
     NEW_ENTRY(Sockets),
     NEW_ENTRY(Stack),
     NEW_ENTRY(Targetable),
+    NEW_ENTRY(TriggerableBlockage),
     NEW_ENTRY(WorldItem),
 };

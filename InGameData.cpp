@@ -119,7 +119,7 @@ public:
             int entity_id = get_entity_id(entity_address);
             auto i = entities.removed.find(entity_id);
             if (i != entities.removed.end()) {
-                entities.all.insert(*i);
+                entities.all[entity_id] = i->second;
                 entities.removed.erase(i);
                 continue;
             }
@@ -128,9 +128,9 @@ public:
             if (path[0] == L'M' && std::regex_search(path, ignored_exp))
                 continue;
 
-            std::shared_ptr<Entity> entity_ptr(new Entity(entity_address));
-            entities.all.insert(std::make_pair(entity_id, entity_ptr));
-            entities.added.insert(std::make_pair(entity_id, entity_ptr));
+            std::shared_ptr<Entity> entity(new Entity(entity_address));
+            entities.all.insert(std::make_pair(entity_id, entity));
+            entities.added.insert(std::make_pair(entity_id, entity));
         }
         temp_set.clear();
 

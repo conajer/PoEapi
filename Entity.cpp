@@ -6,8 +6,6 @@
 #include <unordered_map>
 #include <math.h>
 
-class AHKEntity;
-
 static FieldOffsets entity_offsets = {
     {"internal",        0x8},
         {"path",        0x8},
@@ -84,11 +82,13 @@ public:
     }
 
     wstring& name() {
-        if (has_component("Render"))
-            return get_component<Render>()->name();
+        if (type_name.empty()) {
+            if (has_component("Render"))
+                type_name = get_component<Render>()->name();
 
-        if (type_name.empty())
-            type_name = path.substr(path.rfind(L'/') + 1);
+            if (type_name.empty())
+                type_name = path.substr(path.rfind(L'/') + 1);
+        }
 
         return type_name;            
     }
@@ -100,6 +100,13 @@ public:
 
     bool has_component(const string& name) {
         return components.find(name) != components.end();
+    }
+
+    int has_component(std::vector<string>& names) {
+        for (int i = 0; i < names.size(); ++i)
+            if (components.find(names[i]) != components.end())
+                return i;
+        return -1;
     }
 
     bool is(const string& type_name) {
@@ -151,7 +158,6 @@ public:
         if (objref) {
             AhkObj ahkobj_components((AhkObjRef*)objref);
             for (auto i : components) {
-                //ahkobj_components.set(i.first.c_str(), (AhkObjRef*)(*i.second), AHK_OBJECT, 0);
             }
         }
     }
@@ -195,8 +201,8 @@ public:
         if (!entity.has_component("Positioned"))
             return -1;
 
-        Point pos1 = positioned->get_position();
-        Point pos2 = entity.get_component<Positioned>()->get_position();
+        Point pos1 = positioned->grid_position();
+        Point pos2 = entity.get_component<Positioned>()->grid_position();
         int dx = pos1.x - pos2.x;
         int dy = pos1.y - pos2.y;
 
