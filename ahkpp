@@ -39,29 +39,32 @@ public:
 
     using Property = std::tuple<void*, AhkType>;
     using MethodType = void* (AhkObj::*)();
-    using Method = std::tuple<MethodType, AhkType, std::vector<AhkType>>;
+    using Method = std::tuple<void*, MethodType, AhkType, std::vector<AhkType>>;
 
     AhkObjRef* obj_ref;
     wstring type_name;
     wstring basetype_name;
-    std::unordered_map<wstring, Property> properties;
-    std::unordered_map<wstring, Method> methods;
+    std::unordered_map<wstring, Property> properties;   // case sensitive
+    std::unordered_map<wstring, Method> methods;        // as above
 
     AhkObj();
-    AhkObj(const string& type_name, const wstring& basetype_name = L"AhkObj", ...);
     AhkObj(AhkObjRef* obj_ref);
     virtual ~AhkObj();
-    virtual operator AhkObjRef*();
-    virtual void __new();
     virtual void __init();
+    virtual void __new();
 
+    operator AhkObjRef*();
     bool add_property(const wstring& key, void* value, AhkType type);
     bool remove_property(const wstring& key);
-    bool add_method(const wstring& name, MethodType fn, AhkType ret_type, std::vector<AhkType> args);
+    bool add_method(const wstring& name,                                    // method name, case sensitive
+                    void* obj,                                              // object pointer
+                    MethodType fn,                                          // member function pointer
+                    AhkType return_type = AhkInt,                           // return type (treat void as AhkInt)
+                    std::vector<AhkType> params = std::vector<AhkType>{});  // parameter types, up to 8 parameters
     bool remove_method(const wstring& name);
 
     void* get(const wchar_t* key) __attribute__((optimize(0)));
-    void set(const wchar_t* key, void* value, AhkType type = AhkUnknown);
+    void set(const wchar_t* key, void* value);
 
     void __get(const wchar_t* key, void* value, AhkType type);
     void __set(const wchar_t* key, ...);            // __set(key, value, type, [key, value, type, ...] 0);
@@ -86,11 +89,14 @@ DLLEXPORT void ahkpp_set_callbacks(
     void*      (*__call)(AhkObjRef*, const wchar_t*, va_list));
 
 DLLEXPORT wchar_t* ahkpp_version(void);
-DLLEXPORT void ahkpp_register(const wchar_t* type_name, std::function<AhkObj*()>);
+DLLEXPORT void ahkpp_register(const wchar_t* type_name,         // class name, case sensitive
+                              const wchar_t* basetype_name,     // base class name, as above
+                              std::function<AhkObj*()> fn);     // function to return a new object
 DLLEXPORT void ahkpp_unregister(const wchar_t* type_name);
 DLLEXPORT AhkObjRef* ahkpp_new(AhkObjRef* ahkobj_ref, const wchar_t* type_name);
 DLLEXPORT void* ahkpp_get(AhkObjRef* ahkobj_ref, const wchar_t* key);
 DLLEXPORT void ahkpp_set(AhkObjRef* ahkobj_ref, const wchar_t* key, void* value);
 DLLEXPORT void* ahkpp_call(AhkObjRef* ahkobj_ref, const wchar_t* method_name, ...);
+DLLEXPORT void ahkpp_delete(AhkObjRef* ahkobj_ref);
 
 #endif /* AHKPP */
