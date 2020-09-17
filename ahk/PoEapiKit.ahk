@@ -12,8 +12,9 @@ SetWorkingDir %A_ScriptDir%
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
+global logger := new Logger("PoEapiKit log")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patch)
-debug("PoEapi-demo v0.1 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
+debug("PoEapiKit v0.2 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
 
 global ptask := new PoETask()
 ptask.activate()
@@ -58,6 +59,28 @@ return
 
 F5::
     ptask.sendKeys("/Hideout")
+return
+
+AutoClick:
+    MouseGetPos, x0, y0
+    Loop {
+        if (Not GetKeyState("Ctrl", "P"))
+            break
+
+        MouseGetPos, x, y
+        if (abs(x - x0) > 100 || abs(y - y0) > 100)
+            break
+
+        x0 := x
+        y0 := y
+        SendInput ^{Click}
+        Sleep, 30
+    }
+return
+
+~^LButton::
+    If (A_PriorHotKey = A_ThisHotKey and A_TimeSincePriorHotkey < 200)
+        SetTimer, AutoClick, -200
 return
 
 #d::

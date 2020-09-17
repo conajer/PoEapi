@@ -87,7 +87,7 @@ class Banner extends AhkGui {
 
     onKillCounter(kills, total) {
         rdebug("#KILLED", "Killed: <b>{}</b>/{}", kills, total)
-        GuiControl,, % this.Kills, Killed: %killed%/%total%
+        GuiControl,, % this.Kills, Killed: %kills%/%total%
     }
 
     lifeChanged(life, lParam) {
