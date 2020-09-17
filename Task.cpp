@@ -5,9 +5,9 @@
 #include <windows.h>
 
 #include <algorithm>
-#include <functional>
 #include <iostream>
 #include <map>
+#include <thread>
 #include <unordered_map>
 #include <queue>
 
@@ -63,7 +63,7 @@ protected:
 
     std::map<UINT, UINT> jobs;
     int owner_thread_id;
-    HANDLE event;
+    HANDLE stopped_event;
     buffer<wchar_t> log_buffer;
 
     int start_job(UINT delay, std::function<void ()> func) {
@@ -91,10 +91,9 @@ protected:
 
             /* remove from global task id list */
             all_jobs.erase(job_id);
+            
+            log(L"job @%x stopped", job_id);
         }
-
-        if (jobs.empty())
-            SetEvent(event);
     }
 
 public:
@@ -103,35 +102,36 @@ public:
         owner_thread_id = GetCurrentThreadId();
     }
 
-    ~Task() {
-        for (auto i : jobs)
-            stop_job(i.first);
-        jobs.clear();
+    virtual ~Task() {
+        stop();
     }
 
     virtual void run() {
+        stop();
     }
 
     virtual bool start() {
-        all_jobs.insert(std::make_pair(0, [=] {this->run();}));
-        event = CreateEvent(0, true, false, 0);
-        return CreateThread(0, 0, (LPTHREAD_START_ROUTINE)dispatcher_proc, 0, 0, 0);
+        if (jobs.empty()) {
+            stopped_event = CreateEvent(0, true, false, 0);
+            std::thread t(&Task::run, std::ref(*this));
+            t.detach();
+
+            return true;
+        }
+
+        return false;
     }
 
     void join(int milliseconds = INFINITE) {
-        WaitForSingleObject(event, milliseconds);
+        WaitForSingleObject(stopped_event, milliseconds);
     }
 
-    void stop(int job_id = 0) {
-        if (job_id = 0) {
-            for (auto i = jobs.begin(); i != jobs.end();) {
-                stop_job(i->first);
-                i = jobs.erase(i);
-            }
-        } else {
-            stop_job(job_id);
-            jobs.erase(job_id);
+    void stop() {
+        for (auto i = jobs.begin(); i != jobs.end();) {
+            stop_job(i->first);
+            i = jobs.erase(i);
         }
+        SetEvent(stopped_event);
     }
 
     void log(const wchar_t* format, ...) {

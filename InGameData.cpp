@@ -119,7 +119,7 @@ public:
             int entity_id = get_entity_id(entity_address);
             auto i = entities.removed.find(entity_id);
             if (i != entities.removed.end()) {
-                entities.all[entity_id] = i->second;
+                entities.all.insert(*i);
                 entities.removed.erase(i);
                 continue;
             }

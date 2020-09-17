@@ -103,7 +103,6 @@ public:
         if (!unique_name.empty())
             return unique_name;
 
-        addrtype addr;
         switch (rarity) {
         case 1:
             unique_name = base_name;
@@ -117,8 +116,9 @@ public:
 
         case 2:
         case 3:
-            for (auto i : read_array<addrtype>("unique_name", 0x8, 0x10))
+            for (auto addr : read_array<addrtype>("unique_name", 0x8, 0x10))
                 unique_name += PoEMemory::read<wstring>(addr + 0x30, 32);
+            unique_name += L" " + base_name;
         }
 
         return unique_name;

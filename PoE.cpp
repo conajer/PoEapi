@@ -20,8 +20,8 @@ typedef unsigned __int64 addrtype;
 #include "PoEMemory.cpp"
 #include "RemoteMemoryObject.cpp"
 
-class PoE : public PoEMemory {
-private:
+class PoE : public PoEMemory, public AhkObj {
+protected:
 
     int get_process_by_name(const char* name) {
         DWORD processes[1024], size;
@@ -146,6 +146,23 @@ public:
         open_target_process();
     }
 
+    void __new() {
+        __set(L"League", L"", AhkWString,
+              L"Area", L"", AhkWString,
+              L"Inventories", nullptr, AhkObject,
+              L"StashTabs", nullptr, AhkObject,
+              nullptr);
+
+        if (is_in_game()) {
+            InGameData* in_game_data = in_game_state->in_game_data();
+            ServerData* server_data = in_game_state->server_data();
+
+            __set(L"League", server_data->league().c_str(), AhkWString,
+                  L"Area", in_game_data->world_area()->name().c_str(), AhkWString,
+                  nullptr);
+        }
+    }
+
     GameStateController* get_game_state_controller() {
         char pattern[] = "48 83 ec 50 48 c7 44 24 ?? ?? ?? ?? ?? 48 89 9c 24 ?? ?? ?? ?? 48 8b f9 33 ed 48 39";
         addrtype addr = find_pattern(pattern);
@@ -178,6 +195,7 @@ public:
             return false;   // Path of Exile is not running!
 
         get_active_game_state();
+
         return in_game_state != nullptr;
     }
 
@@ -226,28 +244,9 @@ public:
             Vector3 vec = render->position();
             in_game_state->transform(vec);
 
-            x = vec.x;
-            y = vec.y;
+            entity->x = x = vec.x;
+            entity->y = y = vec.y;
         }
-    }
-
-    int toggle_maphack() {
-        char pattern[] = "66 c7 ?? 78 00 ?? c6";
-        addrtype addr;
-        DWORD old_protect;
-        byte buffer[8];
-
-        if (addr = find_pattern(pattern)) {
-            VirtualProtectEx(process_handle, (LPVOID)addr, 7, PAGE_EXECUTE_READWRITE, &old_protect);
-            ReadProcessMemory(process_handle, (LPVOID)addr, buffer, 7, 0);
-            buffer[5] = !buffer[5];
-            WriteProcessMemory(process_handle, (LPVOID)addr, buffer, 7, 0);
-            VirtualProtectEx(process_handle, (LPVOID)addr, 7, old_protect, &old_protect);
-
-            return buffer[5];
-        }
-
-        return -1;
     }
     
     void mouse_click(int x, int y) {

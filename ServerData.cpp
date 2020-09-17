@@ -14,25 +14,28 @@ static std::map<string, int> inventory_cell_offsets {
 class InventoryCell : public RemoteMemoryObject {
 public:
 
-    Item item;
+    shared_ptr<Item> item;
     int index, x, y;
 
     InventoryCell(addrtype address)
-        : RemoteMemoryObject(address, &inventory_cell_offsets), item(read<addrtype>("item"))
+        : RemoteMemoryObject(address, &inventory_cell_offsets)
     {
         x = read<int>("x");
         y = read<int>("y");
+        item = shared_ptr<Item>(new Item(read<addrtype>("item")));
     }
 
     Item& get_item() {
-        item.address != read<addrtype>("item");
+        addrtype addr = read<addrtype>("item");
+        if (item->address != addr)
+            item = shared_ptr<Item>(new Item(addr));
 
-        return item;
+        return *item;
     }
 
     void to_print() {
-        wprintf(L"    %llx: (%d, %d), %S\n", address, x, y, item.name().c_str());
-        item.list_components();
+        wprintf(L"    %llx: (%d, %d), %S\n", address, x, y, item->name().c_str());
+        item->list_components();
     }
 };
 
@@ -48,7 +51,7 @@ static std::map<string, int> inventory_offsets {
         {"count",       0x50},
 };
 
-class Inventory : public RemoteMemoryObject {
+class Inventory : public RemoteMemoryObject, public AhkObj {
 public:
 
     std::unordered_map<int, InventoryCell> cells;
@@ -62,6 +65,18 @@ public:
         sub_type = read<byte>("sub_type");
         cols = read<byte>("cols");
         rows = read<byte>("rows");
+
+        add_method(L"Count", this, (MethodType)&Inventory::count, AhkInt);
+        add_method(L"getItems", this, (MethodType)&Inventory::get_items, AhkInt);
+    }
+
+    void __new() {
+        __set(L"Id", id, AhkInt,
+              L"Type", type, AhkInt,
+              L"SubType", sub_type, AhkInt,
+              L"Cols", cols, AhkInt,
+              L"Rows", rows, AhkInt,
+              nullptr);
     }
 
     int count() {
@@ -73,8 +88,23 @@ public:
             for (auto addr : read_array<addrtype>("items", 0x0, 8) ) {
                 if (addr > 0) {
                     InventoryCell cell(addr);
-                    cells.insert(std::make_pair(cell.x * rows + cols, cell));
+                    cells.insert(std::make_pair(cell.x * rows + cell.y + 1, cell));
                 }
+            }
+        }
+
+        if (obj_ref) {
+            AhkObjRef* ahkobj_ref;
+
+            __set(L"Items", nullptr, AhkObject, nullptr);
+            __get(L"Items", &ahkobj_ref, AhkObject);
+            AhkObj items(ahkobj_ref);
+            for (auto& i : cells) {
+                Item& item = i.second.get_item();
+                item.__set(L"x", i.second.x, AhkInt, L"y", i.second.y, AhkInt, nullptr);
+                items.__set(std::to_wstring(i.first).c_str(),
+                            (AhkObjRef*)item,
+                            AhkObject, nullptr);
             }
         }
 
@@ -127,37 +157,54 @@ static std::map<string, int> stash_tab_offsets {
     {"flags",        0x3d},
 };
 
-class StashTab : public RemoteMemoryObject {
+class StashTab : public RemoteMemoryObject, public AhkObj {
 public:
 
     wstring name;
-    int inventory_id, type, index, flags;
+    int type, index, flags;
+    Inventory *inventory;
 
     StashTab(addrtype address) : RemoteMemoryObject(address, &stash_tab_offsets) {
         name = read<wstring>("name");
-        inventory_id = read<byte>("inventory_id");
-        type = read<byte>("type");
         index = read<byte>("index");
+        type = read<byte>("type");
         flags = read<byte>("flags");
+
+        add_method(L"getInventory", this, (MethodType)&StashTab::get_inventory, AhkObject);
     }
 
-    int get_inventory_id() {
-        return inventory_id = read<byte>("inventory_id");
+    void __new() {
+        __set(L"Index", index, AhkInt,
+              L"Name", name.c_str(), AhkWString,
+              L"Type", type, AhkInt,
+              L"Flags", flags, AhkInt,
+              nullptr);
+    }
+
+    int inventory_id() {
+        return read<byte>("inventory_id");
+    }
+
+    AhkObjRef* get_inventory() {
+        if (inventory)
+            return (AhkObjRef*)*inventory;
+        return nullptr;
     }
 
     void to_print() {
         wprintf(L"    %llx %2d %3d %4x  %02d|%-10S %S\n",
-                address, index, inventory_id, flags, type, stash_tab_types[type], name.c_str());
+                address, index, inventory_id(), flags, type, stash_tab_types[type], name.c_str());
     }
 
-    bool operator< (StashTab& tab) {
-        return index < tab.index;
-    }
 };
+
+static bool compare_stash_tab(shared_ptr<StashTab>& tab1, shared_ptr<StashTab>& tab2) {
+    return tab1->index < tab2->index;
+}
 
 static std::map<string, int> server_data_offsets {
     {"league",       0x7450},
-    {"latency",      0x73c8},
+    {"latency",      0x74c8},
     {"party_status", 0x7500},
     {"stash_tabs",   0x74d8},
     {"inventories",  0x77f0},
@@ -166,10 +213,12 @@ static std::map<string, int> server_data_offsets {
 class ServerData : public RemoteMemoryObject {
 public:
 
-    std::vector<Inventory> inventories;
-    std::vector<StashTab> stash_tabs;
+    std::vector<shared_ptr<Inventory>> inventories;
+    std::vector<shared_ptr<StashTab>> stash_tabs;
 
     ServerData(addrtype address) : RemoteMemoryObject(address, &server_data_offsets) {
+        get_inventories();
+        get_stash_tabs();
     }
 
     wstring league() {
@@ -184,28 +233,34 @@ public:
         return read<byte>("party_status");
     }
 
-    std::vector<StashTab>& get_stash_tabs() {
-        stash_tabs = read_array<StashTab>("stash_tabs", 0x40);
-        for (auto i = stash_tabs.end() - 1; i >= stash_tabs.begin(); --i) {
-            if (i->flags & IsHidden)
-                stash_tabs.erase(i);
+    std::vector<shared_ptr<StashTab>>& get_stash_tabs() {
+        for (auto addr : read_array<addrtype>("stash_tabs", 0x40))
+            stash_tabs.push_back(shared_ptr<StashTab>(new StashTab(addr)));
+
+        for (auto i = stash_tabs.begin(); i != stash_tabs.end();) {
+            if ((*i)->flags & IsHidden)
+                i = stash_tabs.erase(i);
+            else
+                ++i;
         }
-        std::sort(stash_tabs.begin(), stash_tabs.end());
+        std::sort(stash_tabs.begin(), stash_tabs.end(), compare_stash_tab);
 
         return stash_tabs;
+    }
+
+    std::vector<shared_ptr<Inventory>>& get_inventories() {
+        for (auto addr : read_array<addrtype>("inventories", 0x20))
+            inventories.push_back(shared_ptr<Inventory>(new Inventory(addr)));
+
+        return inventories;
     }
 
     void list_stash_tabs() {
         printf("%llx: Stash Tabs\n", read<addrtype>("stash_tabs"));
         printf("    Address      #  Id Flags Type          Name\n");
         printf("    ----------- -- --- ----- ------------- ------------------------\n");
-        for (auto tab : get_stash_tabs()) {
-            tab.to_print();
-        }
-    }
-
-    std::vector<Inventory>& get_inventories() {
-        return inventories = read_array<Inventory>("inventories", 0x20);
+        for (auto tab : get_stash_tabs())
+            tab->to_print();
     }
 
     void list_inventorie(int id = 0) {
@@ -213,8 +268,8 @@ public:
         printf("    Address      Id Rows Cols Items\n");
         printf("    ----------- --- ---- ---- -----\n");
         for (auto i : get_inventories()) {
-            if (id == 0 || i.id == id) {
-                i.to_print();
+            if (id == 0 || i->id == id) {
+                i->to_print();
                 break;
             }
         }

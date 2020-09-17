@@ -5,13 +5,14 @@
 class DelveChest : public PoEPlugin {
 public:
 
-    LocalPlayer* player;
     std::vector<string> entity_types = {
         "Chest",                // DelveChests
         "MinimapIcon",          // DelveWall
     };
-    std::unordered_map<int, shared_ptr<Entity>> chests;
+
+    LocalPlayer* player;
     int enabled;
+    std::vector<shared_ptr<Entity>> chests;
 
     DelveChest() : PoEPlugin("DelveChest", "0.1"), player(nullptr) {
         enabled = false;
@@ -26,11 +27,11 @@ public:
         enabled = world_area->name() == L"Azurite Mine";
     }
 
-    void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
+    void on_labeled_entity_changed(EntityList& entities) {
         if (!enabled)
             return;
 
-        for (auto& i : added) {
+        for (auto& i : entities) {
             int index = i.second->has_component(entity_types);
             Targetable* targetable = i.second->get_component<Targetable>();
             if (!targetable || !targetable->is_targetable())
@@ -39,12 +40,12 @@ public:
             switch (index) {
             case 0: // Chest
                 if (i.second->path.find(L"DelveChests") != string::npos)
-                    chests.insert(i);
+                    chests.push_back(i.second);
                 break;
 
             case 1: { // MinimapIcon
                 if (i.second->path.find(L"DelveWall") != string::npos)
-                    chests.insert(i);
+                    chests.push_back(i.second);
                 break;
             }
 
@@ -53,22 +54,13 @@ public:
             }
         }
 
-        for (auto& i : removed) {
-            if (chests.erase(i.first) > 0) {
-                PostThreadMessage(thread_id, WM_DELVE_CHEST,
-                (WPARAM)i.second->path.c_str(),
-                (LPARAM)((__int64)i.second->id << 32));
-            }
-        }
-
         for (auto& i : chests) {
             int x, y;
-            Entity* entity = i.second.get();
-            poe->get_pos(i.second.get(), x, y);
+            poe->get_pos(i.get(), x, y);
             PostThreadMessage(thread_id,
                 WM_DELVE_CHEST,
-                (WPARAM)i.second->path.c_str(),
-                (LPARAM)((__int64)i.second->id << 32) | ((x & 0xffff) << 16) | (y & 0xffff));
+                (WPARAM)&i->path[i->path.rfind(L'/') + 1],
+                (LPARAM)((__int64)i->id << 32) | ((x & 0xffff) << 16) | (y & 0xffff));
         }
     }
 };

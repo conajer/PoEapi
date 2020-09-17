@@ -31,14 +31,14 @@ static std::map<string, int> game_state_controller_offsets {
         {"root",            0x8},
 };
 
-class GameStateController : public RemoteMemoryObject {
+class GameStateController : public PoEObject {
 public:
 
     std::map<wstring, GameState> all_game_states;
     GameState* active_game_state;
 
     GameStateController(addrtype address)
-        : RemoteMemoryObject(address, &game_state_controller_offsets),
+        : PoEObject(address, &game_state_controller_offsets),
           active_game_state(nullptr)
     {
     }
@@ -99,14 +99,14 @@ struct Matrix4x4 {
 static std::map<string, int> in_game_state_offsets {
     {"name",          0x10},
     {"in_game_ui",    0x80},
-    {"in_game_data", 0x4f8},
-    {"server_data",  0x500},
-    {"ui_root",      0x628},
+    {"in_game_data", 0x500},
+    {"server_data",  0x508},
+    {"ui_root",      0x630},
     {"time_in_game", 0x628},
-    {"camera",      0x1160},
-    {"width",       0x1168},
-    {"height",      0x116c},
-    {"matrix",      0x1208},
+    {"camera",      0x1168},
+    {"width",       0x1170},
+    {"height",      0x117c},
+    {"matrix",      0x1228},
 };
 
 class InGameState : public GameState {
@@ -159,14 +159,15 @@ public:
     }
 
     Vector3& transform(Vector3& vec) {
+        Point size = read<Point>("width");
         Matrix4x4 mat = read<Matrix4x4>("matrix");
         float x = vec.x * mat[0][0] + vec.y * mat[1][0] + vec.z * mat[2][0] + mat[3][0];
         float y = vec.x * mat[0][1] + vec.y * mat[1][1] + vec.z * mat[2][1] + mat[3][1];
         float z = vec.x * mat[0][2] + vec.y * mat[1][2] + vec.z * mat[2][2] + mat[3][2];
         float w = vec.x * mat[0][3] + vec.y * mat[1][3] + vec.z * mat[2][3] + mat[3][3];
 
-        vec.x = (1.0 + x / w) * center_x;
-        vec.y = (1.0 - y / w) * center_y;
+        vec.x = (1.0 + x / w) * size.x / 2;
+        vec.y = (1.0 - y / w) * size.y / 2;
         vec.z = z / w;
 
         return vec;

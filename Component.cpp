@@ -8,7 +8,7 @@ static FieldOffsets component_offsets {
     {"owner", 0x8},
 };
 
-class Component : public RemoteMemoryObject {
+class Component : public PoEObject {
 private:
 
     static std::map<string, std::function<Component* (addrtype)>> component_table;
@@ -18,7 +18,7 @@ public:
     string type_name;
 
     Component(addrtype address, const string& name = "", FieldOffsets* offsets = &component_offsets)
-        : RemoteMemoryObject(address, offsets)
+        : PoEObject(address, offsets)
     {
     }
 
@@ -26,8 +26,8 @@ public:
         return PoEMemory::read<addrtype>(address + 0x8);
     }
 
-    void __init() {
-        __set(L"TypeName", type_name.c_str(), AhkWString, 0);
+    void __new() {
+        __set(L"TypeName", type_name.c_str(), AhkString, 0);
     }
 
     void to_print() {
@@ -35,6 +35,7 @@ public:
     }
 };
 
+#include "components/Actor.cpp"
 #include "components/Base.cpp"
 #include "components/Charges.cpp"
 #include "components/Chest.cpp"

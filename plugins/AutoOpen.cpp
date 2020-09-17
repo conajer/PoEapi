@@ -42,7 +42,7 @@ public:
 	
     }
 
-    void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
+    void on_labeled_entity_changed(EntityList& entities) {
         for (auto& i : entities) {
             int dist = player->dist(*i.second);
             if (dist > 15)

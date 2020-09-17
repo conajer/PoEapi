@@ -66,7 +66,7 @@ public:
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
         int n_monsters = 0, charges = 0, n_minions = 0;
         
-        if (in_town)
+        if (in_town || !current_area)
             return;
 
         /* treat the removed near monsters as killed. */
@@ -97,7 +97,11 @@ public:
                 int dist = player->dist(*entity);
                 if (dist < 100) {
                     n_monsters++;
-                    charges += 1 + (1 << (entity->rarity & 0x3 - 1)) * 2.5;
+                    if (entity->rarity > 0)
+                        charges += 1 + (1 << (entity->rarity - 1)) * 2.5;
+                    else
+                        charges += 1;
+                    printf("%d, %d\n", entity->rarity, charges);
                     near_monsters.insert(i.first);
                 }
             }

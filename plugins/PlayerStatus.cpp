@@ -20,11 +20,11 @@ public:
             player = local_player;
 
             if (player_name != player->name()) {
-                league = in_game_state->server_data()->league();
                 player_name = player->name();
-                PostThreadMessage(thread_id, WM_LEAGUE_CHANGED, (WPARAM)league.c_str(), 0);
-                PostThreadMessage(thread_id, WM_PLAYER_CHANGED, (WPARAM)player_name.c_str(), (LPARAM)player->level);
-
+                PostThreadMessage(thread_id,
+                                  WM_PLAYER_CHANGED,
+                                  (WPARAM)player_name.c_str(),
+                                  (LPARAM)player->level);
             }
         }
 
@@ -61,19 +61,15 @@ public:
         /* action */
         Actor* actor = player->get_component<Actor>();
         int action_id = actor->action_id();
-        if (action_id != last_action_id) {
-            if (action_id & ACTION_MOVING)
-                PostThreadMessage(thread_id, WM_PLAYER_MOVE, 0, 0);
-            else if (action_id & ACTION_USING_SKILL)
-                PostThreadMessage(thread_id,
-                                  WM_PLAYER_USE_SKILL,
-                                  (WPARAM)actor->action_skill->name.c_str(),
-                                  (LPARAM)(AhkObjRef*)(*actor->target));
-            else if (action_id & ACTION_DEAD)
-                PostThreadMessage(thread_id, WM_PLAYER_DIED, 0, 0);
-
-            last_action_id = action_id;
-        }
+        if (action_id & ACTION_MOVING)
+            PostThreadMessage(thread_id, WM_PLAYER_MOVE, 0, 0);
+        else if (action_id & ACTION_USING_SKILL)
+            PostThreadMessage(thread_id,
+                              WM_PLAYER_USE_SKILL,
+                              (WPARAM)actor->skill->name.c_str(),
+                              (LPARAM)actor->target_address);
+        else if (action_id & ACTION_DEAD)
+            PostThreadMessage(thread_id, WM_PLAYER_DIED, 0, 0);
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code) {

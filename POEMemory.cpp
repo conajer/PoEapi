@@ -4,10 +4,14 @@
 *  Path of Exile memory access interface.
 */
 
-#include <array>
-
 template <typename T> T* read(HANDLE handle, addrtype address, T* buffer, int n) {
         if (ReadProcessMemory(handle, (LPVOID)address, buffer, n * sizeof(T), 0))
+            return buffer;
+        return nullptr;
+    }
+
+template <> void* read(HANDLE handle, addrtype address, void* buffer, int size) {
+        if (ReadProcessMemory(handle, (LPVOID)address, buffer, size, 0))
             return buffer;
         return nullptr;
     }
@@ -79,10 +83,7 @@ template <> wstring read<wstring>(HANDLE handle, addrtype address) {
     return str;
 }
 
-class  Object {
-};
-
-class PoEMemory : public Object {
+class PoEMemory {
 protected:
 
     static HANDLE process_handle;
@@ -131,9 +132,6 @@ public:
         }
 
         return vec;
-    }
-
-    virtual ~PoEMemory() {
     }
 };
 

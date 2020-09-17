@@ -90,18 +90,17 @@ protected:
 public:
     
     std::unordered_map<addrtype, ActorSkill> skills;
-    ActorSkill* action_skill;
-    Entity* target;
+    ActorSkill* skill;
+    addrtype target_address;
 
-    Actor(addrtype address) : Component(address, "Actor", &actor_component_offsets), target(0) {
+    Actor(addrtype address) : Component(address, "Actor", &actor_component_offsets) {
     }
 
     int action_id() {
         int tmp_action_id = read<short>("action_id");
-
         if (tmp_action_id & 0x2) {
             addrtype addr = read<addrtype>("action", "skill");
-            if (!action_skill || addr != action_skill->address) {
+            if (!skill || addr != skill->address) {
                 auto i = skills.find(addr);
                 if (i == skills.end()) {
                     /* update actor skills */
@@ -110,17 +109,14 @@ public:
                 }
 
                 if (i != skills.end()) {
-                    action_skill = &i->second;
-
-                    addrtype target_address = read<addrtype>("action", "target");
-                    if (!target || target->address != target_address) {
-                        delete target;
-                        target = new Entity(target_address);
-                    }
+                    skill = &i->second;
+                    target_address = read<addrtype>("action", "target");
                 }
             }
-        } else
-            action_skill = nullptr;
+        } else {
+            skill = nullptr;
+            target_address = 0;
+        }
 
         return tmp_action_id;
     }

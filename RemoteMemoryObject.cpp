@@ -12,12 +12,10 @@ template <typename T> using Factory = std::unordered_map<string, std::function<T
 static FieldOffsets default_offsets = {
 };
 
-class RemoteMemoryObject : public PoEMemory, public AhkObj {
+class RemoteMemoryObject : public PoEMemory {
 private:
 
-    static Factory<RemoteMemoryObject> remote_object_factory;
-    static byte* g_buffer;
-    static size_t g_buffer_size;
+    static Factory<RemoteMemoryObject> factory;
 
 public:
 
@@ -26,19 +24,8 @@ public:
     int verbose = 1;
 
     RemoteMemoryObject(addrtype address, FieldOffsets* offsets = &default_offsets)
-        : AhkObj(typeid(*this).name(), L"RemoteMemoryObject"),
-          address(address), offsets(offsets)
+        : address(address), offsets(offsets)
     {
-    }
-
-    static byte* read(addrtype address, size_t size) {
-        if (!g_buffer || size > g_buffer_size) {
-            delete[] g_buffer;
-            g_buffer_size = std::max(g_buffer_size, size);
-            g_buffer = new byte[g_buffer_size];
-        }
-
-        return ::read(process_handle, address, g_buffer, size);
     }
 
     template<typename T> T read(const string& field_name) {
@@ -87,10 +74,14 @@ public:
     }
 
     template <typename T> T* read_object(const string& name, addrtype address) {
-        auto i = remote_object_factory.find(name);
-        if (i != remote_object_factory.end())
+        auto i = factory.find(name);
+        if (i != factory.end())
             return dynamic_cast<T*>((i->second)(address));
         return new T(address);
+    }
+
+    virtual void to_print() {
+        printf("%llx:", address);
     }
 
     bool operator==(RemoteMemoryObject& obj) {
@@ -101,43 +92,64 @@ public:
         return address != obj.address;
     }
 
-    void __init() {
-        __set(L"Address", address, AhkPointer, 0);
+    friend ostream& operator<<(ostream& os, RemoteMemoryObject& obj)
+    {
+        obj.to_print();
+        return os;
     }
 
-    virtual void to_print() {
-        printf("%llx:", address);
+    friend wostream& operator<<(wostream& os, RemoteMemoryObject& obj)
+    {
+        obj.to_print();
+        return os;
     }
 };
 
-byte* RemoteMemoryObject::g_buffer;
-size_t RemoteMemoryObject::g_buffer_size = 0x100;
+class PoEObject : public RemoteMemoryObject, public AhkObj {
+protected:
 
-ostream& operator<<(ostream& os, RemoteMemoryObject& obj)
-{
-    obj.to_print();
-    return os;
-}
+    static size_t buffer_size;
+    static void* buffer;
 
-wostream& operator<<(wostream& os, RemoteMemoryObject& obj)
-{
-    obj.to_print();
-    return os;
-}
+public:
+
+    PoEObject(addrtype address, FieldOffsets* offsets = &default_offsets)
+        : RemoteMemoryObject(address, offsets)
+    {
+        buffer_size = 256;
+        buffer = new byte[buffer_size];
+    }
+
+    void __new() {
+        add_property(L"address", (void*)&address, AhkInt64);
+    }
+
+    static void* __read(addrtype address, size_t size) {
+        if (size > buffer_size) {
+            std::free(buffer);
+            buffer_size = std::max(buffer_size, size);
+            buffer = std::malloc(buffer_size);
+        }
+
+        return ::read(process_handle, address, buffer, size);
+    }
+};
+
+size_t PoEObject::buffer_size;
+void *PoEObject::buffer;
 
 #include "Component.cpp"
+#include "Element.cpp"
 #include "Entity.cpp"
 #include "AreaTemplate.cpp"
-#include "InGameUI.cpp"
 #include "InGameData.cpp"
+#include "InGameUI.cpp"
 #include "ServerData.cpp"
 #include "GameState.cpp"
 
-#include "components/Actor.cpp"
-
 #define NEW_ENTRY(T) {#T, [](addrtype address) { return new T(address);}}
 
-Factory<RemoteMemoryObject> RemoteMemoryObject::remote_object_factory = {
+Factory<RemoteMemoryObject> RemoteMemoryObject::factory = {
     NEW_ENTRY(InGameState),
     NEW_ENTRY(Actor),
     NEW_ENTRY(Base),

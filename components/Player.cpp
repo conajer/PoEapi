@@ -6,7 +6,7 @@
 
 static std::map<string, int> player_component_offsets {
     {"name",  0x158},
-    {"xp",    0x17c},
+    {"exp",    0x17c},
     {"level", 0x1a8},
 };
 

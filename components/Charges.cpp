@@ -15,6 +15,9 @@ class Charges : public Component {
 public:
 
     Charges(addrtype address) : Component(address, "Charges", &charges_component_offsets) {
+        add_method(L"Charges", this, (MethodType)&Charges::charges);
+        add_method(L"ChargesPerUse", this, (MethodType)&Charges::charges_per_use);
+        add_method(L"MaxCharges", this, (MethodType)&Charges::max_charges);
     }
 
     int charges() {

@@ -30,6 +30,9 @@ public:
     virtual void on_entity_changed(EntityList& all, EntityList& removed, EntityList& added) {
     }
 
+    virtual void on_labeled_entity_changed(EntityList& entities) {
+    }
+
     void log(const wchar_t* format, ...) {
         va_list args;
         wchar_t* buffer = log_buffer;
