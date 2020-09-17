@@ -1,7 +1,6 @@
 # PoEapi
-AHK extension dll for PoE, not a stable version yet.
-See ahk/poeapi-demo.ahk for an exmaple.
+AHK extension for PoE, includes the PoEapiKit application as a reference implementation.
+See ahk/PoEapiKit.ahk for details.
 
 # For developers
 Compiled with MinGW 64-bit, g++ 8.1.
-
