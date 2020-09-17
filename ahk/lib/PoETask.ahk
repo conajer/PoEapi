@@ -107,24 +107,6 @@ class PoETask extends AhkObj {
         WinActivate, ahk_class POEWindowClass
     }
 
-    logout() {
-        SendInput, {Esc}
-        MouseClick, Left, 830, 470
-    }
-
-    maximize() {
-        WinMaximize, ahk_class POEWindowClass
-    }
-
-    minimize() {
-        WinMinimize, ahk_class POEWindowClass
-    }
-
-    sendKeys(keys) {
-        this.activate()
-        SendInput {Enter}%keys%{Enter}
-    }
-
     getClientRect(hwnd) {
         VarSetCapacity(r, 16)
         DllCall("GetClientRect", "UInt", hwnd, "UInt", &r)
@@ -160,6 +142,24 @@ class PoETask extends AhkObj {
         return (state == 1)
     }
 
+    logout() {
+        SendInput, {Esc}
+        MouseClick, Left, 830, 470
+    }
+
+    maximize() {
+        WinMaximize, ahk_class POEWindowClass
+    }
+
+    minimize() {
+        WinMinimize, ahk_class POEWindowClass
+    }
+
+    sendKeys(keys) {
+        this.activate()
+        SendInput {Enter}%keys%{Enter}
+    }
+
     select(name) {
         if (Not WinActive("ahk_class POEWindowClass"))
             return
@@ -184,18 +184,6 @@ class PoETask extends AhkObj {
         }
 
         return false
-    }
-
-    onUseSkill(skill, target) {
-        skill := StrGet(skill)
-        if (skill == "Interactive") {
-            this.selected := true
-            OnMessage(WM_PLAYER_USE_SKILL, this.useSkillHandler, 0)
-        }
-    }
-
-    onAttack() {
-        this.player.onAttack()
     }
 
     areaChanged(areaName, lParam) {
@@ -232,40 +220,61 @@ class PoETask extends AhkObj {
         syslog("{} is level {} in the {} league", StrGet(playerName), level, this.League)
     }
 
-    onDelveChest(path, lParam) {
-        this.c.clear()
-        delveWalls := 0
-
-        path := StrGet(path)
-        if (Not path || RegExMatch(path, IgnoredChests))
+    onDelveChest(chestName, lParam) {
+        chestName := StrGet(chestName)
+        if (RegExMatch(chestName, IgnoredChests))
             return
 
-        x := lParam << 32 >> 48
-        y := lParam << 48 >> 48
-        entityId := lParam >> 32
+        if (chestName) {
+            chest := {}
+            chest.name := chestName
+            chest.x := lParam << 32 >> 48
+            chest.y := lParam << 48 >> 48
+            this.delveChests.Push(chest)
+            return
+        }
 
-        if (RegExMatch(chestName, "AzuriteVein"))
-            cIndicator := 0xff0000
-        else if (RegExMatch(chestName, "Resonator"))
-            cIndicator := 0xff7f
-        else if (RegExMatch(chestName, "Fossil"))
-            cIndicator := 0xffff
-        else if (RegExMatch(chestName, "Currency|Map"))
-            cIndicator := 0xffffff
-        else if (RegExMatch(chestName, "SuppliesDynamite"))
-            cIndicator := 0x7f
-        else if (RegExMatch(chestName, "SuppliesFlares"))
-            cIndicator := 0xff
-        else if (RegExMatch(chestName, "Unique"))
-            cIndicator := 0xffff00
-        else if (RegExMatch(chestName, "DelveWall"))
-            cIndicator := 0xff00ff
-        else 
-            cIndicator := 0x7f7f7f
+        this.c.clear()
+        for i, chest in this.delveChests {
+            x := chest.x
+            y := chest.y
+            if (RegExMatch(chest.name, "AzuriteVein"))
+                cIndicator := 0xff0000
+            else if (RegExMatch(chest.name, "Resonator"))
+                cIndicator := 0xff7f
+            else if (RegExMatch(chest.name, "Fossil"))
+                cIndicator := 0xffff
+            else if (RegExMatch(chest.name, "Currency|Map"))
+                cIndicator := 0xffffff
+            else if (RegExMatch(chest.name, "SuppliesDynamite"))
+                cIndicator := 0x7f
+            else if (RegExMatch(chest.name, "SuppliesFlares"))
+                cIndicator := 0xff
+            else if (RegExMatch(chest.name, "Unique"))
+                cIndicator := 0xffff00
+            else if (RegExMatch(chest.name, "DelveWall"))
+                cIndicator := 0xff00ff
+            else 
+                cIndicator := 0x7f7f7f
 
-        clipToRect(this.actionArea, x, y)
-        this.c.drawRect(x - 15, y - 50, 30, 30, cIndicator, 10)
-        this.banner.display(path)
+            clipToRect(this.actionArea, x, y)
+            this.c.drawRect(x - 15, y - 50, 30, 30, cIndicator, 10)
+            this.banner.display(path)
+        }
+
+        this.delveChests := {}
+    }
+
+    onUseSkill(skill, target) {
+        skill := StrGet(skill)
+        if (skill == "Interactive") {
+            this.selected := true
+            OnMessage(WM_PLAYER_USE_SKILL, this.useSkillHandler, 0)
+        }
+    }
+
+    onAttack() {
+        this.player.onAttack()
     }
 
     onLog(text) {
