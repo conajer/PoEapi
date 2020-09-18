@@ -37,4 +37,4 @@ global QuickDefenseAction := "qe2345"
 global AruasKey := "!q!w!e!r!t"
 
 ; Delve Chests
-global IgnoredChests := "Armour|Weapon|Generic|Bloom|NoDrops|Encounter"
+global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"

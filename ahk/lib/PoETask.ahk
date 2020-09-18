@@ -169,15 +169,14 @@ class PoETask extends AhkObj {
         if (Not entity)
             return false
 
-        x := y := 0
-        OnMessage(WM_PLAYER_USE_SKILL, this.useSkillHandler)
+        OnMessage(WM_USE_SKILL, this.useSkillHandler)
         loop, 10 {
             if (this.selected)
                 return true
 
-            entity.getPos(&x, &y)
-            x := NumGet(&x, "Int")
-            y := NumGet(&y, "Int")
+            pos := entity.getPos()
+            x := NumGet(pos + 0x0, "Int")
+            y := NumGet(pos + 0x4, "Int")
             clipToRect(this.actionArea, x, y)
             MouseClick(x, y)
             Sleep, 500
@@ -211,7 +210,9 @@ class PoETask extends AhkObj {
             savedXP := this.getXP()
         }
 
-        ptask.getInventories()
+        ptask.getInventory()
+        ptask.getStash()
+        ptask.getInventorySlots()
         ptask.getStashTabs()
     }
 
@@ -269,7 +270,7 @@ class PoETask extends AhkObj {
         skill := StrGet(skill)
         if (skill == "Interactive") {
             this.selected := true
-            OnMessage(WM_PLAYER_USE_SKILL, this.useSkillHandler, 0)
+            OnMessage(WM_USE_SKILL, this.useSkillHandler, 0)
         }
     }
 

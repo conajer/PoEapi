@@ -39,10 +39,10 @@ class Banner extends AhkGui {
         Gui, Font, cPurple bold
         Gui, Add, Text, % "ys x+10 w200 Hwnd" this.__var("Display")
 
-        Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("Hideout"), Hideout
-        Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("Sell"), Sell
-        Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("Store"), Store
-        Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("Reload"), Reload
+        Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("hideout"), Hideout
+        Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("sellItems"), Sell
+        Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("stashItems"), Stash
+        Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("reload"), Reload
         Gui, Show, % "x" x + 150 "y" y + 6
 
         OnMessage(WM_PLAYER_LIFE, ObjBindMethod(this, "lifeChanged"))
@@ -73,10 +73,10 @@ class Banner extends AhkGui {
         ptask.sendKeys("/Hideout")
     }
 
-    sell() {
+    sellItems() {
     }
 
-    store() {
+    stashItems() {
     }
 
 

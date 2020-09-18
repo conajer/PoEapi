@@ -19,8 +19,10 @@ debug("PoEapiKit v0.2 (powered by PoEapi v{}.{}.{})", major_version, minor_versi
 global ptask := new PoETask()
 ptask.activate()
 
+Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
 Hotkey, %QuickDefenseKey%, QuickDefense
+Hotkey, IfWinActive
 
 ; end of auto-execute section
 return
@@ -102,22 +104,4 @@ return
 return
 
 F10::
-    ;vendor := new Vendor()
-    ;vendor.selectNPC()
-    ;obj := ptask.getNearestEntity("NPC")
-    ptask.select("Stash")
-    ;dumpObj(ptask.stashTabs)
-    ;debug(&ptask.stashTabs)
-    ;dumpObj(ptask)
-    ptask.getInventories()
-    ptask.getStashTabs()
-    flasks := ptask.inventories[12]
-    flasks.getItems()
-    dumpObj(flasks)
-    cFlask := flasks.Items[1].getComponent("Flask")
-    cCharges := flasks.Items[1].getComponent("Charges")
-    dumpObj(cCharges)
-    dumpObj(cFlask)
-    ;for i, f in flasks.Items
-    ;    dumpObj(f, "Flask " i ":")
 return

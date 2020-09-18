@@ -5,13 +5,13 @@
 class Flask {
 
     __new(item) {
-        if (RegExMatch(item.BaseName, "Life|Hybrid"))
+        if (RegExMatch(item.baseName, "Life|Hybrid"))
             this.IsLife := true
-        else if (RegExMatch(item.BaseName, "Mana"))
+        else if (RegExMatch(item.baseName, "Mana"))
             this.IsMana := true
         else {
             this.IsUtility := true
-            if (RegExMatch(item.BaseName, "Quicksilver"))
+            if (RegExMatch(item.baseName, "Quicksilver"))
                 this.IsQuickSilver := true
         }
 
@@ -21,16 +21,16 @@ class Flask {
         reduced := RegExMatch(this.Mods, "([0-9]+)% reduced Charges used", matched) ? matched1 : 0
         increased := RegExMatch(this.Mods, "([0-9]+)% increased Duration", matched) ? matched1 : 0
 
-        this.maxCharges := ChargesInfo.MaxCharges
-        this.chargesPerUse := Floor(ChargesInfo.ChargesPerUse * (100 - reduced) / 100)
-        this.duration := Flaskinfo.Duration * (100 + item.Quality + increased)
+        this.maxCharges := ChargesInfo.maxCharges
+        this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 - reduced) / 100)
+        this.duration := Flaskinfo.duration * (100 + item.quality + increased)
         this.endTime := A_Tickcount
         this.key := item.x + 1
         this.item := item
     }
 
     use(chargesLimit = 0, forceToUse = false) {
-        charges := this.item.Charges()
+        charges := this.item.charges()
         if (charges < this.chargesPerUse)
             return false
 
@@ -84,6 +84,9 @@ class Character {
         flaskSlot.getItems()
         for index, item in flaskSlot.Items
             this.flasks.Push(new Flask(item))
+
+        for i, aFlask in this.flasks
+            debug("Flask {}: {}, {}, {}", aFlask.key, aFlask.item.baseName, aFlask.chargesPerUse, aFlask.maxCharges)
     }
 
     lifeChanged(life, lParam) {
@@ -94,7 +97,7 @@ class Character {
             maxUses := 0
             for i, aFlask in this.flasks {
                 if (aFlask.IsLife) {
-                    charges := aFlask.item.Charges()
+                    charges := aFlask.item.charges()
                     if (charges / aFlask.chargesPerUse > maxUses) {
                         selected := aFlask
                         maxUses := charges / aFlask.chargesPerUse
@@ -105,7 +108,7 @@ class Character {
         }
         this.life := life
 
-        if(life < AutoQuitThreshold)
+        if(ptask.player.level > 90 && life < AutoQuitThreshold)
             ptask.logout()
     }
 
@@ -152,7 +155,7 @@ class Character {
             for i, aFlask in this.flasks {
                 maxCharges := 0
                 if (aFlask.IsQuicksilver) {
-                    charges := aFlask.item.Charges()
+                    charges := aFlask.item.charges()
                     if (charges > maxCharges) {
                         selected := aFlask
                         maxCharges := charges
