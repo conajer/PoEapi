@@ -25,10 +25,24 @@ class Element : public PoEObject {
 public:
 
     shared_ptr<Element> parent;
+    std::vector<shared_ptr<Element>> childs;
+    Rect r;
     wstring text;
     
-    Element(addrtype address) : PoEObject(address, &element_offsets), parent(nullptr) {
+    Element(addrtype address, FieldOffsets* offsets = &element_offsets)
+        : PoEObject(address, offsets)
+    {
+        if (offsets != &element_offsets)
+            offsets->insert(element_offsets.begin(), element_offsets.end());
+        add_method(L"getRect", this, (MethodType)&Element::get_rect, AhkPointer);
+        add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
     }
+
+    wstring& get_text() {
+        if (text.empty())
+            text = read<wstring>("text");
+        return text;
+   }
 
     shared_ptr<Element> get_parent() {
         if (!parent) {
@@ -38,14 +52,22 @@ public:
         return parent;
     }
 
-    wstring& get_text() {
-        if (text.empty())
-            text = read<wstring>("text");
-        return text;
-   }
+    std::vector<shared_ptr<Element>>& get_childs() {
+        childs.clear();
+        for (auto addr : read_array<addrtype>("childs", 0x8)) {
+            if (addr)
+                childs.push_back(shared_ptr<Element>(new Element(addr)));
+            else
+                childs.push_back(shared_ptr<Element>());
+        }
 
-    void getChilds() {
+        return childs;
+    }
 
+    shared_ptr<Element>& operator[](int index) {
+        if (childs.empty())
+            get_childs();
+        return childs[index];
     }
 
     bool is_visible() {
@@ -76,27 +98,32 @@ public:
         return read<Vec2>("size");
     }
 
-    Rect get_rect() {
+    Rect& get_rect() {
         Vec2 pos = position();
         Vec2 size = read<Vec2>("size");
         float s = scale();
 
-        Rect r;
         r.x = pos.x * s + 9;
         r.y = pos.y * s + 38;
-        r.x = size.x * s;
-        r.x = size.y * s;
+        r.w = size.x * s;
+        r.h = size.y * s;
+
+        __set(L"x", r.x, AhkInt,
+              L"y", r.y, AhkInt,
+              L"w", r.w, AhkInt,
+              L"h", r.h, AhkInt,
+              nullptr);
 
         return r;
     }
 
-    Point get_pos(int& x, int& y) {
+    Point get_pos() {
         Vec2 pos = position();
         Vec2 size = read<Vec2>("size");
         float s = scale();
 
-        x = (pos.x + size.x / 2) * s + 9;
-        y = (pos.y + size.y / 2) * s + 38;
+        int x = (pos.x + size.x / 2) * s + 9;
+        int y = (pos.y + size.y / 2) * s + 38;
 
         return {x, y};
     }
