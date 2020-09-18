@@ -101,7 +101,6 @@ public:
                         charges += 1 + (1 << (entity->rarity - 1)) * 2.5;
                     else
                         charges += 1;
-                    printf("%d, %d\n", entity->rarity, charges);
                     near_monsters.insert(i.first);
                 }
             }
