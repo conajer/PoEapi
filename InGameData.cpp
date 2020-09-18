@@ -26,13 +26,13 @@ public:
 };
 
 static std::map<string, int> in_game_data_offsets {
-    {"world_area",         0x60},
-    {"area_level",         0x78},
-    {"area_hash",          0xdc},
-    {"local_player",      0x400},
-    {"entity_list",       0x488},
+    {"world_area",         0x68},
+    {"area_level",         0x80},
+    {"area_hash",          0xe4},
+    {"local_player",      0x408},
+    {"entity_list",       0x490},
         {"root",            0x8},
-    {"entity_list_count", 0x490},
+    {"entity_list_count", 0x498},
 };
 
 class InGameData : public RemoteMemoryObject {
@@ -42,7 +42,7 @@ protected:
     std::queue<addrtype> nodes;
 
     int get_entity_id(addrtype address) {
-        return PoEMemory::read<int>(address + 0x50);
+        return PoEMemory::read<int>(address + 0x68);
     }
 
     wstring get_entity_path(addrtype address) {

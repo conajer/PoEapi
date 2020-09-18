@@ -4,25 +4,57 @@
 
 #include <unordered_map>
 
+#include "ui/Inventory.cpp"
+#include "ui/Stash.cpp"
+
 static std::map<string, int> in_game_ui_offsets {
-    {"inventory",       0x518},
-    {"stash",           0x520},
+    {"inventory",       0x520},
+    {"stash",           0x528},
     {"entity_list",     0x5b0},
         {"root",        0x2a0},
-    {"purchase_window", 0x638},
-    {"sell_window",     0x640},
-    {"trade_window",      0x0},
+    {"purchase",        0x638},
+    {"sell",            0x640},
+    {"trade",             0x0},
     {"gem_level_up",    0x8c8},
 };
 
-class InGameUI : public RemoteMemoryObject {
+enum {
+    InventoryIndex  = 32,
+    StashIndex      = 33,
+};
+
+class InGameUI : public Element {
 public:
 
     std::unordered_map<int, shared_ptr<Entity>> entities, removed;
+    unique_ptr<Inventory> inventory;
+    unique_ptr<Stash> stash;
 
-    InGameUI(addrtype address)
-        : RemoteMemoryObject(address, &in_game_ui_offsets)
-    {
+    InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
+    }
+
+    Inventory* get_inventory() {
+        if (childs.empty())
+            get_childs();
+        Element* element = childs[StashIndex].get();
+        if (!inventory || (element && *inventory != *element)) {
+            inventory = unique_ptr<Inventory>(new Inventory(*element));
+        }
+
+        return inventory.get();
+    }
+
+    Stash* get_stash() {
+        #if 0
+        if (childs.empty())
+            get_childs();
+        Element* element = childs[StashIndex].get();
+        if (!stash || (element && *stash != *element)) {
+            stash = unique_ptr<Stash>(new Stash(*element));
+        }
+        #endif
+        stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash")));
+        return stash.get();
     }
 
     EntityList& get_all_entities() {

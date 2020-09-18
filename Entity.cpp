@@ -10,7 +10,7 @@ static FieldOffsets entity_offsets = {
     {"internal",        0x8},
         {"path",        0x8},
     {"component_list", 0x10},
-    {"id",             0x50},
+    {"id",             0x68},
 };
 
 class Entity : public PoEObject {
@@ -62,7 +62,7 @@ public:
     int id;
     bool is_valid = true;
     shared_ptr<Element> label;
-    int x, y;
+    Point pos;
 
     /* Monster related fields */
     bool is_monster, is_neutral;
@@ -82,13 +82,12 @@ public:
             is_neutral = get_component<Positioned>()->is_neutral();
         }
 
-        add_property(L"x", &x, AhkInt);
-        add_property(L"y", &y, AhkInt);
+        add_property(L"x", &pos.x, AhkInt);
+        add_property(L"y", &pos.y, AhkInt);
         add_method(L"getComponent", this,
                    (MethodType)(AhkObjRef* (Entity::*)(const char*))&Entity::get_component,
                    AhkObject, std::vector<AhkType>{AhkString});
-        add_method(L"getPos", this, (MethodType)&Entity::get_pos,
-                   AhkInt, std::vector<AhkType>{AhkPointer, AhkPointer});
+        add_method(L"getPos", this, (MethodType)&Entity::get_pos, AhkPointer);
     }
 
     void __new() {
@@ -138,15 +137,11 @@ public:
         return components.find(type_name) != components.end();
     }
 
-    bool get_pos(int& x, int &y) {
-        if (label) {
-            label->get_pos(x, y);
-            this->x = x;
-            this->y = y;
-            return true;
-        }
-
-        return false;
+    Point& get_pos() {
+        if (label)
+            this->pos = label->get_pos();
+        
+        return pos;
     }
 
     AhkObjRef* get_component(const char* name) {
@@ -216,7 +211,7 @@ public:
     }
 
     int dist(Entity& entity) {
-        if (!entity.has_component("Positioned"))
+        if (positioned && !entity.has_component("Positioned"))
             return -1;
 
         Point pos1 = positioned->grid_position();
@@ -240,24 +235,24 @@ public:
         base = get_component<Base>();
         mods = get_component<Mods>();
 
-        add_method(L"Name", this, (MethodType)&Item::name, AhkWString);
-        add_method(L"BaseName", this, (MethodType)&Item::base_name, AhkWString);
-        add_method(L"IsIdentified", this, (MethodType)&Item::is_identified);
-        add_method(L"IsMirrored", this, (MethodType)&Item::is_mirrored);
-        add_method(L"IsCorrupted", this, (MethodType)&Item::is_corrupted);
-        add_method(L"IsSynthesised", this, (MethodType)&Item::is_synthesised);
-        add_method(L"IsRGB", this, (MethodType)&Item::is_rgb);
-        add_method(L"Rarity", this, (MethodType)&Item::get_rarity);
-        add_method(L"ItemLevel", this, (MethodType)&Item::get_item_level);
-        add_method(L"Quality", this, (MethodType)&Item::get_quality);
-        add_method(L"Sockets", this, (MethodType)&Item::get_sockets);
-        add_method(L"Links", this, (MethodType)&Item::get_links);
-        add_method(L"Tier", this, (MethodType)&Item::get_tier);
-        add_method(L"Level", this, (MethodType)&Item::get_level);
-        add_method(L"StackCount", this, (MethodType)&Item::get_stack_count);
-        add_method(L"StackSize", this, (MethodType)&Item::get_stack_size);
-        add_method(L"Charges", this, (MethodType)&Item::get_charges);
-        add_method(L"Size", this, (MethodType)&Item::get_size);
+        add_method(L"name", this, (MethodType)&Item::name, AhkWStringPtr);
+        add_method(L"baseName", this, (MethodType)&Item::base_name, AhkWStringPtr);
+        add_method(L"isIdentified", this, (MethodType)&Item::is_identified);
+        add_method(L"isMirrored", this, (MethodType)&Item::is_mirrored);
+        add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted);
+        add_method(L"isSynthesised", this, (MethodType)&Item::is_synthesised);
+        add_method(L"isRGB", this, (MethodType)&Item::is_rgb);
+        add_method(L"rarity", this, (MethodType)&Item::get_rarity);
+        add_method(L"itemLevel", this, (MethodType)&Item::get_item_level);
+        add_method(L"quality", this, (MethodType)&Item::get_quality);
+        add_method(L"sockets", this, (MethodType)&Item::get_sockets);
+        add_method(L"links", this, (MethodType)&Item::get_links);
+        add_method(L"tier", this, (MethodType)&Item::get_tier);
+        add_method(L"level", this, (MethodType)&Item::get_level);
+        add_method(L"stackCount", this, (MethodType)&Item::get_stack_count);
+        add_method(L"stackSize", this, (MethodType)&Item::get_stack_size);
+        add_method(L"charges", this, (MethodType)&Item::get_charges);
+        add_method(L"size", this, (MethodType)&Item::get_size);
     }
 
     void __new() {
