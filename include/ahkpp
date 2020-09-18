@@ -27,7 +27,9 @@ enum AhkType {
     AhkFloat,       // float
     AhkDouble,      // double
     AhkPointer,     // pointer
-    AhkObject       // object pointer
+    AhkObject,      // object pointer
+    AhkStringPtr,   // string* or string&
+    AhkWStringPtr   // wstring* or wstring&
 };
 
 /* AutoHotkey object reference */
@@ -43,8 +45,7 @@ public:
 
     AhkObjRef* obj_ref;
     wstring type_name;
-    wstring basetype_name;
-    std::unordered_map<wstring, Property> properties;   // case sensitive
+    std::unordered_map<wstring, Property> properties;   // property name is case sensitive,
     std::unordered_map<wstring, Method> methods;        // as above
 
     AhkObj();
@@ -80,14 +81,13 @@ extern void (*ahk_delete)(AhkObjRef*);
 extern void* (*ahk_get)(AhkObjRef*, const wchar_t*);
 extern void (*ahk_set)(AhkObjRef*, const wchar_t*, va_list);
 extern void* (*ahk_call)(AhkObjRef*, const wchar_t*, va_list);
+extern void ahk_register(const wstring type_name);
 
-DLLEXPORT void ahkpp_set_callbacks(
-    AhkObjRef* (*__new)(const wchar_t*, const wchar_t*),
-    void       (*__delete)(AhkObjRef*),
-    void*      (*__get)(AhkObjRef*, const wchar_t*),
-    void       (*__set)(AhkObjRef*, const wchar_t*, va_list),
-    void*      (*__call)(AhkObjRef*, const wchar_t*, va_list));
-
+DLLEXPORT void ahkpp_set_callbacks(AhkObjRef* (*__new)(const wchar_t*, const wchar_t*),
+                                   void (*__delete)(AhkObjRef*),
+                                   void* (*__get)(AhkObjRef*, const wchar_t*),
+                                   void (*__set)(AhkObjRef*, const wchar_t*, va_list),
+                                   void* (*__call)(AhkObjRef*, const wchar_t*, va_list));
 DLLEXPORT wchar_t* ahkpp_version(void);
 DLLEXPORT void ahkpp_register(const wchar_t* type_name,         // class name, case sensitive
                               const wchar_t* basetype_name,     // base class name, as above
