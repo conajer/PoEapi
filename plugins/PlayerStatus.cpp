@@ -63,7 +63,7 @@ public:
         int action_id = actor->action_id();
         if (action_id & ACTION_MOVING)
             PostThreadMessage(thread_id, WM_PLAYER_MOVE, 0, 0);
-        else if (0 && action_id & ACTION_USING_SKILL)
+        else if (action_id & ACTION_USING_SKILL)
             PostThreadMessage(thread_id,
                               WM_PLAYER_USE_SKILL,
                               (WPARAM)actor->skill->name.c_str(),
