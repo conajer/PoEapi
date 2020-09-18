@@ -103,7 +103,7 @@ static std::map<string, int> in_game_state_offsets {
     {"server_data",  0x508},
     {"ui_root",      0x630},
     {"time_in_game", 0x628},
-    {"camera",      0x1168},
+    {"camera",      0x1178},
     {"width",       0x1170},
     {"height",      0x117c},
     {"matrix",      0x1228},
