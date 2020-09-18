@@ -147,12 +147,6 @@ public:
     }
 
     void __new() {
-        __set(L"League", L"", AhkWString,
-              L"Area", L"", AhkWString,
-              L"Inventories", nullptr, AhkObject,
-              L"StashTabs", nullptr, AhkObject,
-              nullptr);
-
         if (is_in_game()) {
             InGameData* in_game_data = in_game_state->in_game_data();
             ServerData* server_data = in_game_state->server_data();
@@ -235,18 +229,19 @@ public:
         }
     }
 
-    void get_pos(Entity* entity, int& x, int& y) {
-        if (!in_game_state || !entity)
-            return;
-
-        Render* render = entity->get_component<Render>();
-        if (render) {
-            Vector3 vec = render->position();
-            in_game_state->transform(vec);
-
-            entity->x = x = vec.x;
-            entity->y = y = vec.y;
+    Point get_pos(Entity* entity) {
+        if (in_game_state && entity) {
+            Render* render = entity->get_component<Render>();
+            if (render) {
+                Vector3 vec = render->position();
+                in_game_state->transform(vec);
+                entity->pos.x = vec.x;
+                entity->pos.y = vec.y;
+                return entity->pos;
+            }
         }
+
+        return {0, 0};
     }
     
     void mouse_click(int x, int y) {
@@ -264,13 +259,13 @@ public:
         SetCursorPos (r.left + x, r.top + y);
     }
 
-    void mouse_click_and_return(int x, int y, POINT where, int is_moving, int is_pressed) {
+    void mouse_click_and_return(Point pos, Point where, int is_moving, int is_pressed) {
         RECT r;
         GetWindowRect(hwnd, &r);
         if (is_pressed)
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 
-        SetCursorPos (r.left + x, r.top + y);
+        SetCursorPos (r.left + pos.x, r.top + pos.y);
         Sleep(10);
         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);

@@ -62,12 +62,12 @@ public:
 
         if (chests.size() > 0) {
             for (auto& i : chests) {
-                int x, y;
-                poe->get_pos(i.get(), x, y);
+                Point pos;
+                poe->get_pos(i.get());
                 PostThreadMessage(thread_id,
                     WM_DELVE_CHEST,
                     (WPARAM)&i->path[i->path.rfind(L'/') + 1],
-                    (LPARAM)((__int64)i->id << 32) | ((x & 0xffff) << 16) | (y & 0xffff));
+                    (LPARAM)((pos.x & 0xffff) << 16) | (pos.y & 0xffff));
             }
             PostThreadMessage(thread_id, WM_DELVE_CHEST, (WPARAM)0, (LPARAM)0);
             no_chest_found = false;

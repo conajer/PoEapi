@@ -34,8 +34,10 @@ public:
                    AhkObject, std::vector<AhkType>{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
         add_method(L"getXP", this, (MethodType)&PoETask::get_xp, AhkUInt);
-        add_method(L"getInventories", this, (MethodType)&PoETask::get_inventories);
-        add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs);
+        add_method(L"getInventory", this, (MethodType)&PoETask::get_inventory, AhkObject);
+        add_method(L"getInventorySlots", this, (MethodType)&PoETask::get_inventory_slots, AhkObject);
+        add_method(L"getStash", this, (MethodType)&PoETask::get_stash, AhkObject);
+        add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack);
     }
 
@@ -61,11 +63,11 @@ public:
 
     AhkObjRef* get_nearest_entity(const wchar_t* text) {
         if (is_in_game()) {
-            int x, y;
+            Point pos;
             InGameUI* in_game_ui = in_game_state->in_game_ui();
             shared_ptr<Entity> entity = in_game_ui->get_nearest_entity(*local_player, text);
             if (entity) {
-                get_pos(entity.get(), x, y);
+                get_pos(entity.get());
                 return (AhkObjRef*)*entity;
             }
         }
@@ -73,28 +75,63 @@ public:
         return nullptr;
     }
 
-    void get_inventories() {
+    AhkObjRef* get_inventory() {
+        __set(L"Inventory", nullptr, AhkObject, nullptr);
         if (is_in_game()) {
-            ServerData* server_data = in_game_state->server_data();
-            AhkObjRef* ahkobj_ref;
-            __set(L"Inventories", nullptr, AhkObject, nullptr);
-            __get(L"Inventories", &ahkobj_ref, AhkObject);
-            AhkObj inventories(ahkobj_ref);
-            for (auto& i : server_data->inventories)
-                inventories.__set(std::to_wstring(i->id).c_str(), (AhkObjRef*)*i, AhkObject, nullptr); 
+            InGameUI* in_game_ui = in_game_state->in_game_ui();
+            Inventory* inventory = in_game_ui->get_inventory();
+            AhkObjRef* ahkobj_ref = (AhkObjRef*)*inventory;
+            __set(L"Inventory", ahkobj_ref, AhkObject, nullptr);
+            return ahkobj_ref;
         }
+
+        return nullptr;
     }
 
-    void get_stash_tabs() {
+    AhkObjRef* get_inventory_slots() {
+        __set(L"Inventories", nullptr, AhkObject, nullptr);
         if (is_in_game()) {
             ServerData* server_data = in_game_state->server_data();
             AhkObjRef* ahkobj_ref;
-            __set(L"StashTabs", nullptr, AhkObject, nullptr);
+            __get(L"Inventories", &ahkobj_ref, AhkObject);
+            AhkObj inventory_slots(ahkobj_ref);
+            for (auto& i : server_data->get_inventory_slots())
+                inventory_slots.__set(std::to_wstring(i->id).c_str(),
+                                      (AhkObjRef*)*i, AhkObject, nullptr);
+            return ahkobj_ref;
+        }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_stash() {
+        __set(L"Stash", nullptr, AhkObject, nullptr);
+        if (is_in_game()) {
+            InGameUI* in_game_ui = in_game_state->in_game_ui();
+            Stash* stash = in_game_ui->get_stash();
+            AhkObjRef* ahkobj_ref = (AhkObjRef*)*stash;
+            Rect r = stash->get_rect();
+            printf("%d, %d, %d, %d\n", r.x, r.y, r.w, r.h);
+            __set(L"Stash", ahkobj_ref, AhkObject, nullptr);
+            return ahkobj_ref;
+        }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_stash_tabs() {
+        __set(L"StashTabs", nullptr, AhkObject, nullptr);
+        if (is_in_game()) {
+            ServerData* server_data = in_game_state->server_data();
+            AhkObjRef* ahkobj_ref;
             __get(L"StashTabs", &ahkobj_ref, AhkObject);
             AhkObj stash_tabs(ahkobj_ref);
-            for (auto& i : server_data->stash_tabs)
+            for (auto& i : server_data->get_stash_tabs())
                 stash_tabs.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr); 
+            return ahkobj_ref;
         }
+
+        return nullptr;
     }
 
     void add_plugin(PoEPlugin* plugin) {
@@ -128,7 +165,7 @@ public:
     }
 
     void check_entities() {
-        if (!is_in_game() || GetForegroundWindow() != hwnd)
+        if (GetForegroundWindow() != hwnd || !local_player || !is_in_game())
             return;
 
         InGameData* in_game_data = in_game_state->in_game_data();
@@ -139,7 +176,7 @@ public:
     }
 
     void check_labeled_entities() {
-        if (!is_in_game() || GetForegroundWindow() != hwnd)
+        if (GetForegroundWindow() != hwnd || !local_player || !is_in_game())
             return;
 
         InGameUI* in_game_ui = in_game_state->in_game_ui();
@@ -166,7 +203,7 @@ public:
         /* create jobs */
         start_job(77, [&] {this->check_player();});
         start_job(97, [&] {this->check_labeled_entities();});
-        start_job(500, [&] {this->check_entities();});
+        start_job(200, [&] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
         join(); /* wait for the jobs finish */
@@ -209,10 +246,13 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"PoEObject", L"AhkObj", []()->PoEObject* {return new PoEObject(0);});
         ahkpp_register(L"Component", L"PoEObject", []()->Component* {return new Component(0);});
         ahkpp_register(L"Entity", L"PoEObject", []()->Entity* {return new Entity(0);});
+        ahkpp_register(L"Element", L"PoEObject", []()->Element* {return new Element(0);});
         ahkpp_register(L"Item", L"Entity", []()->Item* {return new Item(0);});
         ahkpp_register(L"LocalPlayer", L"Entity", []()->LocalPlayer* {return new LocalPlayer(0);});
-        ahkpp_register(L"StashTab", L"AhkObj", []()->StashTab* {return new StashTab(0);});
         ahkpp_register(L"Inventory", L"AhkObj", []()->Inventory* {return new Inventory(0);});
+        ahkpp_register(L"InventorySlot", L"AhkObj", []()->InventorySlot* {return new InventorySlot(0);});
+        ahkpp_register(L"Stash", L"AhkObj", []()->Stash* {return new Stash(0);});
+        ahkpp_register(L"StashTab", L"AhkObj", []()->StashTab* {return new StashTab(0);});
         ahkpp_register(L"Charges", L"Component", []()->Charges* {return new Charges(0);});
         ahkpp_register(L"Flask", L"Component", []()->Flask* {return new Flask(0);});
         break;

@@ -16,7 +16,7 @@ class Flask : public Component {
 public:
 
     Flask(addrtype address) : Component(address, "Flask", &flask_component_offsets) {
-        add_method(L"Duration", this, (MethodType)&Flask::duration);
+        add_method(L"duration", this, (MethodType)&Flask::duration);
     }
 
     int life() {

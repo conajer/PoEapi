@@ -22,17 +22,17 @@ public:
     }
 
     void try_open(Entity* entity) {
-        POINT old_pos;
+        Point pos, old_pos;
         int x, y, is_pressed;
 
-        poe->get_pos(entity, x, y);
-        GetCursorPos (&old_pos);
+        GetCursorPos ((POINT*)&old_pos);
         is_pressed = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
-        log(L"[%03d] Open '%S' at %d, %d", ++total_opened, entity->name().c_str(), x, y);
+        pos = poe->get_pos(entity);
+        log(L"[%03d] Open '%S' at %d, %d", ++total_opened, entity->name().c_str(), pos.x, pos.y);
 
-        poe->mouse_click(x, y);
-        poe->get_pos(entity, x, y);
-        poe->mouse_click_and_return(x, y, old_pos, actor->is_moving(), is_pressed);
+        poe->mouse_click(pos.x, pos.y);
+        pos = poe->get_pos(entity);
+        poe->mouse_click_and_return(pos, old_pos, actor->is_moving(), is_pressed);
         Sleep(500);
     }
 
