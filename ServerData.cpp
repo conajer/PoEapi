@@ -15,6 +15,7 @@ class InventoryCell : public RemoteMemoryObject {
 public:
 
     shared_ptr<Item> item;
+    addrtype item_address;
     int index, x, y;
 
     InventoryCell(addrtype address)
@@ -22,15 +23,19 @@ public:
     {
         x = read<int>("x");
         y = read<int>("y");
-        item = shared_ptr<Item>(new Item(read<addrtype>("item")));
+        item_address = read<addrtype>("item");
     }
 
     Item& get_item() {
         addrtype addr = read<addrtype>("item");
-        if (item->address != addr)
+        if (!item || item->address != addr)
             item = shared_ptr<Item>(new Item(addr));
 
         return *item;
+    }
+
+    bool operator==(InventoryCell& cell) {
+        return (address == cell.address && item_address == cell.item_address);
     }
 
     void to_print() {
@@ -66,7 +71,6 @@ public:
         cols = read<byte>("cols");
         rows = read<byte>("rows");
 
-        add_method(L"count", this, (MethodType)&InventorySlot::count, AhkInt);
         add_method(L"getItems", this, (MethodType)&InventorySlot::get_items, AhkInt);
     }
 
@@ -88,7 +92,12 @@ public:
             for (auto addr : read_array<addrtype>("items", 0x0, 8) ) {
                 if (addr > 0) {
                     InventoryCell cell(addr);
-                    cells.insert(std::make_pair(cell.x * rows + cell.y + 1, cell));
+                    int index = cell.x * rows + cell.y + 1;
+                    auto i = cells.find(index);
+                    if (i == cells.end() || i->second != cell) {
+                        cells.erase(index);
+                        cells.insert(std::make_pair(index, cell));
+                    }
                 }
             }
         }
@@ -96,15 +105,24 @@ public:
         if (obj_ref) {
             AhkObjRef* ahkobj_ref;
 
-            __set(L"Items", nullptr, AhkObject, nullptr);
             __get(L"Items", &ahkobj_ref, AhkObject);
+            if (!ahkobj_ref) {
+                __set(L"Items", nullptr, AhkObject, nullptr);
+                __get(L"Items", &ahkobj_ref, AhkObject);
+            }
+
             AhkObj items(ahkobj_ref);
             for (auto& i : cells) {
                 Item& item = i.second.get_item();
-                item.__set(L"x", i.second.x, AhkInt, L"y", i.second.y, AhkInt, nullptr);
-                items.__set(std::to_wstring(i.first).c_str(),
-                            (AhkObjRef*)item,
-                            AhkObject, nullptr);
+                if (!item.obj_ref) {
+                    item.__set(L"x", i.second.x, AhkInt,
+                               L"y", i.second.y, AhkInt,
+                               L"Index", i.first, AhkInt,
+                               nullptr);
+                    items.__set(std::to_wstring(i.first).c_str(),
+                                (AhkObjRef*)item,
+                                AhkObject, nullptr);
+                }
             }
         }
 
