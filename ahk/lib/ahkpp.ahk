@@ -118,12 +118,14 @@ __New(className, baseClassName) {
 }
 
 __Delete(obj) {
-    ObjRelease(Object(obj))
+    ObjRelease(obj)
 }
 
 __Get(obj, key) {
     __ahkpp_value := Object(obj)[StrGet(key)]
-    if (__ahkpp_value)
+    if (IsObject(__ahkpp_value))
+        return Object(__ahkpp_value)
+    else if (__ahkpp_value)
         return &__ahkpp_value
 
     return 0
