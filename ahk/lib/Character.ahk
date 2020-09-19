@@ -5,14 +5,19 @@
 class Flask {
 
     __new(item) {
-        if (RegExMatch(item.baseName, "Life|Hybrid"))
+        if (RegExMatch(item.baseName, "Life|Hybrid")) {
             this.IsLife := true
-        else if (RegExMatch(item.baseName, "Mana"))
+            this.type := "L"
+        } else if (RegExMatch(item.baseName, "Mana")) {
             this.IsMana := true
-        else {
+            this.type := "M"
+        } else {
             this.IsUtility := true
-            if (RegExMatch(item.baseName, "Quicksilver"))
+            this.type := "U"
+            if (RegExMatch(item.baseName, "Quicksilver")) {
                 this.IsQuickSilver := true
+                this.type := "Q"
+            }
         }
 
         ChargesInfo := item.getComponent("Charges")
@@ -26,6 +31,7 @@ class Flask {
         this.duration := Flaskinfo.duration * (100 + item.quality + increased)
         this.endTime := A_Tickcount
         this.key := item.x + 1
+        this.index := item.index
         this.item := item
     }
 
@@ -76,6 +82,15 @@ class Character {
 
         this.nearbyMonsters := 0
         this.expectCharges := 0
+
+        fn := ObjBindMethod(this, "updateFlasks")
+        SetTimer, %fn%, 2000
+    }
+
+    updateFlasks() {
+        ptask.Inventories[12].getItems()
+        for i, aFlask in this.flasks
+            aFlask.item := ptask.Inventories[12].Items[aFlask.index]
     }
 
     areaChanged(areaName, lParam) {
@@ -85,8 +100,11 @@ class Character {
         for index, item in flaskSlot.Items
             this.flasks.Push(new Flask(item))
 
-        for i, aFlask in this.flasks
-            debug("Flask {}: {}, {}, {}", aFlask.key, aFlask.item.baseName, aFlask.chargesPerUse, aFlask.maxCharges)
+        flaskTypes := "Flasks: "
+        for i, aFlask in this.flasks {
+            flaskTypes .= aFlask.key "." aFlask.type " "
+        }
+        debug(flaskTypes)
     }
 
     lifeChanged(life, lParam) {
@@ -156,7 +174,7 @@ class Character {
                 maxCharges := 0
                 if (aFlask.IsQuicksilver) {
                     charges := aFlask.item.charges()
-                    if (charges > maxCharges) {
+                    if (charges > aFlask.chargesPerUse && charges > maxCharges) {
                         selected := aFlask
                         maxCharges := charges
                     }
