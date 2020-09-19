@@ -132,7 +132,7 @@ protected:
 
 public:
 
-    const char* executable_name = "PathOfExile_x64.exe";
+    const char* executable_names[2] = {"PathOfExile_x64.exe", "PathOfExile_x64Steam.exe"};
     addrtype address;
     int size_of_image;
     int process_id;
@@ -194,7 +194,11 @@ public:
     }
 
     bool open_target_process() {
-        process_id = get_process_by_name(executable_name);
+        for (auto i : executable_names) {
+            if (process_id = get_process_by_name(i))
+                break;
+        }
+
         process_handle = OpenProcess(PROCESS_ALL_ACCESS, false, process_id);
         if (process_handle) {
             HMODULE module;
