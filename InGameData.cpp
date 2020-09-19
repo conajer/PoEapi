@@ -116,6 +116,10 @@ public:
                 || entity_address > (addrtype)0x7F0000000000)
                 continue;
 
+            wstring path = get_entity_path(entity_address);
+            if (path[0] == L'M' && std::regex_search(path, ignored_exp))
+                continue;
+
             int entity_id = get_entity_id(entity_address);
             auto i = entities.removed.find(entity_id);
             if (i != entities.removed.end()) {
@@ -123,10 +127,6 @@ public:
                 entities.removed.erase(i);
                 continue;
             }
-
-            wstring path = get_entity_path(entity_address);
-            if (path[0] == L'M' && std::regex_search(path, ignored_exp))
-                continue;
 
             std::shared_ptr<Entity> entity(new Entity(entity_address));
             entities.all.insert(std::make_pair(entity_id, entity));

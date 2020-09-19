@@ -268,19 +268,19 @@ public:
         return base ? base->name() : type_name;
     }
 
-    bool is_identified() {
+    int is_identified() {
         return mods ? mods->is_identified() : false;
     }
 
-    bool is_mirrored() {
+    int is_mirrored() {
         return mods ? mods->is_mirrored() : false;
     }
 
-    bool is_corrupted() {
+    int is_corrupted() {
         return base ? base->is_corrupted() : false;
     }
 
-    bool is_synthesised() {
+    int is_synthesised() {
         return mods ? mods->is_synthesised() : false;
     }
 
