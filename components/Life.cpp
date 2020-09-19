@@ -68,6 +68,7 @@ class Life : public Component {
 public:
 
     std::map<wstring, Buff> buffs;
+    int last_check_buff = 0;
 
     Life(addrtype address) : Component(address, "Life", &life_component_offsets) {
     }
@@ -106,9 +107,11 @@ public:
     }
 
     std::map<wstring, Buff>& get_buffs() {
-        if (buffs.empty()) {
+        if (GetTickCount() - last_check_buff > 1000 || buffs.empty()) {
+            buffs.clear();
             for (auto buff : read_array<Buff>("buff", 0x0, 8))
                 buffs.insert(std::make_pair(buff.name(), buff));
+            last_check_buff = GetTickCount();
         }
 
         return buffs;

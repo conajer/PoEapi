@@ -41,6 +41,8 @@ public:
         add_method(L"getStash", this, (MethodType)&PoETask::get_stash, AhkObject);
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack);
+        add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff,
+                   AhkInt, std::vector<AhkType>{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&PoETask::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&PoETask::stop_pickup);
         add_method(L"setPickupRange", this, (MethodType)&PoETask::set_pickup_range,
@@ -242,6 +244,16 @@ public:
         }
 
         return -1;
+    }
+
+    int has_buff(wchar_t* buff_name) {
+        if (local_player) {
+            Life* life = local_player->get_component<Life>();
+            auto& buffs = life->get_buffs();
+            return (buffs.find(buff_name) != buffs.end());
+        }
+
+        return false;
     }
 
     void begin_pickup() {
