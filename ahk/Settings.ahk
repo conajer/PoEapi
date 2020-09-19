@@ -1,6 +1,7 @@
 ; Hotkeys (^ for Ctrl, # for window key)
 ;
 ; `,    logout
+; a,	auto pickup
 ; F1,   cast aruas
 ; F5,   hideout
 ; #d,   minimize window
@@ -38,3 +39,8 @@ global AruasKey := "!q!w!e!r!t"
 
 ; Delve Chests
 global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
+
+; Auto pickup
+global AutoPickupKey := "a"
+global genericItemFilter := "Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz"
+global rareItemFilter := "Jewels|Amulet|Rings|Belts"

@@ -29,6 +29,7 @@ global WM_MONSTER_CHANGED  := 0x900b
 global WM_MINION_CHANGED   := 0x900c
 global WM_KILL_COUNTER     := 0x900d
 global WM_DELVE_CHEST      := 0x900e
+global WM_PICKUP           := 0x900f
 
 ; Register PoEapi classes
 ahkpp_register_class(PoETask)

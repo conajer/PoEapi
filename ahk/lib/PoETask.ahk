@@ -83,7 +83,13 @@ class PoETask extends AhkObj {
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
         OnMessage(WM_DELVE_CHEST, ObjBindMethod(this, "onDelveChest"))
+        OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
+
+        ; Start PoE task
         this.start()
+
+        this.setGenericItemFilter(genericItemFilter)
+        this.setRareItemFilter(rareItemFilter)
     }
 
     __delete() {
@@ -268,6 +274,10 @@ class PoETask extends AhkObj {
         this.delveChests := {}
     }
 
+    onPickup(x, y) {
+        MouseClick, Left, x, y
+    }
+
     onUseSkill(skill, target) {
         skill := StrGet(skill)
         if (skill == "Interactive") {
@@ -277,11 +287,12 @@ class PoETask extends AhkObj {
     }
 
     onAttack() {
+        this.stopPickup()
         this.player.onAttack()
     }
 
     onLog(text) {
-        if (ShowLogEvent)
+        if (ShowLogMessage)
             rsyslog("#PoEapi", "<b>{}</b>", StrGet(text))
     }
 }

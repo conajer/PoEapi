@@ -22,12 +22,13 @@ ptask.activate()
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
 Hotkey, %QuickDefenseKey%, QuickDefense
+Hotkey, %AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
 ; end of auto-execute section
 return
 
-dumpObj(obj, name = "", prefix = "") {
+dumpobj(obj, name = "", prefix = "") {
     if (Not IsObject(obj)) {
         debug("Not a object")
         return
@@ -51,16 +52,8 @@ QuickDefense:
     SendInput, %QuickDefenseAction%
 return
 
-`::
-    ptask.logout()
-return
-
-F1::
-    SendInput, %AruasKey%
-return
-
-F5::
-    ptask.sendKeys("/Hideout")
+AutoPickup:
+    ptask.beginPickup()
 return
 
 AutoClick:
@@ -78,6 +71,23 @@ AutoClick:
         SendInput ^{Click}
         Sleep, 30
     }
+return
+
+~LButton::
+    if (GetKeyState("LButton", "P"))
+        ptask.stopPickup()
+return
+
+`::
+    ptask.logout()
+return
+
+F1::
+    SendInput, %AruasKey%
+return
+
+F5::
+    ptask.sendKeys("/Hideout")
 return
 
 ~^LButton::

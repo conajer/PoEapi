@@ -9,6 +9,7 @@
 #include "Task.cpp"
 #include "PoEPlugin.cpp"
 #include "plugins/AutoOpen.cpp"
+#include "plugins/AutoPickup.cpp"
 #include "plugins/DelveChest.cpp"
 #include "plugins/PlayerStatus.cpp"
 #include "plugins/KillCounter.cpp"
@@ -25,6 +26,7 @@ public:
     std::vector<shared_ptr<PoEPlugin>> plugins;
     LocalPlayer *local_player;
     std::wregex ignored_entity_exp;
+    AutoPickup* auto_pickup;
 
     PoETask() : Task(), ignored_entity_exp(L"Doodad|Effect|WorldItem") {
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
@@ -39,6 +41,16 @@ public:
         add_method(L"getStash", this, (MethodType)&PoETask::get_stash, AhkObject);
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack);
+        add_method(L"beginPickup", this, (MethodType)&PoETask::begin_pickup);
+        add_method(L"stopPickup", this, (MethodType)&PoETask::stop_pickup);
+        add_method(L"setPickupRange", this, (MethodType)&PoETask::set_pickup_range,
+                   AhkInt, std::vector<AhkType>{AhkInt});
+        add_method(L"setGenericItemFilter", this, (MethodType)&PoETask::set_generic_item_filter,
+                   AhkInt, std::vector<AhkType>{AhkWString});
+        add_method(L"setRareItemFilter", this, (MethodType)&PoETask::set_rare_item_filter,
+                   AhkInt, std::vector<AhkType>{AhkWString});
+
+        auto_pickup = new AutoPickup();
     }
 
     ~PoETask() {
@@ -194,15 +206,16 @@ public:
         log(L"PoEapi v%d.%d.%d (supported Path of Exile %s).",
             major_version, minor_version, patch_level, supported_PoE_version);
         
-        /* add plugins */
+                /* add plugins */
         add_plugin(new AutoOpen());
         add_plugin(new DelveChest());
         add_plugin(new PlayerStatus());
         add_plugin(new KillCounter());
+        add_plugin(auto_pickup);
 
         /* create jobs */
         start_job(77, [&] {this->check_player();});
-        start_job(97, [&] {this->check_labeled_entities();});
+        start_job(55, [&] {this->check_labeled_entities();});
         start_job(200, [&] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
@@ -229,6 +242,28 @@ public:
         }
 
         return -1;
+    }
+
+    void begin_pickup() {
+        auto_pickup->enabled = true;
+    }
+
+    void stop_pickup() {
+        auto_pickup->enabled = false;
+        auto_pickup->last_pickup = 0;
+    }
+
+    void set_pickup_range(int range) {
+        if (range > 0)
+            auto_pickup->range = range;
+    }
+
+    void set_generic_item_filter(const wchar_t* regex_string) {
+        auto_pickup->generic_item_filter.assign(regex_string);
+    }
+
+    void set_rare_item_filter(const wchar_t* regex_string) {
+        auto_pickup->rare_item_filter.assign(regex_string);
     }
 };
 
