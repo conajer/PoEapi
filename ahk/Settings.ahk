@@ -9,7 +9,7 @@
 ; ^r,   reload script
 ; ^q,   quit
 
-; Canvas
+; Canvas, doesn't support full screen mode
 global EnableCanvas := true
 global ShowCanvasBorder := false
 
@@ -41,6 +41,12 @@ global AruasKey := "!q!w!e!r!t"
 global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
 
 ; Auto pickup
+; Some items are picked up by default, includes:
+;     all currency, divination card and map items
+;     unique items
+;     6 sockets, 6 linked or 3 linked R-G-B items
+;     gems whose quality > 5 or level > 12
+;
 global AutoPickupKey := "a"
 global genericItemFilter := "Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz"
 global rareItemFilter := "Jewels|Amulet|Rings|Belts"
