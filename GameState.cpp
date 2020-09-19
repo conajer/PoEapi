@@ -104,9 +104,9 @@ static std::map<string, int> in_game_state_offsets {
     {"ui_root",      0x630},
     {"time_in_game", 0x628},
     {"camera",      0x1178},
-    {"width",       0x1170},
-    {"height",      0x117c},
-    {"matrix",      0x1228},
+    {"width",       0x1180},
+    {"height",      0x1184},
+    {"matrix",      0x1238},
 };
 
 class InGameState : public GameState {
