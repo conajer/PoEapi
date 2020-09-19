@@ -4,7 +4,7 @@
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
-enum EventTypes {
+enum MessageTypes {
     WM_POEAPI_LOG = 0x9000,
     WM_PLAYER_CHANGED,
     WM_PLAYER_LIFE,
@@ -20,11 +20,12 @@ enum EventTypes {
     WM_MINION_CHANGED,
     WM_KILLED,
     WM_DELVE_CHEST,
+    WM_PICKUP,
 };
 
 int major_version = 0;
 int minor_version = 7;
-int patch_level = 3;
+int patch_level = 8;
 
 const char* supported_PoE_version = "3.11.2";
 
