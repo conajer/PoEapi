@@ -103,8 +103,8 @@ public:
         Vec2 size = read<Vec2>("size");
         float s = scale();
 
-        r.x = pos.x * s + 9;
-        r.y = pos.y * s + 38;
+        r.x = pos.x * s;
+        r.y = pos.y * s;
         r.w = size.x * s;
         r.h = size.y * s;
 
@@ -122,8 +122,8 @@ public:
         Vec2 size = read<Vec2>("size");
         float s = scale();
 
-        int x = (pos.x + size.x / 2) * s + 9;
-        int y = (pos.y + size.y / 2) * s + 38;
+        int x = (pos.x + size.x / 2) * s;
+        int y = (pos.y + size.y / 2) * s;
 
         return {x, y};
     }

@@ -7,6 +7,7 @@
 #Persistent ; Stay open in background
 #IfWinActive, Path of Exile ahk_class POEWindowClass
 
+CoordMode, Mouse, Client
 SetWorkingDir %A_ScriptDir%
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
