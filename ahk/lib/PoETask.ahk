@@ -143,8 +143,9 @@ class PoETask extends AhkObj {
     }
 
     logout() {
+        WinGetPos, x, y, w, h, % "ahk_id " this.Hwnd
         SendInput, {Esc}
-        MouseClick, Left, 830, 470
+        MouseClick, Left, w / 2, 470
     }
 
     maximize() {
@@ -218,6 +219,7 @@ class PoETask extends AhkObj {
 
     playerChanged(playerName, level) {
         this.player := IsObject(%playerName%) ? new %playerName%() : new Character()
+        this.player.Level := level
         syslog("{} is level {} in the {} league", StrGet(playerName), level, this.League)
     }
 
