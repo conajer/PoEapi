@@ -10,7 +10,7 @@ static FieldOffsets entity_offsets = {
     {"internal",        0x8},
         {"path",        0x8},
     {"component_list", 0x10},
-    {"id",             0x68},
+    {"id",             0x58},
 };
 
 class Entity : public PoEObject {

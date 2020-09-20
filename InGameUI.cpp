@@ -34,25 +34,11 @@ public:
     }
 
     Inventory* get_inventory() {
-        if (childs.empty())
-            get_childs();
-        Element* element = childs[StashIndex].get();
-        if (!inventory || (element && *inventory != *element)) {
-            inventory = unique_ptr<Inventory>(new Inventory(*element));
-        }
-
+        inventory = unique_ptr<Inventory>(new Inventory(read<addrtype>("inventory")));
         return inventory.get();
     }
 
     Stash* get_stash() {
-        #if 0
-        if (childs.empty())
-            get_childs();
-        Element* element = childs[StashIndex].get();
-        if (!stash || (element && *stash != *element)) {
-            stash = unique_ptr<Stash>(new Stash(*element));
-        }
-        #endif
         stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash")));
         return stash.get();
     }
@@ -69,7 +55,7 @@ public:
                 break;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x10);
-            int entity_id = PoEMemory::read<int>(entity_address + 0x68);
+            int entity_id = PoEMemory::read<int>(entity_address + 0x58);
             auto i = removed.find(entity_id);
             if (i != removed.end()) {
                 entities.insert(*i);
