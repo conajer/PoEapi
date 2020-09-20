@@ -200,6 +200,10 @@ public:
         }
 
         process_handle = OpenProcess(PROCESS_ALL_ACCESS, false, process_id);
+        if (!process_handle) // Maybe run PoE as limited user
+            process_handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+                                         false, process_id);
+
         if (process_handle) {
             HMODULE module;
             DWORD size;
