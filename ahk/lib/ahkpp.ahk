@@ -8,6 +8,10 @@ ahkpp_new(className) {
     return Object(obj)
 }
 
+ahkpp_delete(obj) {
+    DllCall("poeapi\ahkpp_delete", "Ptr", &obj)
+}
+
 ahkpp_register_class(classObj) {
     if (Not IsObject(classObj) || Not classObj.__Class)
         return false
@@ -19,7 +23,7 @@ ahkpp_register_class(classObj) {
 class AhkObj {
 
     __New() {
-        DllCall("poeapi\ahkpp_new", "Ptr", &this, "Str", this.__Class)
+        DllCall("poeapi\ahkpp_new", "Ptr", Object(this), "Str", this.__Class)
     }
 
     __Get(key) {
@@ -79,10 +83,6 @@ class AhkObj {
             return (T[params.Count() + 1] == "UPtr") ? Object(result) : result
         }
     }
-
-    __Delete() {
-        DllCall("poeapi\ahkpp_delete", "Ptr", &this)
-    }
 }
 
 DllCall("poeapi\ahkpp_set_callbacks"
@@ -100,8 +100,6 @@ __New(className, baseClassName) {
         if (baseClassName != "") {
             if (__ahkpp_classes[className]) {
                 obj := __ahkpp_classes[className]
-                if (obj.base.__Class != baseClassName)
-                    MsgBox, % className ": conflict base class: " obj.__Class ", " baseClassName
             } else {
                 if (__ahkpp_classes[baseClassName]) {
                     obj.base := __ahkpp_classes[baseClassName]
@@ -110,7 +108,7 @@ __New(className, baseClassName) {
                 }
             }
         } else if (__ahkpp_classes[className]) {
-            obj := new __ahkpp_classes[className]
+            obj.base := __ahkpp_classes[className]
         }
     }
 
