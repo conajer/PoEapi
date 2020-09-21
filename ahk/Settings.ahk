@@ -31,6 +31,9 @@ global ChargesPerUseLimit := 30
 global MonsterThreshold := 10
 global AlwaysRunning := true
 
+; Stash and inventory
+global InventoryKey := "f"
+
 ; Attack and defense
 global AttackSkillKey := "w"
 global QuickDefenseKey := "q"
@@ -48,5 +51,5 @@ global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
 ;     gems whose quality > 5 or level > 12
 ;
 global AutoPickupKey := "a"
-global genericItemFilter := "Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz"
+global genericItemFilter := "Contract|Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz"
 global rareItemFilter := "Jewels|Amulet|Rings|Belts"
