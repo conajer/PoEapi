@@ -35,6 +35,15 @@ public:
         return T();
     }
 
+    template<typename T> T read(const string& field_name, int offset) {
+        if (offsets->find(field_name) != offsets->end()) {
+            addrtype addr =  PoEMemory::read<T>(address + (*offsets)[field_name]);
+            return PoEMemory::read<T>(addr + offset);
+        }
+
+        return T();
+    }
+
     template<typename T> T read(const string& sub_name, const string& field_name) {
         if (offsets->find(sub_name) != offsets->end()) {
             addrtype addr = PoEMemory::read<addrtype>(address + (*offsets)[sub_name]);
@@ -121,7 +130,7 @@ public:
     }
 
     void __new() {
-        add_property(L"address", (void*)&address, AhkInt64);
+        __set(L"address", address, AhkPointer, nullptr);
     }
 
     static void* __read(addrtype address, size_t size) {
