@@ -58,7 +58,6 @@ class PoETask extends AhkObj {
 
     __new() {
         base.__new()
-
         this.activate()
         WinGet, hwnd, ID, ahk_class POEWindowClass
         WinGetPos, x, y, w, h, ahk_id %hwnd%
@@ -96,7 +95,6 @@ class PoETask extends AhkObj {
         this.stop()
         DllCall("FreeLibrary", "Ptr", poeapi)
         debug("Exiting...")
-        Sleep, 300
     }
 
     activate() {
@@ -111,19 +109,6 @@ class PoETask extends AhkObj {
         }
 
         WinActivate, ahk_class POEWindowClass
-    }
-
-    getClientRect(hwnd) {
-        VarSetCapacity(r, 16)
-        DllCall("GetClientRect", "UInt", hwnd, "UInt", &r)
-        DllCall("ClientToScreen", "UInt", hwnd, "UInt", &r)
-
-        left := NumGet(r, 0, "Int")
-        top := NumGet(r, 4, "Int")
-        width := NumGet(r, 8, "Int")
-        height := NumGet(r, 12, "Int")
-
-        return new Rect(left, top, width, height)
     }
 
     getWindowRect(hwnd) {
@@ -217,10 +202,10 @@ class PoETask extends AhkObj {
             savedXP := this.getXP()
         }
 
-        ptask.getInventory()
-        ptask.getStash()
         ptask.getInventorySlots()
         ptask.getStashTabs()
+        ptask.getStash()
+        ptask.getInventory()
     }
 
     playerChanged(playerName, level) {
