@@ -14,7 +14,7 @@ using namespace std;
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
 enum AhkType {
-    AhkUnknown,
+    AhkVoid,
     AhkChar,        // signed char
     AhkShort,       // signed short
     AhkInt,         // signed int
@@ -29,7 +29,8 @@ enum AhkType {
     AhkPointer,     // pointer
     AhkObject,      // object pointer
     AhkStringPtr,   // string* or string&
-    AhkWStringPtr   // wstring* or wstring&
+    AhkWStringPtr,  // wstring* or wstring&
+    AhkBool,        // bool
 };
 
 /* AutoHotkey object reference */
