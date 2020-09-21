@@ -98,7 +98,9 @@ protected:
 
 public:
 
-    Task() : log_buffer(128) {
+    wstring name;
+
+    Task(wstring name) : name(name), log_buffer(128) {
         owner_thread_id = GetCurrentThreadId();
     }
 
@@ -138,7 +140,7 @@ public:
         va_list args;
         wchar_t* buffer = log_buffer;
 
-        buffer += swprintf(buffer, L"[PoEapi] ");
+        buffer += swprintf(buffer, L"[%S] ", this->name.c_str());
         va_start(args, format);
         vswprintf(buffer, format, args);
         va_end(args);
