@@ -21,13 +21,14 @@ enum MessageTypes {
     WM_KILLED,
     WM_DELVE_CHEST,
     WM_PICKUP,
+    WM_FLASK_CHANGED,
 };
 
 int major_version = 0;
 int minor_version = 7;
-int patch_level = 8;
+int patch_level = 10;
 
-const char* supported_PoE_version = "3.11.2";
+const char* supported_PoE_version = "3.12";
 
 DLLEXPORT void poeapi_get_version(int& major, int& minor, int &patch) {
     major = major_version;
@@ -35,6 +36,6 @@ DLLEXPORT void poeapi_get_version(int& major, int& minor, int &patch) {
     patch = patch_level;
 }
 
-DLLEXPORT void* poeapi_read(AhkObj* obj, addrtype address, size_t size) {
+DLLEXPORT void* poeapi_read(addrtype address, size_t size) {
     return PoEObject::__read(address, size);
 }
