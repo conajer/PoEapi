@@ -88,16 +88,23 @@ public:
     }
 
     std::unordered_map<int, InventoryCell>& get_items() {
+        std::unordered_map<int, InventoryCell> removed_cells;
+        removed_cells.swap(cells);
+
         if (count() > 0) {
             for (auto addr : read_array<addrtype>("items", 0x0, 8) ) {
                 if (addr > 0) {
                     InventoryCell cell(addr);
                     int index = cell.x * rows + cell.y + 1;
-                    auto i = cells.find(index);
-                    if (i == cells.end() || i->second != cell) {
-                        cells.erase(index);
-                        cells.insert(std::make_pair(index, cell));
+                    auto i = removed_cells.find(index);
+                    if (i == removed_cells.end() || i->second != cell) {
+                        cells.insert(std::make_pair(index,cell));
+                        removed_cells.erase(index);
+                        continue;
                     }
+
+                    cells.insert(*i);
+                    removed_cells.erase(i);
                 }
             }
         }
@@ -115,15 +122,18 @@ public:
             for (auto& i : cells) {
                 Item& item = i.second.get_item();
                 if (!item.obj_ref) {
-                    item.__set(L"x", i.second.x, AhkInt,
-                               L"y", i.second.y, AhkInt,
-                               L"Index", i.first, AhkInt,
-                               nullptr);
                     items.__set(std::to_wstring(i.first).c_str(),
                                 (AhkObjRef*)item,
                                 AhkObject, nullptr);
+                    item.__set(L"left", i.second.x + 1, AhkInt,
+                               L"top", i.second.y + 1, AhkInt,
+                               L"Index", i.first, AhkInt,
+                               nullptr);
                 }
             }
+
+            for (auto& i : removed_cells)
+                items.__call(L"Delete", AhkInt, i.first, 0);
         }
 
         return cells;
@@ -231,7 +241,7 @@ static std::map<string, int> server_data_offsets {
 class ServerData : public RemoteMemoryObject {
 public:
 
-    std::vector<shared_ptr<InventorySlot>> inventory_slots;
+    std::map<int, shared_ptr<InventorySlot>> inventory_slots;
     std::vector<shared_ptr<StashTab>> stash_tabs;
 
     ServerData(addrtype address) : RemoteMemoryObject(address, &server_data_offsets) {
@@ -250,6 +260,7 @@ public:
     }
 
     std::vector<shared_ptr<StashTab>>& get_stash_tabs() {
+        stash_tabs.clear();
         for (auto addr : read_array<addrtype>("stash_tabs", 0x40))
             stash_tabs.push_back(shared_ptr<StashTab>(new StashTab(addr)));
 
@@ -264,9 +275,13 @@ public:
         return stash_tabs;
     }
 
-    std::vector<shared_ptr<InventorySlot>>& get_inventory_slots() {
-        for (auto addr : read_array<addrtype>("inventory_slots", 0x20))
-            inventory_slots.push_back(shared_ptr<InventorySlot>(new InventorySlot(addr)));
+    std::map<int, shared_ptr<InventorySlot>>& get_inventory_slots() {
+        if (inventory_slots.empty()) {
+            for (auto addr : read_array<addrtype>("inventory_slots", 0x20)) {
+                InventorySlot* slot = new InventorySlot(addr);
+                inventory_slots[slot->id] = shared_ptr<InventorySlot>(slot);
+            }
+        }
 
         return inventory_slots;
     }
@@ -284,8 +299,8 @@ public:
         printf("    Address      Id Rows Cols Items\n");
         printf("    ----------- --- ---- ---- -----\n");
         for (auto i : get_inventory_slots()) {
-            if (id == 0 || i->id == id) {
-                i->to_print();
+            if (id == 0 || i.second->id == id) {
+                i.second->to_print();
                 break;
             }
         }

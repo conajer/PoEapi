@@ -8,6 +8,7 @@
 #include "PoEapi.c"
 #include "Task.cpp"
 #include "PoEPlugin.cpp"
+#include "plugins/AutoFlask.cpp"
 #include "plugins/AutoOpen.cpp"
 #include "plugins/AutoPickup.cpp"
 #include "plugins/DelveChest.cpp"
@@ -28,7 +29,7 @@ public:
     std::wregex ignored_entity_exp;
     AutoPickup* auto_pickup;
 
-    PoETask() : Task(), ignored_entity_exp(L"Doodad|Effect|WorldItem") {
+    PoETask() : Task(L"PoETask"), ignored_entity_exp(L"Doodad|Effect|WorldItem") {
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
@@ -109,9 +110,11 @@ public:
             AhkObjRef* ahkobj_ref;
             __get(L"Inventories", &ahkobj_ref, AhkObject);
             AhkObj inventory_slots(ahkobj_ref);
-            for (auto& i : server_data->get_inventory_slots())
-                inventory_slots.__set(std::to_wstring(i->id).c_str(),
-                                      (AhkObjRef*)*i, AhkObject, nullptr);
+            for (auto& i : server_data->get_inventory_slots()) {
+                InventorySlot* slot = i.second.get();
+                inventory_slots.__set(std::to_wstring(slot->id).c_str(),
+                                      (AhkObjRef*)*slot, AhkObject, nullptr);
+            }
             return ahkobj_ref;
         }
 
@@ -203,12 +206,13 @@ public:
     void run() {
         /* yield the execution to make sure the CreateThread() return,
            otherwise log() function may fail. */
-        Sleep(300);
+        Sleep(50);
 
         log(L"PoEapi v%d.%d.%d (supported Path of Exile %s).",
             major_version, minor_version, patch_level, supported_PoE_version);
         
-                /* add plugins */
+        /* add plugins */
+        add_plugin(new AutoFlask());
         add_plugin(new AutoOpen());
         add_plugin(new DelveChest());
         add_plugin(new PlayerStatus());
@@ -296,9 +300,9 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"Element", L"PoEObject", []()->Element* {return new Element(0);});
         ahkpp_register(L"Item", L"Entity", []()->Item* {return new Item(0);});
         ahkpp_register(L"LocalPlayer", L"Entity", []()->LocalPlayer* {return new LocalPlayer(0);});
-        ahkpp_register(L"Inventory", L"AhkObj", []()->Inventory* {return new Inventory(0);});
+        ahkpp_register(L"Inventory", L"Element", []()->Inventory* {return new Inventory(0);});
         ahkpp_register(L"InventorySlot", L"AhkObj", []()->InventorySlot* {return new InventorySlot(0);});
-        ahkpp_register(L"Stash", L"AhkObj", []()->Stash* {return new Stash(0);});
+        ahkpp_register(L"Stash", L"Element", []()->Stash* {return new Stash(0);});
         ahkpp_register(L"StashTab", L"AhkObj", []()->StashTab* {return new StashTab(0);});
         ahkpp_register(L"Charges", L"Component", []()->Charges* {return new Charges(0);});
         ahkpp_register(L"Flask", L"Component", []()->Flask* {return new Flask(0);});

@@ -7,16 +7,16 @@ class Flask {
     __new(item) {
         if (RegExMatch(item.baseName, "Life|Hybrid")) {
             this.IsLife := true
-            this.type := "L"
+            this.type := "<b style=""color:red"">L</b>"
         } else if (RegExMatch(item.baseName, "Mana")) {
             this.IsMana := true
-            this.type := "M"
+            this.type := "<b style=""color:blue"">M</b>"
         } else {
             this.IsUtility := true
-            this.type := "U"
+            this.type := "<b>U</b>"
             if (RegExMatch(item.baseName, "Quicksilver")) {
                 this.IsQuickSilver := true
-                this.type := "Q"
+                this.type := "<b style=""color:seagreen"">Q</b>"
             }
         }
 
@@ -30,7 +30,7 @@ class Flask {
         this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 - reduced) / 100)
         this.duration := Flaskinfo.duration * (100 + item.quality + increased)
         this.endTime := A_Tickcount
-        this.key := item.x + 1
+        this.key := item.left
         this.index := item.index
         this.item := item
     }
@@ -79,32 +79,34 @@ class Character {
         OnMessage(WM_USE_SKILL, ObjBindMethod(this, "onUseSkill"))
         OnMessage(WM_MONSTER_CHANGED, ObjBindMethod(this, "monsterChanged"))
         OnMessage(WM_MINION_CHANGED, ObjBindMethod(this, "minionChanged"))
+        OnMessage(WM_FLASK_CHANGED, ObjBindMethod(this, "flaskChanged"))
 
+        this.flasks := {}
         this.nearbyMonsters := 0
         this.expectCharges := 0
-
-        fn := ObjBindMethod(this, "updateFlasks")
-        SetTimer, %fn%, 2000
     }
 
-    updateFlasks() {
-        ptask.Inventories[12].getItems()
-        for i, aFlask in this.flasks
-            aFlask.item := ptask.Inventories[12].Items[aFlask.index]
+    flaskChanged(index, item) {
+        if (item) {
+            flask := new Flask(Object(item))
+            this.flasks[flask.key] := flask
+        } else {
+            this.flasks[(index >> 1) + 1] := ""
+        }
+
+        flaskTypes := ""
+        loop, 5 {
+            if (this.flasks[A_Index])
+                flaskTypes .= " " this.flasks[A_Index].type ","
+            else
+                flaskTypes .= ","
+        }
+        rdebug("#FLASKS", "Flasks: {}", flaskTypes)
     }
 
     areaChanged(areaName, lParam) {
-        this.flasks := {}
-        flaskSlot := ptask.Inventories[12]
-        flaskSlot.getItems()
-        for index, item in flaskSlot.Items
-            this.flasks.Push(new Flask(item))
-
-        flaskTypes := "Flasks: "
-        for i, aFlask in this.flasks {
-            flaskTypes .= aFlask.key "." aFlask.type " "
-        }
-        debug(flaskTypes)
+        for i, item in ptask.inventories[12].items
+            this.flaskChanged(index, item)
     }
 
     lifeChanged(life, lParam) {
@@ -166,7 +168,7 @@ class Character {
     }
 
     onMove() {
-        if (ptask.hasBuff("flask_bonus_movement_speed"))
+        if (ptask.hasBuff("flask_utility_sprint"))
             return
 
         if (AlwaysRunning || this.nearbyMonsters > MonsterThreshold) {
