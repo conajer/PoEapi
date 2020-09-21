@@ -9,20 +9,33 @@ Class Canvas {
     __bgColor := EEAA99
 
     __new(ownerHwnd) {
-        WinGetPos, x, y, w, h, ahk_id %ownerHwnd%
+        r := this.getClientRect(ownerHwnd)
         Gui, __canvas:New, +Owner%ownerHwnd% +HwndHwnd -Caption +LastFound
         Gui, __canvas:Color, __bgColor
         Gui, __canvas:Show
         WinSet, TransColor, __bgColor
-        WinMove,,, x, y, w, h
+        WinMove,,, r.l, r.t, r.w, r.h
 
         this.Hwnd := Hwnd
         this.Hdc := DllCall("GetDC", "UInt", Hwnd)
-        this.Width := w
-        this.Height := h
+        this.Width := r.w
+        this.Height := r.h
 
         if (ShowCanvasBorder)
-            this.drawRect(0, 0, w, h, 0xc390070)
+            this.drawRect(0, 0, this.Width, this.Height, 0xffbf00)
+    }
+
+    getClientRect(hwnd) {
+        VarSetCapacity(r, 16)
+        DllCall("GetClientRect", "UInt", hwnd, "UInt", &r)
+        DllCall("ClientToScreen", "UInt", hwnd, "UInt", &r)
+
+        left := NumGet(r, 0, "Int")
+        top := NumGet(r, 4, "Int")
+        width := NumGet(r, 8, "Int")
+        height := NumGet(r, 12, "Int")
+
+        return new Rect(left, top, width, height)
     }
 
     drawLine(x1, y1, x2, y2, color = 0x7f7f7f, linewidth = 1) {
@@ -41,7 +54,7 @@ Class Canvas {
 
     drawGrid(x, y, w, h, r, c, color = 0x7f7f7f, linewidth = 1) {
         hPen := DllCall("CreatePen", "Int", 0, "Int", linewidth, "Int", color)
-        DllCall("SelectObject" , "UInt", this.Hdc , "UInt", hPen)
+        DllCall("SelectObject", "UInt", this.Hdc , "UInt", hPen)
         this.__drawRect(x, y, w, h)
 
         x1 := x + w
@@ -55,6 +68,18 @@ Class Canvas {
             x1 := x + A_Index * (w/c) - 1
             this.__drawLine(x1, y, x1, y1)
         }
+        DllCall("DeleteObject" , "UInt", hPen)
+    }
+
+    drawText(x, y, w, h, s, color = 0x7f7f7f, linewidth = 1) {
+        DllCall("SetTextColor", "UInt", this.Hdc , "UInt", color)
+        DllCall("SetBkMode", "UInt", this.Hdc , "UInt", 2)
+        VarSetCapacity(r, 16)
+        NumPut(x, r, 0x0, "Int")
+        NumPut(y, r, 0x4, "Int")
+        NumPut(w, r, 0x8, "Int")
+        NumPut(h, r, 0xc, "Int")
+        r := DllCall("DrawText", "UInt", this.Hdc , "Str", s, "Int", -1, "Ptr", &r, "Int", 0x120)
         DllCall("DeleteObject" , "UInt", hPen)
     }
 
