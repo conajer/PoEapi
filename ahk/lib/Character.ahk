@@ -86,18 +86,22 @@ class Character {
         this.expectCharges := 0
     }
 
-    flaskChanged(index, item) {
-        if (item) {
-            flask := new Flask(Object(item))
-            this.flasks[flask.key] := flask
-        } else {
-            this.flasks[(index >> 1) + 1] := ""
+    flaskChanged() {
+        flask_items := ptask.flasks.getItems()
+        loop, 5 {
+            i := (A_Index << 1) - 1
+            if (flask_items[i]) {
+                if (flask_items[i] != this.flasks[A_Index].item)
+                    this.flasks[A_Index] := new Flask(flask_items[i])
+            } else {
+                this.flasks[A_Index] := ""
+            }
         }
 
         flaskTypes := ""
         loop, 5 {
             if (this.flasks[A_Index])
-                flaskTypes .= " " this.flasks[A_Index].type ","
+                flaskTypes .= "[" this.flasks[A_Index].type "]"
             else
                 flaskTypes .= ","
         }
@@ -153,7 +157,10 @@ class Character {
     }
 
     playerDied() {
-        debug("DIED!!!")
+        if (Not this.isDead) {
+            debug("DIED!!!")
+            this.isDead := true
+        }
     }
 
     monsterChanged(numOfMonsters, charges) {
