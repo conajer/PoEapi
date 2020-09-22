@@ -136,7 +136,7 @@ class PoETask extends AhkObj {
     logout() {
         WinGetPos, x, y, w, h, % "ahk_id " this.Hwnd
         SendInput, {Esc}
-        MouseClick, Left, w / 2, 470
+        MouseClick, Left, w / 2, 440
     }
 
     maximize() {
@@ -206,6 +206,8 @@ class PoETask extends AhkObj {
         ptask.getStashTabs()
         ptask.getStash()
         ptask.getInventory()
+
+        this.flasks := this.inventories[12]
     }
 
     playerChanged(playerName, level) {
