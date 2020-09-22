@@ -6,37 +6,22 @@ class AutoFlask : public PoEPlugin {
 public:
 
     int flask_slot_id = 12;
-    addrtype flask_address[10];
+    addrtype flasks[5], saved_flasks[5];
 
-    AutoFlask() : PoEPlugin("AutoFlask", "0.1") {
+    AutoFlask() : PoEPlugin("AutoFlask", "0.2") {
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
         ServerData* server_data = in_game_state->server_data();
         auto inventory_slots = server_data->inventory_slots;
-        
         InventorySlot* flask_slot = inventory_slots[flask_slot_id].get();
-        if (!flask_slot)
-            return;
-
-        auto& flasks = flask_slot->get_items();
-        for (int index = 1; index < 10; index += 2) {
-            auto i = flasks.find(index);
-            if (i != flasks.end()) {
-                Item& item = i->second.get_item();
-                if (flask_address[index] != item.address)
-                    PostThreadMessage(thread_id,
-                                      WM_FLASK_CHANGED,
-                                      (WPARAM)index,
-                                      (LPARAM)item.obj_ref);
-                flask_address[index] = item.address;
-            } else {
-                if (flask_address[index])
-                    PostThreadMessage(thread_id,
-                                      WM_FLASK_CHANGED,
-                                      (WPARAM)index,
-                                      (LPARAM)0);
-                flask_address[index] = 0;
+        
+        if (flask_slot) {
+            addrtype addr = flask_slot->read<addrtype>("cells");
+            flask_slot->PoEMemory::read<addrtype>(addr, flasks, 5);
+            if (memcmp(flasks, saved_flasks, sizeof(flasks))) {
+                PostThreadMessage(thread_id, WM_FLASK_CHANGED, (WPARAM)0, (LPARAM)0);
+                memcpy(saved_flasks, flasks, sizeof(flasks));
             }
         }
     }
