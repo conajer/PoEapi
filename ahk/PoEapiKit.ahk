@@ -1,5 +1,5 @@
 ;
-; poeapikit.ahk, 9/16/2020 7:41 PM
+; PoEapikit.ahk, 9/16/2020 7:41 PM
 ;
 
 #SingleInstance force
@@ -29,19 +29,28 @@ Hotkey, IfWinActive
 ; end of auto-execute section
 return
 
-dumpobj(obj, name = "", prefix = "") {
+objdump(obj, prefix = "") {
     if (Not IsObject(obj)) {
         debug("Not a object")
         return
     }
 
-    if (name)
-        debug(prefix "@" name)
+    baseClasses := ""
+    base := obj.base
+    loop {
+        if (Not base)
+            break
+        baseClasses .= " -> " base.__Class
+        base := base.base
+    }
+
+    if (obj.base)
+        debug("{}{:#x}{}", prefix, &obj, baseClasses)
 
     for k, v in obj {
         debug("{}   {}{}, {}", prefix, IsObject(v) ? "*" : " ", k, IsObject(v) ? v.Count() : v)
         if (IsObject(v))
-            dumpObj(v,, prefix "    ")
+            objdump(v, prefix "    ")
     }
 }
 
@@ -57,7 +66,7 @@ AutoPickup:
     ptask.beginPickup()
 return
 
-AutoClick:
+AutoClick() {
     MouseGetPos, x0, y0
     Loop {
         if (Not GetKeyState("Ctrl", "P"))
@@ -72,7 +81,7 @@ AutoClick:
         SendInput ^{Click}
         Sleep, 30
     }
-return
+}
 
 ~LButton::
     if (GetKeyState("LButton", "P"))
@@ -85,6 +94,10 @@ return
 
 F1::
     SendInput, %AruasKey%
+return
+
+F2::
+    ptask.inventory.openPortal()
 return
 
 F5::
