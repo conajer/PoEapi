@@ -52,8 +52,8 @@ public:
             delete active_game_state;
             string state_name = PoEMemory::read<string>(addr + 0x10);
             if (state_name == "InGameState") {
-                int time_in_game = PoEMemory::read<int>(addr + 0x6d4);
-                while (time_in_game != PoEMemory::read<int>(addr + 0x6d4))
+                int time_in_game = PoEMemory::read<int>(addr + 0x6dc);
+                while (time_in_game != PoEMemory::read<int>(addr + 0x6dc))
                     Sleep(50);
             }
 
