@@ -2,7 +2,8 @@
 ;
 ; `,    logout
 ; a,	auto pickup
-; F1,   cast aruas
+; F1,   auto aruas
+; F2,	auto portal
 ; F5,   hideout
 ; #d,   minimize window
 ; ^m,   toggle maphack
@@ -16,6 +17,7 @@ global ShowCanvasBorder := false
 ; Banner, doesn't support full screen mode
 global EnableBanner := true
 global ShowEnergyShield := false
+global ShowDebugMenu := false
 
 ; Log
 global LogLevel := 0
@@ -45,10 +47,10 @@ global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
 
 ; Auto pickup
 ; Some items are picked up by default, includes:
-;     all currency, divination card and map items
-;     unique items
-;     6 sockets, 6 linked or 3 linked R-G-B items
-;     gems whose quality > 5 or level > 12
+;     1. all currency, divination card and map items
+;     2. unique items
+;     3. 6 sockets, 6 linked or 3 linked R-G-B items
+;     4. gems whose quality > 5 or level > 12
 ;
 global AutoPickupKey := "a"
 global genericItemFilter := "Contract|Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz"

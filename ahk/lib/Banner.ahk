@@ -2,6 +2,8 @@
 ; Banner.ahk, 9/14/2020 11:43 AM
 ;
 
+#Include, %A_ScriptDir%\extras\debug.ahk
+
 class AhkGui {
 
     __var(varName) {
@@ -43,6 +45,10 @@ class Banner extends AhkGui {
         Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("sellItems"), Sell
         Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("stashItems"), Stash
         Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("reload"), Reload
+
+        ; Extras buttons
+        addDebugButton()
+
         Gui, Show, % "x" x + 150 "y" y + 6
 
         OnMessage(WM_PLAYER_LIFE, ObjBindMethod(this, "lifeChanged"))
