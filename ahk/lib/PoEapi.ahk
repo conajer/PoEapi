@@ -1,12 +1,12 @@
 ;
-; poeapi.ahk, 9/10/2020 8:27 PM
+; PoEapi.ahk, 9/10/2020 8:27 PM
 ;
 
 if (FileExist("..\poeapi.dll")) {
-    FileMove ..\poeapi.dll, poeapi.dll, true
+    FileMove ..\poeapi.dll, bin\poeapi.dll, true
 }
 
-if (Not DllCall("LoadLibrary", "str", "poeapi.dll", "ptr")) {
+if (Not DllCall("LoadLibrary", "str", "bin\poeapi.dll", "ptr")) {
     Msgbox, % "Load poeapi.dll failed!"
 }
 
@@ -39,6 +39,7 @@ ahkpp_register_class(PoEObject)
 ahkpp_register_class(Element)
 ahkpp_register_class(Inventory)
 ahkpp_register_class(Stash)
+ahkpp_register_class(InventorySlot)
 
 class PoEObject extends AhkObj {
     
@@ -140,12 +141,12 @@ class Element extends PoEObject {
 
 class Inventory extends InventoryPanel {
 
-    __init() {
-        this.element := this.getChild(4, 20)
+    __new() {
+        base.__new()
         this.inventory := ptask.inventories[1]
         this.rows := this.inventory.rows
         this.cols := this.inventory.cols
-        this.rect := this.element.getPos()
+        this.rect := this.getPos()
     }
 
     open() {
@@ -167,7 +168,7 @@ class Inventory extends InventoryPanel {
         isMoving := ptask.player.isMoving()
 
         if (Not this.isOpened()) {
-            SendInput {f}
+            SendInput, %InventoryKey%
             Sleep, 100
             closeInventory := true
         }
@@ -219,17 +220,12 @@ class Inventory extends InventoryPanel {
 }
 
 class Stash extends Element {
+}
 
-    __init() {
-        this.element := this.getChild(3, 1, 2, 2)
-        this.r := this.getPos()
-    }
+class InventorySlot extends AhkObj {
 
-    drawItems() {
-        ptask.c.drawGrid(this.r.l, this.r.t, this.r.w, this.r.h, 12, 12)
-    }
-
-    draw() {
-        this.element.draw()
+    getItems() {
+        this.__getItems()
+        return this.items
     }
 }
