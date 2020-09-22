@@ -82,15 +82,14 @@ public:
         for (auto& i : entities) {
             shared_ptr<Entity>& entity = i.second;
             if (entity->is_monster) {
-                current_area->total.insert(i.first);
-
-                if (entity->is_dead()) {
-                    current_area->killed.insert(i.first);
+                if (entity->is_neutral) {
+                    n_minions++;
                     continue;
                 }
 
-                if (entity->is_neutral) {
-                    n_minions++;
+                current_area->total.insert(i.first);
+                if (entity->is_dead()) {
+                    current_area->killed.insert(i.first);
                     continue;
                 }
 
