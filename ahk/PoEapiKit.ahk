@@ -22,7 +22,7 @@ ptask.activate()
 
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
-Hotkey, %QuickDefenseKey%, QuickDefense
+Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, %AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
@@ -98,6 +98,10 @@ return
 
 F2::
     ptask.inventory.openPortal()
+return
+
+F3::
+    ptask.sellItems()
 return
 
 F5::
