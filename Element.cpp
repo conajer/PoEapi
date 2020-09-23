@@ -61,23 +61,24 @@ public:
     }
 
     std::vector<shared_ptr<Element>>& get_childs() {
-        childs.clear();
-        for (auto addr : read_array<addrtype>("childs", 0x0, 0x8)) {
-            if (addr)
-                childs.push_back(shared_ptr<Element>(new Element(addr)));
-            else
-                childs.push_back(shared_ptr<Element>());
-        }
+        if (childs.empty()) {
+            for (auto addr : read_array<addrtype>("childs", 0x0, 0x8)) {
+                if (addr)
+                    childs.push_back(shared_ptr<Element>(new Element(addr)));
+                else
+                    childs.push_back(shared_ptr<Element>());
+            }
 
-        if (obj_ref) {
-            AhkObjRef* ahkobj_ref;
+            if (obj_ref) {
+                AhkObjRef* ahkobj_ref;
 
-            __set(L"Childs", nullptr, AhkObject, nullptr);
-            __get(L"Childs", &ahkobj_ref, AhkObject);
-            AhkObj elements(ahkobj_ref);
-            for (auto& i : childs) {
-                if (i.get() != nullptr)
-                    elements.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
+                __set(L"Childs", nullptr, AhkObject, nullptr);
+                __get(L"Childs", &ahkobj_ref, AhkObject);
+                AhkObj elements(ahkobj_ref);
+                for (auto& i : childs) {
+                    if (i.get() != nullptr)
+                        elements.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
+                }
             }
         }
 
@@ -91,7 +92,9 @@ public:
     }
 
     bool is_visible() {
-        return read<byte>("is_visible") & 0x4;
+        if (!get_parent() || parent->is_visible())
+            return read<byte>("is_visible") & 0x4;
+        return false;
     }
 
     bool is_highlight() {
