@@ -39,13 +39,14 @@ public:
         
         near_monsters.clear();
         if (latest_areas.find(hash_code) == latest_areas.end()) {
+            // Remove the oldest area record.
+            if (latest_areas.size() == maximum_area_count)
+                latest_areas.erase(maximum_area_count - 1);
+
             current_area = new AreaMonsters();
-            current_area->index = 0;
             for (auto& i : latest_areas) {
-                if (i.second->index >= current_area->index)
+                if (i.second->index >= 0)
                     i.second->index += 1;
-                if (i.second->index >= maximum_area_count)
-                    latest_areas.erase(i.first);
             }
             latest_areas[hash_code] = current_area;
         } else {
@@ -53,11 +54,9 @@ public:
             for (auto& i : latest_areas) {
                 if (i.second->index < current_area->index)
                     i.second->index += 1;
-                if (i.second->index >= maximum_area_count)
-                    latest_areas.erase(i.first);
             }
-            current_area->index = 0;
         }
+        current_area->index = 0;
 
         total_monsters = num_of_killed = 0;
         PostThreadMessage(thread_id, WM_KILLED, num_of_killed, total_monsters);
