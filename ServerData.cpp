@@ -7,8 +7,10 @@
 
 static std::map<string, int> inventory_cell_offsets {
     {"item", 0x0},
-    {"x",    0x8},
-    {"y",    0xc},
+    {"l",    0x8},
+    {"t",    0xc},
+    {"r",   0x10},
+    {"b",   0x14},
 };
 
 class InventoryCell : public RemoteMemoryObject {
@@ -21,8 +23,8 @@ public:
     InventoryCell(addrtype address)
         : RemoteMemoryObject(address, &inventory_cell_offsets)
     {
-        x = read<int>("x");
-        y = read<int>("y");
+        x = read<int>("l");
+        y = read<int>("t");
         item_address = read<addrtype>("item");
     }
 
@@ -32,10 +34,6 @@ public:
             item = shared_ptr<Item>(new Item(addr));
 
         return *item;
-    }
-
-    bool operator==(InventoryCell& cell) {
-        return (address == cell.address && item_address == cell.item_address);
     }
 
     void to_print() {
@@ -52,7 +50,7 @@ static std::map<string, int> inventory_offsets {
         {"is_requested", 0x4},
         {"cols",         0xc},
         {"rows",        0x10},
-        {"items",       0x30},
+        {"cells",       0x30},
         {"count",       0x50},
 };
 
@@ -71,7 +69,7 @@ public:
         cols = read<byte>("cols");
         rows = read<byte>("rows");
 
-        add_method(L"getItems", this, (MethodType)&InventorySlot::get_items, AhkInt);
+        add_method(L"__getItems", this, (MethodType)&InventorySlot::get_items, AhkInt);
     }
 
     void __new() {
@@ -92,12 +90,12 @@ public:
         removed_cells.swap(cells);
 
         if (count() > 0) {
-            for (auto addr : read_array<addrtype>("items", 0x0, 8) ) {
+            for (auto addr : read_array<addrtype>("cells", 0x0, 8) ) {
                 if (addr > 0) {
                     InventoryCell cell(addr);
                     int index = cell.x * rows + cell.y + 1;
                     auto i = removed_cells.find(index);
-                    if (i == removed_cells.end() || i->second != cell) {
+                    if (i == removed_cells.end() || i->second.address != addr) {
                         cells.insert(std::make_pair(index,cell));
                         removed_cells.erase(index);
                         continue;
