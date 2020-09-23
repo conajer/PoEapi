@@ -9,7 +9,9 @@
 
 static std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x520},
+        {"grid",        0x3a8},
     {"stash",           0x528},
+        {"tabs",        0x2d8},
     {"entity_list",     0x5b0},
         {"root",        0x2a0},
     {"purchase",        0x638},
@@ -26,24 +28,24 @@ enum {
 class InGameUI : public Element {
 public:
 
-    std::unordered_map<int, shared_ptr<Entity>> entities, removed;
     unique_ptr<Inventory> inventory;
     unique_ptr<Stash> stash;
+    shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
     }
 
     Inventory* get_inventory() {
-        inventory = unique_ptr<Inventory>(new Inventory(read<addrtype>("inventory")));
+        inventory = unique_ptr<Inventory>(new Inventory(read<addrtype>("inventory", "grid")));
         return inventory.get();
     }
 
     Stash* get_stash() {
-        stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash")));
+        stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
         return stash.get();
     }
 
-    EntityList& get_all_entities() {
+    int get_all_entities(EntityList& entities, EntityList& removed) {
         entities.swap(removed);
         entities.clear();
         addrtype root = read<addrtype>("entity_list", "root");
@@ -51,7 +53,7 @@ public:
 
         while (1) {
             next = PoEMemory::read<addrtype>(next);
-            if (next == root)
+            if (!next || next == root)
                 break;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x10);
@@ -73,22 +75,24 @@ public:
             entities.insert(std::make_pair(entity_id, entity));
         }
 
-        return entities;
+        return entities.size();
     }
 
-    shared_ptr<Entity> get_nearest_entity(LocalPlayer& player, wstring text) {
-        unsigned int max_dist = -1, dist;
-        shared_ptr<Entity> entity;
+    shared_ptr<Entity>& get_nearest_entity(LocalPlayer& player, wstring text) {
+        unsigned int dist, max_dist = -1;
+        EntityList entities, removed;
 
-        for (auto i : get_all_entities()) {
+        get_all_entities(entities, removed);
+        nearest_entity = nullptr;
+        for (auto i : entities) {
             if ((dist = player.dist(*i.second)) < max_dist) {
                 if (i.second->name().find(text) != -1 || i.second->path.find(text) != -1) {
-                    entity = i.second;
+                    nearest_entity = i.second;
                     max_dist = dist;
                 }
             }
         }
 
-        return entity;
+        return nearest_entity;
     }
 };

@@ -21,6 +21,7 @@ class PoETask : public PoE, public Task {
 public:
     
     EntitySet entities;
+    EntityList labeled_entities, labeled_removed;
     int area_hash;
     wstring league;
 
@@ -29,7 +30,9 @@ public:
     std::wregex ignored_entity_exp;
     AutoPickup* auto_pickup;
 
-    PoETask() : Task(L"PoETask"), ignored_entity_exp(L"Doodad|Effect|WorldItem") {
+    PoETask() : Task(L"PoETask"), auto_pickup(new AutoPickup()),
+        ignored_entity_exp(L"Doodad|Effect|WorldItem")
+    {
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
@@ -52,8 +55,6 @@ public:
                    AhkInt, std::vector<AhkType>{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&PoETask::set_rare_item_filter,
                    AhkInt, std::vector<AhkType>{AhkWString});
-
-        auto_pickup = new AutoPickup();
     }
 
     ~PoETask() {
@@ -78,13 +79,9 @@ public:
 
     AhkObjRef* get_nearest_entity(const wchar_t* text) {
         if (is_in_game()) {
-            Point pos;
             InGameUI* in_game_ui = in_game_state->in_game_ui();
-            shared_ptr<Entity> entity = in_game_ui->get_nearest_entity(*local_player, text);
-            if (entity) {
-                get_pos(entity.get());
-                return (AhkObjRef*)*entity;
-            }
+            shared_ptr<Entity>& entity = in_game_ui->get_nearest_entity(*local_player, text);
+            return (AhkObjRef*)*entity;
         }
 
         return nullptr;
@@ -127,8 +124,6 @@ public:
             InGameUI* in_game_ui = in_game_state->in_game_ui();
             Stash* stash = in_game_ui->get_stash();
             AhkObjRef* ahkobj_ref = (AhkObjRef*)*stash;
-            Rect r = stash->get_rect();
-            printf("%d, %d, %d, %d\n", r.x, r.y, r.w, r.h);
             __set(L"Stash", ahkobj_ref, AhkObject, nullptr);
             return ahkobj_ref;
         }
@@ -163,21 +158,21 @@ public:
             return;
 
         InGameData* in_game_data = in_game_state->in_game_data();
-        local_player = in_game_data->local_player();
-        if (local_player) {
-            for (auto i : plugins)
-                i->on_player(local_player, in_game_state);
-        }
-
         if (in_game_data->area_hash() != area_hash) {
             area_hash = in_game_data->area_hash();
             AreaTemplate* world_area = in_game_data->world_area();
             if (!world_area->name().empty()) {
                 league  = in_game_state->server_data()->league();
-                //__set(L"League", league.c_str(), AhkWString, nullptr);
+                __set(L"League", league.c_str(), AhkWString, nullptr);
                 for (auto i : plugins)
                     i->on_area_changed(in_game_data->world_area(), area_hash);
             }
+        }
+
+        local_player = in_game_data->local_player();
+        if (local_player) {
+            for (auto i : plugins)
+                i->on_player(local_player, in_game_state);
         }
     }
 
@@ -197,10 +192,10 @@ public:
             return;
 
         InGameUI* in_game_ui = in_game_state->in_game_ui();
-        auto entities = in_game_ui->get_all_entities();
+        in_game_ui->get_all_entities(labeled_entities, labeled_removed);
 
         for (auto i : plugins)
-            i->on_labeled_entity_changed(entities);
+            i->on_labeled_entity_changed(labeled_entities);
     }
 
     void run() {
@@ -261,12 +256,11 @@ public:
     }
 
     void begin_pickup() {
-        auto_pickup->enabled = true;
+        auto_pickup->begin_pickup();
     }
 
     void stop_pickup() {
-        auto_pickup->enabled = false;
-        auto_pickup->last_pickup = 0;
+        auto_pickup->stop_pickup();
     }
 
     void set_pickup_range(int range) {
