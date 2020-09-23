@@ -73,10 +73,11 @@ public:
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code) {
+        bool is_town = world_area->is_town();
         PostThreadMessage(thread_id,
                           WM_AREA_CHANGED,
                           (WPARAM)world_area->name().c_str(),
-                          (LPARAM)world_area->level());
+                          (LPARAM)world_area->level() | (is_town ? 0x100 : 0));
 
         log(L"entered %S", world_area->name().c_str());
     }
