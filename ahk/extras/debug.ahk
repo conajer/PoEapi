@@ -6,6 +6,7 @@ addDebugButton() {
     if (ShowDebugMenu) {
         Menu, __debugMenu, Add, Draw inventory, drawInventory
         Menu, __debugMenu, Add, List inventory items, listInventoryItems
+        Menu, __debugMenu, Add, List inventory slots, listInventorySlots
         Menu, __debugMenu, Add
         Menu, __debugMenu, Add, Draw stash tab, drawStashTab
         Menu, __debugMenu, Add, List stash tab items, listStashTabItems
@@ -35,6 +36,12 @@ listInventoryItems() {
 
     for i, item in ptask.inventories[1].items
         debug("    {:2d}. {}", item.index , item.name)
+}
+
+listInventorySlots() {
+    debug("Inventory slots:")
+    for i, slot in ptask.inventories
+        debug("    {:2d}. {}, {}, {}", slot.id, slot.rows, slot.cols, slot.items.Count())
 }
 
 drawStashTab() {
@@ -68,9 +75,11 @@ listFlasks() {
 
     debug("Flasks:")
     for i, flask in ptask.player.flasks
-        debug("    {}. {}, {}, {}, {}", i
-              , flask.item.name
+        debug("    {}. {}, {}, {}, {}, {}"
+              , flask.key
+              , flask.item.charges
               , flask.chargesPerUse
               , flask.maxCharges
-              , flask.duration)
+              , flask.duration
+              , flask.item.name)
 }
