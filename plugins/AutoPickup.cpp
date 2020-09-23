@@ -10,9 +10,14 @@ public:
         "WorldItem",
     };
 
+    std::vector<string> item_types = {
+        "Stack",                // Currency items
+        "Map",                  // Maps
+        "Quest",                // Quest items
+    };
+
     LocalPlayer* player;
     Entity* selected_item;
-    std::vector<shared_ptr<Entity>> selected_items;
     int range, last_pickup;
     bool enabled;
 
@@ -26,10 +31,19 @@ public:
         rare_item_filter.assign(L"Jewels|Amulet|Rings|Belts");
     }
 
+    void begin_pickup() {
+        selected_item = nullptr;
+        enabled = true;
+    }
+
+    void stop_pickup() {
+        enabled = false;
+    }
+
     bool check_item(addrtype address) {
         Item item(address);
 
-        if (item.has_component("Stack") || item.has_component("Map"))
+        if (item.has_component(item_types) >= 0)
             return true;
 
         if (std::regex_search(item.base_name(), generic_item_filter))
@@ -56,23 +70,18 @@ public:
         player = local_player;
     }
 
-    void on_area_changed(AreaTemplate* world_area, int hash_code) {
-        selected_items.clear();
-    }
-
     void on_labeled_entity_changed(EntityList& entities) {
         if (!enabled)
             return;
 
-        int min_dist = range;
         Entity* nearest_item = nullptr;
+        int min_dist = range;
         for (auto& i : entities) {
             int index = i.second->has_component(entity_types);
             if (index < 0)
                 continue;
 
-            switch (index)
-            {
+            switch (index) {
             case 0:
                 {
                     Chest* chest = i.second->get_component<Chest>();
@@ -88,9 +97,6 @@ public:
                         continue;
                 }
                 break;
-            
-            default:
-                ;
             }
 
             int dist = player->dist(*i.second);
@@ -102,15 +108,12 @@ public:
 
         if (!nearest_item) {
             enabled = false;
-            selected_item = nullptr;
             return;
         }
         
         if (nearest_item == selected_item) {
-            if (GetTickCount() - last_pickup > 4000) {
+            if (GetTickCount() - last_pickup > 3000)
                 enabled = false;
-                selected_item = nullptr;
-            }
             return;
         }
 
