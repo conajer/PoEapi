@@ -72,6 +72,8 @@ class PoETask extends AhkObj {
         }
 
         this.Hwnd := hwnd
+        this.width := w
+        this.height := h
         this.actionArea := new Rect(225, 125, w - 450, h - 250)
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
 
@@ -177,7 +179,12 @@ class PoETask extends AhkObj {
         return false
     }
 
+    sellItems() {
+        this.select("NPC")
+    }
+
     areaChanged(areaName, lParam) {
+        Critical
         areaName := StrGet(areaName)
         level := lParam & 0xff
         isTown := lParam & 0x100
@@ -187,19 +194,18 @@ class PoETask extends AhkObj {
         this.InMap := Not isTown && Not isHideout
 
         ; Calculate gained experience
-        if (Not this.InMap) {
-            if (this.savedXP) {
-                currentXP := this.getXP()
-                if (currentXP != savedXP) {
-                    gainedXP := currentXP - savedXP
-                    savedExp := 0
-                    lvl := this.player.level
+        if (this.InMap) {
+            if (Not this.savedXP)
+                this.savedXP := this.getXP()
+        } else if (this.savedXP) {
+            currentXP := this.getXP()
+            if (currentXP != this.savedXP) {
+                gainedXP := currentXP - this.savedXP
+                this.savedXP := 0
+                lvl := this.player.level
 
-                    syslog(Format("{:.2f}% experience gained.", gainedXP * 100 / levelXP[lvl]))
-                }
+                syslog(Format("{:.2f}% experience gained.", gainedXP * 100 / levelXP[lvl]))
             }
-        } else if (Not savedXP) {
-            savedXP := this.getXP()
         }
 
         ptask.getInventorySlots()
