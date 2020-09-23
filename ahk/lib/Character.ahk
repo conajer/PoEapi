@@ -94,7 +94,7 @@ class Character {
                 if (flask_items[i] != this.flasks[A_Index].item)
                     this.flasks[A_Index] := new Flask(flask_items[i])
             } else {
-                this.flasks[A_Index] := ""
+                this.flasks.Delete(A_Index)
             }
         }
 
@@ -103,7 +103,7 @@ class Character {
             if (this.flasks[A_Index])
                 flaskTypes .= "[" this.flasks[A_Index].type "]"
             else
-                flaskTypes .= ","
+                flaskTypes .= "[]"
         }
         rdebug("#FLASKS", "Flasks: {}", flaskTypes)
     }
