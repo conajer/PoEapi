@@ -25,6 +25,10 @@ Class Canvas {
             this.drawRect(0, 0, this.Width, this.Height, 0xffbf00)
     }
 
+    destroy() {
+        Gui, __canvas:Destroy
+    }
+
     getClientRect(hwnd) {
         VarSetCapacity(r, 16)
         DllCall("GetClientRect", "UInt", hwnd, "UInt", &r)

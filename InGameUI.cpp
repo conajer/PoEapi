@@ -73,6 +73,10 @@ public:
             std::shared_ptr<Entity> entity(new Entity(entity_address));
             entity->label = shared_ptr<Element>(new Element(label));
             entities.insert(std::make_pair(entity_id, entity));
+
+            // Limit the maximum entities found.
+            if (entities.size() > 2048)
+                break;
         }
 
         return entities.size();

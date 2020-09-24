@@ -58,8 +58,30 @@ class PoETask extends AhkObj {
 
     __new() {
         base.__new()
+        OnMessage(WM_POEAPI_LOG, ObjBindMethod(this, "onLog"))
+        OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
+        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
+        OnMessage(WM_DELVE_CHEST, ObjBindMethod(this, "onDelveChest"))
+        OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
+        OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "attach"))
+
+        this.setGenericItemFilter(genericItemFilter)
+        this.setRareItemFilter(rareItemFilter)
+        this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
+
+        ; Start PoE task
+        this.start()
+    }
+
+    attach(hwnd) {
+        if (Not hwnd) {
+            ; PoE window was closed.
+            this.c.destory()
+            this.banner.destroy()
+            return
+        }
+
         this.activate()
-        WinGet, hwnd, ID, ahk_class POEWindowClass
         WinGetPos, x, y, w, h, ahk_id %hwnd%
         if (Not this.isMaximized()) {
             r := this.getWindowRect(DllCall("GetDesktopWindow"))
@@ -75,22 +97,11 @@ class PoETask extends AhkObj {
         this.width := w
         this.height := h
         this.actionArea := new Rect(225, 125, w - 450, h - 250)
-        this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
 
-        if (EnableCanvas) this.c := new Canvas(hwnd)
-        if (EnableBanner) this.banner := new Banner(hwnd)
-
-        OnMessage(WM_POEAPI_LOG, ObjBindMethod(this, "onLog"))
-        OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
-        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
-        OnMessage(WM_DELVE_CHEST, ObjBindMethod(this, "onDelveChest"))
-        OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
-
-        ; Start PoE task
-        this.start()
-
-        this.setGenericItemFilter(genericItemFilter)
-        this.setRareItemFilter(rareItemFilter)
+        if (EnableCanvas)
+            this.c := new Canvas(hwnd)
+        if (EnableBanner)
+            this.banner := new Banner(hwnd)
     }
 
     __delete() {

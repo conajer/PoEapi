@@ -32,6 +32,7 @@ global WM_KILL_COUNTER     := 0x900d
 global WM_DELVE_CHEST      := 0x900e
 global WM_PICKUP           := 0x900f
 global WM_FLASK_CHANGED    := 0x9010
+global WM_PTASK_ATTACHED   := 0x9100
 
 ; Register PoEapi classes
 ahkpp_register_class(PoETask)
@@ -146,7 +147,7 @@ class Inventory extends InventoryPanel {
         this.inventory := ptask.inventories[1]
         this.rows := this.inventory.rows
         this.cols := this.inventory.cols
-        this.rect := this.getPos()
+        ;this.rect := this.getPos()
     }
 
     open() {
@@ -187,11 +188,17 @@ class Inventory extends InventoryPanel {
         if (closeInventory)
             SendInput {f}
 
-        if (isMoving)
-            MouseMove, tempX, tempY, 0
-        else
-            MouseMove, ptask.width / 2, ptask.height / 2
+        ;if (Not isMoving) {
+            Sleep, 100
+            portal := ptask.getNearestEntity("Portal")
+            pos := portal.getPos()
+            x := NumGet(pos + 0x0, "Int")
+            y := NumGet(pos + 0x4, "Int")
+            MouseMove, x, y + 100, 0
+            return
+        ;}
 
+        MouseMove, tempX, tempY, 0
         if (isLBttonPressed)
             SendInput {LButton down}
     }

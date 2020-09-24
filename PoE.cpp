@@ -172,11 +172,13 @@ public:
     }
 
     GameState* get_active_game_state() {
-        in_game_state = nullptr;
         if (game_state_controller) {
             GameState *game_state = game_state_controller->get_active_game_state();
-            if (game_state && game_state->is(L"InGameState"))
+            if (game_state && game_state->is(L"InGameState")) {
                 in_game_state = (InGameState*)game_state;
+                while (!in_game_state->unknown())
+                    Sleep(100);
+            }
 
             return game_state;
         }
@@ -188,9 +190,8 @@ public:
         if (!IsWindowVisible(hwnd) && !open_target_process())
             return false;   // Path of Exile is not running!
 
-        get_active_game_state();
-
-        return in_game_state != nullptr;
+        GameState* game_state = get_active_game_state();
+        return game_state && game_state->is(L"InGameState");
     }
 
     bool open_target_process() {
@@ -200,7 +201,7 @@ public:
         }
 
         process_handle = OpenProcess(PROCESS_ALL_ACCESS, false, process_id);
-        if (!process_handle) // Maybe run PoE as limited user
+        if (!process_handle) // PoE is running as a limited user.
             process_handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
                                          false, process_id);
 

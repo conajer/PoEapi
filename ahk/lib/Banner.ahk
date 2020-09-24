@@ -64,6 +64,10 @@ class Banner extends AhkGui {
         return
     }
 
+    destroy() {
+        Gui, __banner:Destroy
+    }
+
     display(text = "", duration = 15000) {
         if (Not text) {
             GuiControl,, % this.Display

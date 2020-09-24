@@ -131,6 +131,10 @@ public:
             std::shared_ptr<Entity> entity(new Entity(entity_address));
             entities.all.insert(std::make_pair(entity_id, entity));
             entities.added.insert(std::make_pair(entity_id, entity));
+
+            // Limit the maximum entities found.
+            if (entities.added.size() > 2048)
+                break;
         }
         temp_set.clear();
 

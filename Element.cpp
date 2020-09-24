@@ -49,9 +49,11 @@ public:
 
     shared_ptr<Element> get_parent() {
         if (!parent) {
-            if (addrtype addr = read<addrtype>("parent"))
+            addrtype addr = read<addrtype>("parent");
+            if (addr > (addrtype)0x100000000 || addr < (addrtype)0x7F0000000000)
                 parent = shared_ptr<Element>(new Element(addr));
         }
+
         return parent;
     }
 

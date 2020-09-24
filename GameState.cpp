@@ -35,7 +35,7 @@ class GameStateController : public PoEObject {
 public:
 
     std::map<wstring, GameState> all_game_states;
-    GameState* active_game_state;
+    shared_ptr<GameState> active_game_state;
 
     GameStateController(addrtype address)
         : PoEObject(address, &game_state_controller_offsets),
@@ -44,23 +44,16 @@ public:
     }
 
     GameState* get_active_game_state() {
-        addrtype addr = read<addrtype>("active_game_states", "current");
-        if (!addr)              /* no active game states */
-            return nullptr;
-
-        if (!active_game_state || active_game_state->address != addr) {
-            delete active_game_state;
-            string state_name = PoEMemory::read<string>(addr + 0x10);
-            if (state_name == "InGameState") {
-                int time_in_game = PoEMemory::read<int>(addr + 0x6dc);
-                while (time_in_game != PoEMemory::read<int>(addr + 0x6dc))
-                    Sleep(50);
+        if (addrtype addr = read<addrtype>("active_game_states", "current")) {
+            if (!active_game_state || active_game_state->address != addr) {
+                string state_name = PoEMemory::read<string>(addr + 0x10);
+                active_game_state.reset(read_object<GameState>(state_name, addr));
             }
-
-            active_game_state = read_object<GameState>(state_name, addr);
+        } else {
+            active_game_state.reset();
         }
 
-        return active_game_state;
+        return active_game_state.get();
     }
 
     std::map<wstring, GameState>& get_all_game_states() {
@@ -102,7 +95,8 @@ static std::map<string, int> in_game_state_offsets {
     {"in_game_data", 0x500},
     {"server_data",  0x508},
     {"ui_root",      0x630},
-    {"time_in_game", 0x628},
+    {"time_in_game", 0x6dc},
+    {"unknown",      0x6f0},
     {"camera",      0x1178},
     {"width",       0x1180},
     {"height",      0x1184},
@@ -156,6 +150,14 @@ public:
         }
 
         return sd;
+    }
+
+    int time_in_game() {
+        return read<int>("time_in_game");
+    }
+
+    int unknown() {
+        return read<addrtype>("unknown");
     }
 
     Vector3& transform(Vector3& vec) {

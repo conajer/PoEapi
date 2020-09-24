@@ -29,6 +29,7 @@ public:
     LocalPlayer *local_player;
     std::wregex ignored_entity_exp;
     AutoPickup* auto_pickup;
+    bool is_attached = false;
 
     PoETask() : Task(L"PoETask"), auto_pickup(new AutoPickup()),
         ignored_entity_exp(L"Doodad|Effect|WorldItem")
@@ -151,6 +152,23 @@ public:
         plugin->on_load(*this, owner_thread_id);
 
         log(L"added plugin %s %s", plugin->name, plugin->version);
+    }
+
+    bool is_in_game() {
+        bool in_game_flag = PoE::is_in_game();
+        if (hwnd) {
+            if (!is_attached) {
+                is_attached = true;
+                PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)hwnd, (LPARAM)0);
+            }
+        } else {
+            if (is_attached) {
+                is_attached = false;
+                PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
+            }
+        }
+
+        return in_game_flag;
     }
 
     void check_player() {

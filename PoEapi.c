@@ -22,6 +22,7 @@ enum MessageTypes {
     WM_DELVE_CHEST,
     WM_PICKUP,
     WM_FLASK_CHANGED,
+    WM_PTASK_ATTACHED =  0x9100,
 };
 
 int major_version = 0;
