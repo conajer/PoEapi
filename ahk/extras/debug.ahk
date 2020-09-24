@@ -75,7 +75,7 @@ listFlasks() {
 
     debug("Flasks:")
     for i, flask in ptask.player.flasks
-        debug("    {}. {}, {}, {}, {}, {}"
+        debug("    {}. {:2d}, {:2d}, {}, {}, {}"
               , flask.key
               , flask.item.charges
               , flask.chargesPerUse
