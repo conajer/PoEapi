@@ -20,8 +20,9 @@ class Flask {
             }
         }
 
-        ChargesInfo := item.getComponent("Charges")
-        FlaskInfo := item.getComponent("Flask")
+        item.getComponents()
+        FlaskInfo := item.components["Flask"]
+        ChargesInfo := item.components["Charges"]
 
         reduced := RegExMatch(this.Mods, "([0-9]+)% reduced Charges used", matched) ? matched1 : 0
         increased := RegExMatch(this.Mods, "([0-9]+)% increased Duration", matched) ? matched1 : 0
