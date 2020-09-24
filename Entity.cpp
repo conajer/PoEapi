@@ -20,10 +20,10 @@ protected:
     std::unordered_map<string, shared_ptr<Component>> components;
 
     Component* read_component(const string& name, addrtype address) {
-        Component *c = read_object<Component>(name, address);
-        c->type_name = name;
+        Component *component = read_object<Component>(name, address);
+        component->type_name = name;
 
-        return c;
+        return component;
     }
 
     void get_all_components() {
@@ -84,25 +84,33 @@ public:
 
         add_property(L"x", &pos.x, AhkInt);
         add_property(L"y", &pos.y, AhkInt);
-        add_method(L"getComponent", this,
-                   (MethodType)(AhkObjRef* (Entity::*)(const char*))&Entity::get_component,
-                   AhkObject, std::vector<AhkType>{AhkString});
+        add_method(L"name", this, (MethodType)&Entity::name, AhkWStringPtr);
+        add_method(L"getComponents", this, (MethodType)&Entity::get_components, AhkObject);
         add_method(L"getPos", this, (MethodType)&Entity::get_pos, AhkPointer);
     }
 
     void __new() {
         PoEObject::__new();
-        __set(L"Name", name().c_str(), AhkWString,
-              L"Id", id, AhkInt,
+        __set(L"Id", id, AhkInt,
               L"Path", path.c_str(), AhkWString,
-              L"Components", nullptr, AhkObject,
               nullptr);
+    }
 
+    AhkObjRef* get_components() {
         AhkObjRef* ahkobj_ref;
         __get(L"Components", &ahkobj_ref, AhkObject);
+        if (!ahkobj_ref) {
+            __set(L"Components", nullptr, AhkObject, nullptr);
+            __get(L"Components", &ahkobj_ref, AhkObject);
+        }
+
         AhkObj cmpnts(ahkobj_ref);
-        for (auto& i : components)
-            cmpnts.__set(L"", (AhkObjRef*)*i.second, AhkObject, nullptr); 
+        for (auto& i : components) {
+            wstring name(i.second->type_name.begin(), i.second->type_name.end());
+            cmpnts.__set(name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
+        }
+
+        return ahkobj_ref;
     }
 
     wstring& name() {
@@ -253,9 +261,6 @@ public:
         add_method(L"stackSize", this, (MethodType)&Item::get_stack_size);
         add_method(L"charges", this, (MethodType)&Item::get_charges);
         add_method(L"size", this, (MethodType)&Item::get_size);
-    }
-
-    void __new() {
     }
 
     wstring& name() {
