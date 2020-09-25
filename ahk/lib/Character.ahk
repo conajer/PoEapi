@@ -188,8 +188,11 @@ class Character {
                 if (aFlask.IsQuicksilver) {
                     charges := aFlask.item.charges()
                     if (charges > aFlask.chargesPerUse && charges > maxCharges) {
+                        selected.endTime := A_Tickcount + 1000
                         selected := aFlask
                         maxCharges := charges
+                    } else {
+                        aFlask.endTime := A_Tickcount + 1000
                     }
                 }
             }
