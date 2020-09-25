@@ -83,15 +83,17 @@ class Actor : public Component {
 protected:
     
     void get_skills() {
-        for (auto s : read_array<ActorSkill>("skills", 0x8, 16))
-            skills.insert(std::make_pair(s.address, s));
+        for (auto addr : read_array<addrtype>("skills", 0x8, 16)) {
+            ActorSkill* skill = new ActorSkill(addr);
+            skills.insert(std::make_pair(addr, shared_ptr<ActorSkill>(skill)));
+        }
     }
 
 public:
     
-    std::unordered_map<addrtype, ActorSkill> skills;
-    ActorSkill* skill;
+    std::unordered_map<addrtype, shared_ptr<ActorSkill>> skills;
     addrtype target_address;
+    shared_ptr<ActorSkill> skill;
 
     Actor(addrtype address) : Component(address, "Actor", &actor_component_offsets) {
     }
@@ -109,12 +111,12 @@ public:
                 }
 
                 if (i != skills.end()) {
-                    skill = &i->second;
+                    skill = i->second;
                     target_address = read<addrtype>("action", "target");
                 }
             }
         } else {
-            skill = nullptr;
+            skill.reset();
             target_address = 0;
         }
 
