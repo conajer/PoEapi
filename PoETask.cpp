@@ -82,7 +82,8 @@ public:
         if (is_in_game()) {
             InGameUI* in_game_ui = in_game_state->in_game_ui();
             shared_ptr<Entity>& entity = in_game_ui->get_nearest_entity(*local_player, text);
-            return (AhkObjRef*)*entity;
+            if (entity)
+                return (AhkObjRef*)*entity;
         }
 
         return nullptr;
@@ -156,6 +157,14 @@ public:
 
     bool is_in_game() {
         bool in_game_flag = PoE::is_in_game();
+
+        // wait for loading game instance.
+        while (!in_game_state->unknown()) {
+            for (auto& i : plugins)
+                i->reset();
+            Sleep(500);
+        }
+
         if (hwnd) {
             if (!is_attached) {
                 is_attached = true;
@@ -233,8 +242,8 @@ public:
         add_plugin(auto_pickup);
 
         /* create jobs */
-        start_job(77, [&] {this->check_player();});
-        start_job(55, [&] {this->check_labeled_entities();});
+        start_job(135, [&] {this->check_player();});
+        start_job(105, [&] {this->check_labeled_entities();});
         start_job(200, [&] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
