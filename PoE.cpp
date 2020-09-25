@@ -113,8 +113,8 @@ protected:
     }
 
     addrtype find_pattern(const char* pattern_str) {
-        byte* pattern = new byte[256];
-        byte* mask = new byte[256];
+        byte pattern[256];
+        byte mask[256];
         int len = parse_pattern(pattern_str, pattern, mask);
 
         addrtype end_address = address + size_of_image;
@@ -122,10 +122,13 @@ protected:
         
         if (read(address, buffer, size_of_image)) {
             for (int i = 0; i < size_of_image - len; i++) {
-                if (compare(pattern, &buffer[i], mask, len))
+                if (compare(pattern, &buffer[i], mask, len)) {
+                    delete[] buffer;
                     return address + i;
+                }
             }
         }
+        delete[] buffer;
 
         return 0;
     }
@@ -176,8 +179,6 @@ public:
             GameState *game_state = game_state_controller->get_active_game_state();
             if (game_state && game_state->is(L"InGameState")) {
                 in_game_state = (InGameState*)game_state;
-                while (!in_game_state->unknown())
-                    Sleep(100);
             }
 
             return game_state;
