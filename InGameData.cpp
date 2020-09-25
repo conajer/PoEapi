@@ -51,8 +51,8 @@ protected:
 
 public:
 
-    AreaTemplate* area;
-    LocalPlayer* player;
+    shared_ptr<AreaTemplate> area;
+    shared_ptr<LocalPlayer> player;
 
     InGameData(addrtype address) : RemoteMemoryObject(address, &in_game_data_offsets)
     {
@@ -67,27 +67,21 @@ public:
     AreaTemplate* world_area() {
         addrtype addr = read<addrtype>("world_area");
         if (!area || area->address != addr) {
-            delete area;
-            area = new AreaTemplate(addr);
+            area.reset(new AreaTemplate(addr));
         }
 
-        return area;
+        return area.get();
     }
 
     LocalPlayer* local_player() {
         addrtype addr = read<addrtype>("local_player");
         if (!player || player->address != addr) {
             wchar_t path_0 = PoEMemory::read<wchar_t>(addr + 0x8, {8, 0});
-            if (path_0 == L'M') {
-                player = new LocalPlayer(addr);
-                if (!player->has_component("Player")) {
-                    delete player;
-                    player = nullptr;
-                }
-            }
+            if (path_0 == L'M')
+                player.reset(new LocalPlayer(addr));
         }
 
-        return player;
+        return player.get();
     }
 
     int get_all_entities(EntitySet& entities, std::wregex& ignored_exp) {
@@ -140,33 +134,4 @@ public:
 
         return read<int>("entity_list_count");
     }
-
-#if 0
-    EntityList get_entities(std::vector<string> types = {}) {
-        EntityList entities;
-
-        get_all_entities();
-        for (auto i : entity_list) {
-            if (!types.empty()) {
-                for (auto t : types) {
-                    if (i.second.get()->has_component(t)) {
-                        entities.insert(i);
-                        break;
-                    }
-                }
-            } else {
-                entities.insert(i);
-            }
-        }
-
-        return entities;
-    }
-
-    void list_entities() {
-        cout << "Total " << read<int>("entity_list_count") << " entities:" << endl;
-        for (auto i : entity_list) {
-            i.second.get()->to_print();
-        }
-    }
-#endif
 };
