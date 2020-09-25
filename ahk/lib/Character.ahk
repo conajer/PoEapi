@@ -92,8 +92,11 @@ class Character {
         loop, 5 {
             i := (A_Index << 1) - 1
             if (flask_items[i]) {
-                if (flask_items[i] != this.flasks[A_Index].item)
+                if (flask_items[i] != this.flasks[A_Index].item) {
+                    oldFlask := this.flasks[A_Index]
                     this.flasks[A_Index] := new Flask(flask_items[i])
+                    this.flasks[A_Index].endTime := oldFlask.endTime
+                }
             } else {
                 this.flasks.Delete(A_Index)
             }
