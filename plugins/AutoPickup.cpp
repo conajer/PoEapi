@@ -77,6 +77,11 @@ public:
         Entity* nearest_item = nullptr;
         int min_dist = range;
         for (auto& i : entities) {
+            if (to_reset) {
+                to_reset = false;
+                return;
+            }
+
             int index = i.second->has_component(entity_types);
             if (index < 0)
                 continue;

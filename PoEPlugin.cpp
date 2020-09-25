@@ -9,11 +9,16 @@ public:
     const char* version;
     PoE* poe;
     DWORD thread_id;
+    bool to_reset = false;
     buffer<wchar_t> log_buffer;
 
     PoEPlugin(const char* name, const char* version_string = "0.1")
         : name(name), version(version_string), log_buffer(256)
     {
+    }
+
+    void reset() {
+        to_reset = true;
     }
 
     virtual void on_load(PoE& poe, int ownere_thread_id) {

@@ -34,6 +34,11 @@ public:
 
         chests.clear();
         for (auto& i : entities) {
+            if (to_reset) {
+                to_reset = false;
+                return;
+            }
+
             if (i.second->path.find(L"Delve") == string::npos)
                 continue;
 

@@ -79,6 +79,11 @@ public:
 
         near_monsters.clear();
         for (auto& i : entities) {
+            if (to_reset) {
+                to_reset = false;
+                return;
+            }
+
             shared_ptr<Entity>& entity = i.second;
             if (entity->is_monster) {
                 if (entity->is_neutral) {

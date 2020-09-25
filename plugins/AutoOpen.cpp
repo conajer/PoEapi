@@ -44,6 +44,11 @@ public:
 
     void on_labeled_entity_changed(EntityList& entities) {
         for (auto& i : entities) {
+            if (to_reset) {
+                to_reset = false;
+                return;
+            }
+
             int dist = player->dist(*i.second);
             if (dist > 15)
                 continue;
