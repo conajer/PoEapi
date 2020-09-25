@@ -102,6 +102,7 @@ class PoETask extends AhkObj {
             this.c := new Canvas(hwnd)
         if (EnableBanner)
             this.banner := new Banner(hwnd)
+        this.activate()
     }
 
     __delete() {
@@ -219,11 +220,10 @@ class PoETask extends AhkObj {
             }
         }
 
-        ptask.getInventorySlots()
-        ptask.getStashTabs()
-        ptask.getStash()
-        ptask.getInventory()
-
+        this.getInventorySlots()
+        this.getStashTabs()
+        this.getStash()
+        this.getInventory()
         this.flasks := this.inventories[12]
     }
 

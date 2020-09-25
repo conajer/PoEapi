@@ -147,7 +147,7 @@ class Inventory extends InventoryPanel {
         this.inventory := ptask.inventories[1]
         this.rows := this.inventory.rows
         this.cols := this.inventory.cols
-        ;this.rect := this.getPos()
+        this.rect := this.getPos()
     }
 
     open() {
