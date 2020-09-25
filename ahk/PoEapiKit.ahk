@@ -15,7 +15,7 @@ SetWorkingDir %A_ScriptDir%
 
 global logger := new Logger("PoEapiKit log")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patch)
-debug("PoEapiKit v0.2 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
+debug("PoEapiKit v0.2.1 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
 
 global ptask := new PoETask()
 ptask.activate()
@@ -23,7 +23,7 @@ ptask.activate()
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
 Hotkey, $%QuickDefenseKey%, QuickDefense
-Hotkey, %AutoPickupKey%, AutoPickup
+Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
 ; end of auto-execute section
