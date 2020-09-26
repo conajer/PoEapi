@@ -204,11 +204,13 @@ public:
     int level;
     Life* life;
     Positioned* positioned;
+    Actor* actor;
 
     LocalPlayer(addrtype address) : Entity(address) {
         Player* player = get_component<Player>();
         life = get_component<Life>();
         positioned = get_component<Positioned>();;
+        actor = get_component<Actor>();;
 
         player_name = player->name();
         level = player->level();
@@ -216,6 +218,10 @@ public:
 
     wstring& name() {
         return player_name;
+    }
+
+    bool is_moving() {
+        return actor->is_moving();
     }
 
     int dist(Entity& entity) {
