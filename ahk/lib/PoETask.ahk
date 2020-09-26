@@ -62,6 +62,7 @@ class PoETask extends AhkObj {
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
         OnMessage(WM_DELVE_CHEST, ObjBindMethod(this, "onDelveChest"))
+        OnMessage(WM_HEIST_CHEST, ObjBindMethod(this, "onHeistChest"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "attach"))
 
@@ -294,10 +295,31 @@ class PoETask extends AhkObj {
 
             clipToRect(this.actionArea, x, y)
             this.c.drawRect(x - 15, y - 50, 30, 30, cIndicator, 10)
-            this.banner.display(path)
         }
 
         this.delveChests := {}
+    }
+
+    onHeistChest(chestName, lParam) {
+        chestName := StrGet(chestName)
+        if (chestName) {
+            chest := {}
+            chest.name := chestName
+            chest.x := lParam << 32 >> 48
+            chest.y := lParam << 48 >> 48
+            this.heistChests.Push(chest)
+            return
+        }
+
+        this.c.clear()
+        for i, chest in this.heistChests {
+            x := chest.x
+            y := chest.y
+            if (RegExMatch(chest.name, HeistChestNameRegex, matched))
+                this.c.drawText(x - 100, y + 50, 200, 30, matched2, 0xff00ff)
+        }
+
+        this.heistChests := {}
     }
 
     onPickup(x, y) {

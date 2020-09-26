@@ -12,6 +12,7 @@
 #include "plugins/AutoOpen.cpp"
 #include "plugins/AutoPickup.cpp"
 #include "plugins/DelveChest.cpp"
+#include "plugins/HeistChest.cpp"
 #include "plugins/PlayerStatus.cpp"
 #include "plugins/KillCounter.cpp"
 
@@ -237,6 +238,7 @@ public:
         add_plugin(new AutoFlask());
         add_plugin(new AutoOpen());
         add_plugin(new DelveChest());
+        add_plugin(new HeistChest());
         add_plugin(new PlayerStatus());
         add_plugin(new KillCounter());
         add_plugin(auto_pickup);
