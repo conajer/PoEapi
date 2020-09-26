@@ -67,8 +67,7 @@ public:
 
         if (chests.size() > 0) {
             for (auto& i : chests) {
-                Point pos;
-                poe->get_pos(i.get());
+                Point pos = poe->get_pos(i.get());
                 PostThreadMessage(thread_id,
                     WM_DELVE_CHEST,
                     (WPARAM)&i->path[i->path.rfind(L'/') + 1],
