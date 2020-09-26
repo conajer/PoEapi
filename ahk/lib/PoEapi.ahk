@@ -6,6 +6,7 @@ if (FileExist("..\poeapi.dll")) {
     FileMove ..\poeapi.dll, bin\poeapi.dll, true
 }
 
+DllCall("SetDllDirectory", "Str", ".\bin")
 if (Not DllCall("LoadLibrary", "str", "bin\poeapi.dll", "ptr")) {
     Msgbox, % "Load poeapi.dll failed!"
 }
