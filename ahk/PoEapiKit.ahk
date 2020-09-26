@@ -8,6 +8,7 @@
 #IfWinActive, Path of Exile ahk_class POEWindowClass
 
 CoordMode, Mouse, Client
+CoordMode, Pixel, Client
 SetWorkingDir %A_ScriptDir%
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
@@ -63,6 +64,7 @@ QuickDefense:
 return
 
 AutoPickup:
+    ptask.levelupGems()
     ptask.beginPickup()
 return
 

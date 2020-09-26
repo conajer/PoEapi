@@ -195,11 +195,32 @@ class PoETask extends AhkObj {
         this.select("NPC")
     }
 
+    stashItems() {
+        this.select("Stash")
+    }
+
+    levelupGems() {
+        l := this.width - 150
+        t := 200
+        r := this.width - 50
+        b := this.height - 300
+
+        MouseGetPos, oldX, oldY
+        loop {
+            ImageSearch, x, y, l, t, r, b, *30 *TransBlack %A_ScriptDir%\images\level_up_gem.bmp
+            if (ErrorLevel != 0)
+                break
+            MouseClick(x + 40, y + 8)
+            ;Sleep, 100
+        }
+        MouseMove, oldX, oldY, 0
+    }
+
     areaChanged(areaName, lParam) {
         Critical
         areaName := StrGet(areaName)
         level := lParam & 0xff
-        isTown := lParam & 0x100
+        isTown := (lParam & 0x100) || (areaName == "The Rogue Harbour")
         isHideout := RegExMatch(areaName, "Hideout$") && (areaName != "Syndicate Hideout")
 
         debug("You have entered <b style=""color:maroon"">{}, {}</b>", areaName, level)
@@ -220,6 +241,7 @@ class PoETask extends AhkObj {
             }
         }
 
+        Sleep, 100
         this.getInventorySlots()
         this.getStashTabs()
         this.getStash()
