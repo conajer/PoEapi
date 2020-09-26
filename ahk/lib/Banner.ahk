@@ -37,9 +37,9 @@ class Banner extends AhkGui {
             Gui, Add, Text, % "ys w150 Hwnd" this.__var("EnergyShield"), Energy Shield: 100`%
         }
         Gui, Font, cBlack bold
-        Gui, Add, Text, % "ys w90 Hwnd" this.__var("Kills"), Kills: 0/0
+        Gui, Add, Text, % "ys w70 Hwnd" this.__var("Kills"), Kills: 0/0
         Gui, Font, cPurple bold
-        Gui, Add, Text, % "ys x+10 w200 Hwnd" this.__var("Display")
+        Gui, Add, Text, % "ys x+10 w200 Hwnd" this.__var("Statusbar")
 
         Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("hideout"), Hideout
         Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("sellItems"), Sell
@@ -74,7 +74,7 @@ class Banner extends AhkGui {
             return
         }
 
-        GuiControl,, % this.Display, > %text%
+        GuiControl,, % this.Statusbar, > %text%
         fn := ObjBindMethod(this, "display")
         SetTimer, %fn%, % -duration
     }
