@@ -81,9 +81,9 @@ Class Canvas {
         VarSetCapacity(r, 16)
         NumPut(x, r, 0x0, "Int")
         NumPut(y, r, 0x4, "Int")
-        NumPut(w, r, 0x8, "Int")
-        NumPut(h, r, 0xc, "Int")
-        r := DllCall("DrawText", "UInt", this.Hdc , "Str", s, "Int", -1, "Ptr", &r, "Int", 0x120)
+        NumPut(x + w, r, 0x8, "Int")
+        NumPut(y + h, r, 0xc, "Int")
+        r := DllCall("DrawText", "UInt", this.Hdc , "Str", s, "Int", -1, "Ptr", &r, "Int", 0x121)
         DllCall("DeleteObject" , "UInt", hPen)
     }
 
