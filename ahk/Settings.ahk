@@ -45,7 +45,9 @@ global AruasKey := "!q!w!e!r!t"
 ; Delve Chests
 global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
 
+; Heist Chests
 global HeistChestNameRegex := "HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)"
+
 ; Auto pickup
 ; Some items are picked up by default, includes:
 ;     1. all currency, divination card and map items
