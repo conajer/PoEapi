@@ -6,9 +6,9 @@ if (FileExist("..\poeapi.dll")) {
     FileMove ..\poeapi.dll, bin\poeapi.dll, true
 }
 
-DllCall("SetDllDirectory", "Str", ".\bin")
+DllCall("AddDllDirectory", "Str", ".\bin")
 if (Not DllCall("LoadLibrary", "str", "bin\poeapi.dll", "ptr")) {
-    Msgbox, % "Load poeapi.dll failed!"
+    Msgbox, % DllCall("GetLastError") ": Load poeapi.dll failed!"
 }
 
 #Include, %A_ScriptDir%\lib\ahkpp.ahk
@@ -33,6 +33,7 @@ global WM_KILL_COUNTER     := 0x900d
 global WM_DELVE_CHEST      := 0x900e
 global WM_PICKUP           := 0x900f
 global WM_FLASK_CHANGED    := 0x9010
+global WM_HEIST_CHEST      := 0x9011
 global WM_PTASK_ATTACHED   := 0x9100
 
 ; Register PoEapi classes
