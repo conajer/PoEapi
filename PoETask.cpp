@@ -160,10 +160,13 @@ public:
         bool in_game_flag = PoE::is_in_game();
 
         // wait for loading game instance.
-        while (!in_game_state->unknown()) {
+        if (in_game_flag && !in_game_state->unknown()) {
             for (auto& i : plugins)
                 i->reset();
-            Sleep(500);
+            while (!in_game_state->unknown())
+                Sleep(500);
+            entities.all.clear();
+            labeled_entities.clear();
         }
 
         if (hwnd) {
