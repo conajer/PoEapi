@@ -106,6 +106,10 @@ F3::
     ptask.sellItems()
 return
 
+F4::
+    ptask.stashItems()
+return
+
 F5::
     ptask.sendKeys("/Hideout")
 return
@@ -131,6 +135,12 @@ return
 
 ^q::
     ExitApp
+return
+
+^t::
+    MouseGetPos tempX, tempY
+    PixelGetColor, bgr, tempX, tempY
+    MsgBox, % "Width:" ptask.Width " Hieght:" ptask.Height "`nX=" tempX " Y=" tempY "`nColor=" bgr
 return
 
 F10::
