@@ -159,34 +159,39 @@ public:
     bool is_in_game() {
         bool in_game_flag = PoE::is_in_game();
 
-        // wait for loading game instance.
-        if (in_game_flag && !in_game_state->unknown()) {
-            for (auto& i : plugins)
-                i->reset();
-            while (!in_game_state->unknown())
-                Sleep(500);
-            entities.all.clear();
-            labeled_entities.clear();
-        }
-
-        if (hwnd) {
-            if (!is_attached) {
+        if (!in_game_flag) {
+            if (hwnd && !is_attached) {
                 is_attached = true;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)hwnd, (LPARAM)0);
             }
-        } else {
-            if (is_attached) {
-                is_attached = false;
-                PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
-            }
+
+            // increase the delay of timers when PoE isn't in game state.
+            Sleep(1000);
+        } else if (!in_game_state->unknown()) {
+            // reset plugins.
+            for (auto& i : plugins)
+                i->reset();
+
+            // wait for loading the game instance.
+            while (!in_game_state->unknown())
+                Sleep(500);
+
+            // clear cached entities.
+            entities.all.clear();
+            labeled_entities.clear();
         }
 
         return in_game_flag;
     }
 
     void check_player() {
-        if (!is_in_game())
+        if (!is_in_game()) {
+            if (is_attached && !hwnd) {
+                is_attached = false;
+                PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
+            }
             return;
+        }
 
         InGameData* in_game_data = in_game_state->in_game_data();
         if (in_game_data->area_hash() != area_hash) {
@@ -204,6 +209,11 @@ public:
         if (local_player) {
             for (auto i : plugins)
                 i->on_player(local_player, in_game_state);
+        }
+
+        if (!is_attached && hwnd) {
+            is_attached = true;
+            PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)hwnd, (LPARAM)0);
         }
     }
 

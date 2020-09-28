@@ -28,7 +28,7 @@ enum MessageTypes {
 
 int major_version = 0;
 int minor_version = 7;
-int patch_level = 10;
+int patch_level = 11;
 
 const char* supported_PoE_version = "3.12";
 
