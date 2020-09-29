@@ -12,7 +12,10 @@ addDebugButton() {
         Menu, __debugMenu, Add, List stash tab items, listStashTabItems
         Menu, __debugMenu, Add, List stash tabs, listStashTabs
         Menu, __debugMenu, Add
+        Menu, __debugMenu, Add, List vendor services, listVendorServices
+        Menu, __debugMenu, Add
         Menu, __debugMenu, Add, List flasks, listFlasks
+        Menu, __debugMenu, Add, List flask slot, listFlaskSlot
 
         Gui, Add, Button, x+10 y0 gpopupDebugCommands, Debug
     }
@@ -35,7 +38,7 @@ listInventoryItems() {
     }
 
     for i, item in ptask.inventories[1].items
-        debug("    {:2d}. {}", item.index , item.name)
+        debug("    {:2d}. {}", item.index, item.name)
 }
 
 listInventorySlots() {
@@ -67,6 +70,20 @@ listStashTabs() {
               , tab.flags)
 }
 
+listVendorServices() {
+    vendor := ptask.getVendor()
+    if (Not vendor.name) {
+        debug("No vendor selected.")
+        return
+    }
+
+    vendor.getServices()
+    debug("{}'s services:", vendor.name)
+    for name in vendor.services
+        debug("    {}. {}", A_Index, name)
+        vendor.draw()
+}
+
 listFlasks() {
     if (ptask.player.flasks.Count() == 0) {
         debug("No flasks.")
@@ -82,4 +99,16 @@ listFlasks() {
               , flask.maxCharges
               , flask.duration
               , flask.item.name)
+}
+
+listFlaskSlot() {
+    ptask.inventories[12].getItems()
+    debug("Flask slot:")
+    if (ptask.inventories[12].Count() == 0) {
+        debug("    No items.")
+        Return
+    }
+
+    for i, item in ptask.inventories[12].items
+        debug("    {:2d}. {}", item.index, item.name)
 }
