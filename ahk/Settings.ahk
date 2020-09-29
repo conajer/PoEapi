@@ -1,9 +1,11 @@
 ; Hotkeys (^ for Ctrl, # for window key)
 ;
 ; `,    logout
-; a,	auto pickup
+; a,	auto pickup/levelup gems
 ; F1,   auto aruas
 ; F2,	auto portal
+; F3,   auto identify/sell
+; F4,   auto stash
 ; F5,   hideout
 ; #d,   minimize window
 ; ^m,   toggle maphack
@@ -57,6 +59,7 @@ global HeistChestNameRegex := "HeistChest(Secondary|RewardRoom)(.*)(Military|Rob
 ;     5. All weapon/armour items whose item level is between 60 to 75
 ;
 global AutoPickupKey := "a"
+global genericItemFilter := "Contract|Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz"
 global rareItemFilter := "Jewel|Amulet|Ring|Belt"
 
 ; Auto identify/sell/stash rules
