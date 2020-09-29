@@ -11,14 +11,14 @@ struct Rect {
 };
 
 static std::map<string, int> element_offsets {
-    {"childs",	      0x38},
-    {"parent",	      0x90},
-    {"position",	  0x98},
-    {"scale",	     0x108},
+    {"childs",       0x38},
+    {"parent",       0x90},
+    {"position",     0x98},
+    {"scale",        0x108},
     {"is_visible",   0x111},
-    {"size",	     0x130},
+    {"size",         0x130},
     {"is_highlight", 0x178},
-    {"label",	     0x238},
+    {"text",         0x2e8},
 };
 
 class Element : public PoEObject {
@@ -32,8 +32,10 @@ public:
     Element(addrtype address, FieldOffsets* offsets = &element_offsets)
         : PoEObject(address, offsets)
     {
-        if (offsets != &element_offsets)
+        if (offsets != &element_offsets) {
             offsets->insert(element_offsets.begin(), element_offsets.end());
+        }
+
         add_method(L"getChilds", this, (MethodType)&Element::get_childs);
         add_method(L"getRect", this, (MethodType)&Element::get_rect, AhkPointer);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
@@ -57,9 +59,20 @@ public:
         return parent;
     }
 
-    Element* get_child(int index) {
-        addrtype addr = read<addrtype>("child", index * 8);
-        return new Element(addr);
+    int child_count() {
+        addrtype addr = address + (*offsets)["childs"];
+        addrtype child_begin = PoEMemory::read<addrtype>(addr);
+        addrtype child_end = PoEMemory::read<addrtype>(addr + 0x8);
+
+        return (child_end - child_begin) / 8;
+    }
+
+    shared_ptr<Element> get_child(int index) {
+        if (child_count() <= index)
+            return nullptr;
+
+        addrtype addr = read<addrtype>("childs", index * 8);
+        return shared_ptr<Element>(new Element(addr));
     }
 
     std::vector<shared_ptr<Element>>& get_childs() {
@@ -87,10 +100,8 @@ public:
         return childs;
     }
 
-    shared_ptr<Element>& operator[](int index) {
-        if (childs.empty())
-            get_childs();
-        return childs[index];
+    shared_ptr<Element> operator[](int index) {
+        return get_child(index);
     }
 
     bool is_visible() {
