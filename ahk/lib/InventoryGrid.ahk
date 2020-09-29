@@ -1,12 +1,8 @@
 ;
-; InventoryPanel.ahk, 9/20/2020 5:01 PM
+; InventoryGrid.ahk, 9/20/2020 5:01 PM
 ;
 
-class InventoryPanel extends Element {
-
-    isOpened() {
-        return this.isVisible()
-    }
+class InventoryGrid extends Element {
 
     dump(regex = "", n = 0) {
         this.checkLayout()
@@ -58,8 +54,7 @@ class InventoryPanel extends Element {
     }
 
     getItems() {
-        this.inventory.getItems()
-        return this.inventory.Items
+        return this.inventory.getItems()
     }
 
     moveTo(index) {
@@ -81,10 +76,6 @@ class InventoryPanel extends Element {
     highlight(aItem) {
         r := this.getRectByIndex(aItem.Index)
         ptask.c.drawRect(r.l, r.t, r.w, r.h, 0x77B4E7)
-    }
-
-    draw() {
-        this.element.draw()
     }
 
     drawItems() {
