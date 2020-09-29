@@ -12,7 +12,8 @@ if (Not DllCall("LoadLibrary", "str", "bin\poeapi.dll", "ptr")) {
 }
 
 #Include, %A_ScriptDir%\lib\ahkpp.ahk
-#Include, %A_ScriptDir%\lib\InventoryPanel.ahk
+#Include, %A_ScriptDir%\lib\Item.ahk
+#Include, %A_ScriptDir%\lib\InventoryGrid.ahk
 #Include, %A_ScriptDir%\lib\PoETask.ahk
 
 ; PoEapi windows messages
@@ -39,9 +40,12 @@ global WM_PTASK_ATTACHED   := 0x9100
 ; Register PoEapi classes
 ahkpp_register_class(PoETask)
 ahkpp_register_class(PoEObject)
+ahkpp_register_class(Entity)
+ahkpp_register_class(Item)
 ahkpp_register_class(Element)
 ahkpp_register_class(Inventory)
 ahkpp_register_class(Stash)
+ahkpp_register_class(Vendor)
 ahkpp_register_class(InventorySlot)
 
 class PoEObject extends AhkObj {
@@ -93,6 +97,15 @@ class PoEObject extends AhkObj {
     }
 }
 
+class Entity extends PoEObject {
+
+    getPos(ByRef x, ByRef y) {
+        pos := this.__getPos()
+        x := NumGet(pos + 0x0, "Int")
+        y := NumGet(pos + 0x4, "Int")
+    }
+}
+
 class Element extends PoEObject {
 
     getChild(params*) {
@@ -105,14 +118,17 @@ class Element extends PoEObject {
         return element
     }
 
-    getPos() {
+    getPos(ByRef x = "", ByRef y = "") {
         r := this.getRect()
-        x := NumGet(r + 0x0, "Int")
-        y := NumGet(r + 0x4, "Int")
+        l := NumGet(r + 0x0, "Int")
+        t := NumGet(r + 0x4, "Int")
         w := NumGet(r + 0x8, "Int")
         h := NumGet(r + 0xc, "Int")
 
-        return new Rect(x, y, w, h)
+        x := l + w / 2
+        y := t + h / 2
+
+        return new Rect(l, t, w, h)
     }
 
     draw(label = "", color = "") {
@@ -129,7 +145,7 @@ class Element extends PoEObject {
 
         ptask.c.drawRect(r.l, r.t, r.w, r.h, color)
         if (label)
-            ptask.c.drawText(r.l, r.t, r.l + 80, r.t + 20, label, color)
+            ptask.c.drawText(r.l, r.t, 10, 20, label, color)
 
         this.getChilds()
         for i, e in this.Childs {
@@ -142,7 +158,7 @@ class Element extends PoEObject {
     }
 }
 
-class Inventory extends InventoryPanel {
+class Inventory extends InventoryGrid {
 
     __new() {
         base.__new()
@@ -180,22 +196,20 @@ class Inventory extends InventoryPanel {
         if (isLBttonPressed)
             SendInput {LButton up}
 
-        aItem := this.findItem("Portal")
-        if (Not aItem) {
+        item := this.findItem("Portal")
+        if (Not item) {
             debug("!!! Out of ""Portal Scroll"".")
             return
         }
 
-        this.use(aItem)
+        this.use(item)
         if (closeInventory)
             SendInput {f}
 
         ;if (Not isMoving) {
             Sleep, 100
             portal := ptask.getNearestEntity("Portal")
-            pos := portal.getPos()
-            x := NumGet(pos + 0x0, "Int")
-            y := NumGet(pos + 0x4, "Int")
+            portal.getPos(x, y)
             MouseMove, x, y + 100, 0
             return
         ;}
@@ -205,30 +219,103 @@ class Inventory extends InventoryPanel {
             SendInput {LButton down}
     }
 
-    use(aItem, targetItem = "", n = 1) {
-        if (Not aItem || n < 1 || n > 20)
-            return aItem
+    identify(item, shift = false) {
+        if (Not shift) {
+            wisdom := this.findItem("Scroll of Wisdom")
+            if (Not wisdom)
+                return false
+
+            this.moveTo(wisdom.index)
+            MouseClick, Right
+        }
+
+        if (item) {
+            this.moveTo(item.index)
+            MouseClick, Left
+        }
+
+        return true
+    }
+
+    use(item, targetItem = "", n = 1) {
+        if (Not item)
+            return item
 
         if (n > 1)
             SendInput {Shift down}
 
-        this.moveTo(aItem.Index)
+        this.moveTo(item.index)
         Click, Right
 
         if (targetItem) {
-            this.moveTo(targetItem.Index)
+            this.moveTo(targetItem.index)
             loop, % n {
                 Click, Left
                 Sleep, 100
             }
             SendInput {Shift up}
 
-            return this.getItemByIndex(targetItem.Index)
+            return this.getItemByIndex(targetItem.index)
         }
     }
 }
 
 class Stash extends Element {
+
+    getTab(tabName) {
+        for i, tab in ptask.stashTabs {
+            if (tab.name == tabName)
+                return tab
+        }
+    }
+
+    switchTab(tabName) {
+        if (Not this.isOpened())
+            return
+
+        activeTabIndex := this.activeTabIndex()
+        if (this.stashTabs[activeTabIndex] != tabName) {
+            tab := this.getTab(tabName)
+            n := abs(activeTabIndex - tab.index)
+            key := (activeTabIndex > tab.index) ? "Left" : "Right"
+            SendInput {%key% %n%}
+        }
+
+        loop, 3 {
+            Sleep, 20
+            if (this.activeTabIndex() == tab.index)
+                break
+        }
+
+        return tab
+    }
+}
+
+class Vendor extends Element {
+
+    sell(vendorName = "NPC") {
+        sell := ptask.getSell()
+        if (Not sell.isOpened()) {
+            if (Not this.isSelected() && Not ptask.select(vendorName))
+                return false
+
+            this.getServices()
+            service := this.services["Sell Items"]
+            if (Not service)
+                return this.select("Navali")
+
+            service.getPos(x, y)
+            MouseClick(x, y)
+
+            loop, 10 {
+                if (sell.isOpened())
+                    return true
+                Sleep, 30
+            }
+        }
+
+        return true
+    }
 }
 
 class InventorySlot extends AhkObj {

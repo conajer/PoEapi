@@ -53,6 +53,34 @@ MouseClick(x, y, Button = "Left") {
     MouseClick, %Button%, x, y
 }
 
+class Rules {
+
+    __check(rule, item) {
+        if ((rule.baseType && RegExMatch(item.baseType, rule.baseType))
+            || (rule.baseName && RegExMatch(item.baseName, rule.baseName)))
+        {
+            for key, val in rule.constraints {
+
+                if (IsObject(val)) {
+                    if (item[key] < val[1] || item[key] > val[2])
+                        return false
+                } else if (Not (item[key] ~= val)) {
+                    return false
+                }
+            }
+
+            return true
+        }
+    }
+
+    check(item) {
+        for i, rule in this {
+            if (this.__check(rule, item)) {
+                return rule
+            }
+        }
+    }
+}
 
 class PoETask extends AhkObj {
 
@@ -72,6 +100,12 @@ class PoETask extends AhkObj {
 
         ; Start PoE task
         this.start()
+
+        ; 'Create' Rules objects manually
+        IdentifyExceptions.base := Rules
+        VendorRules.base := Rules
+        VendorExceptions.base := Rules
+        StashRules.base := Rules
     }
 
     attach(hwnd) {
@@ -177,13 +211,11 @@ class PoETask extends AhkObj {
             return false
 
         OnMessage(WM_USE_SKILL, this.useSkillHandler)
-        loop, 10 {
+        loop, 5 {
             if (this.selected)
                 return true
 
-            pos := entity.getPos()
-            x := NumGet(pos + 0x0, "Int")
-            y := NumGet(pos + 0x4, "Int")
+            entity.getPos(x, y)
             clipToRect(this.actionArea, x, y)
             MouseClick(x, y)
             Sleep, 500
@@ -193,11 +225,48 @@ class PoETask extends AhkObj {
     }
 
     sellItems() {
-        this.select("NPC")
+        vendor := this.getVendor()
+        if (Not vendor.sell())
+            return
+
+        for i, item in this.inventory.getItems() {
+            if (Not item.isIdentified() && Not IdentifyExceptions.check(item)) {
+                if (Not shift) {
+                    SendInput {Shift down}
+                    if (Not this.inventory.identify("")) {
+                        SendInput {Shift up}
+                        return
+                    }
+                    shift := true
+                }
+
+                this.inventory.identify(item, shift)
+            }
+        }
+
+        if (shift) {
+            Sleep, 200
+            SendInput {Shift up}
+        }
+
+        for i, item in this.inventory.getItems() {
+            if (Not VendorExceptions.check(item) && VendorRules.check(item))
+                this.inventory.move(item)
+        }
     }
 
     stashItems() {
-        this.select("Stash")
+        if (Not this.stash.isOpened() && Not this.select("Stash"))
+            return
+
+        Sleep, 30
+        for i, item in this.inventory.getItems() {
+            rule := StashRules.check(item)
+            if (rule) {
+                this.stash.switchTab(rule.tabName)
+                this.inventory.move(item)
+            }
+        }
     }
 
     levelupGems() {
@@ -242,7 +311,6 @@ class PoETask extends AhkObj {
             }
         }
 
-        Sleep, 100
         this.getInventorySlots()
         this.getStashTabs()
         this.getStash()

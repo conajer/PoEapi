@@ -54,7 +54,42 @@ global HeistChestNameRegex := "HeistChest(Secondary|RewardRoom)(.*)(Military|Rob
 ;     2. unique items
 ;     3. 6 sockets, 6 linked or 3 linked R-G-B items
 ;     4. gems whose quality > 5 or level > 12
+;     5. All weapon/armour items whose item level is between 60 to 75
 ;
 global AutoPickupKey := "a"
-global genericItemFilter := "Contract|Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz"
-global rareItemFilter := "Jewels|Amulet|Rings|Belts"
+global rareItemFilter := "Jewel|Amulet|Ring|Belt"
+
+; Auto identify/sell/stash rules
+; Rules Syntax:
+;       [ { "baseType" : <RegEx>
+;         , "baseName" : <RegEx>
+;         , "Constraints" : { <property>" : <value>|[minValue, maxValue]
+;                           , ...}}
+;       , ... ]
+; 
+; Supported base types:
+;       Currency|Weapon|Armour|Belt|Amulet|Ring|Jewel|Flask|DivinationCard
+;
+; Supported constraints:
+;       index, name, baseName, isIdentified, isMirrored, isCorrupted, isRGB
+;       rarity, itemLevel, quality, sockets, links, tier, level
+;       and is<BaseType> is<SubType>
+;
+global IdentifyExceptions :=[ {"baseType" : "Map"},
+                            , {"baseName" : "Opal Ring|Two-Toned Boots"}
+                            , {"baseType" : "Weapon|Armour|Belt|Amulet|Ring", "Constraints" : {"rarity" : 2, "isIdentified" : false, "itemLevel" : [60, 75]}} ]
+
+global VendorRules := [ {"baseType" : "Gem", "Constraints" : {"baseName" : "^(?!Awakened)", "level" : [1, 18], "quality" : [0, 4]}}
+                      , {"baseType" : "Weapon|Armour|Belt|Amulet|Ring|Flask|Jewel"} ]
+global VendorExceptions := [ {"baseType" : ".*", "Constraints" : {"rarity" : 3}}
+                           , {"baseType" : "Currency|Map|MapFragment"}
+                           , {"baseType" : "Gem", "Constraints" : {"baseName" : "Awakened"}}
+                           , {"baseName" : "Blueprint|Contract|Cluster Jewel|Opal Ring|Two-Toned Boots"}
+                           , {"baseType" : "Flask", "Constraints" : {"name" : "Bubbling|Seething|Catalysed|Staunching|Heat|Warding"}}
+                           , {"baseType" : "Weapon|Armour|Belt|Amulet|Ring", "Constraints" : {"rarity" : 2, "isIdentified" : false, "itemLevel" : [60, 75]}} ]
+
+global StashRules := [ {"tabName" : "Es",      "baseName" : "Essence of|Remnant of"}
+                     , {"tabName" : "Fossils", "baseName" : "Fossil$|Resonator$"}
+                     , {"tabName" : "$$$",     "baseType" : "Currency", "Constraints" : {"index" : [3, 60] }}
+                     , {"tabName" : "Maps",    "baseType" : "Map"}
+                     , {"tabName" : "Fr",      "baseType" : "MapFragment", "baseName" : "Splinter|Scarab$"} ]
