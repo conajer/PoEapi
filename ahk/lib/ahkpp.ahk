@@ -1,6 +1,22 @@
 ; ahkpp.ahk, 9/6/2020 5:28 PM
 
 global __ahkpp_classes := {"AhkObj" : AhkObj}
+global __ahkpp_types := [ "Char"          ; AhkChar      
+                         ,"Short"         ; AhkShort     
+                         ,"Int"           ; AhkInt       
+                         ,"UChar"         ; AhkUChar     
+                         ,"UShort"        ; AhkUShort    
+                         ,"UInt"          ; AhkUInt      
+                         ,"Int64"         ; AhkInt64     
+                         ,"AStr"          ; AhkString    
+                         ,"WStr"          ; AhkWString   
+                         ,"Double"        ; AhkFloat     
+                         ,"Double"        ; AhkDouble    
+                         ,"Ptr"           ; AhkPointer   
+                         ,"UPtr"          ; AhkObject    
+                         ,"AStr"          ; AhkStringPtr 
+                         ,"WStr"          ; AhkWStringPtr
+                         ,"Char" ]        ; AhkBool      
 global __ahkpp_value := ""
 
 ahkpp_new(className) {
@@ -139,34 +155,17 @@ __Set(obj, key, params*) {
         if (key == "")
             key := obj.Count() + 1
 
-        switch NumGet(params + offset + 8, "Int") {
-        case 1: ; Char
-            obj[key] := NumGet(params + offset, "Char")
-        case 2: ; Short
-            obj[key] := NumGet(params + offset, "Short")
-        case 3: ; Int
-            obj[key] := NumGet(params + offset, "Int")
-        case 4: ; Unsigned Char
-            obj[key] := NumGet(params + offset, "UChar")
-        case 5: ; Unsigned Short
-            obj[key] := NumGet(params + offset, "UShort")
-        case 6: ; Unsigned Int
-            obj[key] := NumGet(params + offset, "UInt")
-        case 7: ; Int64
-            obj[key] := NumGet(params + offset, "Int64")
+        type := NumGet(params + offset + 8, "Int")
+        switch type {
         case 8: ; String
             obj[key] := StrGet(NumGet(params + offset, "Ptr"), "utf-8")
         case 9: ; Unicode  String
             obj[key] := StrGet(NumGet(params + offset, "Ptr"))
-        case 10: ; Float
-            obj[key] := NumGet(params + offset, "Float")
-        case 11: ; Double
-            obj[key] := NumGet(params + offset, "Double")
-        case 12: ; Ptr
-            obj[key] := NumGet(params + offset, "Ptr")
         case 13: ; Object
             objPtr := NumGet(params + offset, "Ptr")
             obj[key] := objPtr ? Object(objPtr) : {}
+        default:
+            obj[key] := NumGet(params + offset, __ahkpp_types[type])
         }
 
         key := NumGet(params + offset + 16, "Ptr")
@@ -175,45 +174,26 @@ __Set(obj, key, params*) {
 }
 
 __Call(obj, name, params*) {
-    offset := 0
-    params := NumGet(params + offset, "Ptr")
+    params := NumGet(params + 0, "Ptr")
     args := []
 
     type := NumGet(params + 0, "Int")
+    offset := 8
     while (type) {
-        offset += 8
         switch type {
-        case 1: ; Char
-            args.Push(NumGet(params + offset, "Char"))
-        case 2: ; Short
-            args.Push(NumGet(params + offset, "Short"))
-        case 3: ; Int
-            args.Push(NumGet(params + offset, "Int"))
-        case 4: ; Unsigned Char
-            args.Push(NumGet(params + offset, "UChar"))
-        case 5: ; Unsigned Short
-            args.Push(NumGet(params + offset, "UShort"))
-        case 6: ; Unsigned Int
-            args.Push(NumGet(params + offset, "UInt"))
-        case 7: ; Int64
-            args.Push(NumGet(params + offset, "Int64"))
         case 8: ; String
             args.Push(StrGet(NumGet(params + offset, "Ptr"), "utf-8"))
         case 9: ; Unicode  String
             args.Push(StrGet(NumGet(params + offset, "Ptr")))
-        case 10: ; Float
-            args.Push(NumGet(params + offset, "Double"))
-        case 11: ; Double
-            args.Push(NumGet(params + offset, "Double"))
-        case 12: ; Ptr
-            args.Push(NumGet(params + offset, "Ptr"))
         case 13: ; Object
             objPtr := NumGet(params + offset, "Ptr")
             args.Push(objPtr ? Object(objPtr) : "")
+        default:
+            args.Push(NumGet(params + offset, __ahkpp_types[type]))
         }
 
-        offset += 8
-        type := NumGet(params + offset, "Int")
+        type := NumGet(params + offset + 8, "Int")
+        offset += 16
     }
 
     Object(obj)[StrGet(name)](args*)
