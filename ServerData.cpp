@@ -125,7 +125,7 @@ public:
                                 AhkObject, nullptr);
                     item.__set(L"left", i.second.x + 1, AhkInt,
                                L"top", i.second.y + 1, AhkInt,
-                               L"Index", i.first, AhkInt,
+                               L"index", i.first, AhkInt,
                                nullptr);
                 }
             }
