@@ -30,7 +30,7 @@ Hotkey, IfWinActive
 ; end of auto-execute section
 return
 
-objdump(obj, prefix = "") {
+objdump(obj, prefix = "", depth = 0) {
     if (Not IsObject(obj)) {
         debug("Not a object")
         return
@@ -50,8 +50,8 @@ objdump(obj, prefix = "") {
 
     for k, v in obj {
         debug("{}   {}{}, {}", prefix, IsObject(v) ? "*" : " ", k, IsObject(v) ? v.Count() : v)
-        if (IsObject(v))
-            objdump(v, prefix "    ")
+        if (depth > 0 && IsObject(v))
+            objdump(v, prefix "    ", depth - 1)
     }
 }
 
@@ -135,6 +135,14 @@ return
 
 ^q::
     ExitApp
+return
+
+~^c::
+    Sleep, 100
+    if (Clipboard) {
+        if (SubStr(Clipboard, 1, 7) == "Rarity:")
+            MsgBox, 0, Item Info, %clipboard%
+    }
 return
 
 ^t::
