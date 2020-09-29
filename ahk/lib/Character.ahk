@@ -185,7 +185,7 @@ class Character {
             this.keep_moving := 0
         this.last_moving := A_Tickcount
 
-        if (this.keep_moving < 10 || ptask.hasBuff("flask_utility_sprint"))
+        if (this.keep_moving < 8 || ptask.hasBuff("flask_utility_sprint"))
             return
 
         if (AlwaysRunning || this.nearbyMonsters > MonsterThreshold) {
