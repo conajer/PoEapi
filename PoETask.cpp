@@ -46,6 +46,8 @@ public:
         add_method(L"getInventorySlots", this, (MethodType)&PoETask::get_inventory_slots, AhkObject);
         add_method(L"getStash", this, (MethodType)&PoETask::get_stash, AhkObject);
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
+        add_method(L"getVendor", this, (MethodType)&PoETask::get_vendor, AhkObject);
+        add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff,
                    AhkInt, std::vector<AhkType>{AhkWString});
@@ -130,6 +132,26 @@ public:
             __set(L"Stash", ahkobj_ref, AhkObject, nullptr);
             return ahkobj_ref;
         }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_vendor() {
+        if (is_in_game()) {
+            InGameUI* in_game_ui = in_game_state->in_game_ui();
+            Vendor* vendor = in_game_ui->get_vendor();
+            return (AhkObjRef*)*vendor;
+       }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_sell() {
+        if (is_in_game()) {
+            InGameUI* in_game_ui = in_game_state->in_game_ui();
+            Sell* sell = in_game_ui->get_sell();
+            return (AhkObjRef*)*sell;
+       }
 
         return nullptr;
     }
@@ -340,6 +362,8 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"InventorySlot", L"AhkObj", []()->InventorySlot* {return new InventorySlot(0);});
         ahkpp_register(L"Stash", L"Element", []()->Stash* {return new Stash(0);});
         ahkpp_register(L"StashTab", L"AhkObj", []()->StashTab* {return new StashTab(0);});
+        ahkpp_register(L"Vendor", L"Element", []()->Vendor* {return new Vendor(0);});
+        ahkpp_register(L"Sell", L"Element", []()->Sell* {return new Sell(0);});
         ahkpp_register(L"Charges", L"Component", []()->Charges* {return new Charges(0);});
         ahkpp_register(L"Flask", L"Component", []()->Flask* {return new Flask(0);});
         break;

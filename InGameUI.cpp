@@ -6,6 +6,8 @@
 
 #include "ui/Inventory.cpp"
 #include "ui/Stash.cpp"
+#include "ui/Vendor.cpp"
+#include "ui/Sell.cpp"
 
 static std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x520},
@@ -14,9 +16,10 @@ static std::map<string, int> in_game_ui_offsets {
         {"tabs",        0x2d8},
     {"entity_list",     0x5b0},
         {"root",        0x2a0},
-    {"purchase",        0x638},
-    {"sell",            0x640},
-    {"trade",             0x0},
+    {"vendor",          0x638},
+    {"purchase",        0x658},
+    {"sell",            0x660},
+    {"trade",           0x668},
     {"gem_level_up",    0x8c8},
 };
 
@@ -30,6 +33,8 @@ public:
 
     unique_ptr<Inventory> inventory;
     unique_ptr<Stash> stash;
+    unique_ptr<Vendor> vendor;
+    unique_ptr<Sell> sell;
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
@@ -43,6 +48,16 @@ public:
     Stash* get_stash() {
         stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
         return stash.get();
+    }
+
+    Vendor* get_vendor() {
+        vendor = unique_ptr<Vendor>(new Vendor(read<addrtype>("vendor")));
+        return vendor.get();
+    }
+
+    Sell* get_sell() {
+        sell = unique_ptr<Sell>(new Sell(read<addrtype>("sell")));
+        return sell.get();
     }
 
     int get_all_entities(EntityList& entities, EntityList& removed) {
