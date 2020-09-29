@@ -79,6 +79,6 @@ public:
                           (WPARAM)world_area->name().c_str(),
                           (LPARAM)world_area->level() | (is_town ? 0x100 : 0));
 
-        log(L"entered %S", world_area->name().c_str());
+        log(L"You have entered %S", world_area->name().c_str());
     }
 };

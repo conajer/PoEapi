@@ -6,7 +6,6 @@ class AutoOpen : public PoEPlugin {
 public:
 
     LocalPlayer* player;
-    Actor* actor;
     std::vector<string> entity_types = {
         "Chest",
         "MinimapIcon",          // DelveMineralVein, shrine etc.
@@ -32,14 +31,12 @@ public:
 
         poe->mouse_click(pos.x, pos.y);
         pos = poe->get_pos(entity);
-        poe->mouse_click_and_return(pos, old_pos, actor->is_moving(), is_pressed);
+        poe->mouse_click_and_return(pos, old_pos, player->is_moving(), is_pressed);
         Sleep(500);
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
         player = local_player;
-        actor = player->get_component<Actor>();
-	
     }
 
     void on_labeled_entity_changed(EntityList& entities) {

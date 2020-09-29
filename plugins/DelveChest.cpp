@@ -39,14 +39,14 @@ public:
                 return;
             }
 
-            if (i.second->path.find(L"Delve") == string::npos)
+            wstring& path = i.second->path;
+            if (path.find(L"Delve") == string::npos)
                 continue;
 
             Targetable* targetable = i.second->get_component<Targetable>();
             if (!targetable || !targetable->is_targetable())
                 continue;
 
-            wstring& path = i.second->path;
             int index = i.second->has_component(entity_types);
             switch (index) {
             case 0: // Chest

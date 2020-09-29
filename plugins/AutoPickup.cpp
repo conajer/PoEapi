@@ -20,6 +20,7 @@ public:
     Entity* selected_item;
     int range, last_pickup;
     bool enabled;
+    int try_again;
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
@@ -50,13 +51,17 @@ public:
             return true;
 
         if (item.has_component("SkillGem"))
-            return (item.get_quality() > 5 || item.get_level() > 12);
+            return (item.get_quality() >= 5 || item.get_level() > 12);
 
-        if (item.get_rarity() > 1) {
-            if (item.get_rarity() == 3)
+        int rarity = item.get_rarity();
+        if (rarity > 1) {
+            if (rarity == 3)
                 return true;
 
-            if (!item.is_identified() && std::regex_search(item.path, rare_item_filter))
+            int ilvl = item.get_item_level();
+            if (!item.is_identified()
+                && ((ilvl >= 60 && ilvl < 75)
+                    || std::regex_search(item.path, rare_item_filter)))
                 return true;
         }
 
@@ -117,14 +122,21 @@ public:
         }
         
         if (nearest_item == selected_item) {
-            if (GetTickCount() - last_pickup > 3000)
-                enabled = false;
-            return;
+            if (player->is_moving() || ++try_again < 3) {
+                if (GetTickCount() - last_pickup > 3000)
+                    enabled = false;
+                return;
+            }
         }
 
         selected_item = nearest_item;
+        try_again = 0;
         Point& pos = selected_item->get_pos();
         PostThreadMessage(thread_id, WM_PICKUP, (WPARAM)pos.x, (LPARAM)pos.y);
+        log(L"%llx: %S, %d, %d\n",
+            selected_item->address,
+            selected_item->name().c_str(),
+            pos.x, pos.y);
         last_pickup = GetTickCount();
     }
 };
