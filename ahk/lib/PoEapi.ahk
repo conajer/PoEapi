@@ -2,12 +2,7 @@
 ; PoEapi.ahk, 9/10/2020 8:27 PM
 ;
 
-if (FileExist("..\poeapi.dll")) {
-    FileMove ..\poeapi.dll, bin\poeapi.dll, true
-}
-
-DllCall("AddDllDirectory", "Str", ".\bin")
-if (Not DllCall("LoadLibrary", "str", "bin\poeapi.dll", "ptr")) {
+if (Not DllCall("LoadLibrary", "Str", "poeapi.dll", "ptr")) {
     Msgbox, % DllCall("GetLastError") ": Load poeapi.dll failed!"
 }
 
