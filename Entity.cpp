@@ -86,7 +86,7 @@ public:
         add_property(L"y", &pos.y, AhkInt);
         add_method(L"name", this, (MethodType)&Entity::name, AhkWStringPtr);
         add_method(L"getComponents", this, (MethodType)&Entity::get_components, AhkObject);
-        add_method(L"getPos", this, (MethodType)&Entity::get_pos, AhkPointer);
+        add_method(L"__getPos", this, (MethodType)&Entity::get_pos, AhkPointer);
     }
 
     void __new() {
@@ -251,11 +251,11 @@ public:
 
         add_method(L"name", this, (MethodType)&Item::name, AhkWStringPtr);
         add_method(L"baseName", this, (MethodType)&Item::base_name, AhkWStringPtr);
-        add_method(L"isIdentified", this, (MethodType)&Item::is_identified);
-        add_method(L"isMirrored", this, (MethodType)&Item::is_mirrored);
-        add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted);
-        add_method(L"isSynthesised", this, (MethodType)&Item::is_synthesised);
-        add_method(L"isRGB", this, (MethodType)&Item::is_rgb);
+        add_method(L"isIdentified", this, (MethodType)&Item::is_identified, AhkBool);
+        add_method(L"isMirrored", this, (MethodType)&Item::is_mirrored, AhkBool);
+        add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted, AhkBool);
+        add_method(L"isSynthesised", this, (MethodType)&Item::is_synthesised, AhkBool);
+        add_method(L"isRGB", this, (MethodType)&Item::is_rgb, AhkBool);
         add_method(L"rarity", this, (MethodType)&Item::get_rarity);
         add_method(L"itemLevel", this, (MethodType)&Item::get_item_level);
         add_method(L"quality", this, (MethodType)&Item::get_quality);
@@ -279,19 +279,19 @@ public:
         return base ? base->name() : type_name;
     }
 
-    int is_identified() {
-        return mods ? mods->is_identified() : false;
+    bool is_identified() {
+        return mods ? mods->is_identified() : true;
     }
 
-    int is_mirrored() {
+    bool is_mirrored() {
         return mods ? mods->is_mirrored() : false;
     }
 
-    int is_corrupted() {
+    bool is_corrupted() {
         return base ? base->is_corrupted() : false;
     }
 
-    int is_synthesised() {
+    bool is_synthesised() {
         return mods ? mods->is_synthesised() : false;
     }
 
