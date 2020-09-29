@@ -16,6 +16,7 @@ public:
         Element all_tabs(read<addrtype>("tabs"));
         tabs = all_tabs.get_childs();
 
+        add_method(L"isOpened", (Element*)this, (MethodType)&Element::is_visible, AhkBool);
         add_method(L"activeTabIndex", this, (MethodType)&Stash::active_tab_index);
     }
 
