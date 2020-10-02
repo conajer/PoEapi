@@ -62,7 +62,7 @@ global HeistChestNameRegex := "HeistChest(Secondary|RewardRoom)(.*)(Military|Rob
 ;
 global AutoPickupKey := "a"
 global AutoPickupRange := 50
-global genericItemFilter := "Blueprint|Contract|Incubator|Scarab$|(Quicksilver|Basalt|Quartz|Divine Life|Eternal Life) Flask"
+global genericItemFilter := "Blueprint|Contract|Incubator|Scarab$|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
 global rareItemFilter := "Jewel|Amulet|Ring|Belt"
 
 ; Auto identify/sell/stash rules
