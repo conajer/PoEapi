@@ -37,7 +37,7 @@ class Banner extends AhkGui {
             Gui, Add, Text, % "ys w150 Hwnd" this.__var("EnergyShield"), Energy Shield: 100`%
         }
         Gui, Font, cBlack bold
-        Gui, Add, Text, % "ys w70 Hwnd" this.__var("Kills"), Kills: 0/0
+        Gui, Add, Text, % "ys w100 Hwnd" this.__var("Kills"), Kills: 0/0
         Gui, Font, cPurple bold
         Gui, Add, Text, % "ys x+10 w200 Hwnd" this.__var("Statusbar")
 
