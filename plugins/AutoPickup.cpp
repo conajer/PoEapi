@@ -11,13 +11,15 @@ public:
     };
 
     std::vector<string> item_types = {
-        "Stack",                // Currency items
+        "Stack",                // Currency/DivinationCard items
         "Map",                  // Maps
         "Quest",                // Quest items
+        "HeistObjective",       // Heist objective item
     };
 
     LocalPlayer* player;
-    Entity* selected_item;
+    std::map<int, shared_ptr<Entity>> ignored_entities;
+    shared_ptr<Entity> selected_item;
     int range, last_pickup;
     bool enabled;
     int try_again;
@@ -25,19 +27,21 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin("AutoPickup", "0.1"), player(nullptr) {
-        range = 50;
-        enabled = false;
+    AutoPickup() : PoEPlugin("AutoPickup", "0.1"), player(nullptr), range(50) {
         generic_item_filter.assign(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         rare_item_filter.assign(L"Jewels|Amulet|Rings|Belts");
     }
 
     void begin_pickup() {
-        selected_item = nullptr;
+        stop_pickup();
+        try_again = 0;
+        last_pickup = GetTickCount();
         enabled = true;
     }
 
     void stop_pickup() {
+        ignored_entities.clear();
+        selected_item.reset();
         enabled = false;
     }
 
@@ -79,7 +83,7 @@ public:
         if (!enabled)
             return;
 
-        Entity* nearest_item = nullptr;
+        shared_ptr<Entity> nearest_item;
         int min_dist = range;
         for (auto& i : entities) {
             if (to_reset) {
@@ -89,6 +93,9 @@ public:
 
             int index = i.second->has_component(entity_types);
             if (index < 0)
+                continue;
+
+            if (ignored_entities.find(i.second->id) != ignored_entities.end())
                 continue;
 
             switch (index) {
@@ -111,7 +118,7 @@ public:
 
             int dist = player->dist(*i.second);
             if (dist < min_dist) {
-                nearest_item = i.second.get();
+                nearest_item = i.second;
                 min_dist = dist;
             }
         }
@@ -121,17 +128,34 @@ public:
             return;
         }
         
+        if (GetTickCount() - last_pickup > 3000) {
+            stop_pickup();
+            return;
+        }
+
         if (nearest_item == selected_item) {
-            if (player->is_moving() || ++try_again < 3) {
-                if (GetTickCount() - last_pickup > 3000)
-                    enabled = false;
+            int action_id = player->actor->action_id();
+            if (action_id > 0) {
+                if (action_id == 2 && player->actor->target_address == selected_item->address) {
+                    ignored_entities[selected_item->id] = selected_item;
+                }
                 return;
             }
+                
+            if (++try_again > 2) {
+                ignored_entities[selected_item->id] = selected_item;
+                try_again = 0;
+                return;
+            }
+        } else {
+            try_again = 0;
         }
 
         selected_item = nearest_item;
-        try_again = 0;
         Point& pos = selected_item->get_pos();
+        if (pos.x < 0 || pos.y < 0 || pos.x > 1920 || pos.y > 1080)
+            return;
+
         PostThreadMessage(thread_id, WM_PICKUP, (WPARAM)pos.x, (LPARAM)pos.y);
         log(L"%llx: %S, %d, %d\n",
             selected_item->address,
