@@ -134,7 +134,7 @@ class PoETask extends AhkObj {
         this.Hwnd := hwnd
         this.width := w
         this.height := h
-        this.actionArea := new Rect(225, 125, w - 450, h - 250)
+        this.actionArea := new Rect(210, 70, w - 450, h - 260)
 
         if (EnableCanvas)
             this.c := new Canvas(hwnd)
@@ -207,8 +207,8 @@ class PoETask extends AhkObj {
             return
 
         this.selected := false
-        entity := this.getNearestEntity(name)
-        if (Not entity)
+        this.entity := this.getNearestEntity(name)
+        if (Not this.entity)
             return false
 
         OnMessage(WM_USE_SKILL, this.useSkillHandler)
@@ -216,7 +216,7 @@ class PoETask extends AhkObj {
             if (this.selected)
                 return true
 
-            entity.getPos(x, y)
+            this.entity.getPos(x, y)
             clipToRect(this.actionArea, x, y)
             MouseClick(x, y)
             Sleep, 500
@@ -282,9 +282,11 @@ class PoETask extends AhkObj {
             if (ErrorLevel != 0)
                 break
             MouseClick(x + 40, y + 8)
-            ;Sleep, 100
+            n += 1
         }
-        MouseMove, oldX, oldY, 0
+
+        if (n > 0)
+            MouseMove, oldX, oldY, 0
     }
 
     areaChanged(areaName, lParam) {
@@ -398,8 +400,10 @@ class PoETask extends AhkObj {
     onUseSkill(skill, target) {
         skill := StrGet(skill)
         if (skill == "Interactive") {
-            this.selected := true
-            OnMessage(WM_USE_SKILL, this.useSkillHandler, 0)
+            if (this.entity && this.entity.address == target) {
+                this.selected := true
+                OnMessage(WM_USE_SKILL, this.useSkillHandler, 0)
+            }
         }
     }
 
