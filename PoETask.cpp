@@ -280,7 +280,7 @@ public:
 
         /* create jobs */
         start_job(135, [&] {this->check_player();});
-        start_job(105, [&] {this->check_labeled_entities();});
+        start_job(33, [&] {this->check_labeled_entities();});
         start_job(200, [&] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
