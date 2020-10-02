@@ -94,8 +94,6 @@ class PoETask extends AhkObj {
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "attach"))
 
-        this.setGenericItemFilter(genericItemFilter)
-        this.setRareItemFilter(rareItemFilter)
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
 
         ; Start PoE task
@@ -106,6 +104,11 @@ class PoETask extends AhkObj {
         VendorRules.base := Rules
         VendorExceptions.base := Rules
         StashRules.base := Rules
+
+        ; Setup auto pickup
+        this.setPickupRange(AutoPickupRange)
+        this.setGenericItemFilter(genericItemFilter)
+        this.setRareItemFilter(rareItemFilter)
     }
 
     attach(hwnd) {
