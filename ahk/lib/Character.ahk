@@ -122,6 +122,8 @@ class Character {
         reserved := lParam >> 16
         life := Round(life * 100 / (maximum - reserved))
         if (life < LifeThreshold) {
+            SendInput, %DefenseBuffSkillKey%
+
             maxUses := 0
             for i, aFlask in this.flasks {
                 if (aFlask.IsLife) {
