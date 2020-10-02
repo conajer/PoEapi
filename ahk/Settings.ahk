@@ -86,7 +86,7 @@ global IdentifyExceptions :=[ {"baseType" : "Map"},
                             , {"baseType" : "Weapon|Armour|Belt|Amulet|Ring", "Constraints" : {"rarity" : 2, "isIdentified" : false, "itemLevel" : [60, 75]}} ]
 
 global VendorRules := [ {"baseType" : "Gem", "Constraints" : {"baseName" : "^(?!Awakened)", "level" : [1, 18], "quality" : [0, 4]}}
-                      , {"baseType" : "Weapon|Armour|Belt|Amulet|Ring|Flask|Jewel"} ]
+                      , {"baseType" : "Weapon|Armour|Belt|Amulet|Ring|Quiver|Flask|Jewel"} ]
 global VendorExceptions := [ {"baseType" : ".*", "Constraints" : {"rarity" : 3}}
                            , {"baseType" : "Currency|Map|MapFragment"}
                            , {"baseType" : "Gem", "Constraints" : {"baseName" : "Awakened"}}
@@ -97,5 +97,5 @@ global VendorExceptions := [ {"baseType" : ".*", "Constraints" : {"rarity" : 3}}
 global StashRules := [ {"tabName" : "Es",      "baseName" : "Essence of|Remnant of"}
                      , {"tabName" : "Fossils", "baseName" : "Fossil$|Resonator$"}
                      , {"tabName" : "$$$",     "baseType" : "Currency", "Constraints" : {"index" : [3, 60] }}
-                     , {"tabName" : "Maps",    "baseType" : "Map"}
+                     , {"tabName" : "Maps",    "baseType" : "Map(?!Fragment)"}
                      , {"tabName" : "Fr",      "baseType" : "MapFragment", "baseName" : "Splinter|Scarab$"} ]
