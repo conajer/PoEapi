@@ -17,36 +17,36 @@ template <> void* read(HANDLE handle, addrtype address, void* buffer, int size) 
     }
 
 template <typename T> T read(HANDLE handle, addrtype address, int size) {
-    T t;
-    ReadProcessMemory(handle, (LPVOID)address, &address, sizeof(addrtype), 0);
-    ReadProcessMemory(handle, (LPVOID)address, &t, size, 0);
+    T t = {};
+    if (ReadProcessMemory(handle, (LPVOID)address, &address, sizeof(addrtype), 0))
+        ReadProcessMemory(handle, (LPVOID)address, &t, size, 0);
     return t;
 }
 
 template <> string read(HANDLE handle, addrtype address, int len) {
     char buffer[len + 1];
-    ReadProcessMemory(handle, (LPVOID)address, &address, sizeof(addrtype), 0);
-    if (ReadProcessMemory(handle, (LPVOID)address, buffer, len, 0)) {
-        buffer[len] = '\0';
-        return buffer;
-    }
+    if (ReadProcessMemory(handle, (LPVOID)address, &address, sizeof(addrtype), 0))
+        if (ReadProcessMemory(handle, (LPVOID)address, buffer, len, 0)) {
+            buffer[len] = '\0';
+            return buffer;
+        }
 
     return "";
 }
 
 template <> wstring read(HANDLE handle, addrtype address, int len) {
     wchar_t buffer[len + 1];
-    ReadProcessMemory(handle, (LPVOID)address, &address, sizeof(addrtype), 0);
-    if (ReadProcessMemory(handle, (LPVOID)address, buffer, 2 * len, 0)) {
-        buffer[len] = L'\0';
-        return buffer;
-    }
+    if (ReadProcessMemory(handle, (LPVOID)address, &address, sizeof(addrtype), 0))
+        if (ReadProcessMemory(handle, (LPVOID)address, buffer, 2 * len, 0)) {
+            buffer[len] = L'\0';
+            return buffer;
+        }
 
     return L"";
 }
 
 template <typename T> T read(HANDLE handle, addrtype address) {
-    T t;
+    T t = {};
     ReadProcessMemory(handle, (LPVOID)address, &t, sizeof(T), 0);
     return t;
 }
@@ -59,10 +59,9 @@ template <> string read<string>(HANDLE handle, addrtype address) {
         wchar_t buffer[len];
         if (len >= 8)
             address = read<addrtype>(handle, address);
-        ReadProcessMemory(handle, (LPVOID)address, buffer, len * 2, 0);
-
-        for (wchar_t c : buffer)
-            str += c;
+        if (ReadProcessMemory(handle, (LPVOID)address, buffer, len * 2, 0))
+            for (wchar_t c : buffer)
+                str += c;
     }
 
     return str;
@@ -76,8 +75,8 @@ template <> wstring read<wstring>(HANDLE handle, addrtype address) {
         wchar_t buffer[len + 1];
         if (len >= 8)
             address = read<addrtype>(handle, address);
-        ReadProcessMemory(handle, (LPVOID)address, buffer, (len + 1) * 2, 0);
-        str = buffer;
+        if (ReadProcessMemory(handle, (LPVOID)address, buffer, (len + 1) * 2, 0))
+            str = buffer;
     }
 
     return str;
