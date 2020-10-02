@@ -262,8 +262,10 @@ class Stash extends Element {
     open() {
         if (this.isOpened())
             return true
-            
-        if (ptask.select("Stash")) {
+
+        SendInput, %CloseAllUIKey%
+        Sleep, 100
+        if (ptask.select("/Stash")) {
             loop 20 {
                 if (this.isOpened())
                     return true
@@ -310,6 +312,8 @@ class Vendor extends Element {
         if (sell.isOpened())
             return true
 
+        SendInput, %CloseAllUIKey%
+        Sleep, 100
         if (Not this.isSelected() && Not ptask.select(vendorName))
             return false
 

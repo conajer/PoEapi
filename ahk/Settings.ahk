@@ -39,6 +39,7 @@ global MonsterThreshold := 10
 global AlwaysRunning := true
 
 ; Stash and inventory
+global CloseAllUIKey := "{Space}"
 global InventoryKey := "f"
 
 ; Attack and defense
