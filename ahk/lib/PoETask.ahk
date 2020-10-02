@@ -254,10 +254,10 @@ class PoETask extends AhkObj {
     }
 
     stashItems() {
-        if (Not this.stash.isOpened() && Not this.select("Stash"))
+        if (Not this.stash.open())
             return
 
-        Sleep, 30
+        Sleep, 100
         for i, item in this.inventory.getItems() {
             rule := StashRules.check(item)
             if (rule) {

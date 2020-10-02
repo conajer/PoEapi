@@ -178,9 +178,6 @@ class Inventory extends InventoryGrid {
     }
 
     openPortal() {
-        isLBttonPressed := GetKeyState("LButton")
-        isMoving := ptask.player.isMoving()
-
         if (Not this.isOpened()) {
             SendInput, %InventoryKey%
             Sleep, 100
@@ -188,6 +185,7 @@ class Inventory extends InventoryGrid {
         }
 
         MouseGetPos, tempX, tempY
+        isLBttonPressed := GetKeyState("LButton")
         if (isLBttonPressed)
             SendInput {LButton up}
 
@@ -201,7 +199,7 @@ class Inventory extends InventoryGrid {
         if (closeInventory)
             SendInput {f}
 
-        ;if (Not isMoving) {
+        ;if (Not ptask.player.isMoving()) {
             Sleep, 100
             portal := ptask.getNearestEntity("Portal")
             portal.getPos(x, y)
@@ -257,6 +255,21 @@ class Inventory extends InventoryGrid {
 
 class Stash extends Element {
 
+    open() {
+        if (this.isOpened())
+            return true
+            
+        if (ptask.select("Stash")) {
+            loop 20 {
+                if (this.isOpened())
+                    return true
+                Sleep, 100
+            }
+        }
+
+        return false
+    }
+
     getTab(tabName) {
         for i, tab in ptask.stashTabs {
             if (tab.name == tabName)
@@ -294,10 +307,17 @@ class Vendor extends Element {
             if (Not this.isSelected() && Not ptask.select(vendorName))
                 return false
 
+            this.services := ""
+            loop, 30 {
             this.getServices()
+                if (this.services) {
             service := this.services["Sell Items"]
             if (Not service)
                 return this.select("Navali")
+                    break
+                }
+                Sleep, 50
+            }
 
             service.getPos(x, y)
             MouseClick(x, y)
@@ -305,11 +325,11 @@ class Vendor extends Element {
             loop, 10 {
                 if (sell.isOpened())
                     return true
-                Sleep, 30
+                Sleep, 50
             }
         }
 
-        return true
+        return false
     }
 }
 
