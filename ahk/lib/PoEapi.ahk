@@ -2,6 +2,10 @@
 ; PoEapi.ahk, 9/10/2020 8:27 PM
 ;
 
+if (FileExist("..\poeapi.dll")) {
+    FileMove ..\poeapi.dll, poeapi.dll, true
+}
+
 if (Not DllCall("LoadLibrary", "Str", "poeapi.dll", "ptr")) {
     Msgbox, % DllCall("GetLastError") ": Load poeapi.dll failed!"
 }
@@ -303,22 +307,25 @@ class Vendor extends Element {
 
     sell(vendorName = "NPC") {
         sell := ptask.getSell()
-        if (Not sell.isOpened()) {
-            if (Not this.isSelected() && Not ptask.select(vendorName))
-                return false
+        if (sell.isOpened())
+            return true
 
-            this.services := ""
-            loop, 30 {
+        if (Not this.isSelected() && Not ptask.select(vendorName))
+            return false
+
+        this.services := ""
+        loop, 30 {
             this.getServices()
-                if (this.services) {
-            service := this.services["Sell Items"]
-            if (Not service)
-                return this.select("Navali")
-                    break
-                }
-                Sleep, 50
+            if (this.services) {
+                service := this.services["Sell Items"]
+                if (Not service)
+                    return this.select("Navali")
+                break
             }
+            Sleep, 50
+        }
 
+        if (service) {
             service.getPos(x, y)
             MouseClick(x, y)
 
