@@ -10,9 +10,11 @@ public:
     wstring league;
     int life, mana, energy_shield;
     int last_action_id;
+    bool is_dead;
 
     PlayerStatus() : PoEPlugin("PlayerStatus", "0.3"), player(0) {
         life = mana = 0;
+        is_dead = false;
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
@@ -38,6 +40,10 @@ public:
                               WM_PLAYER_LIFE,
                               (WPARAM)this->life,
                               (LPARAM)(maximum | (reserved << 16)));
+
+            if (is_dead) {
+                is_dead = (current_life == 0);
+            }
         }
 
         int current_mana = local_player->life->mana();
@@ -63,13 +69,18 @@ public:
         int action_id = actor->action_id();
         if (action_id & ACTION_MOVING)
             PostThreadMessage(thread_id, WM_PLAYER_MOVE, 0, 0);
-        else if (action_id & ACTION_USING_SKILL)
+        else if (action_id & ACTION_DEAD) {
+            if (!is_dead)
+                PostThreadMessage(thread_id, WM_PLAYER_DIED, 0, 0);
+            is_dead = true;
+        }
+        
+        if (actor->skill) {
             PostThreadMessage(thread_id,
                               WM_PLAYER_USE_SKILL,
                               (WPARAM)actor->skill->name.c_str(),
                               (LPARAM)actor->target_address);
-        else if (action_id & ACTION_DEAD)
-            PostThreadMessage(thread_id, WM_PLAYER_DIED, 0, 0);
+        }
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code) {

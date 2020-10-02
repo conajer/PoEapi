@@ -100,7 +100,7 @@ public:
 
     int action_id() {
         int tmp_action_id = read<short>("action_id");
-        if (tmp_action_id & 0x2) {
+        if (tmp_action_id) {
             addrtype addr = read<addrtype>("action", "skill");
             if (!skill || addr != skill->address) {
                 auto i = skills.find(addr);
