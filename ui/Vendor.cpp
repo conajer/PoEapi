@@ -43,11 +43,10 @@ public:
                 continue;
             
             wstring& service_name = service->get_text();
-            wprintf(L"%S", service_name.c_str());
             services[service_name] = service;
         }
 
-        if (obj_ref) {
+        if (obj_ref && services.size() > 0) {
             AhkObjRef* ahkobj_ref;
 
             __get(L"Services", &ahkobj_ref, AhkObject);
