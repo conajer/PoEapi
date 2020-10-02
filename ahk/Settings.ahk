@@ -28,6 +28,7 @@ global LogLevel := 0
 global ShowLogMessage := false
 
 ; Auto quit
+global AutoQuitMinLevel := 90
 global AutoQuitThreshold := 20
 
 ; Flasks

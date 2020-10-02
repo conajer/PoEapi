@@ -136,7 +136,7 @@ class Character {
         }
         this.life := life
 
-        if(ptask.player.level > 90 && life < AutoQuitThreshold)
+        if(ptask.player.level >= AutoQuitMinLevel && life < AutoQuitThreshold)
             ptask.logout()
     }
 
@@ -206,7 +206,7 @@ class Character {
         }
     }
 
-    onUseSkill() {
+    onUseSkill(skill, target) {
     }
 
     onAttack() {
