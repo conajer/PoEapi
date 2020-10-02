@@ -18,6 +18,10 @@ Class Canvas {
 
         this.Hwnd := Hwnd
         this.Hdc := DllCall("GetDC", "UInt", Hwnd)
+        this.Cdc := DllCall("CreateCompatibleDC", "UInt", this.Hdc)
+        hBitmap := DllCall("CreateCompatibleBitmap", "UInt", this.Hdc, "Int", r.w, "Int", r.h)
+        DllCall("SelectObject", "UInt", this.Cdc, "UInt", hBitmap)
+        this.updateDC := true
         this.Width := r.w
         this.Height := r.h
 
@@ -27,6 +31,16 @@ Class Canvas {
 
     destroy() {
         Gui, __canvas:Destroy
+    }
+
+    beginPaint() {
+        this.updateDC := false
+    }
+
+    endPaint() {
+        DllCall("BitBlt", "UInt", this.Hdc, "Int", 0, "Int", 0, "Int", this.Width, "Int", this.Height
+                , "UInt", this.Cdc, "Int", 0, "Int", 0, "Int", 0xcc0020)
+        this.updateDC := true
     }
 
     getClientRect(hwnd) {
@@ -44,21 +58,29 @@ Class Canvas {
 
     drawLine(x1, y1, x2, y2, color = 0x7f7f7f, linewidth = 1) {
         hPen := DllCall("CreatePen", "Int", 0, "Int", linewidth, "Int", color)
-        DllCall("SelectObject" , "UInt", this.Hdc , "UInt", hPen)
+        DllCall("SelectObject" , "UInt", this.Cdc , "UInt", hPen)
         this.__drawLine(x1, y1, x2, y2)
         DllCall("DeleteObject" , "UInt", hPen)
+
+        if (this.updateDC)
+            DllCall("BitBlt", "UInt", this.Hdc, "Int", x, "Int", y, "Int", w, "Int", h
+                    , "UInt", this.Cdc, "Int", x, "Int", y, "Int", 0xcc0020)
     }
 
     drawRect(x, y, w, h, color = 0x7f7f7f, linewidth = 1) {
         hPen := DllCall("CreatePen", "Int", 0, "Int", linewidth, "Int", color)
-        DllCall("SelectObject" , "UInt", this.Hdc , "UInt", hPen)
+        DllCall("SelectObject" , "UInt", this.Cdc , "UInt", hPen)
         this.__drawRect(x, y, w, h)
         DllCall("DeleteObject" , "UInt", hPen)
+
+        if (this.updateDC)
+            DllCall("BitBlt", "UInt", this.Hdc, "Int", x, "Int", y, "Int", w, "Int", h
+                    , "UInt", this.Cdc, "Int", x, "Int", y, "Int", 0xcc0020)
     }
 
     drawGrid(x, y, w, h, r, c, color = 0x7f7f7f, linewidth = 1) {
         hPen := DllCall("CreatePen", "Int", 0, "Int", linewidth, "Int", color)
-        DllCall("SelectObject", "UInt", this.Hdc , "UInt", hPen)
+        DllCall("SelectObject", "UInt", this.Cdc , "UInt", hPen)
         this.__drawRect(x, y, w, h)
 
         x1 := x + w
@@ -73,31 +95,42 @@ Class Canvas {
             this.__drawLine(x1, y, x1, y1)
         }
         DllCall("DeleteObject" , "UInt", hPen)
+
+        if (this.updateDC)
+            DllCall("BitBlt", "UInt", this.Hdc, "Int", x, "Int", y, "Int", w, "Int", h
+                    , "UInt", this.Cdc, "Int", x, "Int", y, "Int", 0xcc0020)
     }
 
     drawText(x, y, w, h, s, color = 0x7f7f7f, linewidth = 1) {
-        DllCall("SetTextColor", "UInt", this.Hdc , "UInt", color)
-        DllCall("SetBkMode", "UInt", this.Hdc , "UInt", 2)
+        DllCall("SetTextColor", "UInt", this.Cdc , "UInt", color)
+        DllCall("SetBkMode", "UInt", this.Cdc , "UInt", 2)
         VarSetCapacity(r, 16)
         NumPut(x, r, 0x0, "Int")
         NumPut(y, r, 0x4, "Int")
         NumPut(x + w, r, 0x8, "Int")
         NumPut(y + h, r, 0xc, "Int")
-        r := DllCall("DrawText", "UInt", this.Hdc , "Str", s, "Int", -1, "Ptr", &r, "Int", 0x121)
-        DllCall("DeleteObject" , "UInt", hPen)
+        r := DllCall("DrawText", "UInt", this.Cdc , "Str", s, "Int", -1, "Ptr", &r, "Int", 0x121)
+
+        if (this.updateDC)
+            DllCall("BitBlt", "UInt", this.Hdc, "Int", x, "Int", y, "Int", w, "Int", h
+                    , "UInt", this.Cdc, "Int", x, "Int", y, "Int", 0xcc0020)
     }
 
     clear() {
         cBrush := DllCall("gdi32.dll\CreateSolidBrush", "UInt", __bgColor )
         cRegion := DllCall("gdi32.dll\CreateRectRgn", "Int", 0 , "Int", 0, "Int", this.Width , "Int", this.Height)
-        DllCall("gdi32.dll\FillRgn" , "UInt", this.Hdc , "UInt", cRegion , "UInt", cBrush)
+        DllCall("gdi32.dll\FillRgn" , "UInt", this.Cdc , "UInt", cRegion , "UInt", cBrush)
         DllCall("DeleteObject" , "UInt", cRegion)
         DllCall("DeleteObject" , "UInt", cBrush)
+
+        if (this.updateDC)
+            DllCall("BitBlt", "UInt", this.Hdc, "Int", x, "Int", y, "Int", w, "Int", h
+                    , "UInt", this.Cdc, "Int", x, "Int", y, "Int", 0xcc0020)
     }
 
     __drawLine(x1, y1, x2, y2) {
-        DllCall("MoveToEx" , "UInt", this.Hdc , "UInt", x1 , "UInt", y1, "Int", 0)
-        DllCall("LineTo" , "UInt", this.Hdc, "UInt", x2, "UInt", y2)
+        DllCall("MoveToEx" , "UInt", this.Cdc , "UInt", x1 , "UInt", y1, "Int", 0)
+        DllCall("LineTo" , "UInt", this.Cdc, "UInt", x2, "UInt", y2)
     }
 
     __drawRect(x, y, w, h) {

@@ -341,6 +341,7 @@ class PoETask extends AhkObj {
             return
         }
 
+        this.c.beginPaint()
         this.c.clear()
         for i, chest in this.delveChests {
             x := chest.x
@@ -367,7 +368,7 @@ class PoETask extends AhkObj {
             clipToRect(this.actionArea, x, y)
             this.c.drawRect(x - 15, y - 50, 30, 30, cIndicator, 10)
         }
-
+        this.c.endPaint()
         this.delveChests := {}
     }
 
@@ -382,6 +383,7 @@ class PoETask extends AhkObj {
             return
         }
 
+        this.c.beginPaint()
         this.c.clear()
         for i, chest in this.heistChests {
             x := chest.x
@@ -389,6 +391,7 @@ class PoETask extends AhkObj {
             if (RegExMatch(chest.name, HeistChestNameRegex, matched))
                 this.c.drawText(x - 100, y + 50, 200, 30, matched2, 0xff00ff)
         }
+        this.c.endPaint()
 
         this.heistChests := {}
     }
