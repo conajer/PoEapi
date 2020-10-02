@@ -71,6 +71,11 @@ public:
             if (!next || next == root)
                 break;
 
+            addrtype label = PoEMemory::read<addrtype>(next + 0x18);
+            bool is_visible = PoEMemory::read<byte>(label + 0x111) & 0x4;
+            if (!is_visible)
+                continue;
+
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x10);
             int entity_id = PoEMemory::read<int>(entity_address + 0x58);
             auto i = removed.find(entity_id);
@@ -79,11 +84,6 @@ public:
                 removed.erase(i);
                 continue;
             }
-
-            addrtype label = PoEMemory::read<addrtype>(next + 0x18);
-            bool is_visible = PoEMemory::read<byte>(label + 0x111) & 0x4;
-            if (!is_visible)
-                continue;
 
             std::shared_ptr<Entity> entity(new Entity(entity_address));
             entity->label = shared_ptr<Element>(new Element(label));
