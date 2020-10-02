@@ -183,9 +183,7 @@ class PoETask extends AhkObj {
     }
 
     logout() {
-        WinGetPos, x, y, w, h, % "ahk_id " this.Hwnd
-        SendInput, {Esc}
-        MouseClick, Left, w / 2, 440
+        this.sendKeys("/exit")
     }
 
     maximize() {
@@ -224,13 +222,13 @@ class PoETask extends AhkObj {
         return false
     }
 
-    sellItems() {
+    sellItems(identifyAll = false) {
         vendor := this.getVendor()
         if (Not vendor.sell())
             return
 
         for i, item in this.inventory.getItems() {
-            if (Not item.isIdentified() && Not IdentifyExceptions.check(item)) {
+            if (Not item.isIdentified() && (identifyAll || Not IdentifyExceptions.check(item))) {
                 if (Not shift) {
                     SendInput {Shift down}
                     if (Not this.inventory.identify("")) {
@@ -290,7 +288,7 @@ class PoETask extends AhkObj {
         Critical
         areaName := StrGet(areaName)
         level := lParam & 0xff
-        isTown := (lParam & 0x100) || (areaName == "The Rogue Harbour")
+        isTown := (lParam & 0x100) || (areaName ~= "Azurite Mine|The Rogue Harbour")
         isHideout := RegExMatch(areaName, "Hideout$") && (areaName != "Syndicate Hideout")
 
         debug("You have entered <b style=""color:maroon"">{}, {}</b>", areaName, level)

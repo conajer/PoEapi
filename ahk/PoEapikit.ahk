@@ -14,7 +14,7 @@ SetWorkingDir %A_ScriptDir%
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
-global logger := new Logger("PoEapiKit log")
+global logger := new Logger("PoEapikit log")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patch)
 debug("PoEapikit v0.3.0 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
 
@@ -105,12 +105,20 @@ F3::
     ptask.sellItems()
 return
 
+!F3::
+    ptask.sellItems(true)
+return
+
 F4::
     ptask.stashItems()
 return
 
 F5::
-    ptask.sendKeys("/Hideout")
+    ptask.sendKeys("/hideout")
+return
+
+^F5::
+    ptask.sendKeys("/delve")
 return
 
 ~^LButton::

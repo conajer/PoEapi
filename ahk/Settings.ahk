@@ -5,8 +5,10 @@
 ; F1,   auto aruas
 ; F2,	auto portal
 ; F3,   auto identify/sell
+; !F3,  identify all and sell
 ; F4,   auto stash
 ; F5,   hideout
+; ^F5,  azurite mine
 ; #d,   minimize window
 ; ^m,   toggle maphack
 ; ^r,   reload script
