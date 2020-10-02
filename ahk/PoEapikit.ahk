@@ -16,7 +16,7 @@ SetWorkingDir %A_ScriptDir%
 
 global logger := new Logger("PoEapikit log")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patch)
-debug("PoEapikit v0.3.0 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
+syslog("PoEapikit v0.3.1 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
 
 global ptask := new PoETask()
 
