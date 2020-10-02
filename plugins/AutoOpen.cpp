@@ -12,11 +12,13 @@ public:
         "TriggerableBlockage",  // Door or switch
         "Transitionable",       // Switch, lever, standing stone, lodestone etc.
     };
-    wstring entity_names = L"Standing Stone, Lodestone, DelveMineralVein, Shrine";
-    wstring ignored_chests = L"Barrel";
+    std::wregex entity_names, ignored_chests;
     int total_opened;
 
-    AutoOpen() : PoEPlugin("AutoOpen", "0.1"), player(nullptr) {
+    AutoOpen() : PoEPlugin("AutoOpen", "0.1"), player(nullptr),
+        entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
+        ignored_chests(L"Barrel|Basket|Bloom|Boulder|Cairn|Crate|Pot|Urn")
+    {
         total_opened = 0;
     }
 
@@ -39,7 +41,7 @@ public:
         player = local_player;
     }
 
-    void on_labeled_entity_changed(EntityList& entities) {
+    void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& add) {
         for (auto& i : entities) {
             if (to_reset) {
                 to_reset = false;
@@ -53,7 +55,7 @@ public:
             int index = i.second->has_component(entity_types);
             switch (index) {
             case 0: { // Chest
-                if (ignored_chests.find(i.second->name()) == string::npos) {
+                if (!std::regex_search(i.second->name(), ignored_chests)) {
                     Chest* chest = i.second->get_component<Chest>();
                     if (!chest->is_opened() && !chest->is_locked())
                         try_open(i.second.get());
@@ -65,7 +67,7 @@ public:
                 Targetable* targetable = i.second->get_component<Targetable>();
                 MinimapIcon* minimap_icon = i.second->get_component<MinimapIcon>();
                 if (targetable && targetable->is_targetable())
-                    if (entity_names.find(minimap_icon->name()) != string::npos)
+                    if (std::regex_search(minimap_icon->name(), entity_names))
                         try_open(i.second.get());
                 break;
             }
@@ -78,7 +80,7 @@ public:
             }
 
             case 3: // Transitionable
-                if (entity_names.find(i.second->name()) != string::npos)
+                if (std::regex_search(i.second->name(), entity_names))
                     try_open(i.second.get());
                 break;
 
