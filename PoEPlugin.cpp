@@ -5,20 +5,21 @@
 class PoEPlugin {
 public:
 
-    const char* name;
-    const char* version;
+    wstring name;
+    string version;
     PoE* poe;
     DWORD thread_id;
-    bool to_reset = false;
+    bool force_reset = false;
+    bool enabled = true;
     buffer<wchar_t> log_buffer;
 
-    PoEPlugin(const char* name, const char* version_string = "0.1")
+    PoEPlugin(const wchar_t* name, const char* version_string = "0.1")
         : name(name), version(version_string), log_buffer(256)
     {
     }
 
     void reset() {
-        to_reset = true;
+        force_reset = true;
     }
 
     virtual void on_load(PoE& poe, int ownere_thread_id) {
@@ -42,7 +43,7 @@ public:
         va_list args;
         wchar_t* buffer = log_buffer;
 
-        buffer += swprintf(buffer, L"[%s] ", (char*)name);
+        buffer += swprintf(buffer, L"[%S] ", name.c_str());
         va_start(args, format);
         vswprintf(buffer, format, args);
         va_end(args);

@@ -37,6 +37,10 @@ public:
     {
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
+        add_method(L"enablePlugin", this, (MethodType)&PoETask::enable_plugin,
+                   AhkVoid, std::vector<AhkType>{AhkWString});
+        add_method(L"disablePlugin", this, (MethodType)&PoETask::disable_plugin,
+                   AhkVoid, std::vector<AhkType>{AhkWString});
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity,
                    AhkObject, std::vector<AhkType>{AhkWString});
@@ -175,7 +179,27 @@ public:
         plugins.push_back(shared_ptr<PoEPlugin>(plugin));
         plugin->on_load(*this, owner_thread_id);
 
-        log(L"added plugin %s %s", plugin->name, plugin->version);
+        log(L"added plugin %S %s", plugin->name.c_str(), plugin->version.c_str());
+    }
+
+    void enable_plugin(const wchar_t* name) {
+        for (auto& i : plugins) {
+            if (!i->enabled && i->name == name) {
+                i->enabled = true;
+                log(L"enabled plugin %S", i->name.c_str());
+                break;
+            }
+        }
+    }
+
+    void disable_plugin(const wchar_t* name) {
+        for (auto& i : plugins) {
+            if (i->enabled && i->name == name) {
+                i->enabled = false;
+                log(L"disabled plugin %S", i->name.c_str());
+                break;
+            }
+        }
     }
 
     bool is_in_game() {
@@ -230,7 +254,8 @@ public:
         local_player = in_game_data->local_player();
         if (local_player) {
             for (auto i : plugins)
-                i->on_player(local_player, in_game_state);
+                if (i->enabled)
+                    i->on_player(local_player, in_game_state);
         }
 
         if (!is_attached && hwnd) {
@@ -247,7 +272,8 @@ public:
         in_game_data->get_all_entities(entities, ignored_entity_exp);
 
         for (auto i : plugins)
-            i->on_entity_changed(entities.all, entities.removed, entities.added);
+            if (i->enabled)
+                i->on_entity_changed(entities.all, entities.removed, entities.added);
     }
 
     void check_labeled_entities() {
@@ -258,7 +284,8 @@ public:
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
 
         for (auto i : plugins)
-            i->on_labeled_entity_changed(labeled_entities);
+            if (i->enabled)
+                i->on_labeled_entity_changed(labeled_entities);
     }
 
     void run() {

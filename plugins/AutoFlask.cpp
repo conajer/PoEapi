@@ -8,7 +8,7 @@ public:
     int flask_slot_id = 12;
     addrtype flasks[5], saved_flasks[5];
 
-    AutoFlask() : PoEPlugin("AutoFlask", "0.2") {
+    AutoFlask() : PoEPlugin(L"AutoFlask", "0.2") {
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {

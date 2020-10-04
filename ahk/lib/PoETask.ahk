@@ -136,6 +136,12 @@ class PoETask extends AhkObj {
         this.height := h
         this.actionArea := new Rect(210, 70, w - 450, h - 260)
 
+        ; Configure plugins
+        for name, enabled in EnablePlugins {
+            if (Not enabled)
+                this.disablePlugin(name)
+        }
+
         if (EnableCanvas)
             this.c := new Canvas(hwnd)
         if (EnableBanner)

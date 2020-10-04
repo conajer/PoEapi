@@ -7,11 +7,9 @@ public:
 
     LocalPlayer* player;
     std::vector<shared_ptr<Entity>> chests;
-    bool enabled, no_chest_found;
+    bool no_chest_found = true;
 
-    HeistChest() : PoEPlugin("HeistChest", "0.1"), player(nullptr) {
-        enabled = false;
-        no_chest_found = true;
+    HeistChest() : PoEPlugin(L"HeistChest", "0.1"), player(nullptr) {
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
@@ -19,10 +17,13 @@ public:
     }
 
     void on_labeled_entity_changed(EntityList& entities) {
+        if (!player)
+            return;
+
         chests.clear();
         for (auto& i : entities) {
-            if (to_reset) {
-                to_reset = false;
+            if (force_reset) {
+                force_reset = false;
                 return;
             }
 

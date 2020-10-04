@@ -15,9 +15,9 @@ public:
     std::wregex entity_names, ignored_chests;
     int total_opened;
 
-    AutoOpen() : PoEPlugin("AutoOpen", "0.1"), player(nullptr),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.1"), player(nullptr),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
-        ignored_chests(L"Barrel|Basket|Bloom|Boulder|Cairn|Crate|Pot|Urn")
+        ignored_chests(L"Barrel|Basket|Bloom|Boulder|Cairn|Crate|Pot|Urn|Vase")
     {
         total_opened = 0;
     }
@@ -42,9 +42,12 @@ public:
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& add) {
+        if (!player)
+            return;
+            
         for (auto& i : entities) {
-            if (to_reset) {
-                to_reset = false;
+            if (force_reset) {
+                force_reset = false;
                 return;
             }
 

@@ -12,11 +12,10 @@ public:
 
     LocalPlayer* player;
     std::vector<shared_ptr<Entity>> chests;
-    bool enabled, no_chest_found;
+    bool in_azurite_mine = false;
+    bool no_chest_found = true;
 
-    DelveChest() : PoEPlugin("DelveChest", "0.1"), player(nullptr) {
-        enabled = false;
-        no_chest_found = true;
+    DelveChest() : PoEPlugin(L"DelveChest", "0.1"), player(nullptr) {
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
@@ -25,17 +24,17 @@ public:
 
     void on_area_changed(AreaTemplate* world_area, int hash_code) {
         chests.clear();
-        enabled = world_area->name() == L"Azurite Mine";
+        in_azurite_mine = world_area->name() == L"Azurite Mine";
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
-        if (!enabled)
+        if (!in_azurite_mine || !player)
             return;
 
         chests.clear();
         for (auto& i : entities) {
-            if (to_reset) {
-                to_reset = false;
+            if (force_reset) {
+                force_reset = false;
                 return;
             }
 

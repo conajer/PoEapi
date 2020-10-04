@@ -21,13 +21,13 @@ public:
     std::map<int, shared_ptr<Entity>> ignored_entities;
     shared_ptr<Entity> selected_item;
     int range, last_pickup;
-    bool enabled;
     int try_again;
+    bool is_picking = false;
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin("AutoPickup", "0.1"), player(nullptr), range(50) {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.1"), player(nullptr), range(50) {
         generic_item_filter.assign(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         rare_item_filter.assign(L"Jewels|Amulet|Rings|Belts");
     }
@@ -36,13 +36,13 @@ public:
         stop_pickup();
         try_again = 0;
         last_pickup = GetTickCount();
-        enabled = true;
+        is_picking = true;
     }
 
     void stop_pickup() {
         ignored_entities.clear();
         selected_item.reset();
-        enabled = false;
+        is_picking = false;
     }
 
     bool check_item(addrtype address) {
@@ -80,14 +80,14 @@ public:
     }
 
     void on_labeled_entity_changed(EntityList& entities) {
-        if (!enabled)
+        if (!is_picking || !player)
             return;
 
         shared_ptr<Entity> nearest_item;
         int min_dist = range;
         for (auto& i : entities) {
-            if (to_reset) {
-                to_reset = false;
+            if (force_reset) {
+                force_reset = false;
                 return;
             }
 
@@ -123,12 +123,7 @@ public:
             }
         }
 
-        if (!nearest_item) {
-            enabled = false;
-            return;
-        }
-        
-        if (GetTickCount() - last_pickup > 3000) {
+        if (!nearest_item || GetTickCount() - last_pickup > 3000) {
             stop_pickup();
             return;
         }

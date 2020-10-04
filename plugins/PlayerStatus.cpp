@@ -12,7 +12,7 @@ public:
     int last_action_id;
     bool is_dead;
 
-    PlayerStatus() : PoEPlugin("PlayerStatus", "0.3"), player(0) {
+    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.3"), player(0) {
         life = mana = 0;
         is_dead = false;
     }

@@ -22,7 +22,7 @@ public:
     int total_monsters, num_of_killed;
     int maximum_area_count = 9;
     
-    KillCounter() : PoEPlugin("KillCounter", "0.1"), player(nullptr), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.1"), player(nullptr), current_area(nullptr) {
         in_town = false;
         num_of_monsters = num_of_minions = 0;
         total_monsters = num_of_killed = 0;
@@ -65,7 +65,7 @@ public:
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
         int n_monsters = 0, charges = 0, n_minions = 0;
         
-        if (in_town || !current_area)
+        if (in_town || !current_area || !player)
             return;
 
         /* treat the removed near monsters as killed. */
@@ -79,8 +79,8 @@ public:
 
         near_monsters.clear();
         for (auto& i : entities) {
-            if (to_reset) {
-                to_reset = false;
+            if (force_reset) {
+                force_reset = false;
                 return;
             }
 

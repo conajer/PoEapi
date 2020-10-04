@@ -14,6 +14,15 @@
 ; ^r,   reload script
 ; ^q,   quit
 
+; Plugins
+global EnablePlugins := { "AutoFlask"    : true
+                        , "AutoOpen"     : true
+                        , "AutoPickup"   : true
+                        , "DelveChest"   : true
+                        , "HeistChest"   : true
+                        , "KillCounter"  : false
+                        , "PlayerStatus" : true }
+
 ; Canvas, doesn't support full screen mode
 global EnableCanvas := true
 global ShowCanvasBorder := false
