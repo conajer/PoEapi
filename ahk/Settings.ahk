@@ -20,7 +20,7 @@ global EnablePlugins := { "AutoFlask"    : true
                         , "AutoPickup"   : true
                         , "DelveChest"   : true
                         , "HeistChest"   : true
-                        , "KillCounter"  : false
+                        , "KillCounter"  : true
                         , "PlayerStatus" : true }
 
 ; Canvas, doesn't support full screen mode
