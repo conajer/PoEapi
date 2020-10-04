@@ -312,10 +312,12 @@ class Vendor extends Element {
         if (sell.isOpened())
             return true
 
-        SendInput, %CloseAllUIKey%
-        Sleep, 100
-        if (Not this.isSelected() && Not ptask.select(vendorName))
-            return false
+        if (Not this.isSelected()) {
+            SendInput, %CloseAllUIKey%
+            Sleep, 100
+            if (Not ptask.select(vendorName))
+                return false
+        }
 
         this.services := ""
         loop, 30 {
