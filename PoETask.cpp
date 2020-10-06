@@ -33,7 +33,7 @@ public:
     bool is_attached = false;
 
     PoETask() : Task(L"PoETask"), auto_pickup(new AutoPickup()),
-        ignored_entity_exp(L"Doodad|Effect|WorldItem")
+        ignored_entity_exp(L"Doodad|WorldItem")
     {
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
