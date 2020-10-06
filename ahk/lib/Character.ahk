@@ -1,4 +1,4 @@
-﻿; 
+; 
 ; Character.ahk, 9/15/2020 10:38 AM
 ;
 
@@ -195,7 +195,7 @@ class Character {
                 maxCharges := 0
                 if (aFlask.IsQuicksilver) {
                     charges := aFlask.item.charges()
-                    if (charges > aFlask.chargesPerUse && charges > maxCharges) {
+                    if (charges >= aFlask.chargesPerUse && charges > maxCharges) {
                         selected.endTime := A_Tickcount + 1000
                         selected := aFlask
                         maxCharges := charges
