@@ -66,6 +66,10 @@ public:
             if (dist > range)
                 continue;
 
+            Targetable* targetable = i.second->get_component<Targetable>();
+            if (!targetable || !targetable->is_targetable())
+                continue;
+
             int index = i.second->has_component(entity_types);
             switch (index) {
             case 0: { // Chest
@@ -78,11 +82,9 @@ public:
             }
 
             case 1: { // MinimapIcon
-                Targetable* targetable = i.second->get_component<Targetable>();
                 MinimapIcon* minimap_icon = i.second->get_component<MinimapIcon>();
-                if (targetable && targetable->is_targetable())
-                    if (std::regex_search(minimap_icon->name(), entity_names))
-                        try_open(i.second.get());
+                if (std::regex_search(minimap_icon->name(), entity_names))
+                    try_open(i.second.get());
                 break;
             }
 
