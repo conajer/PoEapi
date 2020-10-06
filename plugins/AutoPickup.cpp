@@ -20,6 +20,7 @@ public:
     LocalPlayer* player;
     std::map<int, shared_ptr<Entity>> ignored_entities;
     shared_ptr<Entity> selected_item;
+    RECT bound;
     int range, last_pickup;
     int try_again;
     bool is_picking = false;
@@ -37,6 +38,12 @@ public:
         try_again = 0;
         last_pickup = GetTickCount();
         is_picking = true;
+
+        GetClientRect(poe->hwnd, &bound);
+        bound.left += 200;
+        bound.top += 150;
+        bound.right -= 200;
+        bound.bottom -= 150;
     }
 
     void stop_pickup() {
@@ -137,7 +144,7 @@ public:
                 return;
             }
                 
-            if (++try_again > 2) {
+            if (++try_again > 3) {
                 ignored_entities[selected_item->id] = selected_item;
                 try_again = 0;
                 return;
@@ -148,7 +155,7 @@ public:
 
         selected_item = nearest_item;
         Point& pos = selected_item->get_pos();
-        if (pos.x < 0 || pos.y < 0 || pos.x > 1920 || pos.y > 1080)
+        if (!PtInRect(&bound, {pos.x, pos.y}))
             return;
 
         PostThreadMessage(thread_id, WM_PICKUP, (WPARAM)pos.x, (LPARAM)pos.y);
