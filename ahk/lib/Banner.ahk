@@ -80,13 +80,18 @@ class Banner extends AhkGui {
     }
 
     hideout() {
+        ptask.activate()
         ptask.sendKeys("/Hideout")
     }
 
     sellItems() {
+        ptask.activate()
+        ptask.sellItems()
     }
 
     stashItems() {
+        ptask.activate()
+        ptask.stashItems()
     }
 
 
