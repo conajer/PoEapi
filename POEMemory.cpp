@@ -132,6 +132,19 @@ public:
 
         return vec;
     }
+
+    template <typename T> bool write(addrtype address, T* buffer, int n) {
+        DWORD old_protect;
+        
+        int size = n * sizeof(T);
+        if (VirtualProtectEx(process_handle, (LPVOID)address, size, PAGE_EXECUTE_READWRITE, &old_protect)) {
+            WriteProcessMemory(process_handle, (LPVOID)address, buffer, size, 0);
+            VirtualProtectEx(process_handle, (LPVOID)address, size, old_protect, 0);
+            return true;
+        }
+
+        return false;
+    }
 };
 
 HANDLE PoEMemory::process_handle;
