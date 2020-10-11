@@ -106,50 +106,43 @@ static std::map<string, int> in_game_state_offsets {
 class InGameState : public GameState {
 public:
 
-    InGameUI* igu;
-    InGameData* igd;
-    ServerData* sd;
+    unique_ptr<InGameUI> igu;
+    unique_ptr<InGameData> igd;
+    unique_ptr<ServerData> sd;
 
-    float center_x;
-    float center_y;
+    float width, height;
+    float center_x, center_y;
 
     InGameState(addrtype address) : GameState(address, &in_game_state_offsets)
     {
-        igu = 0;
-        igd = 0;
-        sd = 0;
-        center_x = read<int>("width") / 2;
-        center_y = read<int>("height") / 2;
+        width = read<int>("width");
+        height = read<int>("height");
+        center_x = width / 2;
+        center_y = height / 2;
     }
 
     InGameUI* in_game_ui() {
         addrtype addr = read<addrtype>("in_game_ui");
-        if (!igu || igu->address != addr) {
-            delete igu;
-            igu = new InGameUI(addr);
-        }
+        if (!igu || igu->address != addr)
+            igu.reset(new InGameUI(addr));
 
-        return igu;
+        return igu.get();
     }
 
     InGameData* in_game_data() {
         addrtype addr = read<addrtype>("in_game_data");
-        if (!igd || igd->address != addr) {
-            delete igd;
-            igd = new InGameData(addr);
-        }
+        if (!igd || igd->address != addr)
+            igd.reset(new InGameData(addr));
 
-        return igd;
+        return igd.get();
     }
 
     ServerData* server_data() {
         addrtype addr = read<addrtype>("server_data");
-        if (!sd || sd->address != addr) {
-            delete sd;
-            sd = new ServerData(addr);
-        }
+        if (!sd || sd->address != addr)
+            sd.reset(new ServerData(addr));
 
-        return sd;
+        return sd.get();
     }
 
     int time_in_game() {
