@@ -42,7 +42,8 @@ public:
 
     using Property = std::tuple<void*, AhkType>;
     using MethodType = void* (AhkObj::*)();
-    using Method = std::tuple<void*, MethodType, AhkType, std::vector<AhkType>>;
+    using ParamList = std::vector<AhkType>;
+    using Method = std::tuple<void*, MethodType, AhkType, ParamList>;
 
     AhkObjRef* obj_ref;
     wstring type_name;
@@ -58,11 +59,11 @@ public:
     operator AhkObjRef*();
     bool add_property(const wstring& key, void* value, AhkType type);
     bool remove_property(const wstring& key);
-    bool add_method(const wstring& name,                                    // method name, case sensitive
-                    void* obj,                                              // object pointer
-                    MethodType fn,                                          // member function pointer
-                    AhkType return_type = AhkInt,                           // return type (treat void as AhkInt)
-                    std::vector<AhkType> params = std::vector<AhkType>{});  // parameter types, up to 8 parameters
+    bool add_method(const wstring& name,                // method name, case sensitive
+                    void* obj,                          // object pointer
+                    MethodType fn,                      // member function pointer
+                    AhkType return_type = AhkInt,       // return type (treat void as AhkInt)
+                    ParamList params = ParamList{});    // parameter types, up to 8 parameters
     bool remove_method(const wstring& name);
 
     void* get(const wchar_t* key) __attribute__((optimize(0)));
