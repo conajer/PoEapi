@@ -315,20 +315,19 @@ public:
         stop();
     }
 
-    int toggle_maphack() {
-        char pattern[] = "66 c7 ?? 78 00 ?? c6";
-        addrtype addr;
-        DWORD old_protect;
-        byte buffer[8];
-
-        if (addr = find_pattern(pattern)) {
-            VirtualProtectEx(process_handle, (LPVOID)addr, 7, PAGE_EXECUTE_READWRITE, &old_protect);
-            ReadProcessMemory(process_handle, (LPVOID)addr, buffer, 7, 0);
-            buffer[5] = !buffer[5];
-            WriteProcessMemory(process_handle, (LPVOID)addr, buffer, 7, 0);
-            VirtualProtectEx(process_handle, (LPVOID)addr, 7, old_protect, &old_protect);
+    bool toggle_maphack() {
+        const char pattern[] = "66 c7 ?? 78 00 ?? c6";
+        if (addrtype addr = find_pattern(pattern)) {
+            byte flag = !read<byte>(addr + 5);
+            if (write<byte>(addr + 5, &flag, 1)) {
+                log(L"Maphack <b style=\"color:blue\">%S</b>.",
+                    flag ? L"Enabled" : L"Disabled");
+                return true;
+            }
+        }
             
-            log(L"Maphack %S.", buffer[5] ? L"enabled" : L"disabled");
+        return false;
+    }
 
             return buffer[5];
         }
