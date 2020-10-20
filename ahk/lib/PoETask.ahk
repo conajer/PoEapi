@@ -134,7 +134,7 @@ class PoETask extends AhkObj {
         this.Hwnd := hwnd
         this.width := w
         this.height := h
-        this.actionArea := new Rect(210, 70, w - 450, h - 260)
+        this.actionArea := new Rect(210, 90, w - 450, h - 260)
 
         ; Configure plugins
         for name, enabled in EnablePlugins {
