@@ -9,10 +9,12 @@ Class Canvas {
     __bgColor := EEAA99
 
     __new(ownerHwnd) {
+        guiID := Format("__canvas{:x}", &this)
         r := this.getClientRect(ownerHwnd)
-        Gui, __canvas:New, +Owner%ownerHwnd% +HwndHwnd -Caption +LastFound
-        Gui, __canvas:Color, __bgColor
-        Gui, __canvas:Show
+        WS_EX_TRANSPARENT := 0x20
+        Gui, %guiID%:New, +Owner%ownerHwnd% +HwndHwnd +E%WS_EX_TRANSPARENT% -Caption +LastFound
+        Gui, %guiID%:Color, __bgColor
+        Gui, %guiID%:Show
         WinSet, TransColor, __bgColor
         WinMove,,, r.l, r.t, r.w, r.h
 
@@ -30,7 +32,8 @@ Class Canvas {
     }
 
     destroy() {
-        Gui, __canvas:Destroy
+        guiID := Format("__canvas{:x}", &this)
+        Gui, %guiID%:Destroy
     }
 
     beginPaint() {
