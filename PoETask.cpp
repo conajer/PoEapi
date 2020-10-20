@@ -16,8 +16,6 @@
 #include "plugins/PlayerStatus.cpp"
 #include "plugins/KillCounter.cpp"
 
-extern "C" BOOL SetProcessDPIAware();
-
 class PoETask : public PoE, public Task {
 public:
     
@@ -57,6 +55,7 @@ public:
         add_method(L"setPickupRange", this, (MethodType)&PoETask::set_pickup_range, AhkInt, ParamList{AhkInt});
         add_method(L"setGenericItemFilter", this, (MethodType)&PoETask::set_generic_item_filter, AhkInt, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&PoETask::set_rare_item_filter, AhkInt, ParamList{AhkWString});
+        add_method(L"setHud", (PoE*)this, (MethodType)&PoE::set_hud_window, AhkVoid, ParamList{AhkUInt});
     }
 
     ~PoETask() {
