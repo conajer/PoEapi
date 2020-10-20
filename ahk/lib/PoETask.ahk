@@ -294,6 +294,7 @@ class PoETask extends AhkObj {
                 break
             MouseClick(x + 40, y + 8)
             n += 1
+            Sleep, 100
         }
 
         if (n > 0)
