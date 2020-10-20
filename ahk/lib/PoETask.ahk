@@ -257,6 +257,11 @@ class PoETask extends AhkObj {
         }
 
         for i, item in this.inventory.getItems() {
+            if (item.rarity == 0 && item.baseName ~= "(Divine|Eternal) Life") {
+                trans := this.inventory.findItem("Transmutation")
+                this.inventory.use(trans, item)
+            }
+
             if (Not VendorExceptions.check(item) && VendorRules.check(item))
                 this.inventory.move(item)
         }
