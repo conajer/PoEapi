@@ -111,7 +111,7 @@ public:
                 continue;
 
             wstring path = get_entity_path(entity_address);
-            if (path[0] == L'M' && std::regex_search(path, ignored_exp))
+            if (path[0] != L'M' || std::regex_search(path, ignored_exp))
                 continue;
 
             int entity_id = get_entity_id(entity_address);
