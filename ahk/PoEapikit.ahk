@@ -22,6 +22,8 @@ global ptask := new PoETask()
 
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
+if (SecondaryAttackSkillKey)
+    Hotkey, ~%SecondaryAttackSkillKey%, Attack
 Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive

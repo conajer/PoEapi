@@ -54,6 +54,7 @@ global InventoryKey := "f"
 
 ; Attack and defense
 global AttackSkillKey := "w"
+global SecondaryAttackSkillKey := ""
 global DefenseBuffSkillKey := "r"
 global QuickDefenseKey := "q"
 global QuickDefenseAction := "qe2345"
