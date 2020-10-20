@@ -37,13 +37,10 @@ public:
     {
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
-        add_method(L"enablePlugin", this, (MethodType)&PoETask::enable_plugin,
-                   AhkVoid, std::vector<AhkType>{AhkWString});
-        add_method(L"disablePlugin", this, (MethodType)&PoETask::disable_plugin,
-                   AhkVoid, std::vector<AhkType>{AhkWString});
+        add_method(L"enablePlugin", this, (MethodType)&PoETask::enable_plugin, AhkVoid, ParamList{AhkWString});
+        add_method(L"disablePlugin", this, (MethodType)&PoETask::disable_plugin, AhkVoid, ParamList{AhkWString});
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
-        add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity,
-                   AhkObject, std::vector<AhkType>{AhkWString});
+        add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
         add_method(L"getXP", this, (MethodType)&PoETask::get_xp, AhkUInt);
         add_method(L"getInventory", this, (MethodType)&PoETask::get_inventory, AhkObject);
@@ -52,16 +49,14 @@ public:
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"getVendor", this, (MethodType)&PoETask::get_vendor, AhkObject);
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
+        add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&PoETask::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&PoETask::stop_pickup);
-        add_method(L"setPickupRange", this, (MethodType)&PoETask::set_pickup_range,
-                   AhkInt, std::vector<AhkType>{AhkInt});
-        add_method(L"setGenericItemFilter", this, (MethodType)&PoETask::set_generic_item_filter,
-                   AhkInt, std::vector<AhkType>{AhkWString});
-        add_method(L"setRareItemFilter", this, (MethodType)&PoETask::set_rare_item_filter,
-                   AhkInt, std::vector<AhkType>{AhkWString});
+        add_method(L"setPickupRange", this, (MethodType)&PoETask::set_pickup_range, AhkInt, ParamList{AhkInt});
+        add_method(L"setGenericItemFilter", this, (MethodType)&PoETask::set_generic_item_filter, AhkInt, ParamList{AhkWString});
+        add_method(L"setRareItemFilter", this, (MethodType)&PoETask::set_rare_item_filter, AhkInt, ParamList{AhkWString});
     }
 
     ~PoETask() {
