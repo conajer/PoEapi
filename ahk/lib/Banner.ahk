@@ -28,7 +28,7 @@ class Banner extends AhkGui {
         Gui, __banner:New, -Caption +Owner%ownerHwnd% +HwndHwnd +LastFound
         Gui, Margin, 0, 0
         Gui, Color, White
-        Gui, Font, cRed bold
+        Gui, Font, cRed bold, Fontin SmallCaps
         Gui, Add, Text, % "y+5s w60 Hwnd" this.__var("Life"), Life: 100`%
         Gui, Font, cBlue bold
         Gui, Add, Text, % "ys w90 Hwnd" this.__var("Mana"), Mana: 100`%

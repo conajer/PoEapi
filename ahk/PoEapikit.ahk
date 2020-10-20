@@ -14,6 +14,7 @@ SetWorkingDir %A_ScriptDir%
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
+DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 global logger := new Logger("PoEapikit log")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patch)
 syslog("PoEapikit v0.3.1 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
