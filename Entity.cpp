@@ -65,8 +65,8 @@ public:
     Point pos;
 
     /* Monster related fields */
-    bool is_monster, is_neutral;
-    int rarity;
+    bool is_monster = false, is_neutral = false;
+    int rarity = 0;
 
     Entity(addrtype address) : PoEObject(address, &entity_offsets) {
         path = read<wstring>("internal", "path");
@@ -77,13 +77,13 @@ public:
         id = read<int>("id");
 
         get_all_components();
-        if (is_monster = has_component("Monster")) {
-            rarity = get_component<ObjectMagicProperties>()->rarity();
+        if (has_component("Monster")) {
+            is_monster = true;
             is_neutral = get_component<Positioned>()->is_neutral();
+            ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
+            rarity = props ? props->rarity() : 0;
         }
 
-        add_property(L"x", &pos.x, AhkInt);
-        add_property(L"y", &pos.y, AhkInt);
         add_method(L"name", this, (MethodType)&Entity::name, AhkWStringPtr);
         add_method(L"getComponents", this, (MethodType)&Entity::get_components, AhkObject);
         add_method(L"__getPos", this, (MethodType)&Entity::get_pos, AhkPointer);
