@@ -134,6 +134,9 @@ return
     ptask.toggleMaphack()
 return
 
+-::NumpadSub
++::NumpadAdd
+
 #IfWinActive
 
 ^r::
