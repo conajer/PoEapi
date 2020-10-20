@@ -52,12 +52,13 @@ template <typename T> T read(HANDLE handle, addrtype address) {
 }
 
 template <> string read<string>(HANDLE handle, addrtype address) {
-    int len = read<int>(handle, address + 0x10);
+    unsigned int len = read<int>(handle, address + 0x10);
+    unsigned int max_len = read<int>(handle, address + 0x18);
     string str;
 
-    if (len > 0 && len < 256) {
+    if (max_len < 256) {
         wchar_t buffer[len];
-        if (len >= 8)
+        if (max_len >= 8)
             address = read<addrtype>(handle, address);
         if (ReadProcessMemory(handle, (LPVOID)address, buffer, len * 2, 0))
             for (wchar_t c : buffer)
@@ -68,14 +69,14 @@ template <> string read<string>(HANDLE handle, addrtype address) {
 }
 
 template <> wstring read<wstring>(HANDLE handle, addrtype address) {
-    int len = read<int>(handle, address + 0x10);
+    unsigned int max_len = read<int>(handle, address + 0x18);
     wstring str;
 
-    if (len > 0 && len < 256) {
-        wchar_t buffer[len + 1];
-        if (len >= 8)
+    if (max_len < 256) {
+        wchar_t buffer[max_len + 1];
+        if (max_len >= 8)
             address = read<addrtype>(handle, address);
-        if (ReadProcessMemory(handle, (LPVOID)address, buffer, (len + 1) * 2, 0))
+        if (ReadProcessMemory(handle, (LPVOID)address, buffer, (max_len + 1) * 2, 0))
             str = buffer;
     }
 
