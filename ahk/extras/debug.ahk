@@ -16,12 +16,19 @@ addDebugButton() {
         Menu, __debugMenu, Add
         Menu, __debugMenu, Add, List flasks, listFlasks
         Menu, __debugMenu, Add, List flask slot, listFlaskSlot
+        Menu, __debugMenu, Add
+        Menu, __debugMenu, Add, Show log messages, toggleLogMessage
 
         Gui, Add, Button, x+10 y0 gpopupDebugCommands, Debug
     }
 }
 
+toggleLogMessage() {
+    ShowLogMessage := !ShowLogMessage
+}
+
 popupDebugCommands() {
+    Menu, __debugMenu, % ShowLogMessage ? "Check" : "Uncheck", Show log messages
     Menu, __debugMenu, Show
 }
 
