@@ -1,7 +1,5 @@
 /*
 *  PoE.cpp, 8/4/2020 9:11 PM
-*
-*  Path of Exile application interface.
 */
 
 #include <windows.h>
@@ -17,6 +15,7 @@ using namespace std;
 typedef unsigned __int64 addrtype;
 
 #include "ahkpp"
+#include "Canvas.cpp"
 #include "PoEMemory.cpp"
 #include "RemoteMemoryObject.cpp"
 
@@ -140,10 +139,10 @@ public:
     int size_of_image;
     int process_id;
     HWND hwnd;
+    GameStateController* game_state_controller;
     GameState *active_game_state;
     InGameState* in_game_state;
-
-    GameStateController* game_state_controller;
+    unique_ptr<Canvas> hud;
 
     PoE() : game_state_controller(0) {
         open_target_process();
@@ -288,5 +287,12 @@ public:
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
+    }
+
+    void set_hud_window(HWND hwnd) {
+        if (hwnd == INVALID_HANDLE_VALUE)
+            hud.reset();
+        else if (IsWindow(hwnd))
+            hud = unique_ptr<Canvas>(new Canvas(hwnd));
     }
 };

@@ -115,6 +115,9 @@ class PoETask extends AhkObj {
         if (Not hwnd) {
             ; PoE window was closed.
             this.c.destory()
+            this.hud.destroy()
+            this.setHud(-1)
+            
             this.banner.destroy()
             return
         }
@@ -142,8 +145,12 @@ class PoETask extends AhkObj {
                 this.disablePlugin(name)
         }
 
-        if (EnableCanvas)
+        if (EnableCanvas) {
             this.c := new Canvas(hwnd)
+            this.hud := new Canvas(hwnd)
+            this.setHud(this.hud.hwnd)
+        }
+
         if (EnableBanner)
             this.banner := new Banner(hwnd)
         this.activate()
