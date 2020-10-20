@@ -11,9 +11,11 @@ struct Rect {
 };
 
 static std::map<string, int> element_offsets {
-    {"childs",       0x38},
-    {"parent",       0x90},
-    {"position",     0x98},
+    {"self",          0x18},
+    {"childs",        0x38},
+    {"root",          0x88},
+    {"parent",        0x90},
+    {"position",      0x98},
     {"scale",        0x108},
     {"is_visible",   0x111},
     {"size",         0x130},
@@ -143,12 +145,6 @@ public:
         r.y = pos.y * s;
         r.w = size.x * s;
         r.h = size.y * s;
-
-        __set(L"x", r.x, AhkInt,
-              L"y", r.y, AhkInt,
-              L"w", r.w, AhkInt,
-              L"h", r.h, AhkInt,
-              nullptr);
 
         return r;
     }
