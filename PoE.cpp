@@ -222,6 +222,9 @@ public:
             return true;
         }
 
+        // Reset hwnd
+        hwnd = 0;
+
         return false;
     }
 
