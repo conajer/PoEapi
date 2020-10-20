@@ -121,6 +121,10 @@ return
     ptask.sendKeys("/delve")
 return
 
+!F5::
+    ptask.sendKeys("/menagerie")
+return
+
 ~^LButton::
     If (A_PriorHotKey = A_ThisHotKey and A_TimeSincePriorHotkey < 200)
         SetTimer, AutoClick, -200

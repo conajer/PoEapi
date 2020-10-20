@@ -9,6 +9,7 @@
 ; F4,   auto stash
 ; F5,   hideout
 ; ^F5,  azurite mine
+; !F5   menagerie
 ; #d,   minimize window
 ; ^m,   toggle maphack
 ; ^r,   reload script
