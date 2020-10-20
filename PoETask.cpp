@@ -337,14 +337,16 @@ public:
         return false;
     }
 
-    int has_buff(wchar_t* buff_name) {
+    int has_buff(wchar_t* name) {
         if (local_player) {
             Life* life = local_player->get_component<Life>();
             auto& buffs = life->get_buffs();
-            return (buffs.find(buff_name) != buffs.end());
+            auto i = buffs.find(name);
+            if (i != buffs.end())
+                return i->second.charges();
         }
 
-        return false;
+        return 0;
     }
 
     void begin_pickup() {
