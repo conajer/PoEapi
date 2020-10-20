@@ -61,6 +61,10 @@ global QuickDefenseKey := "q"
 global QuickDefenseAction := "qe2345"
 global AruasKey := "!q!w!e!r!t"
 
+; Delve
+global AutoDropFlare := true
+global MaxDarknessStacks := 20
+
 ; Delve Chests
 global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
 

@@ -113,6 +113,8 @@ class Character {
     }
 
     areaChanged(areaName, lParam) {
+        areaName := StrGet(areaName)
+        this.inAzuriteMine := (areaName ~= "Azurite Mine")
         this.flaskChanged()
     }
 
@@ -121,8 +123,13 @@ class Character {
         reserved := lParam >> 16
         life := Round(life * 100 / (maximum - reserved))
 
-        if (life < 100 && this.nearbyMonsters >= MonsterThreshold)
+        if (life < 100) {
+            if (this.nearbyMonsters >= MonsterThreshold)
             SendInput, %DefenseBuffSkillKey%
+
+            if (AutoDropFlare && ptask.hasBuff("delve_degen_buff") > MaxDarknessStacks)
+                SendInput, %DropFlareKey%
+        }
 
         if (life < LifeThreshold) {
             maxUses := 0
