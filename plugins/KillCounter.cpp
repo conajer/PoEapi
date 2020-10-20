@@ -14,7 +14,6 @@ class KillCounter : public PoEPlugin {
 public:
 
     std::unordered_map<int, AreaMonsters*> latest_areas;
-    LocalPlayer* player;
     AreaMonsters* current_area;
     Monsters nearby_monsters;
     int nearby_radius = 50;
@@ -32,7 +31,7 @@ public:
                              0xfe00, 0, 0, 0,                           // is minion
                              0x7f00, 0, 0, 0};
     
-    KillCounter() : PoEPlugin(L"KillCounter", "0.2"), player(nullptr), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.2"), current_area(nullptr) {
         num_of_monsters = num_of_minions = 0;
         total_monsters = num_of_killed = 0;
     }
@@ -94,10 +93,6 @@ public:
                 poe->hud->draw_rect(pos.x - w, pos.y - w, pos.x + w, pos.y + w, 0xff0000, 2);
             }
         }
-    }
-
-    void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
-        player = local_player;
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code) {

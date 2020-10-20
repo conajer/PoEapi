@@ -17,7 +17,6 @@ public:
         "HeistObjective",       // Heist objective item
     };
 
-    LocalPlayer* player;
     std::map<int, shared_ptr<Entity>> ignored_entities;
     shared_ptr<Entity> selected_item;
     RECT bounds;
@@ -28,7 +27,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.2"), player(nullptr) {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.2") {
         generic_item_filter.assign(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         rare_item_filter.assign(L"Jewels|Amulet|Rings|Belts");
     }
@@ -80,10 +79,6 @@ public:
             return true;
 
         return false;
-    }
-
-    void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
-        player = local_player;
     }
 
     void on_labeled_entity_changed(EntityList& entities) {

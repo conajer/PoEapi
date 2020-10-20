@@ -10,17 +10,12 @@ public:
         "MinimapIcon",          // DelveWall
     };
 
-    LocalPlayer* player;
     std::vector<shared_ptr<Entity>> chests;
     bool in_azurite_mine = false;
     bool no_chest_found = true;
 
-    DelveChest() : PoEPlugin(L"DelveChest", "0.1"), player(nullptr) {
+    DelveChest() : PoEPlugin(L"DelveChest", "0.1") {
     }
-
-    void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
-        player = local_player;
-	}
 
     void on_area_changed(AreaTemplate* world_area, int hash_code) {
         chests.clear();

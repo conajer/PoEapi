@@ -5,14 +5,13 @@
 class PlayerStatus : public PoEPlugin {
 public:
 
-    LocalPlayer* player;
     wstring player_name;
     wstring league;
     int life, mana, energy_shield;
     int last_action_id;
     bool is_dead;
 
-    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.3"), player(0) {
+    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.3") {
         life = mana = 0;
         is_dead = false;
     }

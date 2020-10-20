@@ -5,15 +5,10 @@
 class HeistChest : public PoEPlugin {
 public:
 
-    LocalPlayer* player;
     std::vector<shared_ptr<Entity>> chests;
     bool no_chest_found = true;
 
-    HeistChest() : PoEPlugin(L"HeistChest", "0.1"), player(nullptr) {
-    }
-
-    void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
-        player = local_player;
+    HeistChest() : PoEPlugin(L"HeistChest", "0.1") {
     }
 
     void on_labeled_entity_changed(EntityList& entities) {

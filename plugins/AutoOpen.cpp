@@ -5,7 +5,6 @@
 class AutoOpen : public PoEPlugin {
 public:
 
-    LocalPlayer* player;
     std::vector<string> entity_types = {
         "Chest",
         "MinimapIcon",          // DelveMineralVein, shrine etc.
@@ -17,7 +16,7 @@ public:
     int range = 15;
     int total_opened;
 
-    AutoOpen() : PoEPlugin(L"AutoOpen", "0.1"), player(nullptr),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.1"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
         ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase")
     {
@@ -46,10 +45,6 @@ public:
         pos = poe->get_pos(entity);
         poe->mouse_click_and_return(pos, old_pos, player->is_moving(), is_pressed);
         Sleep(500);
-    }
-
-    void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
-        player = local_player;
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& add) {

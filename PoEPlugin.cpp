@@ -13,6 +13,8 @@ public:
     bool enabled = true;
     buffer<wchar_t> log_buffer;
 
+    LocalPlayer* player;
+
     PoEPlugin(const wchar_t* name, const char* version_string = "0.1")
         : name(name), version(version_string), log_buffer(256)
     {
@@ -20,14 +22,17 @@ public:
 
     void reset() {
         force_reset = true;
+        player = nullptr;
     }
 
     virtual void on_load(PoE& poe, int ownere_thread_id) {
         this->poe = &poe;
         this->thread_id = ownere_thread_id;
+        this->player = nullptr;
     }
 
     virtual void on_player(LocalPlayer* player, InGameState* in_game_state) {
+        this->player =  player;
     }
 
     virtual void on_area_changed(AreaTemplate* world_area, int hash_code) {
