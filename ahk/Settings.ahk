@@ -27,6 +27,7 @@ global EnablePlugins := { "AutoFlask"    : true
 ; Canvas, doesn't support full screen mode
 global EnableCanvas := true
 global ShowCanvasBorder := false
+global EnableHud := true
 
 ; Banner, doesn't support full screen mode
 global EnableBanner := true

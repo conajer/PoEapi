@@ -145,8 +145,10 @@ class PoETask extends AhkObj {
                 this.disablePlugin(name)
         }
 
-        if (EnableCanvas) {
+        if (EnableCanvas)
             this.c := new Canvas(hwnd)
+
+        if (EnableHud) {
             this.hud := new Canvas(hwnd)
             this.setHud(this.hud.hwnd)
         }
