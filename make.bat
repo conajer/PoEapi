@@ -1,1 +1,1 @@
-g++ -g -Iinclude -Llib -shared -o poeapi.dll PoETask.cpp -lahkpp -lpsapi -lwinmm
+g++ -g -Iinclude -Llib -shared -o poeapi.dll PoETask.cpp -lahkpp -lpsapi -lwinmm -ld2d1
