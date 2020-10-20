@@ -172,12 +172,8 @@ public:
                             current_area->killed.insert(i.first);
                         continue;
                     } else {
-                        if (current_area->total.find(i.first) == current_area->total.end()) {
-                            Life* life = entity->get_component<Life>();
-                            int monster_life = life->life();
+                        if (current_area->total.find(i.first) == current_area->total.end())
                             current_area->total.insert(i.first);
-                            log(L"%llx: %5d %S", entity->address, monster_life, entity->path.c_str());
-                        }
                     }
                 }
 
