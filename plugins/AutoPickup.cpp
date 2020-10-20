@@ -20,30 +20,30 @@ public:
     LocalPlayer* player;
     std::map<int, shared_ptr<Entity>> ignored_entities;
     shared_ptr<Entity> selected_item;
-    RECT bound;
-    int range, last_pickup;
+    RECT bounds;
+    unsigned int range = 50, last_pickup = 0;
     int try_again;
     bool is_picking = false;
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.1"), player(nullptr), range(50) {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.2"), player(nullptr) {
         generic_item_filter.assign(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         rare_item_filter.assign(L"Jewels|Amulet|Rings|Belts");
     }
 
     void begin_pickup() {
         stop_pickup();
-        try_again = 0;
-        last_pickup = GetTickCount();
         is_picking = true;
+        last_pickup = GetTickCount();
+        try_again = 0;
 
-        GetClientRect(poe->hwnd, &bound);
-        bound.left += 200;
-        bound.top += 150;
-        bound.right -= 200;
-        bound.bottom -= 150;
+        GetClientRect(poe->hwnd, &bounds);
+        bounds.left += 200;
+        bounds.top += 150;
+        bounds.right -= 200;
+        bounds.bottom -= 150;
     }
 
     void stop_pickup() {
@@ -130,20 +130,19 @@ public:
             }
         }
 
-        if (!nearest_item || GetTickCount() - last_pickup > 3000) {
+        if (GetTickCount() - last_pickup > 3000) {
             stop_pickup();
             return;
         }
 
+        if (!nearest_item)
+            return;
+
         if (nearest_item == selected_item) {
-            int action_id = player->actor->action_id();
-            if (action_id > 0) {
-                if (action_id == 2 && player->actor->target_address == selected_item->address) {
-                    ignored_entities[selected_item->id] = selected_item;
-                }
+            addrtype target_address = player->actor->target_address;
+            if (target_address == selected_item->address || GetTickCount() - last_pickup < 500)
                 return;
-            }
-                
+
             if (++try_again > 3) {
                 ignored_entities[selected_item->id] = selected_item;
                 try_again = 0;
@@ -155,12 +154,12 @@ public:
 
         selected_item = nearest_item;
         Point& pos = selected_item->get_pos();
-        if (!PtInRect(&bound, {pos.x, pos.y}))
+        if (!PtInRect(&bounds, {pos.x, pos.y}))
             return;
 
         PostThreadMessage(thread_id, WM_PICKUP, (WPARAM)pos.x, (LPARAM)pos.y);
-        log(L"%llx: %S, %d, %d\n",
-            selected_item->address,
+        log(L"%x: %S, %d, %d\n",
+            selected_item->id,
             selected_item->name().c_str(),
             pos.x, pos.y);
         last_pickup = GetTickCount();
