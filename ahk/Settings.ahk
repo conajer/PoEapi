@@ -88,7 +88,8 @@ global rareItemFilter := "Jewel|Amulet|Ring|Belt"
 ;       , ... ]
 ; 
 ; Supported base types:
-;       Currency|Weapon|Armour|Belt|Amulet|Ring|Jewel|Flask|DivinationCard
+;       Currency, DivinationCard, Flask, Gem, Map, MapFragment, Prophecy,
+;       Weapon, Quiver, Armour, Belt, Amulet, Ring, Jewel
 ;
 ; Supported constraints:
 ;       index, name, baseName, isIdentified, isMirrored, isCorrupted, isRGB
