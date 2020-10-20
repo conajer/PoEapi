@@ -15,11 +15,14 @@ SetWorkingDir %A_ScriptDir%
 #Include, %A_ScriptDir%\Settings.ahk
 
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
-global logger := new Logger("PoEapikit log")
-DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patch)
-syslog("PoEapikit v0.3.1 (powered by PoEapi v{}.{}.{})", major_version, minor_version, patch)
+DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
+global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
+
+version := "0.3.2"
+poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
+syslog("PoEapikit v{} (powered by PoEapi v{})", version, poeapiVersion)
 
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
