@@ -8,12 +8,19 @@
 #include "ui/Stash.cpp"
 #include "ui/Vendor.cpp"
 #include "ui/Sell.cpp"
+#include "ui/OverlayMap.cpp"
+#include "ui/Chat.cpp"
 
 static std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x520},
         {"grid",        0x3a8},
     {"stash",           0x528},
         {"tabs",        0x2d8},
+    {"overlay_map",     0x5a8},
+        {"large",       0x230},
+        {"small",       0x238},
+    {"chat",            0x400},
+        {"messages",    0x2f0},
     {"entity_list",     0x5b0},
         {"root",        0x2a0},
     {"vendor",          0x638},
@@ -35,6 +42,8 @@ public:
     unique_ptr<Stash> stash;
     unique_ptr<Vendor> vendor;
     unique_ptr<Sell> sell;
+    unique_ptr<OverlayMap> large_map, small_map;
+    unique_ptr<Chat> chat;
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
@@ -58,6 +67,25 @@ public:
     Sell* get_sell() {
         sell = unique_ptr<Sell>(new Sell(read<addrtype>("sell")));
         return sell.get();
+    }
+
+    OverlayMap* get_overlay_map() {
+        if (!large_map) {
+            large_map.reset(new OverlayMap(read<addrtype>("overlay_map", "large")));
+            large_map->shift_modifier = -20.0;
+            small_map.reset(new OverlayMap(read<addrtype>("overlay_map", "small")));
+            small_map->shift_modifier = 0;
+        }
+        
+        auto& overlay_map = large_map->is_visible() ? large_map : small_map;
+        return overlay_map.get();
+    }
+
+    Chat* get_chat() {
+        if (!chat) {
+            chat = unique_ptr<Chat>(new Chat(read<addrtype>("chat", "messages")));
+        }
+        return chat.get();
     }
 
     int get_all_entities(EntityList& entities, EntityList& removed) {
