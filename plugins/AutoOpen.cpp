@@ -13,13 +13,13 @@ public:
         "Transitionable",       // Switch, lever, standing stone, lodestone etc.
     };
     std::wregex entity_names, ignored_chests;
-    RECT bound;
+    RECT bounds;
     int range = 15;
     int total_opened;
 
     AutoOpen() : PoEPlugin(L"AutoOpen", "0.1"), player(nullptr),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
-        ignored_chests(L"Barrel|Basket|Bloom|Boulder|Cairn|Crate|Pot|Urn|Vase")
+        ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase")
     {
         total_opened = 0;
     }
@@ -28,16 +28,16 @@ public:
         Point pos, old_pos;
         int x, y, is_pressed;
 
-        GetClientRect(poe->hwnd, &bound);
-        bound.left = bound.right / 2 - 200;
-        bound.top = bound.bottom / 2 - 150;
-        bound.right = bound.left + 400;
-        bound.bottom = bound.top + 300;
+        GetClientRect(poe->hwnd, &bounds);
+        bounds.left = bounds.right / 2 - 200;
+        bounds.top = bounds.bottom / 2 - 150;
+        bounds.right = bounds.left + 400;
+        bounds.bottom = bounds.top + 300;
 
         GetCursorPos ((POINT*)&old_pos);
         is_pressed = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
         pos = poe->get_pos(entity);
-        if (!PtInRect(&bound, {pos.x, pos.y}))
+        if (!PtInRect(&bounds, {pos.x, pos.y}))
             return;
 
         log(L"[%03d] Open '%S' at %d, %d", ++total_opened, entity->name().c_str(), pos.x, pos.y);
