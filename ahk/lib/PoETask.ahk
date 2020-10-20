@@ -11,11 +11,11 @@ global levelXP := [525,1235,2021,3403,5002,7138,10053,13804,18512,24297,31516,39
 
 class Rect {
 
-    __new(l, t, w = 0, h = 0, r = 0, b = 0) {
+    __new(l, t, w = 0, h = 0, r = "", b = "") {
         this.l := l
         this.t := t
 
-        if (w > 0) {
+        if (w > 0 || r == "") {
             this.w := w
             this.r := l + w
         } else {
@@ -23,7 +23,7 @@ class Rect {
             this.w := r - l
         }
 
-        if (h > 0) {
+        if (h > 0 || b == "") {
             this.h := h
             this.b := t + h
         } else {
