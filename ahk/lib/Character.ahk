@@ -45,7 +45,7 @@ class Flask {
             chargesLimit := ChargesPerUseLimit
 
         if (this.IsUtility) {
-            if (forceToUse || (this.chargesPerUse < chargesLimit && this.endTime <= A_Tickcount)) {
+            if (forceToUse || (this.chargesPerUse <= chargesLimit && this.endTime <= A_Tickcount)) {
                 SendInput, % this.key
                 this.endTime := A_Tickcount + this.duration
                 return true
@@ -113,17 +113,18 @@ class Character {
     }
 
     areaChanged(areaName, lParam) {
-        for i, item in ptask.inventories[12].items
-            this.flaskChanged(index, item)
+        this.flaskChanged()
     }
 
     lifeChanged(life, lParam) {
         maximum := lParam & 0xffff
         reserved := lParam >> 16
         life := Round(life * 100 / (maximum - reserved))
-        if (life < LifeThreshold) {
+
+        if (life < 100 && this.nearbyMonsters >= MonsterThreshold)
             SendInput, %DefenseBuffSkillKey%
 
+        if (life < LifeThreshold) {
             maxUses := 0
             for i, aFlask in this.flasks {
                 if (aFlask.IsLife) {
