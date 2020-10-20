@@ -5,24 +5,24 @@
 class Item extends Entity {
 
     __Get(key) {
-        if (RegExMatch(key, "i)baseType|subType|Is.*")) {
-            if (RegExMatch(this.path, "Metadata/Items/([^/]*)s/(([^/]*)s)*", matched)) {
-                baseType := matched1
-                if (matched1 == "Weapon")
-                    this.GripType := (matched3 == "OneHandWeapon") ? "1H" : "2H"
-                else if (matched1 == "Armour")
-                    subType := matched3
+        if (RegExMatch(key, "i)baseType|subType|is.*")) {
+            if (RegExMatch(this.path, "Metadata/Items/(([^/]*)s)/(([^/]*)s)*", matched)) {
+                baseType := matched2
+                if (matched2 == "Weapon")
+                    this.GripType := (matched4 == "OneHandWeapon") ? "1H" : "2H"
+                else if (matched2 == "Armour")
+                    subType := matched4
+                else if (matched1 == "Metamorphosis")
+                    baseType := "Metamorph"
             } else if (RegExMatch(this.path, "Metadata/Items/([^/]*)/([^/]*)", matched)) {
-                baseType := matched1
-                if (RegExMatch(matched2, "Prophecy"))
-                    subType := "Prophecy"
+                baseType := InStr(matched2, "Prophecy") ? "Prophecy" : matched1
             }
 
-            this["BaseType"] := baseType
-            this["Is" baseType] := true
+            this["baseType"] := baseType
+            this["is" baseType] := true
             if (subType) {
-                this["SubType"] := subType
-                this["Is" subType] := true
+                this["subType"] := subType
+                this["is" subType] := true
             }
         }
     }
