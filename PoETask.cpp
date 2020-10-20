@@ -52,9 +52,8 @@ public:
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"getVendor", this, (MethodType)&PoETask::get_vendor, AhkObject);
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
-        add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack);
-        add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff,
-                   AhkInt, std::vector<AhkType>{AhkWString});
+        add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
+        add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&PoETask::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&PoETask::stop_pickup);
         add_method(L"setPickupRange", this, (MethodType)&PoETask::set_pickup_range,
@@ -329,10 +328,19 @@ public:
         return false;
     }
 
-            return buffer[5];
+    bool toggle_health_bar() {
+        char pattern[] = "?? ?? 44 8b 82 ?? ?? 00 00 8b 82 ?? ?? 00 00 41 0f af c0";
+        if (addrtype addr = find_pattern(pattern)) {
+            byte flag = read<byte>(addr);
+            flag = (flag == 0x7c) ? 0xeb : 0x7c;
+            if (write<byte>(addr, &flag, 1)) {
+                log(L"Health bar <b style=\"color:blue\">%S</b>.",
+                    (flag == 0xeb) ? L"Enabled" : L"Disabled");
+                return true;
+            }
         }
 
-        return -1;
+        return false;
     }
 
     int has_buff(wchar_t* buff_name) {
