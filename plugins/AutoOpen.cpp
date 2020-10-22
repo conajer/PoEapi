@@ -68,7 +68,9 @@ public:
             int index = i.second->has_component(entity_types);
             switch (index) {
             case 0: { // Chest
-                if (!std::regex_search(i.second->name(), ignored_chests)) {
+                if (i.second->has_component("MinimapIcon")
+                    || !std::regex_search(i.second->name(), ignored_chests))
+                {
                     Chest* chest = i.second->get_component<Chest>();
                     if (!chest->is_opened() && !chest->is_locked())
                         try_open(i.second.get());
