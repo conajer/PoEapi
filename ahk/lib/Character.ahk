@@ -115,7 +115,6 @@ class Character {
     areaChanged(areaName, lParam) {
         areaName := StrGet(areaName)
         this.inAzuriteMine := (areaName ~= "Azurite Mine")
-        this.flaskChanged()
     }
 
     lifeChanged(life, lParam) {
