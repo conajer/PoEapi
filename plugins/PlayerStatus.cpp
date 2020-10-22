@@ -33,7 +33,7 @@ public:
         int maximum, reserved;
 
         int current_life = local_player->life->life();
-        if (current_life != this->life) {
+        if (current_life != this->life || current_life < (maximum - reserved)) {
             this->life = local_player->life->life(&maximum, &reserved);
             PostThreadMessage(thread_id,
                               WM_PLAYER_LIFE,
