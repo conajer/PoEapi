@@ -53,7 +53,7 @@ protected:
         DWORD pid;
 
         while (1) {
-            HWND hwnd = FindWindow(nullptr, "Path of Exile");
+            HWND hwnd = FindWindow("POEWindowClass", "Path of Exile");
             if (hwnd == nullptr)
                 break;
 
