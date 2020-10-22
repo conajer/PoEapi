@@ -45,6 +45,7 @@ ahkpp_register_class(Element)
 ahkpp_register_class(Inventory)
 ahkpp_register_class(Stash)
 ahkpp_register_class(Vendor)
+ahkpp_register_class(Sell)
 ahkpp_register_class(InventorySlot)
 
 class PoEObject extends AhkObj {
@@ -344,6 +345,27 @@ class Vendor extends Element {
         }
 
         return false
+    }
+}
+
+class Sell extends Element {
+
+    accept(flag = false) {
+        this.sellPanel.childs[6].getPos(x, y)
+        if (flag)
+            MouseClick, Left, x, y
+        else
+            MouseMove, x, y, 0
+    }
+
+    getItems() {
+        this.__getItems()
+        return this.items
+    }
+
+    getYourItems() {
+        this.__getYourItems()
+        return this.yourItems
     }
 }
 
