@@ -112,7 +112,7 @@ Class Canvas {
         NumPut(y, r, 0x4, "Int")
         NumPut(x + w, r, 0x8, "Int")
         NumPut(y + h, r, 0xc, "Int")
-        r := DllCall("DrawText", "UInt", this.Cdc , "Str", s, "Int", -1, "Ptr", &r, "Int", 0x121)
+        r := DllCall("DrawText", "UInt", this.Cdc , "Str", s, "Int", -1, "Ptr", &r, "Int", 0x120)
 
         if (this.updateDC)
             DllCall("BitBlt", "UInt", this.Hdc, "Int", x, "Int", y, "Int", w, "Int", h
