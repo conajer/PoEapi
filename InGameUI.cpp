@@ -8,6 +8,7 @@
 #include "ui/Stash.cpp"
 #include "ui/Vendor.cpp"
 #include "ui/Sell.cpp"
+#include "ui/Trade.cpp"
 #include "ui/OverlayMap.cpp"
 #include "ui/Chat.cpp"
 
@@ -42,6 +43,7 @@ public:
     unique_ptr<Stash> stash;
     unique_ptr<Vendor> vendor;
     unique_ptr<Sell> sell;
+    unique_ptr<Trade> trade;
     unique_ptr<OverlayMap> large_map, small_map;
     unique_ptr<Chat> chat;
     shared_ptr<Entity> nearest_entity;
@@ -50,23 +52,37 @@ public:
     }
 
     Inventory* get_inventory() {
-        inventory = unique_ptr<Inventory>(new Inventory(read<addrtype>("inventory", "grid")));
+        if (!inventory)
+            inventory = unique_ptr<Inventory>(new Inventory(read<addrtype>("inventory", "grid")));
         return inventory.get();
     }
 
     Stash* get_stash() {
-        stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
+        if (!stash)
+            stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
         return stash.get();
     }
 
     Vendor* get_vendor() {
-        vendor = unique_ptr<Vendor>(new Vendor(read<addrtype>("vendor")));
+        if (!vendor)
+            vendor = unique_ptr<Vendor>(new Vendor(read<addrtype>("vendor")));
         return vendor.get();
     }
 
     Sell* get_sell() {
-        sell = unique_ptr<Sell>(new Sell(read<addrtype>("sell")));
+        if (!sell)
+            sell = unique_ptr<Sell>(new Sell(read<addrtype>("sell")));
+        sell->get_sell_panel();
+
         return sell.get();
+    }
+
+    Trade* get_trade() {
+        if (!trade)
+            trade = unique_ptr<Trade>(new Trade(read<addrtype>("trade")));
+        trade->get_sell_panel();
+
+        return trade.get();
     }
 
     OverlayMap* get_overlay_map() {

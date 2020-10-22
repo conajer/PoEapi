@@ -47,6 +47,7 @@ public:
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"getVendor", this, (MethodType)&PoETask::get_vendor, AhkObject);
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
+        add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
@@ -148,6 +149,16 @@ public:
             InGameUI* in_game_ui = in_game_state->in_game_ui();
             Sell* sell = in_game_ui->get_sell();
             return (AhkObjRef*)*sell;
+       }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_trade() {
+        if (is_in_game()) {
+            InGameUI* in_game_ui = in_game_state->in_game_ui();
+            Trade* trade = in_game_ui->get_trade();
+            return (AhkObjRef*)*trade;
        }
 
         return nullptr;
@@ -394,6 +405,7 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"StashTab", L"AhkObj", []()->StashTab* {return new StashTab(0);});
         ahkpp_register(L"Vendor", L"Element", []()->Vendor* {return new Vendor(0);});
         ahkpp_register(L"Sell", L"Element", []()->Sell* {return new Sell(0);});
+        ahkpp_register(L"Trade", L"Sell", []()->Trade* {return new Trade(0);});
         ahkpp_register(L"Charges", L"Component", []()->Charges* {return new Charges(0);});
         ahkpp_register(L"Flask", L"Component", []()->Flask* {return new Flask(0);});
         break;
