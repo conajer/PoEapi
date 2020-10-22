@@ -57,7 +57,7 @@ static std::map<string, int> inventory_offsets {
 class InventorySlot : public RemoteMemoryObject, public AhkObj {
 public:
 
-    std::unordered_map<int, InventoryCell> cells;
+    std::unordered_map<int, shared_ptr<InventoryCell>> cells;
     int id, type, sub_type, cols, rows;
 
     InventorySlot(addrtype address) : RemoteMemoryObject(address, &inventory_offsets) {
@@ -85,18 +85,18 @@ public:
         return read<byte>("count");
     }
 
-    std::unordered_map<int, InventoryCell>& get_items() {
-        std::unordered_map<int, InventoryCell> removed_cells;
+    std::unordered_map<int, shared_ptr<InventoryCell>>& get_items() {
+        std::unordered_map<int, shared_ptr<InventoryCell>> removed_cells;
         removed_cells.swap(cells);
 
         if (count() > 0) {
             for (auto addr : read_array<addrtype>("cells", 0x0, 8) ) {
                 if (addr > 0) {
-                    InventoryCell cell(addr);
-                    int index = cell.x * rows + cell.y + 1;
+                    shared_ptr<InventoryCell> cell(new InventoryCell(addr));
+                    int index = cell->x * rows + cell->y + 1;
                     auto i = removed_cells.find(index);
-                    if (i == removed_cells.end() || i->second.address != addr) {
-                        cells.insert(std::make_pair(index,cell));
+                    if (i == removed_cells.end() || i->second->address != addr) {
+                        cells[index] = cell;
                         removed_cells.erase(index);
                         continue;
                     }
@@ -118,13 +118,13 @@ public:
 
             AhkObj items(ahkobj_ref);
             for (auto& i : cells) {
-                Item& item = i.second.get_item();
+                Item& item = i.second->get_item();
                 if (!item.obj_ref) {
                     items.__set(std::to_wstring(i.first).c_str(),
                                 (AhkObjRef*)item,
                                 AhkObject, nullptr);
-                    item.__set(L"left", i.second.x + 1, AhkInt,
-                               L"top", i.second.y + 1, AhkInt,
+                    item.__set(L"left", i.second->x + 1, AhkInt,
+                               L"top", i.second->y + 1, AhkInt,
                                L"index", i.first, AhkInt,
                                nullptr);
                 }
@@ -142,7 +142,7 @@ public:
         if (verbose) {
             printf("    ----------- --- ---- ---- -----\n");
             for (auto i : get_items()) {
-                i.second.to_print();
+                i.second->to_print();
             }
         }
     }
