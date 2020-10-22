@@ -77,6 +77,20 @@ public:
         return shared_ptr<Element>(new Element(addr));
     }
 
+    shared_ptr<Element> get_child(std::vector<int> indices) {
+        if (indices.size() == 0)
+            return nullptr;
+
+        shared_ptr<Element> child = get_child(indices[0]);
+        for (int i = 1; i < indices.size(); ++i) {
+            if (!child)
+                break;
+            child = child->get_child(indices[i]);
+        }
+
+        return child;
+    }
+
     std::vector<shared_ptr<Element>>& get_childs() {
         if (childs.empty()) {
             for (auto addr : read_array<addrtype>("childs", 0x0, 0x8)) {
