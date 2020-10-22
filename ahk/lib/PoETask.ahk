@@ -274,6 +274,7 @@ class PoETask extends AhkObj {
             if (Not VendorExceptions.check(item) && VendorRules.check(item))
                 this.inventory.move(item)
         }
+        ptask.getSell().accept()
     }
 
     stashItems() {
