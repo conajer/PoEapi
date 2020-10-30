@@ -4,6 +4,13 @@
 
 class InventoryGrid extends Element {
 
+    __new(id) {
+        this.id := id
+        this.rows := ptask.inventories[id].rows
+        this.cols := ptask.inventories[id].cols
+        this.rect := this.getPos()
+    }
+
     dump(regex = "", n = 0) {
         this.checkLayout()
         for i, aItem in this.getItems() {
@@ -44,17 +51,18 @@ class InventoryGrid extends Element {
     }
 
     getItem(left, top) {
-        this.inventory.getItems()
-        return this.inventory.items[(left - 1) * this.rows + top]
+        ptask.inventories[this.id].getItems()
+        return ptask.inventories[this.id].items[(left - 1) * this.rows + top]
     }
 
     getItemByIndex(index) {
-        this.inventory.getItems()
-        return this.inventory.items[index]
+        ptask.inventories[this.id].getItems()
+        return ptask.inventories[this.id].items[index]
     }
 
     getItems() {
-        return this.inventory.getItems()
+        ptask.inventories[this.id].getItems()
+        return ptask.inventories[this.id].items
     }
 
     moveTo(index) {
