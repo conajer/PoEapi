@@ -69,18 +69,18 @@ template <> string read<string>(HANDLE handle, addrtype address) {
 }
 
 template <> wstring read<wstring>(HANDLE handle, addrtype address) {
+    unsigned int len = read<int>(handle, address + 0x10);
     unsigned int max_len = read<int>(handle, address + 0x18);
-    wstring str;
 
-    if (max_len < 256) {
-        wchar_t buffer[max_len + 1];
+    if (len <= max_len && len < 256) {
+        wchar_t buffer[len + 1];
         if (max_len >= 8)
             address = read<addrtype>(handle, address);
-        if (ReadProcessMemory(handle, (LPVOID)address, buffer, (max_len + 1) * 2, 0))
-            str = buffer;
+        if (ReadProcessMemory(handle, (LPVOID)address, buffer, (len + 1) * 2, 0))
+            return wstring(buffer, len);
     }
 
-    return str;
+    return L"";
 }
 
 class PoEMemory {
