@@ -117,7 +117,6 @@ class PoETask extends AhkObj {
             this.c.destory()
             this.hud.destroy()
             this.setHud(-1)
-            
             this.banner.destroy()
             return
         }
@@ -135,7 +134,8 @@ class PoETask extends AhkObj {
             WinGetPos, x, y, w, h, ahk_class POEWindowClass
         }
 
-        this.Hwnd := hwnd
+        this.x := x
+        this.y := y
         this.width := w
         this.height := h
         this.actionArea := new Rect(210, 90, w - 450, h - 260)
@@ -330,6 +330,7 @@ class PoETask extends AhkObj {
 
         debug("You have entered <b style=""color:maroon"">{}, {}</b>", areaName, level)
         this.InMap := Not isTown && Not isHideout
+        this.InHideout := isHideout
 
         ; Calculate gained experience
         if (this.InMap) {
@@ -354,10 +355,12 @@ class PoETask extends AhkObj {
         this.chat := this.getChat()
     }
 
-    playerChanged(playerName, level) {
-        this.player := IsObject(%playerName%) ? new %playerName%() : new Character()
+    playerChanged(name, level) {
+        name := StrGet(name)
+        this.player := IsObject(%name%) ? new %name%() : new Character()
+        this.player.name := name
         this.player.Level := level
-        syslog("{} is level {} in the {} league", StrGet(playerName), level, this.League)
+        syslog("{} is level {} in the {} league", name, level, this.League)
     }
 
     onDelveChest(chestName, lParam) {
