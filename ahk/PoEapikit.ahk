@@ -144,8 +144,12 @@ return
     ptask.toggleMaphack()
 return
 
++-::_
 -::NumpadSub
 +::NumpadAdd
+
+^WheelDown::Right
+^WheelUp::Left
 
 #IfWinActive
 
