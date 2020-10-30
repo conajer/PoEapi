@@ -23,12 +23,13 @@ enum MessageTypes {
     WM_PICKUP,
     WM_FLASK_CHANGED,
     WM_HEIST_CHEST,
+    WM_NEW_MESSAGE,
     WM_PTASK_ATTACHED =  0x9100,
 };
 
 int major_version = 0;
 int minor_version = 9;
-int patch_level = 1;
+int patch_level = 5;
 
 const char* supported_PoE_version = "3.12.4";
 
