@@ -11,6 +11,7 @@
 #include "ui/Trade.cpp"
 #include "ui/OverlayMap.cpp"
 #include "ui/Chat.cpp"
+#include "ui/NotificationArea.cpp"
 
 static std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x520},
@@ -21,7 +22,6 @@ static std::map<string, int> in_game_ui_offsets {
         {"large",       0x230},
         {"small",       0x238},
     {"chat",            0x400},
-        {"messages",    0x2f0},
     {"entity_list",     0x5b0},
         {"root",        0x2a0},
     {"vendor",          0x638},
@@ -29,6 +29,7 @@ static std::map<string, int> in_game_ui_offsets {
     {"sell",            0x660},
     {"trade",           0x668},
     {"gem_level_up",    0x8c8},
+    {"notifications",   0x910},
 };
 
 enum {
@@ -44,16 +45,37 @@ public:
     unique_ptr<Vendor> vendor;
     unique_ptr<Sell> sell;
     unique_ptr<Trade> trade;
-    unique_ptr<OverlayMap> large_map, small_map;
+    unique_ptr<OverlayMap> large_map, corner_map;
     unique_ptr<Chat> chat;
+    unique_ptr<NotificationArea> notification_area;
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
+        get_inventory();
+        get_stash();
+        get_vendor();
+        get_sell();
+        get_trade();
+        get_overlay_map();
+        get_chat();
+        get_notification_area();
+    }
+
+    void __new() {
+        __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
+              L"stash", (AhkObjRef*)*stash, AhkObject,
+              L"vendor", (AhkObjRef*)*vendor, AhkObject,
+              L"sell", (AhkObjRef*)*sell, AhkObject,
+              L"largeMap", (AhkObjRef*)*large_map, AhkObject,
+              L"cornerMap", (AhkObjRef*)*corner_map, AhkObject,
+              L"chat", (AhkObjRef*)*chat, AhkObject,
+              L"notificationArea", (AhkObjRef*)*notification_area, AhkObject,
+              nullptr);
     }
 
     Inventory* get_inventory() {
         if (!inventory)
-            inventory = unique_ptr<Inventory>(new Inventory(read<addrtype>("inventory", "grid")));
+            inventory.reset(new Inventory(read<addrtype>("inventory", "grid")));
         return inventory.get();
     }
 
@@ -72,16 +94,12 @@ public:
     Sell* get_sell() {
         if (!sell)
             sell = unique_ptr<Sell>(new Sell(read<addrtype>("sell")));
-        sell->get_sell_panel();
-
         return sell.get();
     }
 
     Trade* get_trade() {
         if (!trade)
             trade = unique_ptr<Trade>(new Trade(read<addrtype>("trade")));
-        trade->get_sell_panel();
-
         return trade.get();
     }
 
@@ -89,19 +107,26 @@ public:
         if (!large_map) {
             large_map.reset(new OverlayMap(read<addrtype>("overlay_map", "large")));
             large_map->shift_modifier = -20.0;
-            small_map.reset(new OverlayMap(read<addrtype>("overlay_map", "small")));
-            small_map->shift_modifier = 0;
+            corner_map.reset(new OverlayMap(read<addrtype>("overlay_map", "small")));
+            corner_map->shift_modifier = 0;
         }
         
-        auto& overlay_map = large_map->is_visible() ? large_map : small_map;
+        auto& overlay_map = large_map->is_visible() ? large_map : corner_map;
         return overlay_map.get();
     }
 
     Chat* get_chat() {
         if (!chat) {
-            chat = unique_ptr<Chat>(new Chat(read<addrtype>("chat", "messages")));
+            chat = unique_ptr<Chat>(new Chat(read<addrtype>("chat")));
         }
         return chat.get();
+    }
+
+    NotificationArea* get_notification_area() {
+        if (!notification_area) {
+            notification_area.reset(new NotificationArea(read<addrtype>("notifications")));
+        }
+        return notification_area.get();
     }
 
     int get_all_entities(EntityList& entities, EntityList& removed) {
