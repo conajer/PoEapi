@@ -162,11 +162,7 @@ class Element extends PoEObject {
 class Inventory extends InventoryGrid {
 
     __new() {
-        base.__new()
-        this.inventory := ptask.inventories[1]
-        this.rows := this.inventory.rows
-        this.cols := this.inventory.cols
-        this.rect := this.getPos()
+        base.__new(1)
     }
 
     open() {
