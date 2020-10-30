@@ -45,6 +45,13 @@ public:
         add_method(L"isVisible", this, (MethodType)&Element::is_visible, AhkBool);
     }
 
+    void __new() {
+        AhkObj elements;
+        for (auto& i : childs)
+            elements.__set(L"", (i ? (AhkObjRef*)*i : nullptr), AhkObject, nullptr);
+        __set(L"childs", (AhkObjRef*)elements, AhkObject, nullptr);
+    }
+
     bool is_valid() {
         return this->address == read<addrtype>("self");
     }
@@ -105,15 +112,10 @@ public:
             }
 
             if (obj_ref) {
-                AhkObjRef* ahkobj_ref;
-
-                __set(L"Childs", nullptr, AhkObject, nullptr);
-                __get(L"Childs", &ahkobj_ref, AhkObject);
-                AhkObj elements(ahkobj_ref);
-                for (auto& i : childs) {
-                    if (i.get() != nullptr)
-                        elements.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
-                }
+                AhkObj elements;
+                for (auto& i : childs)
+                    elements.__set(L"", (i ? (AhkObjRef*)*i : nullptr), AhkObject, nullptr);
+                __set(L"childs", (AhkObjRef*)elements, AhkObject, nullptr);
             }
         }
 
