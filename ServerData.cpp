@@ -231,7 +231,7 @@ static bool compare_stash_tab(shared_ptr<StashTab>& tab1, shared_ptr<StashTab>& 
 static std::map<string, int> server_data_offsets {
     {"league",          0x7850},
     {"latency",         0x78c8},
-    {"party_status",    0x7900},
+    {"party_status",    0x7a00},
     {"stash_tabs",      0x78d8},
     {"inventory_slots", 0x7c28},
 };
