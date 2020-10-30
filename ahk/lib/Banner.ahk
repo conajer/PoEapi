@@ -6,8 +6,8 @@
 
 class AhkGui {
 
-    __var(varName) {
-        return "__obj" &this "_" varName
+    __var(name) {
+        return "__obj" &this "_" name
     }
 
     __Get(key) {
@@ -15,6 +15,15 @@ class AhkGui {
             var := this.__var(key)
             return (%var%)
         }
+    }
+
+    __event_wrapper() {
+        global
+L1:
+        RegExMatch(A_GuiControl, "__obj([0-9]+)_(.*)", matched)
+        obj := Object(matched1)
+        obj[matched2]()  ; Call object's method
+        return
     }
 }
 
@@ -55,13 +64,6 @@ class Banner extends AhkGui {
         OnMessage(WM_PLAYER_MANA, ObjBindMethod(this, "manaChanged"))
         OnMessage(WM_PLAYER_ES, ObjBindMethod(this, "energyShieldChanged"))
         OnMessage(WM_KILL_COUNTER, ObjBindMethod(this, "onKillCounter"))
-        return this
-
-    L1:
-        RegExMatch(A_GuiControl, "__obj([0-9]+)_(.*)", matched)
-        obj := Object(matched1)
-        obj[matched2](obj)  ; Call object's method
-        return
     }
 
     destroy() {
