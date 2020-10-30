@@ -142,6 +142,7 @@ public:
     GameStateController* game_state_controller;
     GameState *active_game_state;
     InGameState* in_game_state;
+    InGameUI* in_game_ui;
     unique_ptr<Canvas> hud;
 
     PoE() : game_state_controller(0) {
@@ -178,6 +179,7 @@ public:
             GameState *game_state = game_state_controller->get_active_game_state();
             if (game_state && game_state->is(L"InGameState")) {
                 in_game_state = (InGameState*)game_state;
+                in_game_ui = in_game_state->in_game_ui();
             }
 
             return game_state;
