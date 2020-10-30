@@ -34,6 +34,7 @@ global WM_DELVE_CHEST      := 0x900e
 global WM_PICKUP           := 0x900f
 global WM_FLASK_CHANGED    := 0x9010
 global WM_HEIST_CHEST      := 0x9011
+global WM_NEW_MESSAGE      := 0x9012
 global WM_PTASK_ATTACHED   := 0x9100
 
 ; Register PoEapi classes
