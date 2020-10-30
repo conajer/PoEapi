@@ -212,9 +212,18 @@ class PoETask extends AhkObj {
         WinMinimize, ahk_class POEWindowClass
     }
 
-    sendKeys(keys) {
-        this.activate()
-        SendInput {Enter}%keys%{Enter}
+    sendKeys(keys, NoSend = false) {
+        if (ptask.isMinimized())
+            return
+
+        ptask.activate()
+        if (Not this.chat.isOpened())
+            SendInput, {Enter}
+
+        if (NoSend)
+            SendInput, %keys%
+        else
+            SendInput, %keys%{Enter}
     }
 
     select(name) {
@@ -341,6 +350,7 @@ class PoETask extends AhkObj {
         this.getStash()
         this.getInventory()
         this.flasks := this.inventories[12]
+        this.chat := this.getChat()
     }
 
     playerChanged(playerName, level) {
