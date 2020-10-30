@@ -11,11 +11,16 @@ public:
 
     Sell(addrtype address) : Element(address) {
         path.push_back(3);
-        add_method(L"isOpened", (Element*)this, (MethodType)&Element::is_visible, AhkBool);
+        add_method(L"isOpened", (Element*)this, (MethodType)&Sell::is_opened, AhkBool);
         add_method(L"getSellPanel", this, (MethodType)&Sell::get_sell_panel, AhkVoid);
         add_method(L"__getItems", this, (MethodType)&Sell::get_items);
         add_method(L"__getYourItems", this, (MethodType)&Sell::get_your_items);
         
+    }
+
+    bool is_opened() {
+        get_sell_panel();
+        return sell_panel ? is_visible() : false;
     }
 
     shared_ptr<Element>& get_sell_panel() {
