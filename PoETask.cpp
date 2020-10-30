@@ -11,6 +11,7 @@
 #include "plugins/AutoFlask.cpp"
 #include "plugins/AutoOpen.cpp"
 #include "plugins/AutoPickup.cpp"
+#include "plugins/Messenger.cpp"
 #include "plugins/DelveChest.cpp"
 #include "plugins/HeistChest.cpp"
 #include "plugins/PlayerStatus.cpp"
@@ -48,6 +49,7 @@ public:
         add_method(L"getVendor", this, (MethodType)&PoETask::get_vendor, AhkObject);
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
         add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
+        add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
@@ -159,6 +161,16 @@ public:
             InGameUI* in_game_ui = in_game_state->in_game_ui();
             Trade* trade = in_game_ui->get_trade();
             return (AhkObjRef*)*trade;
+       }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_chat() {
+        if (is_in_game()) {
+            InGameUI* in_game_ui = in_game_state->in_game_ui();
+            Chat* chat = in_game_ui->get_chat();
+            return (AhkObjRef*)*chat;
        }
 
         return nullptr;
@@ -305,6 +317,7 @@ public:
         add_plugin(new AutoOpen());
         add_plugin(new DelveChest());
         add_plugin(new HeistChest());
+        add_plugin(new Messenger());
         add_plugin(new PlayerStatus());
         add_plugin(new KillCounter());
         add_plugin(auto_pickup);
@@ -399,6 +412,7 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"Element", L"PoEObject", []()->Element* {return new Element(0);});
         ahkpp_register(L"Item", L"Entity", []()->Item* {return new Item(0);});
         ahkpp_register(L"LocalPlayer", L"Entity", []()->LocalPlayer* {return new LocalPlayer(0);});
+        ahkpp_register(L"InGameUI", L"Element", []()->InGameUI* {return new InGameUI(0);});
         ahkpp_register(L"Inventory", L"Element", []()->Inventory* {return new Inventory(0);});
         ahkpp_register(L"InventorySlot", L"AhkObj", []()->InventorySlot* {return new InventorySlot(0);});
         ahkpp_register(L"Stash", L"Element", []()->Stash* {return new Stash(0);});
@@ -406,6 +420,7 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"Vendor", L"Element", []()->Vendor* {return new Vendor(0);});
         ahkpp_register(L"Sell", L"Element", []()->Sell* {return new Sell(0);});
         ahkpp_register(L"Trade", L"Sell", []()->Trade* {return new Trade(0);});
+        ahkpp_register(L"Chat", L"Element", []()->Chat* {return new Chat(0);});
         ahkpp_register(L"Charges", L"Component", []()->Charges* {return new Charges(0);});
         ahkpp_register(L"Flask", L"Component", []()->Flask* {return new Flask(0);});
         break;
