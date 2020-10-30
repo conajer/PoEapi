@@ -122,6 +122,7 @@ class PoETask extends AhkObj {
             return
         }
 
+        this.Hwnd := hwnd
         this.activate()
         WinGetPos, x, y, w, h, ahk_id %hwnd%
         if (Not this.isMaximized()) {
@@ -165,7 +166,7 @@ class PoETask extends AhkObj {
     }
 
     activate() {
-        if (WinActive("ahk_class POEWindowClass"))
+        if (WinActive("ahk_id " this.Hwnd))
             return
 
         if (InIdle) {
@@ -175,7 +176,7 @@ class PoETask extends AhkObj {
                 Sleep, 1000
         }
 
-        WinActivate, ahk_class POEWindowClass
+        WinActivate, % "ahk_id " this.Hwnd
     }
 
     getWindowRect(hwnd) {
