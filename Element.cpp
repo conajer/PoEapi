@@ -45,6 +45,10 @@ public:
         add_method(L"isVisible", this, (MethodType)&Element::is_visible, AhkBool);
     }
 
+    bool is_valid() {
+        return this->address == read<addrtype>("self");
+    }
+
     wstring& get_text() {
         if (text.empty())
             text = read<wstring>("text");
