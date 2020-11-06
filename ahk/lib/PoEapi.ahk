@@ -120,15 +120,10 @@ class Element extends PoEObject {
 
     getPos(ByRef x = "", ByRef y = "") {
         r := this.getRect()
-        l := NumGet(r + 0x0, "Int")
-        t := NumGet(r + 0x4, "Int")
-        w := NumGet(r + 0x8, "Int")
-        h := NumGet(r + 0xc, "Int")
+        x := r.l + r.w / 2
+        y := r.t + r.h / 2
 
-        x := l + w / 2
-        y := t + h / 2
-
-        return new Rect(l, t, w, h)
+        return r
     }
 
     draw(label = "", color = "", depth = 1) {
@@ -146,10 +141,9 @@ class Element extends PoEObject {
 
         ptask.c.drawRect(r.l, r.t, r.w, r.h, bgr)
         if (label)
-            ptask.c.drawText(r.l, r.t, 10, 20, label, bgr)
+            ptask.c.drawText(r.l, r.t, 100, 20, label, bgr)
 
-        this.getChilds()
-        for i, e in this.Childs {
+        for i, e in this.getChilds() {
             if (e.isVisible()) {
                 r := e.getPos()
                 if (r.w != 317 && r.h != 317)
