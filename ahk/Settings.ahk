@@ -53,6 +53,17 @@ global AlwaysRunning := true
 global CloseAllUIKey := "{Space}"
 global InventoryKey := "f"
 
+; Trader
+global TraderUICompact := true
+global TraderUITransparent := 225
+global TraderMaxSessions := 3
+global TraderTimeout := 60
+global TraderMessages := { "thanks" : "t4t, gl."
+                         , "1sec"   : "1 sec."
+                         , "ask"    : "Hi, are you still interested in {} for {}?"
+                         , "sold"   : "sold out." }
+
+; Vendor recipes
 ; Attack and defense
 global AttackSkillKey := "w"
 global SecondaryAttackSkillKey := ""

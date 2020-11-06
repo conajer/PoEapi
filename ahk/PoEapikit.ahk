@@ -12,6 +12,7 @@ CoordMode, Pixel, Client
 SetWorkingDir %A_ScriptDir%
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
+#Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
@@ -19,8 +20,9 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
+global trader := new Trader()
 
-version := "0.3.2"
+version := "0.3.4"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("PoEapikit v{} (powered by PoEapi v{})", version, poeapiVersion)
 
