@@ -6,9 +6,26 @@ class InventoryGrid extends Element {
 
     __new(id) {
         this.id := id
-        this.rows := ptask.inventories[id].rows
-        this.cols := ptask.inventories[id].cols
-        this.rect := this.getPos()
+    }
+
+    id {
+        Get {
+            return this.id := this.getId()
+        }
+
+        Set {
+            if (value > 0) {
+                ObjRawSet(this, "id", value)
+                if (Not ptask.inventories[this.id])
+                    ptask.getInventorySlots()
+
+                this.rows := ptask.inventories[this.id].rows
+                this.cols := ptask.inventories[this.id].cols
+                this.rect := this.getRect()
+
+                return this.id
+            }
+        }
     }
 
     dump(regex = "", n = 0) {
@@ -51,18 +68,15 @@ class InventoryGrid extends Element {
     }
 
     getItem(left, top) {
-        ptask.inventories[this.id].getItems()
-        return ptask.inventories[this.id].items[(left - 1) * this.rows + top]
+        return this.getItemByIndex((left - 1) * this.rows + top)
     }
 
     getItemByIndex(index) {
-        ptask.inventories[this.id].getItems()
-        return ptask.inventories[this.id].items[index]
+        return ptask.inventories[this.id].getItems()[index]
     }
 
     getItems() {
-        ptask.inventories[this.id].getItems()
-        return ptask.inventories[this.id].items
+        return ptask.inventories[this.id].getItems()
     }
 
     moveTo(index) {

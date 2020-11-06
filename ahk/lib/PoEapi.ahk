@@ -47,7 +47,6 @@ ahkpp_register_class(Inventory)
 ahkpp_register_class(Stash)
 ahkpp_register_class(Vendor)
 ahkpp_register_class(Sell)
-ahkpp_register_class(InventorySlot)
 
 class PoEObject extends AhkObj {
     
@@ -163,7 +162,7 @@ class Element extends PoEObject {
 class Inventory extends InventoryGrid {
 
     __new() {
-        base.__new(1)
+        this.id := 1
     }
 
     open() {
@@ -256,7 +255,34 @@ class Inventory extends InventoryGrid {
     }
 }
 
+class StashTab extends InventoryGrid {
+}
+
+class SpecialStashTab extends StashTab {
+
+    getRectByIndex(index) {
+        index := Round((index - 1) / this.rows + 1)
+
+        ; Currency tab
+        if (this.type == 3)
+            index := (index > 28) ? index - 1 : index
+
+        return this.childs[index].getRect()
+    }
+}
+
 class Stash extends Element {
+
+    __new() {
+        this.__getTabs()
+        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "__getTabs"))
+    }
+
+    Tab {
+        Get {
+            return this.getTab(ptask.stashTabs[this.activeTabIndex() + 1].name)
+        }
+    }
 
     open() {
         if (this.isOpened())
@@ -276,22 +302,23 @@ class Stash extends Element {
     }
 
     getTab(tabName) {
-        for i, tab in ptask.stashTabs {
-            if (tab.name == tabName)
-                return tab
+        if (Not this.tabs[tabName])
+            this.__getTabs()
+        return this.tabs[tabName]
         }
-    }
 
     switchTab(tabName) {
         if (Not this.isOpened())
             return
 
-        activeTabIndex := this.activeTabIndex()
-        if (this.stashTabs[activeTabIndex] != tabName) {
+        activeTabIndex := this.activeTabIndex() + 1
+        if (ptask.stashTabs[activeTabIndex].name != tabName) {
             tab := this.getTab(tabName)
+            if (tab) {
             n := abs(activeTabIndex - tab.index)
             key := (activeTabIndex > tab.index) ? "Left" : "Right"
             SendInput {%key% %n%}
+        }
         }
 
         loop, 3 {
@@ -301,6 +328,30 @@ class Stash extends Element {
         }
 
         return tab
+    }
+
+    __getTabs() {
+        this.tabs := {}
+        stashTabs := this.getChild(2)
+        for i, tab in stashTabs.getChilds() {
+            __tab := ptask.stashTabs[i]
+            if (Not __tab.getId())
+                continue
+
+            if (__tab.type > 2 && __tab.type != 7) {
+                tab := tab.getChild(1)
+                tab.base := SpecialStashTab
+            } else {
+                tab := tab.getChild(1, 1)
+                tab.base := StashTab
+            }
+
+            tab.id := __tab.id
+            tab.name := __tab.name
+            tab.index := i
+            tab.type := __tab.type
+            this.tabs[tab.name] := tab
+}
     }
 }
 
