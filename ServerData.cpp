@@ -92,11 +92,12 @@ public:
     }
 
     void __new() {
-        __set(L"Id", id, AhkInt,
-              L"Type", type, AhkInt,
-              L"SubType", sub_type, AhkInt,
-              L"Cols", cols, AhkInt,
-              L"Rows", rows, AhkInt,
+        __set(L"id", id, AhkInt,
+              L"type", type, AhkInt,
+              L"subType", sub_type, AhkInt,
+              L"cols", cols, AhkInt,
+              L"rows", rows, AhkInt,
+              L"items", nullptr, AhkObject,
               nullptr);
     }
 
@@ -157,6 +158,7 @@ static const wchar_t* stash_tab_types[] = {
     L"Blight",
     L"Metamorph",
     L"Delirium",
+    L"Folder",
 };
 
 enum StashTabFlags {
@@ -172,7 +174,10 @@ static std::map<string, int> stash_tab_offsets {
     {"inventory_id", 0x28},
     {"type",         0x34},
     {"index",        0x38},
+    {"folder_id",    0x3a},
     {"flags",        0x3d},
+    {"is_affinity",  0x3e},
+    {"affinities",    0x3f},
 };
 
 class StashTab : public RemoteMemoryObject, public AhkObj {
@@ -180,33 +185,40 @@ public:
 
     wstring name;
     int type, index, flags;
-    InventorySlot *inventory_slot;
+    bool is_affinity;
+    int affinities, id = 0;
+    short folder_id;
 
     StashTab(addrtype address) : RemoteMemoryObject(address, &stash_tab_offsets) {
         name = read<wstring>("name");
         index = read<byte>("index");
         type = read<byte>("type");
         flags = read<byte>("flags");
+        folder_id = read<short>("folder_id");
+        is_affinity = read<byte>("is_affinity");
+        affinities = read<int>("affinities");
 
-        add_method(L"getInventorySlot", this, (MethodType)&StashTab::get_inventory_slot, AhkObject);
+        add_method(L"getId", this, (MethodType)&StashTab::inventory_id, AhkInt);
     }
 
     void __new() {
-        __set(L"Index", index, AhkInt,
-              L"Name", name.c_str(), AhkWString,
-              L"Type", type, AhkInt,
-              L"Flags", flags, AhkInt,
+        __set(L"index", index, AhkInt,
+              L"name", name.c_str(), AhkWString,
+              L"type", type, AhkInt,
+              L"flags", flags, AhkInt,
+              L"folderId", folder_id, AhkInt,
+              L"isAffinity", is_affinity, AhkBool,
+              L"affinities", affinities, AhkInt,
               nullptr);
     }
 
     int inventory_id() {
-        return read<byte>("inventory_id");
-    }
+        if (id == 0) {
+            id = read<byte>("inventory_id");
+            __set(L"id", id, AhkInt, nullptr);
+        }
 
-    AhkObjRef* get_inventory_slot() {
-        if (inventory_slot)
-            return (AhkObjRef*)*inventory_slot;
-        return nullptr;
+        return id;
     }
 
     void to_print() {
@@ -225,7 +237,7 @@ static std::map<string, int> server_data_offsets {
     {"latency",         0x78c8},
     {"party_status",    0x7a00},
     {"stash_tabs",      0x78d8},
-    {"inventory_slots", 0x7c28},
+    {"inventory_slots", 0x7c68},
 };
 
 class ServerData : public RemoteMemoryObject {
@@ -251,26 +263,39 @@ public:
 
     std::vector<shared_ptr<StashTab>>& get_stash_tabs() {
         stash_tabs.clear();
-        for (auto addr : read_array<addrtype>("stash_tabs", 0x40))
+        for (auto addr : read_array<addrtype>("stash_tabs", 0x48))
             stash_tabs.push_back(shared_ptr<StashTab>(new StashTab(addr)));
 
-        for (auto i = stash_tabs.begin(); i != stash_tabs.end();) {
-            if ((*i)->flags & IsHidden)
-                i = stash_tabs.erase(i);
-            else
-                ++i;
+        for (auto& i : stash_tabs) {
+            if (i->folder_id >= 0)
+                i->folder_id = stash_tabs[i->folder_id]->index;
         }
+
+        for (auto i = stash_tabs.begin(); i != stash_tabs.end();)
+            i = ((*i)->flags & IsHidden) ? stash_tabs.erase(i) : i + 1;
         std::sort(stash_tabs.begin(), stash_tabs.end(), compare_stash_tab);
+
+        int last_index = 0;
+        for (auto& i : stash_tabs) {
+            if (i->folder_id >= 0)
+                i->index = stash_tabs[i->folder_id]->index;
+            else {
+                if (i->index > last_index + 1)
+                    i->index = last_index + 1;
+            }
+            
+            last_index = i->index;
+        }
 
         return stash_tabs;
     }
 
     std::map<int, shared_ptr<InventorySlot>>& get_inventory_slots() {
-        if (inventory_slots.empty()) {
-            for (auto addr : read_array<addrtype>("inventory_slots", 0x20)) {
-                InventorySlot* slot = new InventorySlot(addr);
+        for (auto addr : read_array<addrtype>("inventory_slots", 0x20)) {
+            shared_ptr<InventorySlot> slot(new InventorySlot(addr));
+            auto i = inventory_slots.find(slot->id);
+            if (i == inventory_slots.end() || i->second->address != addr)
                 inventory_slots[slot->id] = shared_ptr<InventorySlot>(slot);
-            }
         }
 
         return inventory_slots;

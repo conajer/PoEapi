@@ -3,8 +3,8 @@
 */
 
 static std::map<string, int> stash_offsets {
-    {"tabs",             0x438},
-    {"active_tab_index", 0x490},
+    {"tabs",             0x5b8},
+    {"active_tab_index", 0x620},
 };
 
 class Stash : public Element {

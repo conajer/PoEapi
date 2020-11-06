@@ -17,7 +17,7 @@ static std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x520},
         {"grid",        0x3a8},
     {"stash",           0x528},
-        {"tabs",        0x2d8},
+        {"tabs",        0x2c8},
     {"overlay_map",     0x5a8},
         {"large",       0x230},
         {"small",       0x238},
@@ -75,14 +75,14 @@ public:
     }
 
     Inventory* get_inventory() {
-            inventory.reset(new Inventory(read<addrtype>("inventory", "grid")));
+        inventory.reset(new Inventory(read<addrtype>("inventory", "grid")));
         if (obj_ref)
             __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
         return inventory.get();
     }
 
     Stash* get_stash() {
-            stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
+        stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
         if (obj_ref)
             __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
         return stash.get();
