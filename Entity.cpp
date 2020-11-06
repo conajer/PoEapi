@@ -97,20 +97,14 @@ public:
     }
 
     AhkObjRef* get_components() {
-        AhkObjRef* ahkobj_ref;
-        __get(L"Components", &ahkobj_ref, AhkObject);
-        if (!ahkobj_ref) {
-            __set(L"Components", nullptr, AhkObject, nullptr);
-            __get(L"Components", &ahkobj_ref, AhkObject);
-        }
-
-        AhkObj cmpnts(ahkobj_ref);
+        AhkObj temp_components;
         for (auto& i : components) {
             wstring name(i.second->type_name.begin(), i.second->type_name.end());
-            cmpnts.__set(name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
+            temp_components.__set(name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
         }
+        __set(L"Components", (AhkObjRef*)temp_components, AhkObject, nullptr);
 
-        return ahkobj_ref;
+        return temp_components;
     }
 
     wstring& name() {
