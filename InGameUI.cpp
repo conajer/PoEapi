@@ -62,6 +62,7 @@ public:
     }
 
     void __new() {
+        Element::__new();
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
               L"stash", (AhkObjRef*)*stash, AhkObject,
               L"vendor", (AhkObjRef*)*vendor, AhkObject,
@@ -74,14 +75,16 @@ public:
     }
 
     Inventory* get_inventory() {
-        if (!inventory)
             inventory.reset(new Inventory(read<addrtype>("inventory", "grid")));
+        if (obj_ref)
+            __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
         return inventory.get();
     }
 
     Stash* get_stash() {
-        if (!stash)
             stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
+        if (obj_ref)
+            __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
         return stash.get();
     }
 
