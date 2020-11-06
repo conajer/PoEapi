@@ -351,30 +351,36 @@ class Stash extends Element {
 
 class Vendor extends Element {
 
-    sell(vendorName = "NPC") {
-        sell := ptask.getSell()
-        if (sell.isOpened())
+    selectNPC(name = "") {
+        if (this.isSelected()) {
+            if (Not name || this.name ~= name)
             return true
-
-        if (Not this.isSelected()) {
-            SendInput, %CloseAllUIKey%
-            Sleep, 100
-            if (Not ptask.select(vendorName))
-                return false
         }
 
-        this.services := ""
-        loop, 30 {
-            this.getServices()
-            if (this.services) {
-                service := this.services["Sell Items"]
-                if (Not service)
-                    return this.select("Navali")
-                break
+            SendInput, %CloseAllUIKey%
+            Sleep, 100
+        return ptask.select(name ? name : "NPC")
+        }
+
+    selectService(name) {
+        loop, 5 {
+            if (this.isSelected()) {
+                if (this.getServices().Count())
+                    return this.services[name]
             }
             Sleep, 50
         }
 
+        return false
+    }
+
+    sell() {
+        sell := ptask.getSell()
+        if (sell.isOpened())
+            return true
+
+        if (this.selectNPC()) {
+            service := this.selectService("Sell Items")
         if (service) {
             service.getPos(x, y)
             MouseClick(x, y)
@@ -385,6 +391,21 @@ class Vendor extends Element {
                 Sleep, 50
             }
         }
+        }
+
+        return false
+    }
+
+    tradeDivinationCards() {
+        if (this.selectNPC("Navali")) {
+            service := this.selectService("Trade Divination Cards")
+            if (service) {
+                service.getPos(x, y)
+                MouseClick(x, y)
+                Sleep, 50
+                return true
+    }
+    }
 
         return false
     }
@@ -393,28 +414,9 @@ class Vendor extends Element {
 class Sell extends Element {
 
     accept(flag = false) {
-        this.sellPanel.childs[6].getPos(x, y)
+        this.sellPanel.getChild(6).getPos(x, y)
+        MouseMove, x, y, 0
         if (flag)
             MouseClick, Left, x, y
-        else
-            MouseMove, x, y, 0
-    }
-
-    getItems() {
-        this.__getItems()
-        return this.items
-    }
-
-    getYourItems() {
-        this.__getYourItems()
-        return this.yourItems
-    }
-}
-
-class InventorySlot extends AhkObj {
-
-    getItems() {
-        this.__getItems()
-        return this.items
     }
 }
