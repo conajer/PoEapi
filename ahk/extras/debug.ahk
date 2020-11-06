@@ -37,14 +37,14 @@ drawInventory() {
 }
 
 listInventoryItems() {
-    ptask.inventories[1].getItems()
     debug("Inventory:")
-    if (ptask.inventories[1].Count() == 0) {
+    items := ptask.inventory.getItems()
+    if (items.Count() == 0) {
         debug("    No items.")
         Return
     }
 
-    for i, item in ptask.inventories[1].items
+    for i, item in items
         debug("    {:2d}. {}", item.index, item.name)
 }
 
@@ -59,22 +59,27 @@ drawStashTab() {
 }
 
 listStashTabItems() {
-    
+    debug("Stash tab name: {}", ptask.stash.Tab.name)
+    for i, item in ptask.stash.Tab.getItems()
+        debug("    {:3d}. {}", item.index, colors[item.rarity + 1], item.name)
 }
 
 listStashTabs() {
-    if (ptask.stashTabs.Count() == 0) {
+    stashTabs := ptask.getStashTabs()
+    if (stashTabs.Count() == 0) {
         debug("No stash tabs.")
         Return
     }
 
     debug("Stash tabs:")
-    for i, tab in ptask.stashTabs
-        debug("    {}. {}, {}, {:#x}, {:#x}", i
+    for i, tab in stashTabs {
+        debug("    {:2d}. {:2d}, {:-32s}, {:#x}, {:#x} {:#x}", i
               , tab.index
-              , tab.name
+              , (tab.folderId >= 0) ? "    " tab.name : tab.name
               , tab.type
-              , tab.flags)
+              , tab.flags
+              , tab.affinities)
+    }
 }
 
 listVendorServices() {
@@ -84,11 +89,10 @@ listVendorServices() {
         return
     }
 
-    vendor.getServices()
     debug("{}'s services:", vendor.name)
-    for name in vendor.services
+    for name in vendor.getServices()
         debug("    {}. {}", A_Index, name)
-        vendor.draw()
+    vendor.draw()
 }
 
 listFlasks() {
@@ -117,5 +121,5 @@ listFlaskSlot() {
     }
 
     for i, item in ptask.inventories[12].items
-        debug("    {:2d}. {}", item.index, item.name)
+        debug("    {}. {}", item.index, item.name)
 }
