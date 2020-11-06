@@ -12,6 +12,7 @@
 #include "plugins/AutoOpen.cpp"
 #include "plugins/AutoPickup.cpp"
 #include "plugins/Messenger.cpp"
+#include "plugins/MinimapSymbol.cpp"
 #include "plugins/DelveChest.cpp"
 #include "plugins/HeistChest.cpp"
 #include "plugins/PlayerStatus.cpp"
@@ -329,6 +330,7 @@ public:
         add_plugin(new DelveChest());
         add_plugin(new HeistChest());
         add_plugin(new Messenger());
+        add_plugin(new MinimapSymbol());
         add_plugin(new PlayerStatus());
         add_plugin(new KillCounter());
         add_plugin(auto_pickup);

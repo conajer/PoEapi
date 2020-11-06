@@ -21,78 +21,9 @@ public:
     int total_monsters, num_of_killed;
     int maximum_area_count = 9;
 
-    Vector3 player_pos;
-    float shift_x, shift_y;
-    float scale, factor = 6.9f;
-    bool is_clipping = false;
-
-    int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // normal, magic, rare, unique
-                             0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // is dead
-                             0xfe00, 0, 0, 0,                           // is minion
-                             0x7f00, 0, 0, 0};
-    
     KillCounter() : PoEPlugin(L"KillCounter", "0.2"), current_area(nullptr) {
         num_of_monsters = num_of_minions = 0;
         total_monsters = num_of_killed = 0;
-    }
-    
-    void reset_minimap_icons() {
-        poe->hud->begin_draw();
-        poe->hud->clear();
-
-        Render* render = player->get_component<Render>();
-        if (render) {
-            Vector3 bounds = render->bounds();
-            player_pos = render->position();
-            player_pos.z = 0.0f;
-
-            Vector3 pos = player_pos;
-            OverlayMap* map = poe->in_game_state->in_game_ui()->get_overlay_map();
-            Rect r = map->get_rect();
-            if (r.w > 0 || r.h > 0) {
-                if (!is_clipping) {
-                    poe->hud->end_draw();
-                    poe->hud->begin_draw();
-                    poe->hud->push_rectangle_clip(r.x, r.y, r.x + r.w, r.y + r.h);
-                    is_clipping = true;
-                }
-            } else {
-                if (is_clipping) {
-                    poe->hud->pop_rectangle_clip();
-                    is_clipping = false;
-                }
-            }
-            poe->in_game_state->transform(pos);
-            Point p = map->get_pos();
-            shift_x = p.x - pos.x + map->shift_x();
-            shift_y = p.y - pos.y + map->shift_y();
-            scale = 1. / factor * map->zoom();
-        }
-    }
-
-    void draw_entity(Entity* e) {
-        if (!poe->hud)
-            return;
-
-        int index = e->rarity | (e->is_dead() ? 4 : 0) | (e->is_neutral ? 8 : 0);
-        int w = e->rarity + 2 + (e->is_neutral ? 1 : 0) + (!e->is_monster ? 2 : 0);
-        Render* render = e->get_component<Render>();
-        if (render) {
-            Vector3 pos = render->position();
-            Vector3 bounds = render->bounds();
-            pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
-            pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
-            pos.z = 0.0f;
-            poe->in_game_state->transform(pos);
-
-            pos.x += shift_x;
-            pos.y += shift_y;
-            poe->hud->fill_rect(pos.x - w, pos.y - w, pos.x + w, pos.y + w, entity_colors[index]);
-            if (e->rarity == 3) {
-                w += 1;
-                poe->hud->draw_rect(pos.x - w, pos.y - w, pos.x + w, pos.y + w, 0xff0000, 2);
-            }
-        }
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code) {
@@ -138,9 +69,6 @@ public:
             }
         }
 
-        if (poe->hud)
-            reset_minimap_icons();
-
         nearby_monsters.clear();
         for (auto& i : entities) {
             if (force_reset) {
@@ -151,13 +79,7 @@ public:
             Entity* entity = i.second.get();
             poe->get_pos(entity);
 
-            if (entity->has_component("NPC")) {
-                draw_entity(entity);
-                continue;
-            }
-
             if (entity->is_monster) {
-                draw_entity(entity);
                 if (!entity->is_neutral) {
                     if (entity->has_component("DiesAfterTime"))
                         continue;
@@ -190,9 +112,6 @@ public:
                 }
             }
         }
-
-        if (poe->hud)
-            poe->hud->end_draw();
 
         if (num_of_minions != n_minions) {
             num_of_minions = n_minions;

@@ -65,10 +65,24 @@ public:
         brush->Release();
     }
 
+    void draw_rounded_rect(float x0, float y0, float x1, float y1, float rx, float ry, int rgb, float width = 1.0) {
+        ID2D1SolidColorBrush* brush;
+        render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        render->DrawRoundedRectangle({{x0, y0, x1, y1}, rx, ry}, brush, width);
+        brush->Release();
+    }
+
     void fill_rect(float x0, float y0, float x1, float y1, int rgb) {
         ID2D1SolidColorBrush* brush;
         render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
         render->FillRectangle({x0, y0, x1, y1}, brush);
+        brush->Release();
+    }
+
+    void fill_rounded_rect(float x0, float y0, float x1, float y1, float rx, float ry, int rgb) {
+        ID2D1SolidColorBrush* brush;
+        render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        render->FillRoundedRectangle({{x0, y0, x1, y1}, rx, ry}, brush);
         brush->Release();
     }
 };
