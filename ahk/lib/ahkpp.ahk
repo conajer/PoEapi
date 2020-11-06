@@ -123,8 +123,12 @@ __New(className, baseClassName) {
                     __ahkpp_classes[className] := obj
                 }
             }
-        } else if (__ahkpp_classes[className]) {
-            obj.base := __ahkpp_classes[className]
+        } else if (className != "AhkObj") {
+            if (__ahkpp_classes[className])
+                obj.base := __ahkpp_classes[className]
+            else
+                obj.base := IsObject(%className%) ? %className% : AhkObj
+            obj.__Init()
         }
     }
 
