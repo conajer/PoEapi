@@ -9,6 +9,17 @@ static std::map<string, int> vendor_offsets {
 };
 
 class Vendor : public Element {
+private:
+
+    AhkObjRef* __get_services() {
+        AhkObj temp_services;
+        for (auto& i : get_services())
+            temp_services.__set(i.first.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
+        __set(L"services", (AhkObjRef*)temp_services, AhkObject, nullptr);
+
+        return temp_services;
+    }
+
 public:
 
     wstring vendor_name;
@@ -17,14 +28,12 @@ public:
     Vendor(addrtype address) : Element(address, &vendor_offsets) {
         add_method(L"name", this, (MethodType)&Vendor::name, AhkWStringPtr);
         add_method(L"isSelected", (Element*)this, (MethodType)&Element::is_visible, AhkBool);
-        add_method(L"getServices", this, (MethodType)&Vendor::get_services);
+        add_method(L"getServices", this, (MethodType)&Vendor::__get_services, AhkObject);
     }
 
     wstring& name() {
-        if (vendor_name.empty()) {
-            Element element(read<addrtype>("name"));
-            vendor_name = element.get_text();
-        }
+        Element element(read<addrtype>("name"));
+        vendor_name = element.get_text();
 
         return vendor_name;
     }
@@ -44,20 +53,6 @@ public:
             
             wstring& service_name = service->get_text();
             services[service_name] = service;
-        }
-
-        if (obj_ref && services.size() > 0) {
-            AhkObjRef* ahkobj_ref;
-
-            __get(L"Services", &ahkobj_ref, AhkObject);
-            if (!ahkobj_ref) {
-                __set(L"Services", nullptr, AhkObject, nullptr);
-                __get(L"Services", &ahkobj_ref, AhkObject);
-            }
-
-            AhkObj svcs(ahkobj_ref);
-            for (auto& i : services)
-                svcs.__set(i.first.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
         }
 
         return services;

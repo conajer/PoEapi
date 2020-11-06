@@ -55,6 +55,25 @@ static std::map<string, int> inventory_offsets {
 };
 
 class InventorySlot : public RemoteMemoryObject, public AhkObj {
+private:
+
+    AhkObjRef* __get_items() {
+        AhkObj items;
+        for (auto& i : get_items()) {
+            Item& item = i.second->get_item();
+            if (!item.obj_ref)
+                item.__set(L"index", i.first, AhkInt,
+                           L"left", i.second->x + 1, AhkInt,
+                           L"top", i.second->y + 1, AhkInt,
+                           nullptr);
+            items.__set(std::to_wstring(i.first).c_str(),
+                        (AhkObjRef*)item, AhkObject, nullptr);
+        }
+        __set(L"Items", (AhkObjRef*)items, AhkObject, nullptr);
+
+        return items;
+    }
+
 public:
 
     std::unordered_map<int, shared_ptr<InventoryCell>> cells;
@@ -69,7 +88,7 @@ public:
         cols = read<byte>("cols");
         rows = read<byte>("rows");
 
-        add_method(L"__getItems", this, (MethodType)&InventorySlot::get_items, AhkInt);
+        add_method(L"getItems", this, (MethodType)&InventorySlot::__get_items, AhkObject);
     }
 
     void __new() {
@@ -105,33 +124,6 @@ public:
                     removed_cells.erase(i);
                 }
             }
-        }
-
-        if (obj_ref) {
-            AhkObjRef* ahkobj_ref;
-
-            __get(L"Items", &ahkobj_ref, AhkObject);
-            if (!ahkobj_ref) {
-                __set(L"Items", nullptr, AhkObject, nullptr);
-                __get(L"Items", &ahkobj_ref, AhkObject);
-            }
-
-            AhkObj items(ahkobj_ref);
-            for (auto& i : cells) {
-                Item& item = i.second->get_item();
-                if (!item.obj_ref) {
-                    items.__set(std::to_wstring(i.first).c_str(),
-                                (AhkObjRef*)item,
-                                AhkObject, nullptr);
-                    item.__set(L"left", i.second->x + 1, AhkInt,
-                               L"top", i.second->y + 1, AhkInt,
-                               L"index", i.first, AhkInt,
-                               nullptr);
-                }
-            }
-
-            for (auto& i : removed_cells)
-                items.__call(L"Delete", AhkInt, i.first, 0);
         }
 
         return cells;

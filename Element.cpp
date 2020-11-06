@@ -24,11 +24,35 @@ static std::map<string, int> element_offsets {
 };
 
 class Element : public PoEObject {
+private:
+
+    AhkObjRef* __get_childs() {
+        AhkObj temp_childs;
+        for (auto& i : get_childs())
+            temp_childs.__set(L"", (i ? (AhkObjRef*)*i : nullptr), AhkObject, nullptr);
+        __set(L"childs", (AhkObjRef*)temp_childs, AhkObject, nullptr);
+
+        return temp_childs;
+    }
+
+    AhkObjRef* __get_rect() {
+        Rect r = get_rect();
+        AhkObj rect(L"Rect");
+        rect.__set(L"l", r.x, AhkInt,
+                   L"t", r.y, AhkInt,
+                   L"r", r.x + r.w, AhkInt,
+                   L"b", r.y + r.h, AhkInt,
+                   L"w", r.w, AhkInt,
+                   L"h", r.h, AhkInt,
+                   nullptr);
+
+        return rect.detach();
+    }
+
 public:
 
     shared_ptr<Element> parent;
     std::vector<shared_ptr<Element>> childs;
-    Rect r;
     wstring text;
     
     Element(addrtype address, FieldOffsets* offsets = &element_offsets)
@@ -38,18 +62,23 @@ public:
             offsets->insert(element_offsets.begin(), element_offsets.end());
         }
 
-        add_method(L"getChilds", this, (MethodType)&Element::get_childs);
-        add_method(L"getRect", this, (MethodType)&Element::get_rect, AhkPointer);
+        add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
+        add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
         add_method(L"isHighlight", this, (MethodType)&Element::is_highlight, AhkBool);
         add_method(L"isVisible", this, (MethodType)&Element::is_visible, AhkBool);
     }
 
     void __new() {
-        AhkObj elements;
-        for (auto& i : childs)
-            elements.__set(L"", (i ? (AhkObjRef*)*i : nullptr), AhkObject, nullptr);
-        __set(L"childs", (AhkObjRef*)elements, AhkObject, nullptr);
+        PoEObject::__new();
+        if (!childs.empty()) {
+            AhkObj temp_childs;
+            for (auto& i : childs)
+                temp_childs.__set(L"", (i ? (AhkObjRef*)*i : nullptr), AhkObject, nullptr);
+            __set(L"childs", (AhkObjRef*)temp_childs, AhkObject, nullptr);
+        } else {
+            __set(L"childs", nullptr, AhkObject, nullptr);
+        }
     }
 
     bool is_valid() {
@@ -110,13 +139,6 @@ public:
                 else
                     childs.push_back(shared_ptr<Element>());
             }
-
-            if (obj_ref) {
-                AhkObj elements;
-                for (auto& i : childs)
-                    elements.__set(L"", (i ? (AhkObjRef*)*i : nullptr), AhkObject, nullptr);
-                __set(L"childs", (AhkObjRef*)elements, AhkObject, nullptr);
-            }
         }
 
         return childs;
@@ -156,17 +178,17 @@ public:
         return read<Vec2>("size");
     }
 
-    Rect& get_rect() {
+    Rect get_rect() {
         Vec2 pos = position();
         Vec2 size = read<Vec2>("size");
         float s = scale();
 
-        r.x = pos.x * s;
-        r.y = pos.y * s;
-        r.w = size.x * s;
-        r.h = size.y * s;
+        int x = pos.x * s;
+        int y = pos.y * s;
+        int w = size.x * s;
+        int h = size.y * s;
 
-        return r;
+        return {x, y, w, h};
     }
 
     Point get_pos() {
