@@ -44,6 +44,7 @@ public:
         add_method(L"getXP", this, (MethodType)&PoETask::get_xp, AhkUInt);
         add_method(L"getInventory", this, (MethodType)&PoETask::get_inventory, AhkObject);
         add_method(L"getInventorySlots", this, (MethodType)&PoETask::get_inventory_slots, AhkObject);
+        add_method(L"getIngameUI", this, (MethodType)&PoETask::get_ingame_ui, AhkObject);
         add_method(L"getStash", this, (MethodType)&PoETask::get_stash, AhkObject);
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"getVendor", this, (MethodType)&PoETask::get_vendor, AhkObject);
@@ -88,6 +89,18 @@ public:
             if (entity)
                 return (AhkObjRef*)*entity;
         }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_ingame_ui() {
+        if (is_in_game()) {
+            InGameUI* in_game_ui = in_game_state->in_game_ui();
+            __set(L"ingameUI", (AhkObjRef*)*in_game_ui, AhkObject, nullptr);
+
+            return in_game_ui->obj_ref;
+        }
+        __set(L"ingameUI", nullptr, AhkObject, nullptr);
 
         return nullptr;
     }
@@ -179,7 +192,7 @@ public:
             AhkObj stash_tabs;
             for (auto& i : server_data->get_stash_tabs()) {
                 if (i->folder_id == -1)
-                stash_tabs.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr); 
+                    stash_tabs.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
             }
             __set(L"StashTabs", (AhkObjRef*)stash_tabs, AhkObject, nullptr);
             return stash_tabs.obj_ref;
