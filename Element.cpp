@@ -19,7 +19,7 @@ static std::map<string, int> element_offsets {
     {"scale",        0x108},
     {"is_visible",   0x111},
     {"size",         0x130},
-    {"is_highlight", 0x178},
+    {"highlighted",  0x178},
     {"text",         0x2e8},
 };
 
@@ -65,7 +65,7 @@ public:
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
         add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
-        add_method(L"isHighlight", this, (MethodType)&Element::is_highlight, AhkBool);
+        add_method(L"isHighlighted", this, (MethodType)&Element::is_highlighted, AhkBool);
         add_method(L"isVisible", this, (MethodType)&Element::is_visible, AhkBool);
     }
 
@@ -154,8 +154,8 @@ public:
         return false;
     }
 
-    bool is_highlight() {
-        return read<byte>("is_highlight");
+    bool is_highlighted() {
+        return read<byte>("highlighted");
     }
 
     float scale() {
