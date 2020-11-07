@@ -299,7 +299,7 @@ class Stash extends Element {
         if (Not this.tabs[tabName])
             this.__getTabs()
         return this.tabs[tabName]
-        }
+    }
 
     switchTab(tabName) {
         if (Not this.isOpened())
@@ -309,10 +309,10 @@ class Stash extends Element {
         if (ptask.stashTabs[activeTabIndex].name != tabName) {
             tab := this.getTab(tabName)
             if (tab) {
-            n := abs(activeTabIndex - tab.index)
-            key := (activeTabIndex > tab.index) ? "Left" : "Right"
-            SendInput {%key% %n%}
-        }
+                n := abs(activeTabIndex - tab.index)
+                key := (activeTabIndex > tab.index) ? "Left" : "Right"
+                SendInput {%key% %n%}
+            }
         }
 
         loop, 3 {
@@ -345,7 +345,7 @@ class Stash extends Element {
             tab.index := i
             tab.type := __tab.type
             this.tabs[tab.name] := tab
-}
+        }
     }
 }
 
@@ -354,16 +354,16 @@ class Vendor extends Element {
     selectNPC(name = "") {
         if (this.isSelected()) {
             if (Not name || this.name ~= name)
-            return true
+                return true
         }
-
-            SendInput, %CloseAllUIKey%
-            Sleep, 100
+        
+        SendInput, %CloseAllUIKey%
+        Sleep, 100
         return ptask.select(name ? name : "NPC")
-        }
+    }
 
     selectService(name) {
-        loop, 5 {
+        loop, 50 {
             if (this.isSelected()) {
                 if (this.getServices().Count())
                     return this.services[name]
@@ -381,16 +381,16 @@ class Vendor extends Element {
 
         if (this.selectNPC()) {
             service := this.selectService("Sell Items")
-        if (service) {
-            service.getPos(x, y)
-            MouseClick(x, y)
+            if (service) {
+                service.getPos(x, y)
+                MouseClick(x, y)
 
-            loop, 10 {
-                if (sell.isOpened())
-                    return true
-                Sleep, 50
+                loop, 10 {
+                    if (sell.isOpened())
+                        return true
+                    Sleep, 50
+                }
             }
-        }
         }
 
         return false
@@ -404,8 +404,8 @@ class Vendor extends Element {
                 MouseClick(x, y)
                 Sleep, 50
                 return true
-    }
-    }
+            }
+        }
 
         return false
     }
