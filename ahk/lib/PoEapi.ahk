@@ -247,6 +247,35 @@ class Inventory extends InventoryGrid {
             return this.getItemByIndex(targetItem.index)
         }
     }
+
+    drop() {
+        if (ptask.getChat().isOpened())
+            SendInput, {Enter}
+
+        cursor := ptask.inventories[13]
+        if (Not cursor.getItems()[1])
+            return false
+
+        try {
+            Critical
+            this.open()
+            loop, % this.rows * this.cols {
+                if (Not this.getItems()[A_Index]) {
+                    this.moveTo(A_Index)
+                    Sleep, 150
+                    Click
+                    Sleep, 150
+                    break
+                }
+            }
+        } finally {
+            Critical off
+        }
+
+        if (cursor.getItems()[1])
+            return false
+        return true
+    }
 }
 
 class StashTab extends InventoryGrid {
