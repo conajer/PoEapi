@@ -63,9 +63,17 @@ addVendorButton() {
     Menu, __vendoringMenu, Add, Trade divination cards, tradeDivinationCards
     Menu, __vendoringMenu, Add, Trade full rare sets, tradeFullRareSets
     Menu, __vendoringMenu, Add
+    Menu, __vendoringMenu, Add, Dump inventory items, dumpInventoryItems
+    Menu, __vendoringMenu, Add, Dump stash tab items, dumpStashTabItems
     Menu, __vendoringMenu, Add, Unstack divination cards, unstackCards
 
     Gui, Add, Button, x+2 y0 gpopupVendorCommands, Vendoring
+
+    Hotkey, IfWinActive, ahk_class POEWindowClass
+    Hotkey, F6, dumpInventoryItems
+    Hotkey, ^F6, dumpStashTabItems
+    Hotkey, F7, tradeFullRareSets
+    Hotkey, IfWinActive
 }
 
 popupVendorCommands() {
@@ -136,6 +144,7 @@ tradeDivinationCards() {
 }
 
 tradeFullRareSets() {
+    ptask.activate()
     if (Not ptask.stash.open())
         return
 
@@ -176,6 +185,39 @@ tradeFullRareSets() {
         debug("Received <b>{} {}</b>", offerItem.stackCount, offerItem.name)
         sell.accept(true)
         SendInput, %CloseAllUIKey%
+    }
+}
+
+dumpInventoryItems() {
+    ptask.activate()
+    if (Not ptask.stash.open())
+        return
+
+    for i, item in ptask.inventory.getItems() {
+        ptask.inventory.move(item)
+    }
+}
+
+dumpStashTabItems() {
+    ptask.activate()
+    if (Not ptask.stash.open())
+        return
+
+    tab := ptask.stash.Tab
+    loop, 2 {
+        for i, item in tab.getChilds() {
+            if (Not dumpAllItems || item.isHighlighted()) {
+                item.getPos(x, y)
+                MouseMove, x, y, 0
+                Sleep, 30
+                SendInput, ^{Click}
+                Sleep, 30
+                n += 1
+            }
+        }
+
+        if (n > 0) break
+        dumpAllItems := true
     }
 }
 

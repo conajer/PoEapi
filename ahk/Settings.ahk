@@ -10,6 +10,9 @@
 ; F5,   hideout
 ; ^F5,  azurite mine
 ; !F5   menagerie
+; F6    dump inventory items
+; ^F6   dump highlighted or all items from current stash tab
+; F7    Sell full rare sets to vendor
 ; #d,   minimize window
 ; ^m,   toggle maphack
 ; ^r,   reload script
