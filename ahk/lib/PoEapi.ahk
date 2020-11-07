@@ -274,7 +274,8 @@ class Stash extends Element {
 
     Tab {
         Get {
-            return this.getTab(ptask.stashTabs[this.activeTabIndex() + 1].name)
+            activeTabIndex := this.activeTabIndex() + 1
+            return this.getTab(ptask.stashTabs[activeTabIndex].name)
         }
     }
 
@@ -307,21 +308,32 @@ class Stash extends Element {
 
         activeTabIndex := this.activeTabIndex() + 1
         if (ptask.stashTabs[activeTabIndex].name != tabName) {
-            tab := this.getTab(tabName)
-            if (tab) {
-                n := abs(activeTabIndex - tab.index)
-                key := (activeTabIndex > tab.index) ? "Left" : "Right"
+            tabIndex := this.tabs[tabName].index
+            if (Not tabIndex) {
+                for i, tab in ptask.getStashTabs() {
+                    if (tab.name == tabName) {
+                        tabIndex := tab.index + 1
+                        break
+                    }
+                }
+            }
+
+            if (tabIndex) {
+                n := abs(activeTabIndex - tabIndex)
+                key := (activeTabIndex > tabIndex) ? "Left" : "Right"
                 SendInput {%key% %n%}
+
+                loop, 3 {
+                    Sleep, 20
+                    if (this.activeTabIndex() == tabIndex)
+                        break
+                }
+
+                return true
             }
         }
 
-        loop, 3 {
-            Sleep, 20
-            if (this.activeTabIndex() == tab.index)
-                break
-        }
-
-        return tab
+        return false
     }
 
     __getTabs() {
