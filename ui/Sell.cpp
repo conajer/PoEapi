@@ -33,8 +33,8 @@ public:
         path.push_back(3);
         add_method(L"isOpened", (Element*)this, (MethodType)&Sell::is_opened, AhkBool);
         add_method(L"getSellPanel", this, (MethodType)&Sell::get_sell_panel, AhkVoid);
-        add_method(L"__getItems", this, (MethodType)&Sell::__get_items);
-        add_method(L"__getYourItems", this, (MethodType)&Sell::__get_your_items);
+        add_method(L"getItems", this, (MethodType)&Sell::__get_items, AhkObject);
+        add_method(L"getYourItems", this, (MethodType)&Sell::__get_your_items, AhkObject);
         
     }
 
@@ -47,6 +47,7 @@ public:
         if (is_visible()) {
             if (!sell_panel || !sell_panel->is_valid()) {
                 sell_panel = shared_ptr<Element>(get_child(path));
+                sell_panel->get_childs();
                 __set(L"sellPanel", sell_panel ? (AhkObjRef*)*sell_panel : nullptr, AhkObject, nullptr);
             }
         } else {
