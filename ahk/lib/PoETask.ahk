@@ -47,10 +47,10 @@ clipToRect(r, ByRef x, ByRef y) {
     return (oldX != x) || (oldY != y)
 }
 
-MouseClick(x, y, Button = "Left") {
+MouseClick(x, y, button = "Left") {
     MouseMove, x, y, 0
     Sleep, 20
-    MouseClick, %Button%, x, y
+    MouseClick, %button%, x, y
 }
 
 class Rules {

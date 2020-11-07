@@ -72,11 +72,12 @@ class InventoryGrid extends Element {
     }
 
     getItemByIndex(index) {
-        return ptask.inventories[this.id].getItems()[index]
+        return this.getItems()[index]
     }
 
     getItems() {
-        return ptask.inventories[this.id].getItems()
+        this.items := ptask.inventories[this.id].getItems()
+        return this.items
     }
 
     moveTo(index) {

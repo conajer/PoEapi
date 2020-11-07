@@ -19,7 +19,7 @@ addDebugButton() {
         Menu, __debugMenu, Add
         Menu, __debugMenu, Add, Show log messages, toggleLogMessage
 
-        Gui, Add, Button, x+10 y0 gpopupDebugCommands, Debug
+        Gui, Add, Button, x+2 y0 gpopupDebugCommands, Debug
     }
 }
 

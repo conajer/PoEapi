@@ -22,7 +22,7 @@ global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 global trader := new Trader()
 
-version := "0.3.4"
+version := "0.3.5"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("PoEapikit v{} (powered by PoEapi v{})", version, poeapiVersion)
 

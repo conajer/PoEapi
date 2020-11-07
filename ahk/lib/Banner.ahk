@@ -3,6 +3,7 @@
 ;
 
 #Include, %A_ScriptDir%\extras\debug.ahk
+#Include, %A_ScriptDir%\extras\vendoring.ahk
 
 class AhkGui {
 
@@ -56,6 +57,8 @@ class Banner extends AhkGui {
         Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("reload"), Reload
 
         ; Extras buttons
+        Gui, Add, Text, x+10
+        addVendorButton()
         addDebugButton()
 
         Gui, Show, % "x" x + 150 "y" y + 6

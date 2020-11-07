@@ -65,6 +65,10 @@ global TraderMessages := { "thanks" : "t4t, gl."
                          , "sold"   : "sold out." }
 
 ; Vendor recipes
+global VendorTabDivinationCards := "1"
+global VendorTabGems := "2"
+global VendorTabFullRareSets := "3"
+
 ; Attack and defense
 global AttackSkillKey := "w"
 global SecondaryAttackSkillKey := ""
