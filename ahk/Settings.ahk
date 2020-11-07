@@ -79,7 +79,8 @@ global AruasKey := "!q!w!e!r!t"
 
 ; Delve
 global AutoDropFlare := true
-global MaxDarknessStacks := 20
+global DropFlareKey := "6"
+global MaxDarknessStacks := 10
 
 ; Delve Chests
 global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
