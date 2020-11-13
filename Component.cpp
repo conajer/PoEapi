@@ -41,6 +41,7 @@ public:
 #include "components/Chest.cpp"
 #include "components/Flask.cpp"
 #include "components/HarvestSeed.cpp"
+#include "components/HeistBlueprint.cpp"
 #include "components/Life.cpp"
 #include "components/Map.cpp"
 #include "components/MinimapIcon.cpp"
