@@ -132,13 +132,12 @@ public:
     }
 
     std::vector<shared_ptr<Element>>& get_childs() {
-        if (childs.empty()) {
-            for (auto addr : read_array<addrtype>("childs", 0x0, 0x8)) {
-                if (addr)
-                    childs.push_back(shared_ptr<Element>(new Element(addr)));
-                else
-                    childs.push_back(shared_ptr<Element>());
-            }
+        childs.clear();
+        for (auto addr : read_array<addrtype>("childs", 0x0, 0x8)) {
+            if (addr)
+                childs.push_back(shared_ptr<Element>(new Element(addr)));
+            else
+                childs.push_back(shared_ptr<Element>());
         }
 
         return childs;
