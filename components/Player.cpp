@@ -5,6 +5,7 @@
 /* Player component offsets */
 
 static std::map<string, int> player_component_offsets {
+    {"class", 0x150},
     {"name",  0x158},
     {"xp",    0x17c},
     {"level", 0x1aa},
@@ -13,15 +14,16 @@ static std::map<string, int> player_component_offsets {
 class Player : public Component {
 public:
 
-    wstring player_name;
-
     Player(addrtype address) : Component(address, "Player", &player_component_offsets) {
     }
 
     wstring name() {
-        if (player_name.empty())
-            player_name = read<wstring>("name");
-        return player_name;
+        return read<wstring>("name");;
+    }
+
+    wstring class_name() {
+        addrtype addr = read<addrtype>("class");
+        return PoEMemory::read<wstring>(addr + 0x10, 16);
     }
 
     unsigned long xp() {

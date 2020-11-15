@@ -41,6 +41,7 @@ global WM_PTASK_ATTACHED   := 0x9100
 ahkpp_register_class(PoETask)
 ahkpp_register_class(PoEObject)
 ahkpp_register_class(Entity)
+ahkpp_register_class(LocalPlayer)
 ahkpp_register_class(Item)
 ahkpp_register_class(Element)
 ahkpp_register_class(Inventory)
@@ -103,6 +104,14 @@ class Entity extends PoEObject {
         pos := this.__getPos()
         x := NumGet(pos + 0x0, "Int")
         y := NumGet(pos + 0x4, "Int")
+    }
+}
+
+class LocalPlayer extends Entity {
+
+    whois() {
+        return Format("{} is a level {} {} in the {} league"
+                     , this.name, this.level, this.className, ptask.League)
     }
 }
 

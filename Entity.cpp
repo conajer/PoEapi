@@ -107,7 +107,7 @@ public:
         return temp_components;
     }
 
-    wstring& name() {
+    virtual wstring& name() {
         if (type_name.empty()) {
             if (has_component("Render"))
                 type_name = get_component<Render>()->name();
@@ -195,6 +195,7 @@ class LocalPlayer : public Entity {
 public:
 
     wstring player_name;
+    wstring player_class;
     int level;
     Life* life;
     Positioned* positioned;
@@ -207,7 +208,17 @@ public:
         actor = get_component<Actor>();;
 
         player_name = player->name();
+        player_class = player->class_name();
         level = player->level();
+
+    }
+
+    void __new() {
+        Entity::__new();
+        __set(L"name", player_name.c_str(), AhkWString,
+              L"className", player_class.c_str(), AhkWString,
+              L"level", level, AhkInt,
+              nullptr);
     }
 
     wstring& name() {

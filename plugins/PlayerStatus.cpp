@@ -24,8 +24,8 @@ public:
                 player_name = player->name();
                 PostThreadMessage(thread_id,
                                   WM_PLAYER_CHANGED,
-                                  (WPARAM)player_name.c_str(),
-                                  (LPARAM)player->level);
+                                  (WPARAM)(AhkObjRef*)*player,
+                                  (LPARAM)0);
             }
         }
 

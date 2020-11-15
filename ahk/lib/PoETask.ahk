@@ -355,12 +355,12 @@ class PoETask extends AhkObj {
         this.chat := this.getChat()
     }
 
-    playerChanged(name, level) {
-        name := StrGet(name)
-        this.player := IsObject(%name%) ? new %name%() : new Character()
-        this.player.name := name
-        this.player.Level := level
-        syslog("{} is level {} in the {} league", name, level, this.League)
+    playerChanged(player) {
+        this.player := Object(player)
+        name := this.player.name
+        this.player.base := IsObject(%name%) ? %name% : Character
+        this.player.__new()
+        syslog(this.player.whois())
     }
 
     onDelveChest(chestName, lParam) {
