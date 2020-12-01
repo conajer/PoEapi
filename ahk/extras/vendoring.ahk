@@ -190,9 +190,6 @@ tradeFullRareSets() {
 
 dumpInventoryItems() {
     ptask.activate()
-    if (Not ptask.stash.open())
-        return
-
     for i, item in ptask.inventory.getItems() {
         ptask.inventory.move(item)
     }
