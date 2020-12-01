@@ -53,10 +53,6 @@ global ChargesPerUseLimit := 30
 global MonsterThreshold := 10
 global AlwaysRunning := true
 
-; Stash and inventory
-global CloseAllUIKey := "{Space}"
-global InventoryKey := "f"
-
 ; Trader
 global TraderUICompact := true
 global TraderUITransparent := 225
@@ -82,7 +78,6 @@ global AruasKey := "!q!w!e!r!t"
 
 ; Delve
 global AutoDropFlare := true
-global DropFlareKey := "6"
 global MaxDarknessStacks := 10
 
 ; Delve Chests

@@ -15,6 +15,22 @@ SetWorkingDir %A_ScriptDir%
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
+EnvGet, homepath, USERPROFILE
+FileRead, production_config, %HOMEPATH%\Documents\My Games\Path of Exile\production_Config.ini
+production_config := SubStr(production_config, 1)
+FileAppend, %production_config%, %A_ScriptDir%\production_config.ini
+IniRead, close_panels, %A_ScriptDir%\production_config.ini, ACTION_KEYS, close_panels
+IniRead, open_inventory_panel, %A_ScriptDir%\production_config.ini, ACTION_KEYS, open_inventory_panel
+IniRead, use_temporary_skill1, %A_ScriptDir%\production_config.ini, ACTION_KEYS, use_temporary_skill1
+IniRead, use_temporary_skill2, %A_ScriptDir%\production_config.ini, ACTION_KEYS, use_temporary_skill1
+IniRead, language, %A_ScriptDir%\production_config.ini, LANGUAGE, language, en
+FileDelete, %A_ScriptDir%\production_config.ini
+
+global CloseAllUIKey := Chr(close_panels)
+global InventoryKey := Chr(open_inventory_panel)
+global DropFlareKey := Chr(use_temporary_skill1)
+global DropDynamiteKey := Chr(use_temporary_skill2)
+
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
