@@ -69,7 +69,7 @@ class Flask {
     }
 }
 
-class Character {
+class Character extends LocalPlayer {
 
     __new() {
         OnMessage(WM_PLAYER_LIFE, ObjBindMethod(this, "lifeChanged"))
@@ -124,8 +124,8 @@ class Character {
 
         if (life < 100) {
             if (this.nearbyMonsters >= MonsterThreshold)
-            SendInput, %DefenseBuffSkillKey%
-
+                SendInput, %DefenseBuffSkillKey%
+            
             if (AutoDropFlare && ptask.hasBuff("delve_degen_buff") > MaxDarknessStacks)
                 SendInput, %DropFlareKey%
         }
