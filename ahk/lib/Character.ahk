@@ -5,16 +5,16 @@
 class Flask {
 
     __new(item) {
-        if (RegExMatch(item.baseName, "Life|Hybrid")) {
+        if (RegExMatch(item.path, "Life|Hybrid")) {
             this.IsLife := true
             this.type := "<b style=""color:red"">L</b>"
-        } else if (RegExMatch(item.baseName, "Mana")) {
+        } else if (RegExMatch(item.path, "Mana")) {
             this.IsMana := true
             this.type := "<b style=""color:blue"">M</b>"
         } else {
             this.IsUtility := true
             this.type := "<b>U</b>"
-            if (RegExMatch(item.baseName, "Quicksilver")) {
+            if (RegExMatch(item.path, "Utility6")) {
                 this.IsQuickSilver := true
                 this.type := "<b style=""color:seagreen"">Q</b>"
             }
