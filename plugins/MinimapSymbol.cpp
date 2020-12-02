@@ -21,7 +21,8 @@ public:
     std::map<wstring, int> chest_colors = {{L"AzuriteVein", 0xff}, 
                                            {L"Resonator", 0xff7f},
                                            {L"Fossil", 0xffff},
-                                           {L"Currency|Map", 0xffffff},
+                                           {L"Currency", 0xffffff},
+                                           {L"Map", 0xffffff},
                                            {L"SuppliesDynamite", 0x7f0000},
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
