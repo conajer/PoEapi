@@ -176,6 +176,7 @@ return
 return
 
 ^q::
+    DllCall("RemoveFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
     ExitApp
 return
 
