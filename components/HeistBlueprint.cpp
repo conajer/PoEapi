@@ -2,6 +2,29 @@
 * HeistBlueprint.cpp, 11/9/2020 7:49 PM
 */
 
+static std::map<string, int> job_offsets {
+    {"skill_name", 0x0},
+};
+
+class Job : public PoEObject {
+public:
+
+    wstring skill_name;
+    int level;
+
+    Job(addrtype address) : PoEObject(address, &job_offsets) {
+        wchar_t buffer[32];
+        skill_name = PoEMemory::read<wchar_t>(read<addrtype>("skill_name"), buffer, 32);
+    }
+
+    void __new() {
+        PoEObject::__new();
+        __set(L"skillName", skill_name.c_str(), AhkWString,
+              L"level", level, AhkInt,
+              nullptr);
+    }
+};
+
 static std::map<string, int> reward_room_offsets {
     {"reward", 0x0},
     {"art",    0x8},
@@ -36,6 +59,14 @@ static std::map<string, int> wing_offsets {
 class Wing : public PoEObject {
 private:
 
+    AhkObjRef* __get_jobs() {
+        AhkObj jobs;
+        for (auto& i : get_jobs())
+            jobs.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
+        __set(L"jobs", (AhkObjRef*)jobs, AhkObject, nullptr);
+        return jobs;
+    }
+
     AhkObjRef* __get_reward_rooms() {
         AhkObj rooms;
         for (auto& i : get_reward_rooms())
@@ -46,11 +77,30 @@ private:
 
 public:
 
+    std::vector<shared_ptr<Job>> jobs;
     std::vector<shared_ptr<RewardRoom>> reward_rooms;
 
     Wing(addrtype address) : PoEObject(address, &wing_offsets)
     {
+        add_method(L"getJobs", this, (MethodType)&Wing::__get_jobs, AhkObject);
         add_method(L"getRooms", this, (MethodType)&Wing::__get_reward_rooms, AhkObject);
+    }
+
+    void __new() {
+        PoEObject::__new();
+        __get_jobs();
+        __get_reward_rooms();
+    }
+
+    std::vector<shared_ptr<Job>>& get_jobs() {
+        if (jobs.empty()) {
+            for (auto addr : read_array<addrtype>("jobs", 0x18)) {
+                Job* job = new Job(PoEMemory::read<addrtype>(addr + 0x8));
+                job->level = PoEMemory::read<byte>(addr + 0x10);
+                jobs.push_back(shared_ptr<Job>(job));
+            }
+        }
+        return jobs;
     }
 
     std::vector<shared_ptr<RewardRoom>>& get_reward_rooms() {
