@@ -89,7 +89,6 @@ class PoETask extends AhkObj {
         OnMessage(WM_POEAPI_LOG, ObjBindMethod(this, "onLog"))
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
-        OnMessage(WM_DELVE_CHEST, ObjBindMethod(this, "onDelveChest"))
         OnMessage(WM_HEIST_CHEST, ObjBindMethod(this, "onHeistChest"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "attach"))
@@ -361,51 +360,6 @@ class PoETask extends AhkObj {
         this.player.base := IsObject(%name%) ? %name% : Character
         this.player.__new()
         syslog(this.player.whois())
-    }
-
-    onDelveChest(chestName, lParam) {
-        chestName := StrGet(chestName)
-        if (RegExMatch(chestName, IgnoredChests))
-            return
-
-        if (chestName) {
-            chest := {}
-            chest.name := chestName
-            chest.x := lParam << 32 >> 48
-            chest.y := lParam << 48 >> 48
-            this.delveChests.Push(chest)
-            return
-        }
-
-        this.c.beginPaint()
-        this.c.clear()
-        for i, chest in this.delveChests {
-            x := chest.x
-            y := chest.y
-            if (RegExMatch(chest.name, "AzuriteVein"))
-                cIndicator := 0xff0000
-            else if (RegExMatch(chest.name, "Resonator"))
-                cIndicator := 0xff7f
-            else if (RegExMatch(chest.name, "Fossil"))
-                cIndicator := 0xffff
-            else if (RegExMatch(chest.name, "Currency|Map"))
-                cIndicator := 0xffffff
-            else if (RegExMatch(chest.name, "SuppliesDynamite"))
-                cIndicator := 0x7f
-            else if (RegExMatch(chest.name, "SuppliesFlares"))
-                cIndicator := 0xff
-            else if (RegExMatch(chest.name, "Unique"))
-                cIndicator := 0xffff00
-            else if (RegExMatch(chest.name, "DelveWall"))
-                cIndicator := 0xff00ff
-            else 
-                cIndicator := 0x7f7f7f
-
-            clipToRect(this.actionArea, x, y)
-            this.c.drawRect(x - 15, y - 50, 30, 30, cIndicator, 10)
-        }
-        this.c.endPaint()
-        this.delveChests := {}
     }
 
     onHeistChest(chestName, lParam) {
