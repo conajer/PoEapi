@@ -18,7 +18,7 @@ public:
 
     AutoOpen() : PoEPlugin(L"AutoOpen", "0.1"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
-        ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase")
+        ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase|Secure Locker|Secure Repository")
     {
         total_opened = 0;
     }
