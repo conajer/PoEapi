@@ -167,6 +167,7 @@ Factory<RemoteMemoryObject> RemoteMemoryObject::factory = {
     NEW_ENTRY(Flask),
     NEW_ENTRY(HarvestSeed),
     NEW_ENTRY(HeistBlueprint),
+    NEW_ENTRY(HeistContract),
     NEW_ENTRY(Life),
     NEW_ENTRY(Map),
     NEW_ENTRY(MinimapIcon),

@@ -42,6 +42,7 @@ public:
 #include "components/Flask.cpp"
 #include "components/HarvestSeed.cpp"
 #include "components/HeistBlueprint.cpp"
+#include "components/HeistContract.cpp"
 #include "components/Life.cpp"
 #include "components/Map.cpp"
 #include "components/MinimapIcon.cpp"
