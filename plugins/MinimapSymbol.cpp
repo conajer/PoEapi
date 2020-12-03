@@ -131,7 +131,7 @@ public:
             poe->get_pos(entity);
             if (entity->is_monster || entity->has_component("NPC"))
                 draw_entity(entity);
-            else if (entity->path.find(L"Delve") != string::npos)
+            else if (entity->path.find(L"/DelveChests") != string::npos)
                 draw_delve_chests(entity);
         }
         poe->hud->end_draw();
