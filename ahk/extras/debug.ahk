@@ -61,7 +61,7 @@ drawStashTab() {
 listStashTabItems() {
     debug("Stash tab name: {}", ptask.stash.Tab.name)
     for i, item in ptask.stash.Tab.getItems()
-        debug("    {:3d}. {}", item.index, colors[item.rarity + 1], item.name)
+        debug("    {:3d}. {}", item.index, item.name)
 }
 
 listStashTabs() {
