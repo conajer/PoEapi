@@ -26,6 +26,10 @@ static std::map<string, int> element_offsets {
 class Element : public PoEObject {
 private:
 
+    bool __has_child() {
+        return !get_childs().empty();
+    }
+
     AhkObjRef* __get_childs() {
         AhkObj temp_childs;
         for (auto& i : get_childs())
@@ -62,6 +66,7 @@ public:
             offsets->insert(element_offsets.begin(), element_offsets.end());
         }
 
+        add_method(L"hasChild", this, (MethodType)&Element::__has_child, AhkBool);
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
         add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
