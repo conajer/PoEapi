@@ -233,6 +233,13 @@ static bool compare_stash_tab(shared_ptr<StashTab>& tab1, shared_ptr<StashTab>& 
 }
 
 static std::map<string, int> server_data_offsets {
+    {"player_data",                0x7898},
+        {"passive_skills",          0x160},
+        {"player_class",            0x200},
+        {"level",                   0x204},
+        {"skill_points_from_quest", 0x20c},
+        {"skill_points_left",       0x210},
+        {"ascendancy_skill_points", 0x214},
     {"league",          0x78d0},
     {"latency",         0x7948},
     {"party_status",    0x7a80},
@@ -259,6 +266,11 @@ public:
 
     int party_status() {
         return read<byte>("party_status");
+    }
+
+    vector<unsigned short> get_passive_skills() {
+        addrtype addr = read<addrtype>("player_data") + (*offsets)["passive_skills"];
+        return PoEMemory::read_array<unsigned short>(addr, 0x0, 0x2);
     }
 
     std::vector<shared_ptr<StashTab>>& get_stash_tabs() {

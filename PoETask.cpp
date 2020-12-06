@@ -51,6 +51,7 @@ public:
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
         add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
+        add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
@@ -109,10 +110,10 @@ public:
         if (is_in_game()) {
             InGameUI* in_game_ui = in_game_state->in_game_ui();
             Inventory* inventory = in_game_ui->get_inventory();
-            __set(L"Inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
+            __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
             return inventory->obj_ref;
         }
-        __set(L"Inventory", nullptr, AhkObject, nullptr);
+        __set(L"inventory", nullptr, AhkObject, nullptr);
 
         return nullptr;
     }
@@ -126,10 +127,10 @@ public:
                 inventory_slots.__set(std::to_wstring(slot->id).c_str(),
                                       (AhkObjRef*)*slot, AhkObject, nullptr);
             }
-            __set(L"Inventories", (AhkObjRef*)inventory_slots, AhkObject, nullptr);
+            __set(L"inventories", (AhkObjRef*)inventory_slots, AhkObject, nullptr);
             return inventory_slots.obj_ref;
         }
-        __set(L"Inventories", nullptr, AhkObject, nullptr);
+        __set(L"inventories", nullptr, AhkObject, nullptr);
 
         return nullptr;
     }
@@ -138,10 +139,10 @@ public:
         if (is_in_game()) {
             InGameUI* in_game_ui = in_game_state->in_game_ui();
             Stash* stash = in_game_ui->get_stash();
-            __set(L"Stash", (AhkObjRef*)*stash, AhkObject, nullptr);
+            __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
             return stash->obj_ref;
         }
-        __set(L"Stash", nullptr, AhkObject, nullptr);
+        __set(L"stash", nullptr, AhkObject, nullptr);
 
         return nullptr;
     }
@@ -186,6 +187,20 @@ public:
         return nullptr;
     }
 
+    AhkObjRef* get_passive_skills() {
+        if (is_in_game()) {
+            ServerData* server_data = in_game_state->server_data();
+            AhkObj passive_skills;
+            
+            for (auto i : server_data->get_passive_skills())
+                passive_skills.__set(L"", i, AhkInt, nullptr);
+            __set(L"passiveSkills", (AhkObjRef*)passive_skills, AhkObject, nullptr);
+            return passive_skills;
+       }
+
+        return nullptr;
+    }
+
     AhkObjRef* get_stash_tabs() {
         if (is_in_game()) {
             ServerData* server_data = in_game_state->server_data();
@@ -194,10 +209,10 @@ public:
                 if (i->folder_id == -1)
                     stash_tabs.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
             }
-            __set(L"StashTabs", (AhkObjRef*)stash_tabs, AhkObject, nullptr);
+            __set(L"stashTabs", (AhkObjRef*)stash_tabs, AhkObject, nullptr);
             return stash_tabs.obj_ref;
         }
-        __set(L"StashTabs", nullptr, AhkObject, nullptr);
+        __set(L"stashTabs", nullptr, AhkObject, nullptr);
 
         return nullptr;
     }
@@ -272,7 +287,7 @@ public:
             AreaTemplate* world_area = in_game_data->world_area();
             if (!world_area->name().empty()) {
                 league  = in_game_state->server_data()->league();
-                __set(L"League", league.c_str(), AhkWString, nullptr);
+                __set(L"league", league.c_str(), AhkWString, nullptr);
                 for (auto i : plugins)
                     i->on_area_changed(in_game_data->world_area(), area_hash);
             }
