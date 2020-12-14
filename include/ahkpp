@@ -13,6 +13,22 @@ using namespace std;
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
+struct ihash {
+    std::size_t operator()(const wstring& s) const noexcept {
+        wchar_t data[s.size()];
+        for (int i = 0; i < s.size(); ++i)
+            data[i] = tolower(s[i]);
+
+        return hash<wstring>{}(wstring(data, s.size()));
+    }
+};
+
+struct iequal_to {
+    bool operator()(const wstring& s1, const wstring& s2) const noexcept {
+        return !_wcsicmp(s1.c_str(), s2.c_str());
+    }
+};
+
 enum AhkType {
     AhkVoid,
     AhkChar,        // signed char
@@ -47,8 +63,8 @@ public:
 
     AhkObjRef* obj_ref;
     wstring type_name;
-    std::unordered_map<wstring, Property> properties;   // property name is case sensitive,
-    std::unordered_map<wstring, Method> methods;        // as above
+    std::unordered_map<wstring, Property, ihash, iequal_to> properties;   // property name is case sensitive,
+    std::unordered_map<wstring, Method, ihash, iequal_to> methods;        // as above
 
     AhkObj();
     AhkObj(const wstring type_name);

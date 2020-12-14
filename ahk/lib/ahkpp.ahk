@@ -77,7 +77,7 @@ class AhkObj {
         } else if (this.__methods.HasKey("set" key)) {
             name := "set" key
             if (this.__methods[name].Count() == 2) {
-                valType := this.__methods[key][1]
+                valType := this.__methods[name][1]
                 DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, valType, value)
 
                 return value
