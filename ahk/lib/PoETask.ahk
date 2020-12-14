@@ -103,11 +103,6 @@ class PoETask extends AhkObj {
         VendorRules.base := Rules
         VendorExceptions.base := Rules
         StashRules.base := Rules
-
-        ; Setup auto pickup
-        this.setPickupRange(AutoPickupRange)
-        this.setGenericItemFilter(genericItemFilter)
-        this.setRareItemFilter(rareItemFilter)
     }
 
     attach(hwnd) {
@@ -140,9 +135,10 @@ class PoETask extends AhkObj {
         this.actionArea := new Rect(210, 90, w - 450, h - 260)
 
         ; Configure plugins
-        for name, enabled in EnablePlugins {
-            if (Not enabled)
-                this.disablePlugin(name)
+        plugins := this.getPlugins()
+        for name, options in PluginOptions {
+            for key, value in options
+                plugins[name][key] := value
         }
 
         if (EnableCanvas)
@@ -150,7 +146,7 @@ class PoETask extends AhkObj {
 
         if (EnableHud) {
             this.hud := new Canvas(hwnd)
-            this.setHud(this.hud.hwnd)
+            this.setHudWindow(this.hud.hwnd)
         }
 
         if (EnableBanner)

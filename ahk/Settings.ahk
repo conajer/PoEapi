@@ -19,14 +19,18 @@
 ; ^q,   quit
 
 ; Plugins
-global EnablePlugins := { "AutoFlask"    : true
-                        , "AutoOpen"     : true
-                        , "AutoPickup"   : true
-                        , "DelveChest"   : false
-                        , "HeistChest"   : true
-                        , "KillCounter"  : true
-                        , "MinimapSymbol": true
-                        , "PlayerStatus" : true }
+global PluginOptions := { "AutoFlask"     : { "enabled" : true}
+                        , "AutoOpen"      : { "enabled" : true, "range" : 15 }
+                        , "AutoPickup"    : { "enabled" : true, "range" : 50
+                                            , "genericItemFilter" : "Blueprint|Contract|Incubator|Scarab$|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
+                                            , "rareItemFilter"    : "Jewel|Amulet|Ring|Belt" }
+                        , "HeistChest"    : { "enabled" : true}
+                        , "KillCounter"   : { "enabled" : true, "radius" : 50 }
+                        , "MinimapSymbol" : { "enabled" : true
+                                            , "showMonsters"       : true
+                                            , "showDelveChests"    : true
+                                            , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter" }
+                        , "PlayerStatus"  : { "enabled" : true } }
 
 ; Canvas, doesn't support full screen mode
 global EnableCanvas := true
@@ -80,24 +84,18 @@ global AruasKey := "!q!w!e!r!t"
 global AutoDropFlare := true
 global MaxDarknessStacks := 10
 
-; Delve Chests
-global IgnoredChests := "Armour|Weapon|Generic|NoDrops|Encounter"
-
 ; Heist Chests
 global HeistChestNameRegex := "HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)"
 
 ; Auto pickup
 ; Some items are picked up by default, includes:
-;     1. all currency, divination card and map items
+;     1. all currency items, divination cards and map items
 ;     2. unique items
 ;     3. 6 sockets, 6 linked or 3 linked R-G-B items
 ;     4. gems whose quality > 5 or level > 12
 ;     5. All weapon/armour items whose item level is between 60 to 75
 ;
 global AutoPickupKey := "a"
-global AutoPickupRange := 50
-global genericItemFilter := "Blueprint|Contract|Incubator|Scarab$|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
-global rareItemFilter := "Jewel|Amulet|Ring|Belt"
 
 ; Auto identify/sell/stash rules
 ; Rules Syntax:
