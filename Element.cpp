@@ -40,8 +40,8 @@ private:
     }
 
     AhkObjRef* __get_rect() {
+        AhkTempObj rect(L"Rect");
         Rect r = get_rect();
-        AhkObj rect(L"Rect");
         rect.__set(L"l", r.x, AhkInt,
                    L"t", r.y, AhkInt,
                    L"r", r.x + r.w, AhkInt,
@@ -50,7 +50,7 @@ private:
                    L"h", r.h, AhkInt,
                    nullptr);
 
-        return rect.detach();
+        return rect;
     }
 
 public:
