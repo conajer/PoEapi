@@ -28,8 +28,20 @@ public:
     std::wregex rare_item_filter;
 
     AutoPickup() : PoEPlugin(L"AutoPickup", "0.2") {
-        generic_item_filter.assign(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
-        rare_item_filter.assign(L"Jewels|Amulet|Rings|Belts");
+        add_property(L"range", &range, AhkInt);
+        add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
+        add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
+
+        set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
+        set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
+    }
+
+    void set_generic_item_filter(const wchar_t* regex_string) {
+        generic_item_filter.assign(regex_string);
+    }
+
+    void set_rare_item_filter(const wchar_t* regex_string) {
+        rare_item_filter.assign(regex_string);
     }
 
     void begin_pickup() {

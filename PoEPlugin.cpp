@@ -2,7 +2,7 @@
 * PoEPlugin.cpp, 8/21/2020 9:08 PM
 */
 
-class PoEPlugin {
+class PoEPlugin : public AhkObj {
 public:
 
     wstring name;
@@ -18,6 +18,13 @@ public:
     PoEPlugin(const wchar_t* name, const char* version_string = "0.1")
         : name(name), version(version_string), log_buffer(256)
     {
+        add_property(L"enabled", &enabled, AhkBool);
+    }
+
+    void __new() {
+        __set(L"name", name.c_str(), AhkWString,
+              L"version", version.c_str(), AhkString,
+              nullptr);
     }
 
     void reset() {

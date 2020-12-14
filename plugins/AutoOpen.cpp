@@ -21,6 +21,7 @@ public:
         ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase|Secure Locker|Secure Repository")
     {
         total_opened = 0;
+        add_property(L"range", &range, AhkInt);
     }
 
     void try_open(Entity* entity) {

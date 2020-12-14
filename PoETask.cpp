@@ -52,15 +52,13 @@ public:
         add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
+        add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&PoETask::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&PoETask::stop_pickup);
-        add_method(L"setPickupRange", this, (MethodType)&PoETask::set_pickup_range, AhkInt, ParamList{AhkInt});
-        add_method(L"setGenericItemFilter", this, (MethodType)&PoETask::set_generic_item_filter, AhkInt, ParamList{AhkWString});
-        add_method(L"setRareItemFilter", this, (MethodType)&PoETask::set_rare_item_filter, AhkInt, ParamList{AhkWString});
-        add_method(L"setHud", (PoE*)this, (MethodType)&PoE::set_hud_window, AhkVoid, ParamList{AhkUInt});
+        add_method(L"setHudWindow", (PoE*)this, (MethodType)&PoE::set_hud_window, AhkVoid, ParamList{AhkUInt});
     }
 
     ~PoETask() {
@@ -244,6 +242,16 @@ public:
         }
     }
 
+    AhkObjRef* get_plugins() {
+        AhkObj temp_plugins;
+        for (auto& i : plugins) {
+            temp_plugins.__set(i->name.c_str(), (AhkObjRef*)*i, AhkObject, nullptr);
+        }
+        __set(L"plugins", (AhkObjRef*)temp_plugins, AhkObject, nullptr);
+
+        return temp_plugins;
+    }
+
     bool is_in_game() {
         bool in_game_flag = PoE::is_in_game();
 
@@ -405,19 +413,6 @@ public:
 
     void stop_pickup() {
         auto_pickup->stop_pickup();
-    }
-
-    void set_pickup_range(int range) {
-        if (range > 0)
-            auto_pickup->range = range;
-    }
-
-    void set_generic_item_filter(const wchar_t* regex_string) {
-        auto_pickup->generic_item_filter.assign(regex_string);
-    }
-
-    void set_rare_item_filter(const wchar_t* regex_string) {
-        auto_pickup->rare_item_filter.assign(regex_string);
     }
 };
 

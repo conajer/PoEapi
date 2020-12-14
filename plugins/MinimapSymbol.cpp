@@ -12,6 +12,9 @@ public:
     float scale;
     float factor = 6.9f;
     bool is_clipping = false;
+    bool show_delve_chests = true;
+    std::wregex ignored_delve_chests;
+    bool show_monsters = true;
 
     int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // normal, magic, rare, unique
                              0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // is dead
@@ -28,6 +31,15 @@ public:
                                            {L"Unique", 0xffff}};
 
     MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.1") {
+        add_property(L"showDelveChests", &show_delve_chests, AhkBool);
+        add_property(L"showMonsters", &show_monsters, AhkBool);
+        add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
+
+        set_ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter");
+    }
+
+    void set_ignored_delve_chests(const wchar_t* regex_string) {
+        ignored_delve_chests.assign(regex_string);
     }
     
     void reset() {
@@ -87,6 +99,9 @@ public:
     }
 
     void draw_delve_chests(Entity* e) {
+        if (std::regex_search(e->path, ignored_delve_chests))
+            return;
+
         Targetable* targetable = e->get_component<Targetable>();
         if (!targetable || !targetable->is_targetable() || !e->has_component("Chest"))
             return;
@@ -129,9 +144,9 @@ public:
 
             Entity* entity = i.second.get();
             poe->get_pos(entity);
-            if (entity->is_monster || entity->has_component("NPC"))
+            if (show_monsters && (entity->is_monster || entity->has_component("NPC")))
                 draw_entity(entity);
-            else if (entity->path.find(L"/DelveChests") != string::npos)
+            else if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)
                 draw_delve_chests(entity);
         }
         poe->hud->end_draw();

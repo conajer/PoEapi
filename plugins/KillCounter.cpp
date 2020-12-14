@@ -22,6 +22,8 @@ public:
     int maximum_area_count = 9;
 
     KillCounter() : PoEPlugin(L"KillCounter", "0.2"), current_area(nullptr) {
+        add_property(L"radius", &nearby_radius, AhkInt);
+
         num_of_monsters = num_of_minions = 0;
         total_monsters = num_of_killed = 0;
     }
