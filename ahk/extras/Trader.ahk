@@ -313,7 +313,6 @@ class Trader {
                     aTrade := new IncomingTradeSession(player, matched3, matched1, matched5, matched6)
                     aTrade.priority := 0
                 } else {
-                    debug(player ", " ptask.player.name)
                     if (player == ptask.player.name)
                         return
 
@@ -335,8 +334,7 @@ class Trader {
         } else if (RegExMatch(message, "You have left the party.", matched)) {
             if (this.tsCurrent.player == matched1)
                 this.tsCurrent.isJoined := false
-        } else if (RegExMatch(message, "(.*) has joined your party.", matched)) {
-            debug(message)
+        } else if (RegExMatch(message, _("(.*) has joined your party."), matched)) {
             this.tsActive[matched1].isJoined := true
         } else if (RegExMatch(message, "(.*) has left the party.", matched)) {
             if (this.tsActive.HasKey(matched1)) {
