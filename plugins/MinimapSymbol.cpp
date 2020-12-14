@@ -13,8 +13,11 @@ public:
     float factor = 6.9f;
     bool is_clipping = false;
     bool show_delve_chests = true;
+    int size = 8;
+    int border_color = 0xffffff;
     std::wregex ignored_delve_chests;
     bool show_monsters = true;
+    int rarity = 0;
 
     int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // normal, magic, rare, unique
                              0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // is dead
@@ -32,7 +35,10 @@ public:
 
     MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.1") {
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
+        add_property(L"size", &size, AhkInt);
+        add_property(L"borderColor", &border_color, AhkInt);
         add_property(L"showMonsters", &show_monsters, AhkBool);
+        add_property(L"rarity", &rarity, AhkInt);
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
 
         set_ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter");
@@ -77,6 +83,9 @@ public:
     }
 
     void draw_entity(Entity* e) {
+        if (e->rarity < rarity)
+            return;
+
         int index = e->rarity | (e->is_dead() ? 4 : 0) | (e->is_neutral ? 8 : 0);
         int w = e->rarity + 2 + (e->is_neutral ? 1 : 0) + (!e->is_monster ? 2 : 0);
         Render* render = e->get_component<Render>();
@@ -108,7 +117,7 @@ public:
 
         Render* render = e->get_component<Render>();
         if (render) {
-            int w1 = 9, w2 = 6;
+            int w1 = size + 3, w2 = size;
             Vector3 pos = render->position();
             Vector3 bounds = render->bounds();
             pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
@@ -126,7 +135,7 @@ public:
 
             pos.x += shift_x;
             pos.y += shift_y;
-            poe->hud->fill_rounded_rect(pos.x - w1, pos.y - w1, pos.x + w1, pos.y + w1, w1, w1, 0xffffff);
+            poe->hud->fill_rounded_rect(pos.x - w1, pos.y - w1, pos.x + w1, pos.y + w1, w1, w1, border_color);
             poe->hud->fill_rounded_rect(pos.x - w2, pos.y - w2, pos.x + w2, pos.y + w2, w2, w2, color);
         }
     }

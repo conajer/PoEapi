@@ -28,7 +28,10 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                         , "KillCounter"   : { "enabled" : true, "radius" : 50 }
                         , "MinimapSymbol" : { "enabled" : true
                                             , "showMonsters"       : true
+                                            , "rarity"             : 1
                                             , "showDelveChests"    : true
+                                            , "size"               : 8
+                                            , "borderColor"        : 0xffffff
                                             , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter" }
                         , "PlayerStatus"  : { "enabled" : true } }
 
