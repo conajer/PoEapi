@@ -57,7 +57,7 @@ public:
     virtual void __init();
     virtual void __new();
 
-    operator AhkObjRef*();
+    virtual operator AhkObjRef*();
     bool add_property(const wstring& key, void* value, AhkType type);
     bool remove_property(const wstring& key);
     bool add_method(const wstring& name,                // method name, case sensitive
@@ -66,7 +66,6 @@ public:
                     AhkType return_type = AhkInt,       // return type (treat void as AhkInt)
                     ParamList params = ParamList{});    // parameter types, up to 8 parameters
     bool remove_method(const wstring& name);
-    AhkObjRef* detach();
 
     void* get(const wchar_t* key) __attribute__((optimize(0)));
     void set(const wchar_t* key, void* value);
@@ -74,6 +73,15 @@ public:
     void __get(const wchar_t* key, void* value, AhkType type);
     void __set(const wchar_t* key, ...);            // __set(key, value, type, [key, value, type, ...] 0);
     void* __call(const wchar_t* method_name, ...);  // __call(name, type, arg, [type, arg, ...] 0);
+};
+
+class AhkTempObj : public AhkObj {
+public:
+
+    AhkTempObj();
+    AhkTempObj(const wstring type_name);
+    ~AhkTempObj();
+    operator AhkObjRef*();
 };
 
 /* Global AutoHotkey object index table */
@@ -102,5 +110,8 @@ DLLEXPORT void* ahkpp_get(AhkObjRef* ahkobj_ref, const wchar_t* key);
 DLLEXPORT void ahkpp_set(AhkObjRef* ahkobj_ref, const wchar_t* key, void* value);
 DLLEXPORT void* ahkpp_call(AhkObjRef* ahkobj_ref, const wchar_t* method_name, ...);
 DLLEXPORT void ahkpp_delete(AhkObjRef* ahkobj_ref);
+DLLEXPORT void ahkpp_set_var(const wchar_t* name, ...);
+DLLEXPORT void ahkpp_get_var(const wchar_t* name, void* value, AhkType type);
+DLLEXPORT void ahkpp_get_value(void* value, void* val_ptr, AhkType type);
 
 #endif /* AHKPP */

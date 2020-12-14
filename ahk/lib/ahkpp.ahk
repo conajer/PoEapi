@@ -74,6 +74,14 @@ class AhkObj {
             }
 
             return DllCall("poeapi\ahkpp_set", "Ptr", &this, "Str", key, valType, value)
+        } else if (this.__methods.HasKey("set" key)) {
+            name := "set" key
+            if (this.__methods[name].Count() == 2) {
+                valType := this.__methods[key][1]
+                DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, valType, value)
+
+                return value
+            }
         }
     }
     
@@ -126,8 +134,11 @@ __New(className, baseClassName) {
         } else if (className != "AhkObj") {
             if (__ahkpp_classes[className])
                 obj.base := __ahkpp_classes[className]
-            else
-                obj.base := IsObject(%className%) ? %className% : AhkObj
+            else if (IsObject(%className%)) {
+                obj.base := %className%
+                ObjAddRef(obj)
+            } else
+                obj.base := {"__Class":className}
             obj.__Init()
         }
     }
@@ -140,13 +151,13 @@ __Delete(obj) {
 }
 
 __Get(obj, key) {
-    __ahkpp_value := Object(obj)[StrGet(key)]
+    obj := Object(obj)
+    key := StrGet(key)
+    __ahkpp_value := obj ? obj[key] : %key%
     if (IsObject(__ahkpp_value))
         return Object(__ahkpp_value)
     else if (__ahkpp_value)
         return &__ahkpp_value
-
-    return 0
 }
 
 __Set(obj, key, params*) {
@@ -162,15 +173,20 @@ __Set(obj, key, params*) {
         type := NumGet(params + offset + 8, "Int")
         switch type {
         case 8: ; String
-            obj[key] := StrGet(NumGet(params + offset, "Ptr"), "utf-8")
+            value := StrGet(NumGet(params + offset, "Ptr"), "utf-8")
         case 9: ; Unicode  String
-            obj[key] := StrGet(NumGet(params + offset, "Ptr"))
+            value := StrGet(NumGet(params + offset, "Ptr"))
         case 13: ; Object
             objPtr := NumGet(params + offset, "Ptr")
-            obj[key] := objPtr ? Object(objPtr) : {}
+            value := objPtr ? Object(objPtr) : {}
         default:
-            obj[key] := NumGet(params + offset, __ahkpp_types[type])
+            value := NumGet(params + offset, __ahkpp_types[type])
         }
+
+        if (Not obj && key != "")
+            %key% := value
+        else
+            obj[key] := value
 
         key := NumGet(params + offset + 16, "Ptr")
         offset += 24
