@@ -152,7 +152,6 @@ public:
             }
 
             Entity* entity = i.second.get();
-            poe->get_pos(entity);
             if (show_monsters && (entity->is_monster || entity->has_component("NPC")))
                 draw_entity(entity);
             else if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)

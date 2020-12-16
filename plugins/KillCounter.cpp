@@ -79,8 +79,6 @@ public:
             }
 
             Entity* entity = i.second.get();
-            poe->get_pos(entity);
-
             if (entity->is_monster) {
                 if (!entity->is_neutral) {
                     if (entity->has_component("DiesAfterTime"))
