@@ -154,8 +154,8 @@ public:
             InGameData* in_game_data = in_game_state->in_game_data();
             ServerData* server_data = in_game_state->server_data();
 
-            __set(L"League", server_data->league().c_str(), AhkWString,
-                  L"Area", in_game_data->world_area()->name().c_str(), AhkWString,
+            __set(L"league", server_data->league().c_str(), AhkWString,
+                  L"area", in_game_data->world_area()->name().c_str(), AhkWString,
                   nullptr);
         }
     }

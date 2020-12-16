@@ -295,7 +295,10 @@ public:
             AreaTemplate* world_area = in_game_data->world_area();
             if (!world_area->name().empty()) {
                 league  = in_game_state->server_data()->league();
-                __set(L"league", league.c_str(), AhkWString, nullptr);
+                __set(L"league", league.c_str(), AhkWString,
+                      L"area", in_game_data->world_area()->name().c_str(), AhkWString,
+                      nullptr);
+
                 for (auto i : plugins)
                     i->on_area_changed(in_game_data->world_area(), area_hash);
             }
