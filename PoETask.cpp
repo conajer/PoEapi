@@ -53,6 +53,7 @@ public:
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
         add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
+        add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject);
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
@@ -250,6 +251,15 @@ public:
         __set(L"plugins", (AhkObjRef*)temp_plugins, AhkObject, nullptr);
 
         return temp_plugins;
+    }
+
+    AhkObjRef* get_entities() {
+        AhkTempObj temp_entities;
+        for (auto& i : entities.all) {
+            temp_entities.__set(L"", (AhkObjRef*)*i.second, AhkObject, nullptr);
+        }
+
+        return temp_entities;
     }
 
     bool is_in_game() {
