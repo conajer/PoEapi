@@ -54,6 +54,18 @@ protected:
             components.insert(std::make_pair(component_name, component_ptr));
         }
     }
+
+    AhkObjRef* __get_pos() {
+        if (label) {
+            Point p = label->get_pos();
+            AhkTempObj pos;
+            pos.__set(L"x", p.x, AhkInt, L"y", p.y, AhkInt, nullptr);
+
+            return pos;
+        }
+
+        return nullptr;
+    }
     
 public:
 
@@ -86,7 +98,7 @@ public:
 
         add_method(L"name", this, (MethodType)&Entity::name, AhkWStringPtr);
         add_method(L"getComponents", this, (MethodType)&Entity::get_components, AhkObject);
-        add_method(L"__getPos", this, (MethodType)&Entity::get_pos, AhkPointer);
+        add_method(L"__getPos", this, (MethodType)&Entity::__get_pos, AhkObject);
     }
 
     void __new() {
@@ -137,13 +149,6 @@ public:
 
     bool is(const string& type_name) {
         return components.find(type_name) != components.end();
-    }
-
-    Point& get_pos() {
-        if (label)
-            this->pos = label->get_pos();
-        
-        return pos;
     }
 
     AhkObjRef* get_component(const char* name) {

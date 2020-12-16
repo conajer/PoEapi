@@ -29,13 +29,12 @@ public:
             if (player->dist(*i.second) > 200)
                 continue;
 
-            Point& pos = i.second->get_pos();
             chests.push_back(i.second);
         }
 
         if (chests.size() > 0) {
             for (auto& i : chests) {
-                Point& pos = i->get_pos();
+                Point pos = i->label->get_pos();
                 PostThreadMessage(thread_id,
                     WM_HEIST_CHEST,
                     (WPARAM)&i->path[i->path.rfind(L'/') + 1],

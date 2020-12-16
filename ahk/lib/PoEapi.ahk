@@ -102,8 +102,8 @@ class Entity extends PoEObject {
 
     getPos(ByRef x, ByRef y) {
         pos := this.__getPos()
-        x := NumGet(pos + 0x0, "Int")
-        y := NumGet(pos + 0x4, "Int")
+        x := pos.x
+        y := pos.y
     }
 }
 

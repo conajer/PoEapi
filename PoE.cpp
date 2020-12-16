@@ -249,9 +249,8 @@ public:
             if (render) {
                 Vector3 vec = render->position();
                 in_game_state->transform(vec);
-                entity->pos.x = vec.x;
-                entity->pos.y = vec.y;
-                return entity->pos;
+
+                return {(int)vec.x, (int)vec.y};
             }
         }
 

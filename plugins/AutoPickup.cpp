@@ -160,7 +160,7 @@ public:
         }
 
         selected_item = nearest_item;
-        Point& pos = selected_item->get_pos();
+        Point pos = selected_item->label->get_pos();
         if (!PtInRect(&bounds, {pos.x, pos.y}))
             return;
 
