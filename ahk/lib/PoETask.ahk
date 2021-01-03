@@ -154,12 +154,6 @@ class PoETask extends AhkObj {
         this.activate()
     }
 
-    __delete() {
-        this.stop()
-        DllCall("FreeLibrary", "Ptr", poeapi)
-        debug("Exiting...")
-    }
-
     activate() {
         if (WinActive("ahk_id " this.Hwnd))
             return
