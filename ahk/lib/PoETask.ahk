@@ -202,6 +202,10 @@ class PoETask extends AhkObj {
         WinMinimize, ahk_class POEWindowClass
     }
 
+    getPlugin(name) {
+        return this.getPlugins()[name]
+    }
+
     sendKeys(keys, NoSend = false) {
         if (ptask.isMinimized())
             return
