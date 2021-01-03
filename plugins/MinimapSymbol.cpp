@@ -3,6 +3,59 @@
 */
 
 #include <map>
+#include <math.h>
+
+class MonsterPack : public AhkObj {
+public:
+
+    int margin = 5;
+    int max_radius = 300;
+    int count;
+    int rarity;
+    int l, t, r, b;
+    int cx, cy;
+    int n;
+
+    MonsterPack(Entity* monster, int x, int y) : cx(x), cy(y) {
+        l = x - margin;
+        t = y - margin;
+        r = x + margin;
+        b = y + margin;
+
+        count = 1;
+        rarity = monster->rarity;
+        n = 0;
+    }
+
+    void __new() {
+        __set(L"x", cx, AhkInt, L"y", cy, AhkInt,
+              L"l", l, AhkInt, L"t", t, AhkInt, L"r", r, AhkInt, L"b", b, AhkInt,
+              L"count", count, AhkInt,
+              L"rarity", rarity, AhkInt,
+              L"n", n, AhkInt,
+              nullptr);
+    }
+
+    bool add(Entity* monster, int x, int y) {
+        n++;
+        if (sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) > max_radius)
+            return false;
+
+        count++;
+        if (rarity < monster->rarity)
+            rarity = monster->rarity;
+
+        if (x < l) l = x - margin;
+        if (x > r) r = x + margin;
+        if (y < t) t = y - margin;
+        if (y > b) b = y + margin;
+
+        cx = (l + r) / 2;
+        cy = (t + b) / 2;
+
+        return true;
+    }
+};
 
 class MinimapSymbol : public PoEPlugin {
 public:
@@ -17,7 +70,11 @@ public:
     int border_color = 0xffffff;
     std::wregex ignored_delve_chests;
     bool show_monsters = true;
+    bool show_minions = true;
+    bool show_corpses = false;
     int rarity = 0;
+    std::vector<MonsterPack> monster_packs;
+    bool show_packs = false;
 
     int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // normal, magic, rare, unique
                              0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // is dead
@@ -38,8 +95,12 @@ public:
         add_property(L"size", &size, AhkInt);
         add_property(L"borderColor", &border_color, AhkInt);
         add_property(L"showMonsters", &show_monsters, AhkBool);
+        add_property(L"showMinions", &show_minions, AhkBool);
+        add_property(L"showCorpses", &show_corpses, AhkBool);
         add_property(L"rarity", &rarity, AhkInt);
+        add_property(L"showPacks", &show_packs, AhkBool);
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
+        add_method(L"getPacks", this, (MethodType)&MinimapSymbol::get_packs, AhkObject);
 
         set_ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter");
     }
@@ -47,10 +108,18 @@ public:
     void set_ignored_delve_chests(const wchar_t* regex_string) {
         ignored_delve_chests.assign(regex_string);
     }
+
+    AhkObjRef* get_packs() {
+        AhkTempObj temp_packs;
+        for (auto& pack : monster_packs)
+            temp_packs.__set(L"", (AhkObjRef*)pack, AhkObject, nullptr);
+        return temp_packs;
+    }
     
     void reset() {
         poe->hud->begin_draw();
         poe->hud->clear();
+        monster_packs.clear();
 
         Render* render = player->get_component<Render>();
         if (render) {
@@ -83,7 +152,8 @@ public:
     }
 
     void draw_entity(Entity* e) {
-        if (e->rarity < rarity)
+        if (e->is_monster && ((!e->is_neutral && e->rarity < rarity)
+                              || (!show_corpses && e->is_dead()) || (!show_minions && e->is_neutral)))
             return;
 
         int index = e->rarity | (e->is_dead() ? 4 : 0) | (e->is_neutral ? 8 : 0);
@@ -104,7 +174,21 @@ public:
                 w += 1;
                 poe->hud->draw_rect(pos.x - w, pos.y - w, pos.x + w, pos.y + w, 0xff0000, 2);
             }
+
+            if (show_packs && (e->is_monster && !e->is_neutral)) {
+                Point p = poe->get_pos(e);
+                for (auto& pack : monster_packs) {
+                    if (pack.add(e, p.x, p.y))
+                        return;
+                }
+                monster_packs.push_back(MonsterPack(e, p.x, p.y));
+            }
         }
+    }
+
+    void draw_monster_packs() {
+        for (auto pack : monster_packs)
+            poe->hud->draw_rect(pack.l, pack.t, pack.r, pack.b, 0xff00, 1);
     }
 
     void draw_delve_chests(Entity* e) {
@@ -157,6 +241,10 @@ public:
             else if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)
                 draw_delve_chests(entity);
         }
+
+        if (show_packs)
+            draw_monster_packs();
+
         poe->hud->end_draw();
     }
 };

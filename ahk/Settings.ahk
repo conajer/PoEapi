@@ -28,6 +28,8 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                         , "KillCounter"   : { "enabled" : true, "radius" : 50 }
                         , "MinimapSymbol" : { "enabled" : true
                                             , "showMonsters"       : true
+                                            , "showMinions"        : true
+                                            , "showCorpses"        : false
                                             , "rarity"             : 1
                                             , "showDelveChests"    : true
                                             , "size"               : 8
