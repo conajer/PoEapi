@@ -94,7 +94,11 @@ debug(string, args*) {
 }
 
 rdebug(id, string, args*) {
-    logger.rlog(id, Format("[D] <i>" string "</i>", args*), 0)
+    logger.rlog(id, Format("[D] <i>" string "</i>", args*), false, 0)
+}
+
+adebug(id, string, args*) {
+    logger.rlog(id, Format("[D] <i>" string "</i>", args*), true, 0)
 }
 
 syslog(string, args*) {
