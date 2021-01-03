@@ -34,11 +34,11 @@ global DropDynamiteKey := Chr(use_temporary_skill2)
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
-global logger := new Logger("PoEapikit log")
+global logger := new Logger("PoEapikit log",,, Not ShowLogger)
 global ptask := new PoETask()
 global trader := new Trader()
 
-version := "0.4.1"
+version := "0.4.2"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("PoEapikit v{} (powered by PoEapi v{})", version, poeapiVersion)
 
