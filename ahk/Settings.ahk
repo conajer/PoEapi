@@ -13,6 +13,7 @@
 ; F6    dump inventory items
 ; ^F6   dump highlighted or all items from current stash tab
 ; F7    Sell full rare sets to vendor
+; F12   Toggle log window
 ; #d,   minimize window
 ; ^m,   toggle maphack
 ; ^r,   reload script
@@ -48,6 +49,7 @@ global ShowEnergyShield := false
 global ShowDebugMenu := false
 
 ; Log
+global ShowLogger := false
 global LogLevel := 0
 global ShowLogMessage := false
 

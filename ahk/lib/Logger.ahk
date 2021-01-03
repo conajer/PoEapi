@@ -4,15 +4,15 @@
 
 class Logger {
 
-    __new(title, filename = "", level = 0) {
+    __new(title, filename = "", level = 0, hideWindow = false) {
         static __mshtml
 
         Gui, __logger:New, +HwndHwnd +LastFound, % title
         Gui, __logger:Margin, 5
         Gui, Font, 10, Courier New
         Gui, __logger:Add, ActiveX, Border VScroll r35 w690 v__mshtml, about:
-        poe.activate()
         Gui, __logger:Show, Hide x10 y50 w700 h460
+        this.show(Not hideWindow, false)
 
         clearMethod := ObjBindMethod(this, "clear")
         Menu, Tray, NoStandard
@@ -53,7 +53,6 @@ class Logger {
         if (level >= LogLevel) {
             this.doc.write(aText)
             this.doc.parentWindow.scrollBy(0, 20)
-            this.show(false)
 
             return id
         }
@@ -71,17 +70,17 @@ class Logger {
             element.innerHtml := Format("<span style=""color:black"">{}</span> {}`n", t, aText)
     }
 
-    show(active = true) {
-        if (active && WinActive("ahk_class AutoHotkeyGUI") == this.Hwnd) {
-            this.hide()
+    isVisible() {
+        return WinExist("ahk_id " this.Hwnd)
+    }
+
+    show(visible = true, active = true) {
+        if (Not visible) {
+            Gui, __logger:Hide
             return
         }
 
         Gui, __logger:Show, % !active ? "NoActivate" :
-    }
-
-    hide() {
-        Gui, __logger:Hide
     }
 
     __log(aText) {

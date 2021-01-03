@@ -194,5 +194,9 @@ return
     MsgBox, % "Width:" ptask.Width " Hieght:" ptask.Height "`nX=" tempX " Y=" tempY "`nColor=" bgr
 return
 
+F12::
+    logger.show(!logger.isVisible())
+return
+
 F10::
 return
