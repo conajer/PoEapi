@@ -23,6 +23,10 @@ public:
 
     KillCounter() : PoEPlugin(L"KillCounter", "0.2"), current_area(nullptr) {
         add_property(L"radius", &nearby_radius, AhkInt);
+        add_property(L"monsters", &num_of_monsters, AhkInt);
+        add_property(L"minions", &num_of_minions, AhkInt);
+        add_property(L"total", &total_monsters, AhkInt);
+        add_property(L"kills", &num_of_killed, AhkInt);
 
         num_of_monsters = num_of_minions = 0;
         total_monsters = num_of_killed = 0;
