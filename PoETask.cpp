@@ -61,6 +61,7 @@ public:
         add_method(L"beginPickup", this, (MethodType)&PoETask::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&PoETask::stop_pickup);
         add_method(L"setHudWindow", (PoE*)this, (MethodType)&PoE::set_hud_window, AhkVoid, ParamList{AhkUInt});
+        add_method(L"__logout", (PoE*)this, (MethodType)&PoE::logout, AhkVoid);
     }
 
     ~PoETask() {

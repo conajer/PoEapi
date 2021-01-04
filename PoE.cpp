@@ -2,6 +2,9 @@
 *  PoE.cpp, 8/4/2020 9:11 PM
 */
 
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
 #include <windows.h>
 #include <psapi.h>
 
@@ -298,5 +301,31 @@ public:
             hud.reset();
         else if (IsWindow(hwnd))
             hud = unique_ptr<Canvas>(new Canvas(hwnd));
+    }
+
+    void logout() {
+        HANDLE token;
+        LUID luid;
+        PMIB_TCPTABLE_OWNER_PID  tcp_table;
+        DWORD size = 0;
+
+        OpenProcessToken(process_handle, TOKEN_ADJUST_PRIVILEGES , &token);
+        LookupPrivilegeValue(0, "SeDebugPrivilege", &luid);
+        TOKEN_PRIVILEGES token_privileges = {1, {luid, SE_PRIVILEGE_REMOVED}};
+        AdjustTokenPrivileges(token, false, &token_privileges, 0, 0, 0);
+        CloseHandle(token);
+
+        GetExtendedTcpTable(tcp_table, &size, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+        tcp_table = (PMIB_TCPTABLE_OWNER_PID)malloc(size);
+        GetExtendedTcpTable(tcp_table, &size, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+        if (tcp_table->dwNumEntries > 0) {
+            for (int i = 0; i < tcp_table->dwNumEntries; ++i) {
+                if (tcp_table->table[i].dwOwningPid == process_id) {
+                    tcp_table->table[i].dwState = MIB_TCP_STATE_DELETE_TCB;
+                    SetTcpEntry((PMIB_TCPROW)&tcp_table->table[i]);
+                }
+            }
+        }
+        free(tcp_table);
     }
 };
