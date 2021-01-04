@@ -25,13 +25,14 @@ enum MessageTypes {
     WM_HEIST_CHEST,
     WM_NEW_MESSAGE,
     WM_PTASK_ATTACHED =  0x9100,
+    WM_PTASK_ACTIVE,
 };
 
 int major_version = 0;
-int minor_version = 12;
-int patch_level = 3;
+int minor_version = 13;
+int patch_level = 0;
 
-const char* supported_PoE_version = "3.12.5b";
+const char* supported_PoE_version = "3.12.5c";
 
 DLLEXPORT void poeapi_get_version(int& major, int& minor, int &patch_level) {
     major = major_version;

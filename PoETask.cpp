@@ -30,6 +30,7 @@ public:
     std::wregex ignored_entity_exp;
     AutoPickup* auto_pickup;
     bool is_attached = false;
+    bool is_active = false;
 
     PoETask() : Task(L"PoETask"), auto_pickup(new AutoPickup()),
         ignored_entity_exp(L"Doodad|WorldItem")
@@ -291,6 +292,17 @@ public:
     }
 
     void check_player() {
+        HANDLE h = GetForegroundWindow();
+        if (h != hwnd) {
+            if (is_active) {
+                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
+                is_active = false;
+            }
+        } else if (!is_active) {
+            PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
+            is_active = true;
+        }
+
         if (!is_in_game()) {
             if (is_attached && !hwnd) {
                 is_attached = false;
