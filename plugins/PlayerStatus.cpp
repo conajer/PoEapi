@@ -10,10 +10,15 @@ public:
     int life, mana, energy_shield;
     int last_action_id;
     bool is_dead;
+    unsigned int threshold_percentage = 20;
+    bool min_level = 90;
 
-    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.3") {
+    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.4") {
         life = mana = 0;
         is_dead = false;
+
+        add_property(L"autoQuitThresholdPercentage", &threshold_percentage, AhkInt);
+        add_property(L"autoQuitMinLevel", &min_level, AhkInt);
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
@@ -45,6 +50,9 @@ public:
             }
         }
 
+        if (current_life * 100 / maximum < threshold_percentage)
+            poe->logout();
+
         int current_mana = local_player->life->mana();
         if (current_mana != this->mana) {
             this->mana = local_player->life->mana(&maximum, &reserved);
@@ -62,6 +70,9 @@ public:
                               (LPARAM)maximum);
             this->energy_shield = current_es;
         }
+
+        if (life == 1 && current_es * 100 / maximum < threshold_percentage)
+            poe->logout();
 
         /* action */
         Actor* actor = player->get_component<Actor>();
