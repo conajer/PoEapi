@@ -44,7 +44,7 @@ class FullRareSets {
                 }
 
                 if (Not item) {
-                    debug("!!! Need more <b style=""color=red"">{}</b>.", type)
+                    debug("!!! {} <b style=""color=red"">{}</b>.", _("Need more"), type)
                     return
                 }
 
@@ -59,15 +59,16 @@ class FullRareSets {
 }
 
 addVendorButton() {
-    Menu, __vendoringMenu, Add, Trade quality gems, tradeGems
-    Menu, __vendoringMenu, Add, Trade divination cards, tradeDivinationCards
-    Menu, __vendoringMenu, Add, Trade full rare sets, tradeFullRareSets
+    Menu, __vendoringMenu, Add, % _("Trade quality gems"), tradeGems
+    Menu, __vendoringMenu, Add, % _("Trade divination cards"), tradeDivinationCards
+    Menu, __vendoringMenu, Add, % _("Trade full rare sets"), tradeFullRareSets
     Menu, __vendoringMenu, Add
-    Menu, __vendoringMenu, Add, Dump inventory items, dumpInventoryItems
-    Menu, __vendoringMenu, Add, Dump stash tab items, dumpStashTabItems
-    Menu, __vendoringMenu, Add, Unstack divination cards, unstackCards
+    Menu, __vendoringMenu, Add, % _("Unstack divination cards"), unstackCards
+    Menu, __vendoringMenu, Add
+    Menu, __vendoringMenu, Add, % _("Dump inventory items"), dumpInventoryItems
+    Menu, __vendoringMenu, Add, % _("Dump stash tab items"), dumpStashTabItems
 
-    Gui, Add, Button, x+2 y0 gpopupVendorCommands, Vendoring
+    Gui, Add, Button, x+2 y0 gpopupVendorCommands, % _("Vendoring")
 
     Hotkey, IfWinActive, ahk_class POEWindowClass
     Hotkey, F6, dumpInventoryItems
@@ -159,17 +160,14 @@ tradeFullRareSets() {
     vendor := ptask.getVendor()
     sell := ptask.getSell()
     loop {
-        if (Not ptask.stash.open())
-            break
-
         rareItems := rareSets.get()
-        if (Not rareItems)
+        if (Not rareItems || Not ptask.stash.open())
             break
 
         for i, item in rareItems
             tab.move(item)
 
-        ptask.inventory.use(ptask.inventory.findItem("A Valuable Combination"))
+        ptask.inventory.use(ptask.inventory.findItem(_("A Valuable Combination")))
         if (Not vendor.sell())
             break
 
@@ -179,10 +177,10 @@ tradeFullRareSets() {
 
         Sleep, 100
         offerItem := sell.getItems()[1]
-        if (Not RegExMatch(offerItem.name, "Chaos|Exalted Shard"))
+        if (Not RegExMatch(offerItem.name, _("Chaos") "|" _("Exalted Shard")))
             break
 
-        debug("Received <b>{} {}</b>", offerItem.stackCount, offerItem.name)
+        debug(_("Received") " <b>{} {}</b>", offerItem.stackCount, offerItem.name)
         sell.accept(true)
         SendInput, %CloseAllUIKey%
     }
@@ -225,7 +223,7 @@ unstackCards() {
 
     tab := ptask.stash.Tab
     for i, item in tab.getItems() {
-        if (item.name == "Stacked Deck") {
+        if (item.name == _("Stacked Deck")) {
             loop, % item.stackCount {
                 tab.moveTo(item.index)
                 MouseClick, Right

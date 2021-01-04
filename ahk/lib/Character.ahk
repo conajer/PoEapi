@@ -109,7 +109,7 @@ class Character extends LocalPlayer {
             else
                 flaskTypes .= "[]"
         }
-        rdebug("#FLASKS", "Flasks: {}", flaskTypes)
+        rdebug("#FLASKS", _("Flasks") ": {}", flaskTypes)
     }
 
     areaChanged(areaName, lParam) {
@@ -179,12 +179,12 @@ class Character extends LocalPlayer {
     monsterChanged(numOfMonsters, charges) {
         this.nearbyMonsters := numOfMonsters
         this.expectCharges := charges
-        rdebug("#MONSTERS", "<b>{}</b> monsters, <b>{}</b> charges", numOfMonsters, charges)
+        rdebug("#MONSTERS", "<b>{}</b> " _("monsters") ", <b>{}</b> " _("charges"), numOfMonsters, charges)
     }
 
     minionChanged(numOfMinions) {
         this.nearbyMinions := numOfMinions
-        rdebug("#MINIONS", "<b>{}</b> minions", numOfMinions)
+        rdebug("#MINIONS", "<b>{}</b> " _("minions"), numOfMinions)
     }
 
     onMove() {

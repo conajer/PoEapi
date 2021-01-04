@@ -31,6 +31,10 @@ global InventoryKey := Chr(open_inventory_panel)
 global DropFlareKey := Chr(use_temporary_skill1)
 global DropDynamiteKey := Chr(use_temporary_skill2)
 
+DllCall("LoadLibrary", "Str", "libintl-8.dll")
+DllCall("msvcrt\_putenv", "AStr", "LANG=" language)
+DllCall("libintl-8\bindtextdomain", "AStr", "PoEapikit", "AStr", "./locale")
+DllCall("libintl-8\textdomain", "AStr", "PoEapikit")
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
@@ -38,9 +42,9 @@ global logger := new Logger("PoEapikit log",,, Not ShowLogger)
 global ptask := new PoETask()
 global trader := new Trader()
 
-version := "0.4.2"
+version := "0.5.0"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
-syslog("PoEapikit v{} (powered by PoEapi v{})", version, poeapiVersion)
+syslog("PoEapikit v{} (" _("powered by") " PoEapi v{})", version, poeapiVersion)
 
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
@@ -52,6 +56,10 @@ Hotkey, IfWinActive
 
 ; end of auto-execute section
 return
+
+_(str) {
+    return DllCall("libintl-8\gettext", "AStr", str, "AStr")
+}
 
 objdump(obj, prefix = "", depth = 0) {
     if (Not IsObject(obj)) {

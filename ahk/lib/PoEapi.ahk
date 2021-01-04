@@ -110,7 +110,7 @@ class Entity extends PoEObject {
 class LocalPlayer extends Entity {
 
     whois() {
-        return Format("{} is a level {} {} in the {} league"
+        return Format(_("{} is a level {} {} in the {} league")
                      , this.name, this.level, this.className, ptask.League)
     }
 }
@@ -183,6 +183,10 @@ class Inventory extends InventoryGrid {
     }
 
     openPortal() {
+        item := this.findItem(_("Portal Scroll"))
+        if (Not item)
+            return
+
         if (Not this.isOpened()) {
             SendInput, %InventoryKey%
             Sleep, 100
@@ -193,12 +197,6 @@ class Inventory extends InventoryGrid {
         isLBttonPressed := GetKeyState("LButton")
         if (isLBttonPressed)
             SendInput {LButton up}
-
-        item := this.findItem("Portal")
-        if (Not item) {
-            debug("!!! Out of ""Portal Scroll"".")
-            return
-        }
 
         this.use(item)
         if (closeInventory)
@@ -219,7 +217,7 @@ class Inventory extends InventoryGrid {
 
     identify(item, shift = false) {
         if (Not shift) {
-            wisdom := this.findItem("Scroll of Wisdom")
+            wisdom := this.findItem(_("Scroll of Wisdom"))
             if (Not wisdom)
                 return false
 
@@ -430,7 +428,7 @@ class Vendor extends Element {
             return true
 
         if (this.selectNPC()) {
-            service := this.selectService("Sell Items")
+            service := this.selectService(_("Sell Items"))
             if (service) {
                 service.getPos(x, y)
                 MouseClick(x, y)
@@ -447,8 +445,8 @@ class Vendor extends Element {
     }
 
     tradeDivinationCards() {
-        if (this.selectNPC("Navali")) {
-            service := this.selectService("Trade Divination Cards")
+        if (this.selectNPC(_("Navali"))) {
+            service := this.selectService(_("Trade Divination Cards"))
             if (service) {
                 service.getPos(x, y)
                 MouseClick(x, y)

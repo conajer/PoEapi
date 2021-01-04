@@ -318,10 +318,10 @@ class PoETask extends AhkObj {
         Critical
         areaName := StrGet(areaName)
         level := lParam & 0xff
-        isTown := (lParam & 0x100) || (areaName ~= "Azurite Mine|The Rogue Harbour")
-        isHideout := RegExMatch(areaName, "Hideout$") && (areaName != "Syndicate Hideout")
+        isTown := (lParam & 0x100) || (areaName ~= _("Azurite Mine") "|" _("The Rogue Harbour"))
+        isHideout := RegExMatch(areaName, _("Hideout")) && (areaName != _("Syndicate Hideout"))
 
-        debug("You have entered <b style=""color:maroon"">{}, {}</b>", areaName, level)
+        debug(_("You have entered") " <b style=""color:maroon"">{}, {}</b>", areaName, level)
         this.InMap := Not isTown && Not isHideout
         this.InHideout := isHideout
 
@@ -336,7 +336,7 @@ class PoETask extends AhkObj {
                 this.savedXP := 0
                 lvl := this.player.level
 
-                syslog(Format("{:.2f}% experience gained.", gainedXP * 100 / levelXP[lvl]))
+                syslog("{:.2f}% " _("experience gained"), gainedXP * 100 / levelXP[lvl])
             }
         }
 

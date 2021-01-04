@@ -4,22 +4,22 @@
 
 addDebugButton() {
     if (ShowDebugMenu) {
-        Menu, __debugMenu, Add, Draw inventory, drawInventory
-        Menu, __debugMenu, Add, List inventory items, listInventoryItems
-        Menu, __debugMenu, Add, List inventory slots, listInventorySlots
+        Menu, __debugMenu, Add, % _("Draw inventory"), drawInventory
+        Menu, __debugMenu, Add, % _("List inventory items"), listInventoryItems
+        Menu, __debugMenu, Add, % _("List inventory slots"), listInventorySlots
         Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, Draw stash tab, drawStashTab
-        Menu, __debugMenu, Add, List stash tab items, listStashTabItems
-        Menu, __debugMenu, Add, List stash tabs, listStashTabs
+        Menu, __debugMenu, Add, % _("Draw stash tab"), drawStashTab
+        Menu, __debugMenu, Add, % _("List stash tab items"), listStashTabItems
+        Menu, __debugMenu, Add, % _("List stash tabs"), listStashTabs
         Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, List vendor services, listVendorServices
+        Menu, __debugMenu, Add, % _("List vendor services"), listVendorServices
         Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, List flasks, listFlasks
-        Menu, __debugMenu, Add, List flask slot, listFlaskSlot
+        Menu, __debugMenu, Add, % _("List flasks"), listFlasks
+        Menu, __debugMenu, Add, % _("List flask slot"), listFlaskSlot
         Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, Show log messages, toggleLogMessage
+        Menu, __debugMenu, Add, % _("Show log messages"), toggleLogMessage
 
-        Gui, Add, Button, x+2 y0 gpopupDebugCommands, Debug
+        Gui, Add, Button, x+2 y0 gpopupDebugCommands, % _("Debug")
     }
 }
 
@@ -37,10 +37,10 @@ drawInventory() {
 }
 
 listInventoryItems() {
-    debug("Inventory:")
+    debug(_("Inventory:"))
     items := ptask.inventory.getItems()
     if (items.Count() == 0) {
-        debug("    No items.")
+        debug("    " _("No items"))
         Return
     }
 
@@ -49,7 +49,7 @@ listInventoryItems() {
 }
 
 listInventorySlots() {
-    debug("Inventory slots:")
+    debug(_("Inventory slots:"))
     for i, slot in ptask.inventories
         debug("    {:2d}. {}, {}, {}", slot.id, slot.rows, slot.cols, slot.items.Count())
 }
@@ -59,7 +59,7 @@ drawStashTab() {
 }
 
 listStashTabItems() {
-    debug("Stash tab name: {}", ptask.stash.Tab.name)
+    debug("{}: {}", _("Stash tab name"), ptask.stash.Tab.name)
     for i, item in ptask.stash.Tab.getItems()
         debug("    {:3d}. {}", item.index, item.name)
 }
@@ -67,11 +67,11 @@ listStashTabItems() {
 listStashTabs() {
     stashTabs := ptask.getStashTabs()
     if (stashTabs.Count() == 0) {
-        debug("No stash tabs.")
+        debug(_("No stash tabs"))
         Return
     }
 
-    debug("Stash tabs:")
+    debug(_("Stash tabs:"))
     for i, tab in stashTabs {
         debug("    {:2d}. {:2d}, {:-32s}, {:#x}, {:#x} {:#x}", i
               , tab.index
@@ -85,23 +85,22 @@ listStashTabs() {
 listVendorServices() {
     vendor := ptask.getVendor()
     if (Not vendor.name) {
-        debug("No vendor selected.")
+        debug(_("No vendor selected."))
         return
     }
 
-    debug("{}'s services:", vendor.name)
+    debug(_("{}'s services:"), vendor.name)
     for name in vendor.getServices()
         debug("    {}. {}", A_Index, name)
-    vendor.draw()
 }
 
 listFlasks() {
     if (ptask.player.flasks.Count() == 0) {
-        debug("No flasks.")
+        debug(_("No flasks"))
         Return
     }
 
-    debug("Flasks:")
+    debug(_("Flasks:"))
     for i, flask in ptask.player.flasks
         debug("    {}. {:2d}, {:2d}, {}, {}, {}"
               , flask.key
@@ -114,9 +113,9 @@ listFlasks() {
 
 listFlaskSlot() {
     ptask.inventories[12].getItems()
-    debug("Flask slot:")
+    debug(_("Flask slot:"))
     if (ptask.inventories[12].Count() == 0) {
-        debug("    No items.")
+        debug("    " _("No items"))
         Return
     }
 

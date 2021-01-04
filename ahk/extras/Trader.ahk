@@ -66,9 +66,7 @@ class TradeSession extends AhkGui {
         this.item1 := new TradeItem(item1)
         this.item2 := new TradeItem(item2)
 
-        if (RegExMatch(position, "stash tab (.*); position: left ([0-9]+), top ([0-9]+)", matched)
-            || RegExMatch(position, "stash (.*); left ([0-9]+), top ([0-9]+)", matched))
-        {
+        if (RegExMatch(position, "stash tab (.*); position: left ([0-9]+), top ([0-9]+)", matched)) {
             this.left := matched2
             this.top := matched3
 
@@ -99,7 +97,7 @@ class TradeSession extends AhkGui {
             this.isClosed := true
             tmpId := this.__guiId
             Gui, %tmpId%:Destroy
-            debug("    Trade seesion closed (<b>{}</b>)", this.player)
+            adebug("#" this.__guiId, "    {} (<b>{}</b>)", _("Trade seesion closed"), this.player)
         }
     }
 
@@ -127,10 +125,11 @@ class TradeSession extends AhkGui {
     }
 
     invite() {
+        ptask.activate()
         if (Not this.isInvited && Not this.isJoined) {
             ptask.sendKeys("/invite " this.player)
             this.isInvited := true
-            debug("    Inviting... " this.player)
+            adebug("#" this.__guiId, "    {} {}...", _("Inviting"), this.player)
         }
     }
 
@@ -219,7 +218,7 @@ class Trader {
     beginTrade(aTrade) {
         if (EnabledAutoTrade && ptask.InHideout) {
             this.tsCount += 1
-            debug(Format("{:03d} Trade with <b>{}</b>", this.tsCount, aTrade.player))
+            debug(Format("{:03d} {} <b>{}</b>", this.tsCount, _("Trade with"), aTrade.player))
 
             timer := ObjBindMethod(aTrade, "trade")
             SetTimer, %timer%, -500
@@ -237,8 +236,8 @@ class Trader {
         }
 
         this.tsQueue.Push(aTrade)
-        debug("Queued trade session with <b style=""color:blue"">{}</b> ({}/{})"
-              , aTrade.player, aTrade.item1.rawText, aTrade.item2.rawText)
+        rdebug("#" aTrade.__guiId, "Queued trade session with <b style=""color:blue"">{}</b> ({}/{})"
+               , aTrade.player, aTrade.item1.rawText, aTrade.item2.rawText)
         this.nextTrade()
     }
 
@@ -262,8 +261,7 @@ class Trader {
                     break
 
                 ; Trade request expires after 60s.
-                debug("Trade with {} timeout ({:.f} seconds ago)"
-                      , aTrade.player, (A_Tickcount - aTrade.timestamp) / 1000)
+                debug("Trade session expired (<b>{}</b>).", aTrade.player)
                 aTrade.close()
             }
 
@@ -297,7 +295,8 @@ class Trader {
 
     onMessage(message, lParam) {
         message := StrGet(message)
-        if (RegExMatch(message, "^(@From|@To) (\<.*\> |)([^ :]+): (.*)", matched)) {
+
+        if (RegExMatch(message, "^(@[^ ]*) (\<.*\> |)([^ :]+): (.*)", matched)) {
             domain := matched1
             guild := matched2
             player := matched3
@@ -305,11 +304,10 @@ class Trader {
 
             if (RegExMatch(message, "Hi, I'd like to buy your (.*)( for my (.*)) in ([a-zA-Z]*)", matched)
                 || RegExMatch(message, "U)Hi, I would like to buy your (.*) (listed for (.*) )?in (.*) \((.*)\)(.*)", matched)) {
-
                 if (ptask.league != matched4)
                     return
 
-                if (domain == "@From ") {
+                if (domain == "@From") {
                     aTrade := new IncomingTradeSession(player, matched3, matched1, matched5, matched6)
                     aTrade.priority := 0
                 } else {
@@ -331,36 +329,36 @@ class Trader {
                 this.tsCurrent.close()
                 debug("  ! " message)
             }
-        } else if (RegExMatch(message, "You have left the party.", matched)) {
+        } else if (RegExMatch(message, _("You have left the party."), matched)) {
             if (this.tsCurrent.player == matched1)
                 this.tsCurrent.isJoined := false
         } else if (RegExMatch(message, "(.*) has joined your party.", matched)) {
             this.tsActive[matched1].isJoined := true
-        } else if (RegExMatch(message, "(.*) has left the party.", matched)) {
+        } else if (RegExMatch(message, _("(.*) has left the party."), matched)) {
             if (this.tsActive.HasKey(matched1)) {
                 this.tsActive[matched1].isJoined := false
                 this.tsActive[matched1].close()
             }
-        } else if (RegExMatch(message, "(.*) has joined the area.", matched)) {
+        } else if (RegExMatch(message, _("(.*) has joined the area."), matched)) {
             if (EnableAutoTrade && Not this.isTrading) {
                 if (this.tsActive.HasKey(matched1)) {
                     this.isTrading := true
                     this.tsCurrent := this.tsActive[matched1]
                 }
             }
-        } else if (RegExMatch(message, "Trade accepted.")) {
+        } else if (RegExMatch(message, _("Trade accepted."))) {
             if (this.isTrading) {
                 this.tsHistory.Push(this.tsCurrent)
                 Sleep, 500
                 this.tsCurrent.thanks()
                 this.tsCurrent.close()
-                debug("    Trade accepted")
+                debug("    " _("Trade accepted"))
             }
-        } else if (RegExMatch(message, "Trade cancelled.")) {
+        } else if (RegExMatch(message, _("Trade cancelled."))) {
             if (this.isTrading) {
                 this.tsCurrent.isCancelled := true
                 this.tsCurrent.isTrading := false
-                debug("    Trade cancelled")
+                debug("    " _("Trade cancelled"))
             }
         } else if (RegExMatch(message, "is not online.")
                    || RegExMatch(message, "You have been ignored by the target player.")
@@ -380,7 +378,7 @@ class Trader {
 
             ; Trade again
             this.activeTrade.__exec("/tradewith " this.activeTrade.player)
-        } else if (RegExMatch(message, "(.*) sent you a party invite", matched)) {
+        } else if (RegExMatch(message, _("(.*) sent you a party invite"), matched)) {
             if (EnabledAutoTrade && Not this.isTrading) {
                 if (this.tsActive.HasKey(matched1)) {
                     poe.activate()
@@ -402,7 +400,7 @@ class Trader {
             } else {
                 debug("*** Received a party invite from <b style=""color:blue"">{}</b>", matched1)
             }
-        } else if (RegExMatch(message, "(.*) sent you a trade request", matched)) {
+        } else if (RegExMatch(message, _("(.*) sent you a trade request"), matched)) {
             if (EnableAutoTrade && Not this.isTrading) {
                 poe.activate()
                 dialog := Object(lParam)
@@ -416,7 +414,7 @@ class Trader {
                     MouseClick, Left, x, y
                 }
             }
-        } else if (RegExMatch(message, "You cannot currently access this player's area.")) {
+        } else if (RegExMatch(message, _("You cannot currently access this player's area."))) {
             if (this.isTrading) {
                 Sleep, 500
                 this.tsCurrent.hideout()
@@ -439,34 +437,34 @@ class IncomingTradeSession extends TradeSession {
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x325 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
             Gui, Font, bold s8
-            Gui, Add, Button, % "x350 y5 w55 gL1 v" this.__var("trade"), Trade
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("invite"), Invite
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("kick"), Kick
+            Gui, Add, Button, % "x350 y5 w65 gL1 v" this.__var("trade"), % _("Trade")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("invite"), % _("Invite")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("kick"), % _("Kick")
             Gui, Add, Button, % "x+2 y5 gL1 v" this.__var("close"), X
 
-            Gui, Font, c47E635 bold s10
+            Gui, Font, cD20000 bold s10
             Gui, Add, Text, % "xs y30 w350 gL1 v" this.__var("checkItem"), % this.item2.rawText
             Gui, Font, bold s8
-            Gui, Add, Button, % "x350 y30 w55 gL1 v" this.__var("1sec"), 1 sec
-            Gui, Add, Button, % "x+2 y30 w55 gL1 v" this.__var("thanks"), Thanks
-            Gui, Add, Button, % "x+2 y30 w55 gL1 v" this.__var("sold"), Sold
+            Gui, Add, Button, % "x350 y30 w65 gL1 v" this.__var("1sec"), % _("1 sec")
+            Gui, Add, Button, % "x+2 y30 w65 gL1 v" this.__var("thanks"), % _("Thanks")
+            Gui, Add, Button, % "x+2 y30 w65 gL1 v" this.__var("sold"), % _("Sold")
             Gui, Add, Button, % "x+2 y30 gL1 v" this.__var("ask"), ?
         } else {
             Gui, Font, cFEFE76 bold s10, Fontin SmallCaps
             Gui, Add, Text, % "y6 w100 gL1 v" this.__var("whois"), % ellipsis(this.player, 12)
             Gui, Font, cFFFAFA bold s10
             Gui, Add, Text, ys, % this.item1.rawText " => "
-            Gui, Font, c47E635 bold s10
+            Gui, Font, cD20000 bold s10
             Gui, Add, Text, % "x+0 gL1 v" this.__var("checkItem"), % this.item2.rawText
 
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x500 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
-            Gui, Add, Button, % "x+2 y5 w52 gL1 v" this.__var("trade"), Trade
-            Gui, Add, Button, % "x+2 y5 w52 gL1 v" this.__var("invite"), Invite
-            Gui, Add, Button, % "x+2 y5 w52 gL1 v" this.__var("kick"), Kick
-            Gui, Add, Button, % "x+2 y5 w52 gL1 v" this.__var("1sec"), 1 sec
-            Gui, Add, Button, % "x+2 y5 w52 gL1 v" this.__var("thanks"), Thanks
-            Gui, Add, Button, % "x+2 y5 w52 gL1 v" this.__var("sold"), Sold
+            Gui, Add, Button, % "x+2 y5 w62 gL1 v" this.__var("trade"), % _("Trade")
+            Gui, Add, Button, % "x+2 y5 w62 gL1 v" this.__var("invite"), % _("Invite")
+            Gui, Add, Button, % "x+2 y5 w61 gL1 v" this.__var("kick"), % _("Kick")
+            Gui, Add, Button, % "x+2 y5 w61 gL1 v" this.__var("1sec"), % _("1 sec")
+            Gui, Add, Button, % "x+2 y5 w61 gL1 v" this.__var("thanks"), % _("Thanks")
+            Gui, Add, Button, % "x+2 y5 w61 gL1 v" this.__var("sold"), % _("Sold")
             Gui, Add, Button, % "x+2 y5 w17 gL1 v" this.__var("ask"), ?
             Gui, Add, Button, % "x+2 y5 gL1 v" this.__var("close"), X
         }
@@ -496,17 +494,17 @@ class OutgoingTradeSession extends TradeSession {
             Gui, Add, Text, % "ys x+10 gL1 v"  this.__var("checkItem"), %  "<= " this.item2.rawText
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x325 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
-            Gui, Add, Button, % "x350 y5 w55 gL1 v" this.__var("trade"), Trade
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("hideout"), Hideout
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("leave"), Leave
+            Gui, Add, Button, % "x350 y5 w65 gL1 v" this.__var("trade"), % _("Trade")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("hideout"), % _("Hideout")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("leave"), % _("Leave")
             Gui, Add, Button, % "x+2 y5 gL1 v" this.__var("close"), X
 
             Gui, Font, c47E635 bold s10
             Gui, Add, Text, % "xs y30 w350", % this.item1.rawText
             Gui, Font, bold s8
-            Gui, Add, Button, % "x350 y30 w55 c020f29 gL1 v" this.__var("whisper"), Whisper
-            Gui, Add, Button, % "x+2 y30 w55 gL1 v" this.__var("resend"), Resend
-            Gui, Add, Button, % "x+2 y30 w55 gL1 v" this.__var("thanks"), Thanks
+            Gui, Add, Button, % "x350 y30 w65 c020f29 gL1 v" this.__var("whisper"), % _("Whisper")
+            Gui, Add, Button, % "x+2 y30 w65 gL1 v" this.__var("resend"), % _("Resend")
+            Gui, Add, Button, % "x+2 y30 w65 gL1 v" this.__var("thanks"), % _("Thanks")
         } else {
             Gui, Font, cFEFE76 bold s10, Fontin SmallCaps
             Gui, Add, Text, % "y6 w100 gL1 v" this.__var("whois"), % ellipsis(this.player, 13)
@@ -517,12 +515,12 @@ class OutgoingTradeSession extends TradeSession {
 
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x500 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("trade"), Trade
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("hideout"), Hideout
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("leave"), Leave
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("whisper"), Whisper
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("resend"), Resend
-            Gui, Add, Button, % "x+2 y5 w55 gL1 v" this.__var("thanks"), Thanks
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("trade"), % _("Trade")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("hideout"), % _("Hideout")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("leave"), % _("Leave")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("whisper"), % _("Whisper")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("resend"), % _("Resend")
+            Gui, Add, Button, % "x+2 y5 w65 gL1 v" this.__var("thanks"), % _("Thanks")
             Gui, Add, Button, % "x+2 y5 gL1 v" this.__var("close"), X
         }
 
