@@ -16,8 +16,10 @@ SetWorkingDir %A_ScriptDir%
 #Include, %A_ScriptDir%\Settings.ahk
 
 If (Not A_IsAdmin) {
-    Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
-    ExitApp
+    try {
+        Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
+        ExitApp
+    }
 }
 
 EnvGet, homepath, USERPROFILE
@@ -47,7 +49,7 @@ global logger := new Logger("PoEapikit log",,, Not ShowLogger)
 global ptask := new PoETask()
 global trader := new Trader()
 
-version := "0.5.1"
+version := "0.5.2"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("PoEapikit v{} (" _("powered by") " PoEapi v{})", version, poeapiVersion)
 
@@ -185,6 +187,8 @@ return
 #IfWinActive
 
 ^r::
+Reload:
+    DllCall("RemoveFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
     Reload
 return
 
@@ -207,9 +211,72 @@ return
     MsgBox, % "Width:" ptask.Width " Hieght:" ptask.Height "`nX=" tempX " Y=" tempY "`nColor=" bgr
 return
 
+class PassiveSkill extends Element {
+
+    __init() {
+        address := this.getPtr(this.address + 0x1b0)
+        this.u1 := this.getByte(this.address + 0x380)
+
+        address := this.getPtr(address + 0x10)
+        this.id := this.getInt(address + 0x30)
+        address := this.getPtr(address + 0x34)
+        this.name := this.getString(address, 64)
+    }
+
+    toString() {
+        return Format("{:x}: {}{}, {:x}, {:x}, {:x}", this.address, this.u1 ? "*" : "", this.name, this.u1, this.u2, this.u3)
+    }
+}
+
 F12::
     logger.show(!logger.isVisible())
 return
 
 F10::
+    p := ptask.getPlugin("MinimapSymbol")
+    objdump(p.getPacks(),, 2)
+    return
+
+    ptask.c.clear()
+    ingameUI := ptask.getIngameUI()
+    passiveSkillTree := ingameUI.getChild(26, 1)
+
+    r := passiveSkillTree.getPos()
+    x := r.w / 2
+    y := r.h / 2 ; - 1400
+
+    ;passiveSkillTree := ingameUI.getChild(26, 1, 569)
+    ;debug("{} {} {} {}", r.l, r.t, x, y)
+    ;passiveSkillTree.draw(,, 3, x, y)
+    return
+
+    passiveSkills := {}
+    for i, e in passiveSkillTree.getChilds() {
+        if (e.hasChild()) {
+            for j, node in e.childs {
+                if (node.hasChild()) {
+                } else {
+                    node.base := PassiveSkill
+                    node.__init()
+                    passiveSkills[node.id] := node
+                }
+            }
+        }
+    }
+
+    debug("Total {} nodes.", passiveSkills.Count())
+    for i, id in ptask.getPassiveSkills() {
+        debug("{:3d}. {:4x}, {}", i, id, passiveSkills[id].name)
+    }
+    return
+
+
+    ptask.c.clear()
+    for i, s in passiveSkills {
+        if (s.u1) {
+            debug(i "." s.toString())
+            r := s.getPos()
+            ptask.c.drawRect(r.l + x, r.t + y, r.w, r.h, 0xffff, 3)
+        }
+    }
 return
