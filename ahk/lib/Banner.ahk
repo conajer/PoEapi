@@ -39,7 +39,7 @@ class Banner extends AhkGui {
 
         WinGetPos, x, y, w, h, ahk_id %ownerHwnd%
         y := (y < 0) ? -5 : 0
-        Gui, __banner:New, -Caption +AlwaysOnTop +HwndHwnd +LastFound
+        Gui, __banner:New, -Caption +AlwaysOnTop +Toolwindow +HwndHwnd +LastFound
         Gui, Margin, 0, 0
         Gui, Color, White
         Gui, Font, cRed bold, Fontin SmallCaps

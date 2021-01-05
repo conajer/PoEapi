@@ -12,7 +12,7 @@ Class Canvas extends AhkGui {
         guiID := Format("__canvas{:x}", &this)
         r := this.getClientRect(ownerHwnd)
         WS_EX_TRANSPARENT := 0x20
-        Gui, %guiID%:New, +AlwaysOnTop +HwndHwnd +E%WS_EX_TRANSPARENT% -Caption +LastFound
+        Gui, %guiID%:New, +AlwaysOnTop +Toolwindow +HwndHwnd +E%WS_EX_TRANSPARENT% -Caption +LastFound
         Gui, %guiID%:Color, __bgColor
         Gui, %guiID%:Show
         WinSet, TransColor, __bgColor
