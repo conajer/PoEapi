@@ -31,10 +31,13 @@ public:
     AutoPickup* auto_pickup;
     bool is_attached = false;
     bool is_active = false;
+    unsigned int player_timer_period = 66;
 
     PoETask() : Task(L"PoETask"), auto_pickup(new AutoPickup()),
         ignored_entity_exp(L"Doodad|WorldItem")
     {
+        add_property(L"playerTimerPeriod", &player_timer_period, AhkInt);
+
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
         add_method(L"enablePlugin", this, (MethodType)&PoETask::enable_plugin, AhkVoid, ParamList{AhkWString});
@@ -383,7 +386,7 @@ public:
         add_plugin(auto_pickup);
 
         /* create jobs */
-        start_job(135, [&] {this->check_player();});
+        start_job(player_timer_period, [&] {this->check_player();});
         start_job(33, [&] {this->check_labeled_entities();});
         start_job(55, [&] {this->check_entities();});
 
