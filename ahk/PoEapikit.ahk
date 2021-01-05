@@ -15,6 +15,11 @@ SetWorkingDir %A_ScriptDir%
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
+If (Not A_IsAdmin) {
+    Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
+    ExitApp
+}
+
 EnvGet, homepath, USERPROFILE
 FileRead, production_config, %HOMEPATH%\Documents\My Games\Path of Exile\production_Config.ini
 production_config := SubStr(production_config, 1)
@@ -42,7 +47,7 @@ global logger := new Logger("PoEapikit log",,, Not ShowLogger)
 global ptask := new PoETask()
 global trader := new Trader()
 
-version := "0.5.0"
+version := "0.5.1"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("PoEapikit v{} (" _("powered by") " PoEapi v{})", version, poeapiVersion)
 

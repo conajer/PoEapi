@@ -36,7 +36,9 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                                             , "size"               : 8
                                             , "borderColor"        : 0xffffff
                                             , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter" }
-                        , "PlayerStatus"  : { "enabled" : true } }
+                        , "PlayerStatus"  : { "enabled" : true
+                                            , "autoQuitThresholdPercentage" : 20
+                                            , "autoQuitMinLevel"   : 90 } }
 
 ; Canvas, doesn't support full screen mode
 global EnableCanvas := true
@@ -52,10 +54,6 @@ global ShowDebugMenu := false
 global ShowLogger := false
 global LogLevel := 0
 global ShowLogMessage := false
-
-; Auto quit
-global AutoQuitMinLevel := 90
-global AutoQuitThreshold := 20
 
 ; Flasks
 global LifeThreshold := 80

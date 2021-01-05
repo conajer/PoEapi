@@ -144,9 +144,6 @@ class Character extends LocalPlayer {
             selected.use()
         }
         this.life := life
-
-        if(ptask.player.level >= AutoQuitMinLevel && life < AutoQuitThreshold)
-            ptask.logout()
     }
 
     manaChanged(mana, lParam) {
