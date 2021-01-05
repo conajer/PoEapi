@@ -58,7 +58,7 @@ class Banner extends AhkGui {
         Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("hideout"), % _("Hideout")
         Gui, Add, Button, % "x+5 y0 gL1 v" this.__var("sellItems"), % _("Sell")
         Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("stashItems"), % _("Stash")
-        Gui, Add, Button, % "x+1 y0 gL1 v" this.__var("reload"), % _("Reload")
+        Gui, Add, Button, % "x+1 y0 gReload", % _("Reload")
 
         ; Extras buttons
         Gui, Add, Text, x+10
@@ -102,12 +102,6 @@ class Banner extends AhkGui {
     stashItems() {
         ptask.activate()
         ptask.stashItems()
-    }
-
-
-    reload() {
-        ptask.stop()
-        Reload
     }
 
     onKillCounter(kills, total) {
