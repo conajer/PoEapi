@@ -213,9 +213,8 @@ public:
         actor = get_component<Actor>();;
 
         player_name = player->name();
-        player_class = player->class_name();
+        player_class = get_component<PlayerClass>()->name();
         level = player->level();
-
     }
 
     void __new() {
