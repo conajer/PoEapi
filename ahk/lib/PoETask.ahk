@@ -92,7 +92,6 @@ class PoETask extends AhkObj {
         OnMessage(WM_HEIST_CHEST, ObjBindMethod(this, "onHeistChest"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "attach"))
-        OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
 
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
 
@@ -153,6 +152,7 @@ class PoETask extends AhkObj {
         if (EnableBanner)
             this.banner := new Banner(hwnd)
         this.activate()
+        OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
     }
 
     onActive(hwnd) {
