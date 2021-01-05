@@ -27,10 +27,7 @@ public:
 
             if (player_name != player->name()) {
                 player_name = player->name();
-                PostThreadMessage(thread_id,
-                                  WM_PLAYER_CHANGED,
-                                  (WPARAM)(AhkObjRef*)*player,
-                                  (LPARAM)0);
+                PostThreadMessage(thread_id, WM_PLAYER_CHANGED, (WPARAM)player_name.c_str(), (LPARAM)0);
             }
         }
 
