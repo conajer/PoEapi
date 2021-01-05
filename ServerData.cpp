@@ -198,6 +198,9 @@ public:
         is_affinity = read<byte>("is_affinity");
         affinities = read<int>("affinities");
 
+        if (flags &  RemoveOnly)
+            name = name + L" (Remove-only)";
+
         add_method(L"getId", this, (MethodType)&StashTab::inventory_id, AhkInt);
     }
 
