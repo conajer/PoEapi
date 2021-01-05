@@ -176,6 +176,7 @@ Factory<RemoteMemoryObject> RemoteMemoryObject::factory = {
     NEW_ENTRY(NPC),
     NEW_ENTRY(ObjectMagicProperties),
     NEW_ENTRY(Player),
+    NEW_ENTRY(PlayerClass),
     NEW_ENTRY(Positioned),
     NEW_ENTRY(Prophecy),
     NEW_ENTRY(Quality),

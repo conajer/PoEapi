@@ -51,6 +51,7 @@ public:
 #include "components/NPC.cpp"
 #include "components/ObjectMagicProperties.cpp"
 #include "components/Player.cpp"
+#include "components/PlayerClass.cpp"
 #include "components/Positioned.cpp"
 #include "components/Prophecy.cpp"
 #include "components/Quality.cpp"
