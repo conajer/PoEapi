@@ -91,7 +91,7 @@ class PoETask extends AhkObj {
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
         OnMessage(WM_HEIST_CHEST, ObjBindMethod(this, "onHeistChest"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
-        OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "attach"))
+        OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
 
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
 
@@ -105,7 +105,7 @@ class PoETask extends AhkObj {
         StashRules.base := Rules
     }
 
-    attach(hwnd) {
+    onAttached(hwnd) {
         if (Not hwnd) {
             ; PoE window was closed.
             this.c.destory()
