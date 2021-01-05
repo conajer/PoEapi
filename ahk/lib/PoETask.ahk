@@ -362,9 +362,8 @@ class PoETask extends AhkObj {
         this.chat := this.getChat()
     }
 
-    playerChanged(player) {
-        this.player := Object(player)
-        name := this.player.name
+    playerChanged(name) {
+        this.player := this.getPlayer()
         this.player.base := IsObject(%name%) ? %name% : Character
         this.player.__new()
         syslog(this.player.whois())
