@@ -4,7 +4,7 @@
 ; Transparent canvas window overlapped on the Path of Exile window.
 ;
 
-Class Canvas {
+Class Canvas extends AhkGui {
 
     __bgColor := EEAA99
 
@@ -12,7 +12,7 @@ Class Canvas {
         guiID := Format("__canvas{:x}", &this)
         r := this.getClientRect(ownerHwnd)
         WS_EX_TRANSPARENT := 0x20
-        Gui, %guiID%:New, +Owner%ownerHwnd% +HwndHwnd +E%WS_EX_TRANSPARENT% -Caption +LastFound
+        Gui, %guiID%:New, +AlwaysOnTop +HwndHwnd +E%WS_EX_TRANSPARENT% -Caption +LastFound
         Gui, %guiID%:Color, __bgColor
         Gui, %guiID%:Show
         WinSet, TransColor, __bgColor

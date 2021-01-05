@@ -7,6 +7,10 @@
 
 class AhkGui {
 
+    show(visible = true, noActivate = false) {
+        DllCall("ShowWindow", "Int", this.Hwnd, "Int", visible + (noActivate << 2))
+    }
+
     __var(name) {
         return "__obj" &this "_" name
     }
@@ -35,7 +39,7 @@ class Banner extends AhkGui {
 
         WinGetPos, x, y, w, h, ahk_id %ownerHwnd%
         y := (y < 0) ? -5 : 0
-        Gui, __banner:New, -Caption +Owner%ownerHwnd% +HwndHwnd +LastFound
+        Gui, __banner:New, -Caption +AlwaysOnTop +HwndHwnd +LastFound
         Gui, Margin, 0, 0
         Gui, Color, White
         Gui, Font, cRed bold, Fontin SmallCaps
@@ -63,6 +67,7 @@ class Banner extends AhkGui {
 
         Gui, Show, % "x" x + 150 "y" y + 6
 
+        this.Hwnd := hwnd
         OnMessage(WM_PLAYER_LIFE, ObjBindMethod(this, "lifeChanged"))
         OnMessage(WM_PLAYER_MANA, ObjBindMethod(this, "manaChanged"))
         OnMessage(WM_PLAYER_ES, ObjBindMethod(this, "energyShieldChanged"))

@@ -2,7 +2,7 @@
 ; logger.ahk, 8/30/2020 1:33 PM
 ;
 
-class Logger {
+class Logger extends AhkGui {
 
     __new(title, filename = "", level = 0, hideWindow = false) {
         static __mshtml
@@ -72,15 +72,6 @@ class Logger {
 
     isVisible() {
         return WinExist("ahk_id " this.Hwnd)
-    }
-
-    show(visible = true, active = true) {
-        if (Not visible) {
-            Gui, __logger:Hide
-            return
-        }
-
-        Gui, __logger:Show, % !active ? "NoActivate" :
     }
 
     __log(aText) {
