@@ -9,12 +9,11 @@ class MonsterPack : public AhkObj {
 public:
 
     int margin = 5;
-    int max_radius = 300;
+    float max_radius = 500.;
     int count;
     int rarity;
     int l, t, r, b;
-    int cx, cy;
-    int n;
+    float cx, cy;
 
     MonsterPack(Entity* monster, int x, int y) : cx(x), cy(y) {
         l = x - margin;
@@ -24,7 +23,6 @@ public:
 
         count = 1;
         rarity = monster->rarity;
-        n = 0;
     }
 
     void __new() {
@@ -32,13 +30,12 @@ public:
               L"l", l, AhkInt, L"t", t, AhkInt, L"r", r, AhkInt, L"b", b, AhkInt,
               L"count", count, AhkInt,
               L"rarity", rarity, AhkInt,
-              L"n", n, AhkInt,
               nullptr);
     }
 
     bool add(Entity* monster, int x, int y) {
-        n++;
-        if (sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) > max_radius)
+        float dist = sqrtf((x - cx) * (x - cx) + (y - cy) * (y - cy));
+        if (dist > max_radius)
             return false;
 
         count++;
