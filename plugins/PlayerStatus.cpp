@@ -50,7 +50,7 @@ public:
             }
         }
 
-        if (current_life * 100 / maximum < threshold_percentage)
+        if (local_player->level >= min_level && current_life * 100 / maximum < threshold_percentage)
             poe->logout();
 
         int current_mana = local_player->life->mana();
@@ -71,7 +71,7 @@ public:
             this->energy_shield = current_es;
         }
 
-        if (life == 1 && current_es * 100 / maximum < threshold_percentage)
+        if (life == 1 && local_player->level >= min_level && current_es * 100 / maximum < threshold_percentage)
             poe->logout();
 
         /* action */
