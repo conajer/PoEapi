@@ -24,7 +24,7 @@ public:
     }
 };
 
-static std::map<string, int> game_state_controller_offsets {
+std::map<string, int> game_state_controller_offsets {
     {"active_game_states", 0x20},
         {"current",         0x0},
     {"game_states",        0x48},
@@ -89,7 +89,7 @@ struct Matrix4x4 {
     }
 };
 
-static std::map<string, int> in_game_state_offsets {
+std::map<string, int> in_game_state_offsets {
     {"name",          0x10},
     {"in_game_ui",    0x80},
     {"in_game_data", 0x500},

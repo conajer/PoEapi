@@ -42,7 +42,7 @@ public:
     }
 };
 
-static std::map<string, int> inventory_offsets {
+std::map<string, int> inventory_offsets {
     {"id",               0x0},
     {"internal",         0x8},
         {"type",         0x0},
@@ -169,7 +169,7 @@ enum StashTabFlags {
     IsHidden   = 0x80,
 };
 
-static std::map<string, int> stash_tab_offsets {
+std::map<string, int> stash_tab_offsets {
     {"name",          0x8},
     {"inventory_id", 0x28},
     {"type",         0x34},
@@ -235,7 +235,7 @@ static bool compare_stash_tab(shared_ptr<StashTab>& tab1, shared_ptr<StashTab>& 
     return tab1->index < tab2->index;
 }
 
-static std::map<string, int> server_data_offsets {
+std::map<string, int> server_data_offsets {
     {"player_data",                0x7898},
         {"passive_skills",          0x160},
         {"player_class",            0x200},

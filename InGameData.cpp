@@ -25,7 +25,7 @@ public:
     }
 };
 
-static std::map<string, int> in_game_data_offsets {
+std::map<string, int> in_game_data_offsets {
     {"world_area",         0x68},
     {"area_level",         0x80},
     {"area_hash",          0xe4},

@@ -17,6 +17,18 @@
 #include "plugins/PlayerStatus.cpp"
 #include "plugins/KillCounter.cpp"
 
+static std::map<wstring, std::map<string, int>&> offsets = {
+    {L"GameStates", game_state_controller_offsets},
+    {L"IngameState", in_game_state_offsets},
+    {L"IngameData", in_game_data_offsets},
+    {L"IngameUI", in_game_ui_offsets},
+    {L"ServerData", server_data_offsets},
+    {L"Entity", entity_offsets},
+    {L"Element", element_offsets},
+    {L"StashTab", stash_tab_offsets},
+    {L"Inventory", inventory_offsets},
+};
+
 class PoETask : public PoE, public Task {
 public:
     
@@ -57,6 +69,7 @@ public:
         add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
         add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject);
         add_method(L"getPlayer", this, (MethodType)&PoETask::get_player, AhkObject);
+        add_method(L"setOffset", this, (MethodType)&PoETask::set_offset, AhkVoid, ParamList{AhkWString, AhkString, AhkInt});
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
@@ -250,6 +263,12 @@ public:
         if (local_player)
             return (AhkObjRef*)*local_player;
         return nullptr;
+    }
+
+    void set_offset(wchar_t* catalog, char* key, int value) {
+        auto i = offsets.find(catalog);
+        if (i != offsets.end())
+            i->second[key] = value;
     }
 
     bool is_in_game() {

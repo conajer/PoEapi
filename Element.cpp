@@ -10,7 +10,7 @@ struct Rect {
     int x, y, w, h;
 };
 
-static std::map<string, int> element_offsets {
+std::map<string, int> element_offsets {
     {"self",          0x18},
     {"childs",        0x38},
     {"root",          0x88},

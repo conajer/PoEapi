@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <math.h>
 
-static FieldOffsets entity_offsets = {
+FieldOffsets entity_offsets = {
     {"internal",        0x8},
         {"path",        0x8},
     {"component_list", 0x10},

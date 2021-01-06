@@ -13,7 +13,7 @@
 #include "ui/Chat.cpp"
 #include "ui/NotificationArea.cpp"
 
-static std::map<string, int> in_game_ui_offsets {
+std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x520},
         {"grid",        0x3a8},
     {"stash",           0x528},
