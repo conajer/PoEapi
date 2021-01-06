@@ -40,8 +40,6 @@ public:
 
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
-        add_method(L"enablePlugin", this, (MethodType)&PoETask::enable_plugin, AhkVoid, ParamList{AhkWString});
-        add_method(L"disablePlugin", this, (MethodType)&PoETask::disable_plugin, AhkVoid, ParamList{AhkWString});
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
@@ -227,26 +225,6 @@ public:
         plugin->on_load(*this, owner_thread_id);
 
         log(L"added plugin %S %s", plugin->name.c_str(), plugin->version.c_str());
-    }
-
-    void enable_plugin(const wchar_t* name) {
-        for (auto& i : plugins) {
-            if (!i->enabled && i->name == name) {
-                i->enabled = true;
-                log(L"enabled plugin %S", i->name.c_str());
-                break;
-            }
-        }
-    }
-
-    void disable_plugin(const wchar_t* name) {
-        for (auto& i : plugins) {
-            if (i->enabled && i->name == name) {
-                i->enabled = false;
-                log(L"disabled plugin %S", i->name.c_str());
-                break;
-            }
-        }
     }
 
     AhkObjRef* get_plugins() {
