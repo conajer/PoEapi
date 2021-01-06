@@ -5,7 +5,7 @@
 class Messenger : public PoEPlugin {
 public:
 
-    Messenger() : PoEPlugin(L"Chatter", "0.1") {
+    Messenger() : PoEPlugin(L"Messenger", "0.1") {
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
