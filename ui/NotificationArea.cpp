@@ -7,11 +7,9 @@ public:
 
     std::vector<shared_ptr<Element>> notifications;
     shared_ptr<Element> last_notification;
-    int index;
+    int index = 0;
 
     NotificationArea(addrtype address) : Element(address) {
-        index = child_count();
-
         add_method(L"hasNext", this, (MethodType)&NotificationArea::has_next, AhkBool);
         add_method(L"nextNotification", this, (MethodType)&NotificationArea::next_notification, AhkWStringPtr);
     }
