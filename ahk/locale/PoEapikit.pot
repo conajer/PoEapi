@@ -84,6 +84,86 @@ msgstr ""
 msgid "The Rogue Harbour"
 msgstr ""
 
+# Character class
+
+msgid "Scion"
+msgstr ""
+
+msgid "Ascendant"
+msgstr ""
+
+msgid "Marauder"
+msgstr ""
+
+msgid "Juggernaut"
+msgstr ""
+
+msgid "Berserker"
+msgstr ""
+
+msgid "Chieftain"
+msgstr ""
+
+msgid "Ranger"
+msgstr ""
+
+msgid "Raider"
+msgstr ""
+
+msgid "Deadeye"
+msgstr ""
+
+msgid "Pathfinder"
+msgstr ""
+
+msgid "Witch"
+msgstr ""
+
+msgid "Occultist"
+msgstr ""
+
+msgid "Elementalist"
+msgstr ""
+
+msgid "Necromancer"
+msgstr ""
+
+msgid "Duelist"
+msgstr ""
+
+msgid "Slayer"
+msgstr ""
+
+msgid "Gladiator"
+msgstr ""
+
+msgid "Champion"
+msgstr ""
+
+msgid "Templar"
+msgstr ""
+
+msgid "Inquisitor"
+msgstr ""
+
+msgid "Hierophant"
+msgstr ""
+
+msgid "Guardian"
+msgstr ""
+
+msgid "Shadow"
+msgstr ""
+
+msgid "Assassin"
+msgstr ""
+
+msgid "Trickster"
+msgstr ""
+
+msgid "Saboteur"
+msgstr ""
+
 # Trader
 
 msgid "Trade"
@@ -255,7 +335,7 @@ msgstr ""
 msgid "No items"
 msgstr ""
 
-msgid "Stash tab name"
+msgid "Stash tab name:"
 msgstr ""
 
 msgid "Stash tabs:"
