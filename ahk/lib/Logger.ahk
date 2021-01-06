@@ -12,7 +12,7 @@ class Logger extends AhkGui {
         Gui, Font, 10, Courier New
         Gui, __logger:Add, ActiveX, Border VScroll r35 w690 v__mshtml, about:
         Gui, __logger:Show, Hide x10 y50 w700 h460
-        this.show(Not hideWindow, false)
+        Gui, __logger:Show, % hideWindow ? "Hide" : "NoActivate"
 
         clearMethod := ObjBindMethod(this, "clear")
         Menu, Tray, NoStandard

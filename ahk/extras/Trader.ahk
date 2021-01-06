@@ -455,7 +455,7 @@ class IncomingTradeSession extends TradeSession {
             Gui, Font, cFFFAFA bold s10
             Gui, Add, Text, ys, % this.item1.rawText " => "
             Gui, Font, cD20000 bold s10
-            Gui, Add, Text, % "x+0 gL1 v" this.__var("checkItem"), % this.item2.rawText
+            Gui, Add, Text, % "x+0 w300 gL1 v" this.__var("checkItem"), % this.item2.rawText
 
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x500 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s

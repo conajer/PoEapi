@@ -49,9 +49,9 @@ global logger := new Logger("PoEapikit log",,, Not ShowLogger)
 global ptask := new PoETask()
 global trader := new Trader()
 
-version := "0.5.2"
+version := "0.6.0"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
-syslog("PoEapikit v{} (" _("powered by") " PoEapi v{})", version, poeapiVersion)
+syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, ~%AttackSkillKey%, Attack
@@ -230,53 +230,4 @@ class PassiveSkill extends Element {
 
 F12::
     logger.show(!logger.isVisible())
-return
-
-F10::
-    p := ptask.getPlugin("MinimapSymbol")
-    objdump(p.getPacks(),, 2)
-    return
-
-    ptask.c.clear()
-    ingameUI := ptask.getIngameUI()
-    passiveSkillTree := ingameUI.getChild(26, 1)
-
-    r := passiveSkillTree.getPos()
-    x := r.w / 2
-    y := r.h / 2 ; - 1400
-
-    ;passiveSkillTree := ingameUI.getChild(26, 1, 569)
-    ;debug("{} {} {} {}", r.l, r.t, x, y)
-    ;passiveSkillTree.draw(,, 3, x, y)
-    return
-
-    passiveSkills := {}
-    for i, e in passiveSkillTree.getChilds() {
-        if (e.hasChild()) {
-            for j, node in e.childs {
-                if (node.hasChild()) {
-                } else {
-                    node.base := PassiveSkill
-                    node.__init()
-                    passiveSkills[node.id] := node
-                }
-            }
-        }
-    }
-
-    debug("Total {} nodes.", passiveSkills.Count())
-    for i, id in ptask.getPassiveSkills() {
-        debug("{:3d}. {:4x}, {}", i, id, passiveSkills[id].name)
-    }
-    return
-
-
-    ptask.c.clear()
-    for i, s in passiveSkills {
-        if (s.u1) {
-            debug(i "." s.toString())
-            r := s.getPos()
-            ptask.c.drawRect(r.l + x, r.t + y, r.w, r.h, 0xffff, 3)
-        }
-    }
 return

@@ -28,7 +28,7 @@ toggleLogMessage() {
 }
 
 popupDebugCommands() {
-    Menu, __debugMenu, % ShowLogMessage ? "Check" : "Uncheck", Show log messages
+    Menu, __debugMenu, % ShowLogMessage ? "Check" : "Uncheck", % _("Show log messages")
     Menu, __debugMenu, Show
 }
 

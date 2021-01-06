@@ -2,6 +2,7 @@
 ; PoETask.ahk, 9/16/2020 10:36 PM
 ;
 
+#Include, %A_ScriptDir%\lib\PoEOffsets.ahk
 #Include, %A_ScriptDir%\lib\Banner.ahk
 #Include, %A_ScriptDir%\lib\Canvas.ahk
 #include, %A_ScriptDir%\lib\Logger.ahk
@@ -133,6 +134,12 @@ class PoETask extends AhkObj {
         this.width := w
         this.height := h
         this.actionArea := new Rect(210, 90, w - 450, h - 260)
+
+        ; Update offsets
+        for catalog, offsets in PoEOffsets.offsets {
+            for key, value in offsets
+                this.setOffset(catalog, key, value)
+        }
 
         ; Configure plugins
         plugins := this.getPlugins()
@@ -350,7 +357,7 @@ class PoETask extends AhkObj {
                 this.savedXP := 0
                 lvl := this.player.level
 
-                syslog("{:.2f}% " _("experience gained"), gainedXP * 100 / levelXP[lvl])
+                syslog(_("{:.2f}% experience gained"), gainedXP * 100 / levelXP[lvl])
             }
         }
 
