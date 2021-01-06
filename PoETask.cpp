@@ -285,6 +285,8 @@ public:
         if (h != hwnd) {
             if (is_active) {
                 PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
+                Sleep(300);
+                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
                 is_active = false;
             }
         } else if (!is_active) {
