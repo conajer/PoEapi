@@ -51,6 +51,9 @@ public:
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
+    }
+
+    void __new() {
         get_inventory();
         get_stash();
         get_vendor();
@@ -59,9 +62,7 @@ public:
         get_overlay_map();
         get_chat();
         get_notification_area();
-    }
 
-    void __new() {
         Element::__new();
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
               L"stash", (AhkObjRef*)*stash, AhkObject,
