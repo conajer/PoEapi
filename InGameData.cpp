@@ -106,7 +106,7 @@ public:
 
             addrtype entity_address = PoEMemory::read<addrtype>(node + 0x28);
             if ((__int64)entity_address & 0x7                   /* not 64-bit aligned */
-                || entity_address < (addrtype)0x100000000       /* invalid address */
+                || entity_address < (addrtype)0x10000000        /* invalid address */
                 || entity_address > (addrtype)0x7F0000000000)
                 continue;
 
