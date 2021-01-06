@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "powered by"
+msgid "Powered by"
 msgstr ""
 
 msgid "{} is a level {} {} in the {} league"
@@ -45,7 +45,7 @@ msgstr ""
 msgid "Kills"
 msgstr ""
 
-msgid "experience gained"
+msgid "{:.2f}% experience gained"
 msgstr ""
 
 msgid "Hideout"
@@ -134,7 +134,7 @@ msgstr ""
 msgid "Checking offer"
 msgstr ""
 
-msgid "placed"
+msgid "{} {} placed"
 msgstr ""
 
 msgid "Trade seesion expired"
@@ -146,13 +146,13 @@ msgstr ""
 msgid "You have left the party."
 msgstr ""
 
-msgid "has joined your party."
+msgid "(.*) has joined your party."
 msgstr ""
 
-msgid "has left the party."
+msgid "(.*) has left the party."
 msgstr ""
 
-msgid "has joined the area."
+msgid "(.*) has joined the area."
 msgstr ""
 
 msgid "Trade accepted."
@@ -161,10 +161,10 @@ msgstr ""
 msgid "Trade cancelled."
 msgstr ""
 
-msgid "sent you a party invite"
+msgid "(.*) sent you a party invite"
 msgstr ""
 
-msgid "sent you a trade request"
+msgid "(.*) sent you a trade request"
 msgstr ""
 
 msgid "You cannot currently access this player's area."
@@ -252,7 +252,7 @@ msgstr ""
 msgid "Inventory slots:"
 msgstr ""
 
-msgid "No items."
+msgid "No items"
 msgstr ""
 
 msgid "Stash tab name"
@@ -261,23 +261,20 @@ msgstr ""
 msgid "Stash tabs:"
 msgstr ""
 
-msgid "No stash tabs."
+msgid "No stash tabs"
 msgstr ""
 
-msgid "No vendor selected."
+msgid "No vendor selected"
 msgstr ""
 
 msgid "{}'s services:"
 msgstr ""
 
-msgid "No flasks."
+msgid "No flasks"
 msgstr ""
 
 msgid "Flasks:"
 msgstr ""
 
 msgid "Flask slot:"
-msgstr ""
-
-msgid ""
 msgstr ""
