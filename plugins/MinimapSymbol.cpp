@@ -87,7 +87,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.1") {
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.3") {
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
         add_property(L"size", &size, AhkInt);
         add_property(L"borderColor", &border_color, AhkInt);
