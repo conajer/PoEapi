@@ -163,14 +163,13 @@ class PoETask extends AhkObj {
     }
 
     onActive(hwnd) {
-        if (hwnd == this.Hwnd) {
+        if (hwnd == this.Hwnd && WinActive("ahk_id " this.Hwnd)) {
             Sleep, 300
             this.banner.show(true, false)
-            this.c.show(true, false)
             this.hud.show(true, false)
         } else if (hwnd != this.banner.hwnd) {
             this.banner.show(false, false)
-            this.c.show(false, false)
+            this.c.clear()
             this.hud.show(false, false)
         }
     }
