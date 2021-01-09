@@ -55,7 +55,6 @@ public:
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
-        add_method(L"getXP", this, (MethodType)&PoETask::get_xp, AhkUInt);
         add_method(L"getInventory", this, (MethodType)&PoETask::get_inventory, AhkObject);
         add_method(L"getInventorySlots", this, (MethodType)&PoETask::get_inventory_slots, AhkObject);
         add_method(L"getIngameUI", this, (MethodType)&PoETask::get_ingame_ui, AhkObject);
@@ -89,14 +88,6 @@ public:
 
     int get_latency() {
         return in_game_state->server_data()->latency();
-    }
-
-    unsigned long get_xp() {
-        if (local_player) {
-            return local_player->get_component<Player>()->xp();
-        }
-
-        return 0;
     }
 
     AhkObjRef* get_nearest_entity(const wchar_t* text) {
