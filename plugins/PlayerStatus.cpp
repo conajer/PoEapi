@@ -47,7 +47,7 @@ public:
             }
         }
 
-        if (local_player->level >= min_level && current_life * 100 / maximum < threshold_percentage)
+        if (local_player->level() >= min_level && current_life * 100 / maximum < threshold_percentage)
             poe->logout();
 
         int current_mana = local_player->life->mana();
@@ -68,7 +68,7 @@ public:
             this->energy_shield = current_es;
         }
 
-        if (life == 1 && local_player->level >= min_level && current_es * 100 / maximum < threshold_percentage)
+        if (life == 1 && local_player->level() >= min_level && current_es * 100 / maximum < threshold_percentage)
             poe->logout();
 
         /* action */
@@ -90,7 +90,7 @@ public:
         }
     }
 
-    void on_area_changed(AreaTemplate* world_area, int hash_code) {
+    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
         bool is_town = world_area->is_town();
         PostThreadMessage(thread_id,
                           WM_AREA_CHANGED,
