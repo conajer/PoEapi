@@ -72,7 +72,7 @@ template <> wstring read<wstring>(HANDLE handle, addrtype address) {
     unsigned int len = read<int>(handle, address + 0x10);
     unsigned int max_len = read<int>(handle, address + 0x18);
 
-    if (len <= max_len && len < 256) {
+    if (len <= max_len && len < 512 && max_len < 1024) {
         wchar_t buffer[len + 1];
         if (max_len >= 8)
             address = read<addrtype>(handle, address);
