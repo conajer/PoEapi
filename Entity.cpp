@@ -201,27 +201,28 @@ public:
 
     wstring player_name;
     wstring player_class;
-    int level;
     Life* life;
+    Player* player;
     Positioned* positioned;
     Actor* actor;
 
     LocalPlayer(addrtype address) : Entity(address) {
-        Player* player = get_component<Player>();
+        player = get_component<Player>();
         life = get_component<Life>();
         positioned = get_component<Positioned>();;
         actor = get_component<Actor>();;
 
         player_name = player->name();
         player_class = get_component<PlayerClass>()->name();
-        level = player->level();
+
+        add_method(L"level", this, (MethodType)&LocalPlayer::level, AhkInt);
+        add_method(L"getExp", this, (MethodType)&LocalPlayer::get_exp, AhkInt);
     }
 
     void __new() {
         Entity::__new();
         __set(L"name", player_name.c_str(), AhkWString,
               L"className", player_class.c_str(), AhkWString,
-              L"level", level, AhkInt,
               nullptr);
     }
 
@@ -243,6 +244,14 @@ public:
         int dy = pos1.y - pos2.y;
 
         return sqrt(dx * dx + dy * dy);
+    }
+
+    int level() {
+        return player->level();
+    }
+
+    unsigned int get_exp() {
+        return player->exp();
     }
 };
 
