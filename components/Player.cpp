@@ -7,7 +7,7 @@
 static std::map<string, int> player_component_offsets {
     {"class", 0x150},
     {"name",  0x158},
-    {"xp",    0x17c},
+    {"exp",   0x17c},
     {"level", 0x1aa},
 };
 
@@ -26,8 +26,8 @@ public:
         return PoEMemory::read<wstring>(addr + 0x10, 16);
     }
 
-    unsigned long xp() {
-        return read<unsigned long>("xp");
+    unsigned long exp() {
+        return read<unsigned long>("exp");
     }
 
     int level() {
