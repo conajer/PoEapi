@@ -313,22 +313,22 @@ public:
         }
 
         InGameData* in_game_data = in_game_state->in_game_data();
-        if (in_game_data->area_hash() != area_hash) {
-            area_hash = in_game_data->area_hash();
-            AreaTemplate* world_area = in_game_data->world_area();
-            if (!world_area->name().empty()) {
-                league  = in_game_state->server_data()->league();
-                __set(L"league", league.c_str(), AhkWString,
-                      L"area", in_game_data->world_area()->name().c_str(), AhkWString,
-                      nullptr);
-
-                for (auto i : plugins)
-                    i->on_area_changed(in_game_data->world_area(), area_hash);
-            }
-        }
-
         local_player = in_game_data->local_player();
         if (local_player) {
+            if (in_game_data->area_hash() != area_hash) {
+                area_hash = in_game_data->area_hash();
+                AreaTemplate* world_area = in_game_data->world_area();
+                if (!world_area->name().empty()) {
+                    league  = in_game_state->server_data()->league();
+                    __set(L"league", league.c_str(), AhkWString,
+                          L"area", in_game_data->world_area()->name().c_str(), AhkWString,
+                          nullptr);
+
+                    for (auto i : plugins)
+                        i->on_area_changed(in_game_data->world_area(), area_hash, local_player);
+                }
+            }
+
             for (auto i : plugins)
                 if (i->enabled)
                     i->on_player(local_player, in_game_state);

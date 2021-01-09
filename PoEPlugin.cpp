@@ -42,7 +42,7 @@ public:
         this->player =  player;
     }
 
-    virtual void on_area_changed(AreaTemplate* world_area, int hash_code) {
+    virtual void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
     }
 
     virtual void on_entity_changed(EntityList& all, EntityList& removed, EntityList& added) {
