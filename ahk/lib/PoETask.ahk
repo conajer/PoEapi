@@ -345,12 +345,17 @@ class PoETask extends AhkObj {
         this.InMap := Not isTown && Not isHideout
         this.InHideout := isHideout
 
+        this.player := this.getPlayer()
+        playerName := this.player.name
+        this.player.base := IsObject(%playerName%) ? %playerName% : Character
+        this.player.__new()
+
         ; Calculate gained experience
         if (this.InMap) {
             if (Not this.savedXP)
-                this.savedXP := this.getXP()
+                this.savedXP := this.player.getXP()
         } else if (this.savedXP) {
-            currentXP := this.getXP()
+            currentXP := this.player.getXP()
             if (currentXP != this.savedXP) {
                 gainedXP := currentXP - this.savedXP
                 this.savedXP := 0
@@ -369,9 +374,6 @@ class PoETask extends AhkObj {
     }
 
     playerChanged(name) {
-        this.player := this.getPlayer()
-        this.player.base := IsObject(%name%) ? %name% : Character
-        this.player.__new()
         syslog(this.player.whois())
     }
 
