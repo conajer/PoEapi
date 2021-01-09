@@ -18,6 +18,7 @@ public:
     };
 
     std::map<int, shared_ptr<Entity>> ignored_entities;
+    std::map<addrtype, shared_ptr<Item>> dropped_items;
     shared_ptr<Entity> selected_item;
     RECT bounds;
     unsigned int range = 50, last_pickup = 0;
@@ -27,10 +28,13 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.2") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.3") {
         add_property(L"range", &range, AhkInt);
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
+        add_method(L"beginPickup", this, (MethodType)&AutoPickup::begin_pickup);
+        add_method(L"stopPickup", this, (MethodType)&AutoPickup::stop_pickup);
+        add_method(L"getDroppedItems", this, (MethodType)&AutoPickup::get_dropped_items, AhkObject);
 
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
@@ -93,10 +97,16 @@ public:
         return false;
     }
 
-    void on_labeled_entity_changed(EntityList& entities) {
-        if (!is_picking || !player)
-            return;
+    AhkObjRef* get_dropped_items() {
+        AhkObj items;
+        for (auto& i : dropped_items)
+            items.__set(L"", (AhkObjRef*)*i.second, AhkObject, nullptr);
+        __set(L"droppedItems", (AhkObjRef*)items, AhkObject, nullptr);
 
+        return items;
+    }
+
+    void on_labeled_entity_changed(EntityList& entities) {
         shared_ptr<Entity> nearest_item;
         int min_dist = range;
         for (auto& i : entities) {
@@ -126,6 +136,15 @@ public:
                     WorldItem* world_item = i.second->get_component<WorldItem>();
                     if (!world_item || !check_item(world_item->item()))
                         continue;
+
+                    addrtype item_address = world_item->item();
+                    if (dropped_items.find(item_address) == dropped_items.end()) {
+                        shared_ptr<Item> item(new Item(item_address));
+                        dropped_items[item_address] = shared_ptr<Item>(item);
+                        Point pos = i.second->label->get_pos();
+                        PostThreadMessage(thread_id, WM_NEW_ITEM, (WPARAM)item->name().c_str(),
+                                          (LPARAM)((pos.x << 16) | pos.y));
+                    }
                 }
                 break;
             }
