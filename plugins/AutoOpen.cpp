@@ -49,9 +49,6 @@ public:
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& add) {
-        if (!player)
-            return;
-
         for (auto& i : entities) {
             if (force_reset) {
                 force_reset = false;

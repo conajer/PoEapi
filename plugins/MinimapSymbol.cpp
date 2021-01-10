@@ -222,7 +222,7 @@ public:
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
-        if (!player || !poe->hud)
+        if (!poe->hud)
             return;
 
         reset();

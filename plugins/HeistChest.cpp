@@ -12,9 +12,6 @@ public:
     }
 
     void on_labeled_entity_changed(EntityList& entities) {
-        if (!player)
-            return;
-
         chests.clear();
         for (auto& i : entities) {
             if (force_reset) {
