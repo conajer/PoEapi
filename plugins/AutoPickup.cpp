@@ -18,7 +18,7 @@ public:
     };
 
     std::map<int, shared_ptr<Entity>> ignored_entities;
-    std::map<addrtype, shared_ptr<Item>> dropped_items;
+    std::map<int, shared_ptr<Item>> dropped_items;
     shared_ptr<Entity> selected_item;
     RECT bounds;
     unsigned int range = 50, last_pickup = 0;
@@ -28,13 +28,14 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.3") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.4") {
         add_property(L"range", &range, AhkInt);
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&AutoPickup::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&AutoPickup::stop_pickup);
         add_method(L"getDroppedItems", this, (MethodType)&AutoPickup::get_dropped_items, AhkObject);
+        add_method(L"getItem", this, (MethodType)&AutoPickup::get_item, AhkObject, ParamList{AhkInt});
 
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
@@ -106,6 +107,19 @@ public:
         return items;
     }
 
+
+    AhkObjRef* get_item(int id) {
+        auto i = dropped_items.find(id);
+        if (i != dropped_items.end())
+            return *i->second;
+
+        return nullptr;
+    }
+
+    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
+        dropped_items.clear();
+    }
+
     void on_labeled_entity_changed(EntityList& entities) {
         shared_ptr<Entity> nearest_item;
         int min_dist = range;
@@ -137,13 +151,11 @@ public:
                     if (!world_item || !check_item(world_item->item()))
                         continue;
 
-                    addrtype item_address = world_item->item();
-                    if (dropped_items.find(item_address) == dropped_items.end()) {
-                        shared_ptr<Item> item(new Item(item_address));
-                        dropped_items[item_address] = shared_ptr<Item>(item);
-                        Point pos = i.second->label->get_pos();
+                    if (dropped_items.find(i.second->id) == dropped_items.end()) {
+                        Item* item = new Item(world_item->item());
+                        dropped_items[i.second->id] = shared_ptr<Item>(item);
                         PostThreadMessage(thread_id, WM_NEW_ITEM, (WPARAM)item->name().c_str(),
-                                          (LPARAM)((pos.x << 16) | pos.y));
+                                          (LPARAM)i.second->id);
                     }
                 }
                 break;
@@ -155,6 +167,9 @@ public:
                 min_dist = dist;
             }
         }
+
+        if (!is_picking)
+            return;
 
         if (GetTickCount() - last_pickup > 3000) {
             stop_pickup();
