@@ -223,10 +223,6 @@ class PoETask extends AhkObj {
         WinMinimize, ahk_class POEWindowClass
     }
 
-    getPlugin(name) {
-        return this.getPlugins()[name]
-    }
-
     sendKeys(keys, NoSend = false) {
         if (ptask.isMinimized())
             return
@@ -239,6 +235,14 @@ class PoETask extends AhkObj {
             SendInput, %keys%
         else
             SendInput, %keys%{Enter}
+    }
+
+    beginPickup() {
+        this.getPlugin("AutoPickup").beginPickup()
+    }
+
+    stopPickup() {
+        this.getPlugin("AutoPickup").stopPickup()
     }
 
     select(name) {
