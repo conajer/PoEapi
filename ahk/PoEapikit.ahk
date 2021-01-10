@@ -49,7 +49,7 @@ global logger := new Logger("PoEapikit log",,, Not ShowLogger)
 global ptask := new PoETask()
 global trader := new Trader()
 
-version := "0.6.0"
+version := "0.6.1"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -70,7 +70,7 @@ _(str) {
 
 objdump(obj, prefix = "", depth = 0) {
     if (Not IsObject(obj)) {
-        debug("Not a object")
+        debug("Not an object")
         return
     }
 
