@@ -69,7 +69,7 @@ class Flask {
     }
 }
 
-class Character extends LocalPlayer {
+class Character {
 
     __new() {
         OnMessage(WM_PLAYER_LIFE, ObjBindMethod(this, "lifeChanged"))
@@ -85,6 +85,11 @@ class Character extends LocalPlayer {
         this.flasks := {}
         this.nearbyMonsters := 0
         this.expectCharges := 0
+    }
+
+    whois() {
+        return Format(_("{} is a level {} {} in the {} league")
+                     , this.name, this.level, this.className, ptask.League)
     }
 
     flaskChanged() {

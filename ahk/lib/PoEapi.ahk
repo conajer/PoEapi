@@ -44,7 +44,6 @@ global WM_PTASK_ACTIVE     := 0x9101
 ahkpp_register_class(PoETask)
 ahkpp_register_class(PoEObject)
 ahkpp_register_class(Entity)
-ahkpp_register_class(LocalPlayer)
 ahkpp_register_class(Item)
 ahkpp_register_class(Element)
 ahkpp_register_class(Inventory)
@@ -107,14 +106,6 @@ class Entity extends PoEObject {
         pos := this.__getPos()
         x := pos.x
         y := pos.y
-    }
-}
-
-class LocalPlayer extends Entity {
-
-    whois() {
-        return Format(_("{} is a level {} {} in the {} league")
-                     , this.name, this.level, this.className, ptask.League)
     }
 }
 

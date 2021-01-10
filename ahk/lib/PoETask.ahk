@@ -95,6 +95,7 @@ class PoETask extends AhkObj {
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
 
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
+        this.player := new Character()
 
         ; Start PoE task
         this.start()
@@ -345,10 +346,7 @@ class PoETask extends AhkObj {
         this.InMap := Not isTown && Not isHideout
         this.InHideout := isHideout
 
-        this.player := this.getPlayer()
-        playerName := this.player.name
-        this.player.base := IsObject(%playerName%) ? %playerName% : Character
-        this.player.__new()
+        Character.base := this.getPlayer()
 
         ; Calculate gained experience
         if (this.InMap) {
