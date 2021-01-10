@@ -432,14 +432,6 @@ public:
 
         return 0;
     }
-
-    void begin_pickup() {
-        auto_pickup->begin_pickup();
-    }
-
-    void stop_pickup() {
-        auto_pickup->stop_pickup();
-    }
 };
 
 /* Global PoE task object. */
