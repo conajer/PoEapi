@@ -37,15 +37,14 @@ public:
     int area_hash;
     wstring league;
 
-    std::vector<shared_ptr<PoEPlugin>> plugins;
-    LocalPlayer *local_player;
+    std::map<wstring, shared_ptr<PoEPlugin>> plugins;
+    LocalPlayer *local_player = nullptr;
     std::wregex ignored_entity_exp;
-    AutoPickup* auto_pickup;
     bool is_attached = false;
     bool is_active = false;
     unsigned int player_timer_period = 66;
 
-    PoETask() : Task(L"PoETask"), auto_pickup(new AutoPickup()),
+    PoETask() : Task(L"PoETask"),
         ignored_entity_exp(L"Doodad|WorldItem")
     {
         add_property(L"playerTimerPeriod", &player_timer_period, AhkInt);
@@ -65,6 +64,7 @@ public:
         add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
+        add_method(L"getPlugin", this, (MethodType)&PoETask::get_plugin, AhkObject, ParamList{AhkWString});
         add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
         add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject);
         add_method(L"getPlayer", this, (MethodType)&PoETask::get_player, AhkObject);
@@ -72,8 +72,6 @@ public:
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
-        add_method(L"beginPickup", this, (MethodType)&PoETask::begin_pickup);
-        add_method(L"stopPickup", this, (MethodType)&PoETask::stop_pickup);
         add_method(L"setHudWindow", (PoE*)this, (MethodType)&PoE::set_hud_window, AhkVoid, ParamList{AhkUInt});
         add_method(L"__logout", (PoE*)this, (MethodType)&PoE::logout, AhkVoid);
     }
@@ -225,16 +223,22 @@ public:
     }
 
     void add_plugin(PoEPlugin* plugin) {
-        plugins.push_back(shared_ptr<PoEPlugin>(plugin));
+        plugins[plugin->name] = shared_ptr<PoEPlugin>(plugin);
         plugin->on_load(*this, owner_thread_id);
 
         log(L"added plugin %S %s", plugin->name.c_str(), plugin->version.c_str());
     }
 
+    AhkObjRef* get_plugin(wchar_t* name) {
+        if (plugins.find(name) != plugins.end())
+            return *plugins[name];
+        return nullptr;
+    }
+
     AhkObjRef* get_plugins() {
         AhkObj temp_plugins;
         for (auto& i : plugins) {
-            temp_plugins.__set(i->name.c_str(), (AhkObjRef*)*i, AhkObject, nullptr);
+            temp_plugins.__set(i.second->name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
         }
         __set(L"plugins", (AhkObjRef*)temp_plugins, AhkObject, nullptr);
 
@@ -273,10 +277,11 @@ public:
 
             // increase the delay of timers when PoE isn't in game state.
             Sleep(1000);
+            local_player = nullptr;
         } else if (!in_game_state->unknown()) {
             // reset plugins.
             for (auto& i : plugins)
-                i->reset();
+                i.second->reset();
 
             // wait for loading the game instance.
             while (!in_game_state->unknown())
@@ -325,13 +330,13 @@ public:
                           nullptr);
 
                     for (auto i : plugins)
-                        i->on_area_changed(in_game_data->world_area(), area_hash, local_player);
+                        i.second->on_area_changed(in_game_data->world_area(), area_hash, local_player);
                 }
             }
 
-            for (auto i : plugins)
-                if (i->enabled)
-                    i->on_player(local_player, in_game_state);
+            for (auto& i : plugins)
+                if (i.second->enabled)
+                    i.second->on_player(local_player, in_game_state);
         }
 
         if (!is_attached && hwnd) {
@@ -347,9 +352,9 @@ public:
         InGameData* in_game_data = in_game_state->in_game_data();
         in_game_data->get_all_entities(entities, ignored_entity_exp);
 
-        for (auto i : plugins)
-            if (i->enabled)
-                i->on_entity_changed(entities.all, entities.removed, entities.added);
+        for (auto& i : plugins)
+            if (i.second->enabled && i.second->player)
+                i.second->on_entity_changed(entities.all, entities.removed, entities.added);
     }
 
     void check_labeled_entities() {
@@ -359,9 +364,9 @@ public:
         InGameUI* in_game_ui = in_game_state->in_game_ui();
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
 
-        for (auto i : plugins)
-            if (i->enabled)
-                i->on_labeled_entity_changed(labeled_entities);
+        for (auto& i : plugins)
+            if (i.second->enabled && i.second->player)
+                i.second->on_labeled_entity_changed(labeled_entities);
     }
 
     void run() {
@@ -380,7 +385,9 @@ public:
         add_plugin(new MinimapSymbol());
         add_plugin(new PlayerStatus());
         add_plugin(new KillCounter());
-        add_plugin(auto_pickup);
+        add_plugin(new AutoPickup());
+
+        plugins[L"Messenger"]->enabled = true;
 
         /* create jobs */
         start_job(player_timer_period, [&] {this->check_player();});

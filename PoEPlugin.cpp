@@ -10,7 +10,7 @@ public:
     PoE* poe;
     DWORD thread_id;
     bool force_reset = false;
-    bool enabled = true;
+    bool enabled = false;
     buffer<wchar_t> log_buffer;
 
     LocalPlayer* player;
@@ -32,9 +32,9 @@ public:
         player = nullptr;
     }
 
-    virtual void on_load(PoE& poe, int ownere_thread_id) {
+    virtual void on_load(PoE& poe, int owner_thread_id) {
         this->poe = &poe;
-        this->thread_id = ownere_thread_id;
+        this->thread_id = owner_thread_id;
         this->player = nullptr;
     }
 
