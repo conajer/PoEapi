@@ -39,27 +39,28 @@ ahkpp_register_class(classObj) {
 class AhkObj {
 
     __New() {
+        this.__self := &this
         DllCall("poeapi\ahkpp_new", "Ptr", Object(this), "Str", this.__Class)
     }
 
     __Get(key) {
         if (key != "__properties" && key != "__methods") {
-            if (this.__properties.HasKey(key)) {
+            if (this.__properties[key]) {
                 valType := this.__properties[key]
-                value := DllCall("poeapi\ahkpp_get", "Ptr", &this, "Str", key, valType)
+                value := DllCall("poeapi\ahkpp_get", "Ptr", this.__self, "Str", key, valType)
                 if (valType == "UPtr") {
                     if (value)
                         return Object(value)
 
                     value := {}
-                    DllCall("poeapi\ahkpp_set", "Ptr", &this, "Str", key, "UPtr", Object(value))
+                    DllCall("poeapi\ahkpp_set", "Ptr", this.__self, "Str", key, "UPtr", Object(value))
                 }
 
                 return value
-            } else if (this.__methods.HasKey(key)) {
+            } else if (this.__methods[key]) {
                 if (this.__methods[key].Count() == 1) {
                     retType := this.__methods[key][1]
-                    result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", key, retType)
+                    result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", key, retType)
                     return (retType == "UPtr") ? Object(result) : result
                 }
             }
@@ -67,18 +68,18 @@ class AhkObj {
     }
 
     __Set(key, value) {
-        if (this.__properties.HasKey(key)) {
+        if (this.__properties[key]) {
             valType := this.__properties[key]
             if (valType == "UPtr") {
                 value := Object(value)
             }
 
-            return DllCall("poeapi\ahkpp_set", "Ptr", &this, "Str", key, valType, value)
-        } else if (this.__methods.HasKey("set" key)) {
+            return DllCall("poeapi\ahkpp_set", "Ptr", this.__self, "Str", key, valType, value)
+        } else if (this.__methods["set" key]) {
             name := "set" key
             if (this.__methods[name].Count() == 2) {
                 valType := this.__methods[name][1]
-                DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, valType, value)
+                DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, valType, value)
 
                 return value
             }
@@ -86,7 +87,7 @@ class AhkObj {
     }
     
     __Call(name, params*) {
-        if (this.__methods.HasKey(name)) {
+        if (this.__methods[name]) {
             T := this.__methods[name]
             if (params.Count() != T.Count() - 1) {
                 MsgBox, % name ": invalid number of parameters, should be " T.Count() - 1 " parameters."
@@ -94,15 +95,15 @@ class AhkObj {
             }
 
             switch params.Count() {
-            case 0: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1])
-            case 1: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2])
-            case 2: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2], params[2], T[3])
-            case 3: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4])
-            case 4: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5])
-            case 5: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6])
-            case 6: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7])
-            case 7: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7], params[7], T[8])
-            case 8: result := DllCall("poeapi\ahkpp_call", "Ptr", &this, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7], params[7], T[8], params[8], T[9])
+            case 0: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1])
+            case 1: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2])
+            case 2: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3])
+            case 3: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4])
+            case 4: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5])
+            case 5: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6])
+            case 6: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7])
+            case 7: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7], params[7], T[8])
+            case 8: result := DllCall("poeapi\ahkpp_call", "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7], params[7], T[8], params[8], T[9])
             }
             return (T[params.Count() + 1] == "UPtr") ? Object(result) : result
         }
@@ -131,15 +132,17 @@ __New(className, baseClassName) {
                     __ahkpp_classes[className] := obj
                 }
             }
-        } else if (className != "AhkObj") {
-            if (__ahkpp_classes[className])
-                obj.base := __ahkpp_classes[className]
-            else if (IsObject(%className%)) {
-                obj.base := %className%
-                ObjAddRef(obj)
-            } else
-                obj.base := {"__Class":className}
-            obj.__Init()
+        } else {
+            if (className != "AhkObj") {
+                if (__ahkpp_classes[className])
+                    obj.base := __ahkpp_classes[className]
+                else if (IsObject(%className%))
+                    obj.base := %className%
+                else
+                    obj.base := {"__Class":className}
+                obj.__Init()
+                obj.__self := &obj
+            }
         }
     }
 
