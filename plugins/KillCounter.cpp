@@ -4,8 +4,17 @@
 
 using Monsters = std::unordered_set<int>;
 
-struct AreaMonsters {
+struct AreaStat : public AhkObj {
+
     int index;
+    wstring name;
+    int level;
+    std::time_t timestamp;
+    unsigned int latest_exp;
+    unsigned int gained_exp = 0;
+    unsigned int latest_time;
+    unsigned int used_time = 0;
+    int kills[4] = {0, 0, 0, 0};
     Monsters total;
     Monsters killed;
 };
@@ -13,36 +22,83 @@ struct AreaMonsters {
 class KillCounter : public PoEPlugin {
 public:
 
-    std::unordered_map<int, AreaMonsters*> latest_areas;
-    AreaMonsters* current_area;
+    std::unordered_map<int, AreaStat*> latest_areas;
+    AreaStat* current_area = nullptr;
     Monsters nearby_monsters;
     int nearby_radius = 50;
     int num_of_monsters, num_of_minions;
-    int total_monsters, num_of_killed;
-    int maximum_area_count = 9;
+    int total_monsters, kills;
+    int maximum_area_count = 99;
 
-    KillCounter() : PoEPlugin(L"KillCounter", "0.2"), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.5"), current_area(nullptr) {
         add_property(L"radius", &nearby_radius, AhkInt);
         add_property(L"monsters", &num_of_monsters, AhkInt);
         add_property(L"minions", &num_of_minions, AhkInt);
         add_property(L"total", &total_monsters, AhkInt);
-        add_property(L"kills", &num_of_killed, AhkInt);
+        add_property(L"kills", &kills, AhkInt);
+        
+        add_method(L"getStats", this, (MethodType)&KillCounter::get_stats, AhkObject);
 
         num_of_monsters = num_of_minions = 0;
-        total_monsters = num_of_killed = 0;
+        total_monsters = kills = 0;
     }
 
-    void on_area_changed(AreaTemplate* world_area, int hash_code) {
+    AhkObjRef* get_stats() {
+        AhkObj stats;
+        wchar_t buffer[64];
+
+        for (auto& i : latest_areas) {
+            AreaStat* stat = i.second;
+            wstring index = std::to_wstring(stat->index + 1);
+            stats.__set(index.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
+
+            std::wcsftime(buffer, 64, L"%m/%d/%y %H:%M:%S", std::localtime(&stat->timestamp));
+            stat->__set(L"areaName", stat->name.c_str(), AhkWString,
+                        L"areaLevel", stat->level, AhkInt,
+                        L"timestamp", buffer, AhkWString,
+                        L"gainedExp", stat->gained_exp, AhkInt,
+                        L"usedTime", stat->used_time, AhkInt,
+                        L"totalMonsters", stat->total.size(), AhkInt,
+                        L"totalKills", stat->killed.size(), AhkInt,
+                        L"normalKills", stat->kills[0], AhkInt,
+                        L"magicKills", stat->kills[1], AhkInt,
+                        L"rareKills", stat->kills[2], AhkInt,
+                        L"uniqueKills", stat->kills[3], AhkInt,
+                        nullptr);
+
+            if (current_area == stat) {
+                stat->__set(L"gainedExp", stat->gained_exp + player->get_exp() - stat->latest_exp, AhkInt,
+                            L"usedTime", stat->used_time + GetTickCount() - stat->latest_time, AhkInt,
+                            nullptr);
+            }
+        }
+        __set(L"stats", (AhkObjRef*)stats, AhkObject, nullptr);
+
+        return stats;
+    }
+
+    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
         if (world_area->is_town())
             return;
         
         nearby_monsters.clear();
+        if (current_area) {
+            current_area->used_time += GetTickCount() - current_area->latest_time;
+            current_area->gained_exp += player->get_exp() - current_area->latest_exp;
+        }
+
         if (latest_areas.find(hash_code) == latest_areas.end()) {
             // Remove the oldest area record.
             if (latest_areas.size() == maximum_area_count)
                 latest_areas.erase(maximum_area_count - 1);
 
-            current_area = new AreaMonsters();
+            current_area = new AreaStat();
+            current_area->name = world_area->name();
+            current_area->level = world_area->level();
+            current_area->timestamp = std::time(nullptr);
+            current_area->latest_exp = player->get_exp();
+            current_area->latest_time = GetTickCount();
+
             for (auto& i : latest_areas) {
                 if (i.second->index >= 0)
                     i.second->index += 1;
@@ -54,24 +110,29 @@ public:
                 if (i.second->index < current_area->index)
                     i.second->index += 1;
             }
+
+            current_area->latest_exp = player->get_exp();
+            current_area->latest_time = GetTickCount();
         }
         current_area->index = 0;
 
-        total_monsters = num_of_killed = 0;
-        PostThreadMessage(thread_id, WM_KILLED, num_of_killed, total_monsters);
+        total_monsters = kills = 0;
+        PostThreadMessage(thread_id, WM_KILL_COUNTER, kills, total_monsters);
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
         int n_monsters = 0, charges = 0, n_minions = 0;
-        if (!current_area || !player)
+        if (!current_area)
             return;
 
-        /* treat the removed nearby monsters as killed. */
+        if (entities.size() == added.size())
+            nearby_monsters.clear();
+
         for (auto& i : removed) {
             shared_ptr<Entity>& entity = i.second;
             if (entity->is_monster) {
-                if (nearby_monsters.find(i.first) != nearby_monsters.end())
-                    current_area->killed.insert(i.first);
+                if (current_area->killed.find(i.first) == current_area->killed.end())
+                    current_area->total.erase(i.first);
             }
         }
 
@@ -85,29 +146,44 @@ public:
             Entity* entity = i.second.get();
             if (entity->is_monster) {
                 if (!entity->is_neutral) {
+#if 0
                     if (entity->has_component("DiesAfterTime"))
                         continue;
+#endif
 
                     if (entity->is_dead()) {
-                        if (current_area->total.find(i.first) != current_area->total.end())
+                        if (current_area->total.find(i.first) != current_area->total.end()
+                            && current_area->killed.find(i.first) == current_area->killed.end())
+                        {
                             current_area->killed.insert(i.first);
+                            current_area->kills[entity->rarity]++;
+                        }
+
                         continue;
-                    } else {
-                        if (current_area->total.find(i.first) == current_area->total.end())
-                            current_area->total.insert(i.first);
+                    }
+
+                    if (current_area->total.find(i.first) == current_area->total.end()) {
+                        if (entity->rarity > 1) {     // rare and unique monsters
+                            Render* render = entity->get_component<Render>();
+                            if (render) {
+                                Vector3 pos = render->position();
+                                poe->in_game_state->transform(pos);
+                                PostThreadMessage(thread_id, WM_NEW_MONSTER, (WPARAM)entity->name().c_str(),
+                                                  (LPARAM)entity);
+                            }
+                        }
+                        current_area->total.insert(i.first);
                     }
                 }
 
                 int dist = player->dist(*entity);
-                if (!entity->is_neutral && dist < 4 * nearby_radius)
-                    nearby_monsters.insert(i.first);
-
                 if (dist < nearby_radius) {
                     if (entity->is_neutral) {
                         n_minions++;
                         continue;
                     }
 
+                    nearby_monsters.insert(i.first);
                     n_monsters++;
                     if (entity->rarity > 0)
                         charges += 1 + (1 << (entity->rarity - 1)) * 2.5;
@@ -127,12 +203,12 @@ public:
             PostThreadMessage(thread_id, WM_MONSTER_CHANGED, num_of_monsters, charges);
         }
 
-        if (num_of_killed != current_area->killed.size()
+        if (kills != current_area->killed.size()
             || total_monsters != current_area->total.size())
         {
             total_monsters = current_area->total.size();
-            num_of_killed = current_area->killed.size();
-            PostThreadMessage(thread_id, WM_KILLED, num_of_killed, total_monsters);
+            kills = current_area->killed.size();
+            PostThreadMessage(thread_id, WM_KILL_COUNTER, kills, total_monsters);
         }
     }
 };
