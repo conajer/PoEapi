@@ -7,13 +7,13 @@ public:
 
     wstring player_name;
     wstring league;
-    int life, mana, energy_shield;
+    int life, mana, es;
     int last_action_id;
     bool is_dead;
     unsigned int threshold_percentage = 20;
     bool min_level = 90;
 
-    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.4") {
+    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.5") {
         life = mana = 0;
         is_dead = false;
 
@@ -33,42 +33,43 @@ public:
 
         /* life, mana and energy shield */
         int maximum, reserved;
+        int maximum_hp = 0;
 
-        int current_life = local_player->life->life();
-        if (current_life != this->life || current_life < (maximum - reserved)) {
-            this->life = local_player->life->life(&maximum, &reserved);
+        int current_life = local_player->life->life(&maximum, &reserved);
+        maximum_hp += maximum - reserved;
+        if (current_life != life || current_life < (maximum - reserved)) {
+            life = current_life;
             PostThreadMessage(thread_id,
                               WM_PLAYER_LIFE,
-                              (WPARAM)this->life,
+                              (WPARAM)life,
                               (LPARAM)(maximum | (reserved << 16)));
 
-            if (is_dead) {
+            if (is_dead)
                 is_dead = (current_life == 0);
-            }
         }
 
-        if (local_player->level() >= min_level && current_life * 100 / maximum < threshold_percentage)
-            poe->logout();
-
-        int current_mana = local_player->life->mana();
-        if (current_mana != this->mana) {
-            this->mana = local_player->life->mana(&maximum, &reserved);
+        int current_mana = local_player->life->mana(&maximum, &reserved);
+        if (current_mana != mana) {
+            mana = current_mana;
             PostThreadMessage(thread_id,
                               WM_PLAYER_MANA,
-                              (WPARAM)this->mana,
+                              (WPARAM)mana,
                               (LPARAM)(maximum | (reserved << 16)));
         }
 
         int current_es = local_player->life->energy_shield(&maximum);
-        if (current_es != this->energy_shield) {
+        maximum_hp += maximum;
+        if (current_es != es) {
+            es = current_es;
             PostThreadMessage(thread_id,
                               WM_PLAYER_ENERGY_SHIELD,
-                              (WPARAM)current_es,
+                              (WPARAM)es,
                               (LPARAM)maximum);
-            this->energy_shield = current_es;
         }
 
-        if (life == 1 && local_player->level() >= min_level && current_es * 100 / maximum < threshold_percentage)
+        if (life > 0
+            && (life + es) * 100 / maximum_hp < threshold_percentage
+            && local_player->level() >= min_level)
             poe->logout();
 
         /* action */
