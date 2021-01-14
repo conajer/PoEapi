@@ -52,50 +52,50 @@ ahkpp_register_class(Vendor)
 ahkpp_register_class(Sell)
 
 class PoEObject extends AhkObj {
-    
+
     __read(address, size) {
         return DllCall("poeapi\poeapi_read", "Ptr", address, "Int", size, "Ptr")
     }
 
-    getByte(address) {
-        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", address, "Char", 1, "Ptr")
+    getByte(offset) {
+        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", this.address + offset, "Char", 1, "Ptr")
         return NumGet(dataPtr + 0, "Char")
     }
 
-    getShort(address) {
-        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", address, "Short", 2, "Ptr")
+    getShort(offset) {
+        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", this.address + offset, "Short", 2, "Ptr")
         return NumGet(dataPtr + 0, "Short")
     }
 
-    getInt(address) {
-        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", address, "Int", 4, "Ptr")
+    getInt(offset) {
+        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", this.address + offset, "Int", 4, "Ptr")
         return NumGet(dataPtr + 0, "Int")
     }
 
-    getFloat(address) {
-        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", address, "Int", 4, "Ptr")
+    getFloat(offset) {
+        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", this.address + offset, "Int", 4, "Ptr")
         return NumGet(dataPtr + 0, "Float")
     }
 
-    getPtr(address) {
-        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", address, "Int", 8, "Ptr")
+    getPtr(offset) {
+        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", this.address + offset, "Int", 8, "Ptr")
         return NumGet(dataPtr + 0, "Ptr")
     }
 
-    getString(address, len) {
-        dataPtr := this.__read(address, (len + 1) * 2)
+    getString(offset, len) {
+        dataPtr := this.__read(this.address + offset, (len + 1) * 2)
         return StrGet(dataPtr + 0)
     }
 
-    getAString(address, len) {
-        dataPtr := this.__read(address, len + 1)
+    getAString(offset, len) {
+        dataPtr := this.__read(this.address + offset, len + 1)
         return StrGet(dataPtr + 0, "utf-8")
     }
 
-    readString(address, len = 0) {
-        len := len > 0 ? len : this.getInt(address + 0x10)
-        address := this.getPtr(address)
-        dataPtr := this.__read(address, (len + 1) * 2)
+    readString(offset, len = 0) {
+        len := len > 0 ? len : this.getInt(offset + 0x10)
+        address := this.getPtr(offset)
+        dataPtr := this.__read(this.address + offset, (len + 1) * 2)
         return StrGet(dataPtr + 0)
     }
 }
