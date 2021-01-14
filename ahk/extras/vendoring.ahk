@@ -200,18 +200,29 @@ dumpStashTabItems() {
 
     tab := ptask.stash.Tab
     loop, 2 {
-        for i, item in tab.getChilds() {
-            if (Not dumpAllItems || item.isHighlighted()) {
-                item.getPos(x, y)
+        for i, e in tab.getChilds() {
+            if (e.item && (dumpAllItems || e.isHighlighted)) {
+                e.getPos(x, y)
                 MouseMove, x, y, 0
                 Sleep, 30
-                SendInput, ^{Click}
-                Sleep, 30
-                n += 1
+
+                m := 1
+                if (e.item.stackCount > 0)
+                    m += e.item.stackCount // e.item.stackSize
+
+                loop, % m {
+                    if (ptask.inventory.freeCells() == 0)
+                        return
+
+                    SendInput, ^{Click}
+                    n += 1
+                    Sleep, 50
+                }
             }
         }
 
-        if (n > 0) break
+        if (n > 0)
+            break
         dumpAllItems := true
     }
 }
