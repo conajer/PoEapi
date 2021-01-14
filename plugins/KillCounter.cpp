@@ -200,13 +200,15 @@ public:
                 }
 
                 int dist = player->dist(*entity);
+                if (dist < 2 * nearby_radius)
+                    nearby_monsters.insert(i.first);
+
                 if (dist < nearby_radius) {
                     if (entity->is_neutral) {
                         n_minions++;
                         continue;
                     }
 
-                    nearby_monsters.insert(i.first);
                     n_monsters++;
                     if (entity->rarity > 0)
                         charges += 1 + (1 << (entity->rarity - 1)) * 2.5;
