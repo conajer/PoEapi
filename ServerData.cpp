@@ -88,6 +88,8 @@ public:
         cols = read<byte>("cols");
         rows = read<byte>("rows");
 
+        add_method(L"count", this, (MethodType)&InventorySlot::count, AhkInt);
+        add_method(L"freeCells", this, (MethodType)&InventorySlot::free_cells, AhkInt);
         add_method(L"getItems", this, (MethodType)&InventorySlot::__get_items, AhkObject);
     }
 
@@ -105,12 +107,22 @@ public:
         return read<byte>("count");
     }
 
+    int free_cells() {
+        int free_cells = 0;
+        for (auto addr : read_array<addrtype>("cells", 0x0, 8)) {
+            if (addr == 0)
+                free_cells++;
+        }
+
+        return free_cells;
+    }
+
     std::unordered_map<int, shared_ptr<InventoryCell>>& get_items() {
         std::unordered_map<int, shared_ptr<InventoryCell>> removed_cells;
         removed_cells.swap(cells);
 
         if (count() > 0) {
-            for (auto addr : read_array<addrtype>("cells", 0x0, 8) ) {
+            for (auto addr : read_array<addrtype>("cells", 0x0, 8)) {
                 if (addr > 0) {
                     shared_ptr<InventoryCell> cell(new InventoryCell(addr));
                     int index = cell->x * rows + cell->y + 1;
