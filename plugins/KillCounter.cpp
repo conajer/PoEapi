@@ -78,8 +78,10 @@ public:
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
-        if (world_area->is_town())
+        if (world_area->is_town() || world_area->is_hideout()) {
+            PostThreadMessage(thread_id, WM_KILL_COUNTER, 0, 0);
             return;
+        }
         
         nearby_monsters.clear();
         if (current_area) {
