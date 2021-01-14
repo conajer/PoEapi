@@ -314,6 +314,7 @@ public:
                 is_attached = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
             }
+            area_hash = 0;
             return;
         }
 
