@@ -31,6 +31,11 @@ public:
         return read<byte>("act");
     }
 
+    bool is_hideout() {
+        return (name().find(L"Hideout") != wstring::npos
+                && name().find(L"Syndicate Hideout") == wstring::npos);
+    }
+
     bool is_town() {
         return read<byte>("is_town");
     }
