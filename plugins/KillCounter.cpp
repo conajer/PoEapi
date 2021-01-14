@@ -57,7 +57,7 @@ public:
                         L"areaLevel", stat->level, AhkInt,
                         L"timestamp", buffer, AhkWString,
                         L"gainedExp", stat->gained_exp, AhkInt,
-                        L"usedTime", stat->used_time, AhkInt,
+                        L"usedTime", stat->used_time / 1000, AhkInt,
                         L"totalMonsters", stat->total.size(), AhkInt,
                         L"totalKills", stat->killed.size(), AhkInt,
                         L"normalKills", stat->kills[0], AhkInt,
@@ -68,7 +68,7 @@ public:
 
             if (current_area == stat) {
                 stat->__set(L"gainedExp", stat->gained_exp + player->get_exp() - stat->latest_exp, AhkInt,
-                            L"usedTime", stat->used_time + GetTickCount() - stat->latest_time, AhkInt,
+                            L"usedTime", (stat->used_time + GetTickCount() - stat->latest_time) / 1000, AhkInt,
                             nullptr);
             }
         }
