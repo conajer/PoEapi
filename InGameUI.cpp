@@ -76,16 +76,14 @@ public:
     }
 
     Inventory* get_inventory() {
-        inventory.reset(new Inventory(read<addrtype>("inventory", "grid")));
-        if (obj_ref)
-            __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
+        if (!inventory)
+            inventory.reset(new Inventory(read<addrtype>("inventory", "grid")));
         return inventory.get();
     }
 
     Stash* get_stash() {
-        stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
-        if (obj_ref)
-            __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
+        if (!stash)
+            stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
         return stash.get();
     }
 
