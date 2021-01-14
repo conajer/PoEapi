@@ -284,6 +284,21 @@ class StashTab extends InventoryGrid {
 
 class SpecialStashTab extends StashTab {
 
+    getChilds() {
+        this.__Call("getChilds")
+        this.getItems()
+        for i, e in this.childs {
+            if (e.getChilds().Count() == 2) {
+                left := e.childs[2].getInt(e.childs[2].address + 0x390) + 1
+                top := e.childs[2].getInt(e.childs[2].address + 0x394) + 1
+                e.item := this.items[(left - 1) * this.rows + top]
+                e.isHighlighted := e.childs[2].isHighlighted()
+            }
+        }
+
+        return this.childs
+    }
+
     getRectByIndex(index) {
         index := Round((index - 1) / this.rows + 1)
 
