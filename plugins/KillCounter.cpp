@@ -37,10 +37,31 @@ public:
         add_property(L"total", &total_monsters, AhkInt);
         add_property(L"kills", &kills, AhkInt);
         
+        add_method(L"getStat", this, (MethodType)&KillCounter::get_stat, AhkObject);
         add_method(L"getStats", this, (MethodType)&KillCounter::get_stats, AhkObject);
 
         num_of_monsters = num_of_minions = 0;
         total_monsters = kills = 0;
+    }
+
+    AhkObjRef* get_stat() {
+        wchar_t buffer[64];
+
+        std::wcsftime(buffer, 64, L"%m/%d/%y %H:%M:%S", std::localtime(&current_area->timestamp));
+        current_area->__set(L"areaName", current_area->name.c_str(), AhkWString,
+                            L"areaLevel", current_area->level, AhkInt,
+                            L"timestamp", buffer, AhkWString,
+                            L"gainedExp", current_area->gained_exp + player->get_exp() - current_area->latest_exp, AhkInt,
+                            L"usedTime", (current_area->used_time + GetTickCount() - current_area->latest_time) / 1000, AhkInt,
+                            L"totalMonsters", current_area->total.size(), AhkInt,
+                            L"totalKills", current_area->killed.size(), AhkInt,
+                            L"normalKills", current_area->kills[0], AhkInt,
+                            L"magicKills", current_area->kills[1], AhkInt,
+                            L"rareKills", current_area->kills[2], AhkInt,
+                            L"uniqueKills", current_area->kills[3], AhkInt,
+                            nullptr);
+
+        return *current_area;
     }
 
     AhkObjRef* get_stats() {
