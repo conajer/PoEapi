@@ -122,4 +122,17 @@ class InventoryGrid extends Element {
         return ptask.inventories[this.id].freeCells()
     }
 
+    getChilds() {
+        this.__Call("getChilds")
+        this.getItems()
+        for i, e in this.childs {
+            left := e.getInt(0x390) + 1
+            top := e.getInt(0x394) + 1
+            e.index := (left - 1) * this.rows + top
+            e.item := this.items[e.index]
+            e.isHighlighted := e.isHighlighted()
+        }
+
+        return this.childs
+    }
 }
