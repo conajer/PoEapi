@@ -127,10 +127,11 @@ public:
     {
         buffer_size = 256;
         buffer = new byte[buffer_size];
+
+        add_property(L"address", &this->address, AhkPointer);
     }
 
     void __new() {
-        __set(L"address", address, AhkPointer, nullptr);
     }
 
     static void* __read(addrtype address, size_t size) {
