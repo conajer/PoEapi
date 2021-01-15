@@ -293,9 +293,16 @@ public:
     }
 
     wstring& name() {
-        if (!mods || !mods->is_identified() || mods->rarity == 0)   /* normal or unidentified items */
-            return base_name();
-        return mods->name(base_name());                             /* magic/rare/unique items */
+        if (mods) {
+            if (mods->rarity > 0 && mods->is_identified())   /* magic/rare/unique items */
+                return mods->name(base_name());
+        } else if (has_component("Prophecy")) {
+            Prophecy* prophecy = get_component<Prophecy>();
+            if (prophecy)
+                return prophecy->name();
+        }
+
+        return base_name();                                 /* normal or unidentified items */
     }
 
     wstring& base_name() {
