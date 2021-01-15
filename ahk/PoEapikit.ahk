@@ -118,7 +118,10 @@ AutoClick() {
 
         x0 := x
         y0 := y
-        SendInput ^{Click}
+        if (GetKeyState("Shift", "P"))
+            SendInput, ^+{Click}
+        else
+            SendInput, ^{Click}
         Sleep, 30
     }
 }
