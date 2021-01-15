@@ -18,13 +18,15 @@ public:
 
     shared_ptr<Item> item;
     addrtype item_address;
-    int index, x, y;
+    int index, x, y, w, h;
 
     InventoryCell(addrtype address)
         : RemoteMemoryObject(address, &inventory_cell_offsets)
     {
         x = read<int>("l");
         y = read<int>("t");
+        w = read<int>("r") - x;
+        h = read<int>("b") - y;
         item_address = read<addrtype>("item");
     }
 
@@ -65,6 +67,8 @@ private:
                 item.__set(L"index", i.first, AhkInt,
                            L"left", i.second->x + 1, AhkInt,
                            L"top", i.second->y + 1, AhkInt,
+                           L"width", i.second->w, AhkInt,
+                           L"height", i.second->h, AhkInt,
                            nullptr);
             items.__set(std::to_wstring(i.first).c_str(),
                         (AhkObjRef*)item, AhkObject, nullptr);
