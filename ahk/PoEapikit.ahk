@@ -12,6 +12,7 @@ CoordMode, Pixel, Client
 SetWorkingDir %A_ScriptDir%
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
+#Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
@@ -47,9 +48,10 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 
 global logger := new Logger("PoEapikit log",,, Not ShowLogger)
 global ptask := new PoETask()
+global pricer := new Pricer()
 global trader := new Trader()
 
-version := "0.6.1"
+version := "0.7.0"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -186,6 +188,43 @@ return
 
 ^WheelDown::Right
 ^WheelUp::Left
+
+LAlt::
+    ptask.c.clear()
+    if (ptask.stash.isOpened()) {
+        for i, e in ptask.stash.Tab.getChilds() {
+            if (e.item && e.item.price >= 1) {
+                r := e.getPos()
+                if (e.item.price > 1000)
+                    p := Format("{:.f}K", e.item.price / 1000)
+                else
+                    p := Format("{:.f}", e.item.price)
+                ptask.c.drawText(r.l, r.t, 100, 20, p, e.item.price >= 10 ? 0xfe : 0xfe0000)
+            }
+        }
+    }
+
+    if (ptask.inventory.isOpened()) {
+        for i, e in ptask.inventory.getChilds() {
+            if (e.item && e.item.price >= 1) {
+                r := e.getPos()
+                if (e.item.price > 1000)
+                    p := Format("{:.f}K", e.item.price / 1000)
+                else
+                    p := Format("{:.f}", e.item.price)
+                ptask.c.drawText(r.l, r.t, 100, 20, p, e.item.price >= 10 ? 0xfe : 0xfe0000)
+            }
+        }
+    }
+
+    loop, {
+        Sleep, 100
+        if (Not GetKeyState("Alt", "P")) {
+            ptask.c.clear()
+            break
+        }
+    }
+return
 
 #IfWinActive
 

@@ -1,23 +1,24 @@
 ; Hotkeys (^ for Ctrl, # for window key)
 ;
-; `,    logout
-; a,	auto pickup/levelup gems
-; F1,   auto aruas
-; F2,	auto portal
-; F3,   auto identify/sell
-; !F3,  identify all and sell
-; F4,   auto stash
-; F5,   hideout
-; ^F5,  azurite mine
-; !F5   menagerie
-; F6    dump inventory items
-; ^F6   dump highlighted or all items from current stash tab
+; `,    Logout
+; a,	Auto pickup/levelup gems
+; F1,   Auto aruas
+; F2,	Auto portal
+; F3,   Auto identify/sell
+; !F3,  Identify all and sell
+; F4,   Auto stash
+; F5,   Hideout
+; ^F5,  Azurite mine
+; !F5   Menagerie
+; F6    Dump inventory items
+; ^F6   Dump highlighted or all items from current stash tab
 ; F7    Sell full rare sets to vendor
 ; F12   Toggle log window
-; #d,   minimize window
-; ^m,   toggle maphack
-; ^r,   reload script
-; ^q,   quit
+; LAlt  Hold down the left Alt key to show price of items
+; #d,   Minimize window
+; ^m,   Toggle maphack
+; ^r,   Reload script
+; ^q,   Quit
 
 ; Plugins
 global PluginOptions := { "AutoFlask"     : { "enabled" : true}
