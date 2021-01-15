@@ -267,14 +267,10 @@ public:
         base = get_component<Base>();
         mods = get_component<Mods>();
 
-        add_method(L"name", this, (MethodType)&Item::name, AhkWStringPtr);
-        add_method(L"baseName", this, (MethodType)&Item::base_name, AhkWStringPtr);
-        add_method(L"isIdentified", this, (MethodType)&Item::is_identified, AhkBool);
         add_method(L"isMirrored", this, (MethodType)&Item::is_mirrored, AhkBool);
         add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted, AhkBool);
         add_method(L"isSynthesised", this, (MethodType)&Item::is_synthesised, AhkBool);
         add_method(L"isRGB", this, (MethodType)&Item::is_rgb, AhkBool);
-        add_method(L"rarity", this, (MethodType)&Item::get_rarity);
         add_method(L"itemLevel", this, (MethodType)&Item::get_item_level);
         add_method(L"quality", this, (MethodType)&Item::get_quality);
         add_method(L"sockets", this, (MethodType)&Item::get_sockets);
@@ -285,6 +281,15 @@ public:
         add_method(L"stackSize", this, (MethodType)&Item::get_stack_size);
         add_method(L"charges", this, (MethodType)&Item::get_charges);
         add_method(L"size", this, (MethodType)&Item::get_size);
+    }
+
+    void __new() {
+        Entity::__new();
+        __set(L"name", name().c_str(), AhkWString,
+              L"baseName", base_name().c_str(), AhkWString,
+              L"isIdentified", is_identified(), AhkBool,
+              L"rarity", get_rarity(), AhkInt,
+              nullptr);
     }
 
     wstring& name() {
