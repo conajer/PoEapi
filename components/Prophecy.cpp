@@ -16,6 +16,8 @@ static std::map<string, int> prophecy_component_offsets {
 class Prophecy : public Component {
 public:
 
+    wstring prophecy_name;
+
     Prophecy(addrtype address) : Component(address, "Prophecy", &prophecy_component_offsets) {
     }
 
@@ -31,8 +33,15 @@ public:
         return read<int>("base", "id");
     }
 
-    wstring name() {
-        return read<wstring>("base", "name");
+    wstring& name() {
+        if (prophecy_name.empty()) {
+            wchar_t buffer[32];
+            addrtype addr = read<addrtype>("base", "name");
+            PoEMemory::read<wchar_t>(addr, buffer, 32);
+            prophecy_name = buffer;
+        }
+
+        return prophecy_name;
     }
 
     wstring flavour_text() {
