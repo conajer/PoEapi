@@ -65,6 +65,9 @@ addVendorButton() {
     Menu, __vendoringMenu, Add
     Menu, __vendoringMenu, Add, % _("Unstack divination cards"), unstackCards
     Menu, __vendoringMenu, Add
+    Menu, __vendoringMenu, Add, % _("Sort items"), sortItems
+    Menu, __vendoringMenu, Add, % _("Dump useless items (< 1 Chaos)"), dumpUselessItems
+    Menu, __vendoringMenu, Add
     Menu, __vendoringMenu, Add, % _("Dump inventory items"), dumpInventoryItems
     Menu, __vendoringMenu, Add, % _("Dump stash tab items"), dumpStashTabItems
 
@@ -246,4 +249,117 @@ unstackCards() {
         }
     }
     ptask.stashItems()
+}
+
+dumpUselessItems() {
+    ptask.activate()
+    if (Not ptask.stash.open())
+        return
+
+    tab := ptask.stash.Tab
+    for i, e in tab.getChilds() {
+        if (e.item && Not e.item.isCurrency) {
+            if (e.item.price && e.item.price < 1) {
+                debug("{}, {}", e.item.name, e.item.price)
+                e.getPos(x, y)
+                MouseMove, x, y, 0
+                Sleep, 30
+
+                SendInput, ^{Click}
+                Sleep, 50
+                if (ptask.inventory.freeCells() == 0)
+                    return
+            }
+        }
+    }
+}
+
+
+sortItems() {
+    ptask.activate()
+    if (Not ptask.stash.open())
+        return
+
+    tab := ptask.stash.Tab
+    if (__tab.type > 2 && __tab.type != 7)
+        return
+    
+    vals := []
+    items := tab.getItems()
+    loop, % tab.rows * tab.cols {
+        aItem := items[A_Index]
+        if (Not aItem.price || aItem.width > 1 || aItem.height > 1)
+            items.Delete(A_Index)
+    }
+
+    for i, aItem in items
+        vals[aItem.Index] := aItem.price
+
+    debug("Begin sorting items...")
+    t0 := A_Tickcount
+
+    loop % tab.rows * tab.cols {
+        offset := A_Index
+        selected := A_Index
+        loop % tab.rows * tab.cols - offset {
+            if (Not items[A_Index + offset])
+                continue
+
+            if (Not items[selected]) {
+                selected := A_Index + offset
+                continue
+            }
+
+            if (vals[A_Index + offset] > vals[selected]
+                || (vals[A_Index + offset] == vals[selected]
+                    && items[A_Index + offset].Name <= items[selected].Name)) {
+                selected := A_Index + offset
+            }
+        }
+
+        if (A_Index == selected || items[selected].Name == items[A_Index].Name) {
+            if (Not items[A_Index]) {
+                if (itemPicked) {
+                    tab.moveTo(A_Index)
+                    SendInput, {Click}
+                    ;debug("    Placed " A_Index ", " itemPicked.Name)
+                }
+                break
+            }
+
+            if (Not itemPicked
+                || valPicked < vals[A_Index]
+                || (valPicked == vals[A_Index] && itemPicked.Name >= items[A_Index].Name))
+                continue
+        }
+
+        if (Not itemPicked) {
+            tab.moveTo(selected)
+            SendInput, {Click}
+            Sleep, 30
+            ;debug("    Picked up " selected ", " items[selected].Name)
+            vals[selected] := ""
+            items[selected] := ""
+        } else if (valPicked < vals[selected] || (valPicked == vals[selected] && itemPicked.Name > items[selected].Name)) {
+            tab.moveTo(selected)
+            SendInput, {Click}
+            Sleep, 30
+            ;debug("    Swaped with " selected ", " items[selected].Name)
+            vals[selected] := valPicked
+            items[selected] := itemPicked
+        }
+
+        tab.moveTo(A_Index)
+        SendInput, {Click}
+        Sleep, 30
+        ;if (items[A_Index])
+        ;    debug("    Replaced " A_Index ", " items[A_Index].Name)
+        ;else
+        ;    debug("    Placed " A_Index ", " itemPicked.Name)
+        valPicked := vals[A_Index]
+        itemPicked := items[A_Index]
+    }
+
+    t1 := A_Tickcount
+    debug("Sorting completed (total {} microseconds).", t1 - t0)
 }
