@@ -28,7 +28,7 @@ global PoEOffsets = { "version" : "3.12.5c", "offsets"
                         ,     "root"                    : 0x8
                         , "entity_list_count"           : 0x4c8 }
                       
-      , "IngameUI"    : { "inventory"                   : 0x500
+      , "IngameUI"    : { "inventory"                   : 0x530
                         ,     "grid"                    : 0x3a8
                         , "stash"                       : 0x538
                         ,     "tabs"                    : 0x2c0
