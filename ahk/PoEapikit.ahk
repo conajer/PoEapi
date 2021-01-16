@@ -51,7 +51,7 @@ global ptask := new PoETask()
 global pricer := new Pricer()
 global trader := new Trader()
 
-version := "0.7.0"
+version := "0.7.1"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -189,8 +189,9 @@ return
 ^WheelDown::Right
 ^WheelUp::Left
 
-LAlt::
+~*LAlt::
     ptask.c.clear()
+    keepPrices := false
     if (ptask.stash.isOpened()) {
         for i, e in ptask.stash.Tab.getChilds() {
             if (e.item && e.item.price >= 1) {
@@ -218,9 +219,12 @@ LAlt::
     }
 
     loop, {
+        if (GetKeyState("Ctrl", "P"))
+            keepPrices := true
         Sleep, 100
         if (Not GetKeyState("Alt", "P")) {
-            ptask.c.clear()
+            if (Not keepPrices)
+                ptask.c.clear()
             break
         }
     }

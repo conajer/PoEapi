@@ -165,15 +165,19 @@ class PoETask extends AhkObj {
 
     onActive(hwnd) {
         if (hwnd == this.Hwnd) {
+            Sleep, 300
             if (WinActive("ahk_id " this.Hwnd)) {
-                Sleep, 300
                 this.banner.show(true, false)
                 this.hud.show(true, false)
+                Sleep, 500
+                poe.activate()
             }
         } else if (hwnd != this.banner.hwnd) {
-            this.banner.show(false, false)
-            this.c.clear()
-            this.hud.show(false, false)
+            if (Not WinActive("ahk_id " this.Hwnd)) {
+                this.banner.show(false, false)
+                this.c.clear()
+                this.hud.show(false, false)
+            }
         }
     }
 

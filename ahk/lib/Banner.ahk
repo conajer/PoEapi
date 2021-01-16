@@ -32,6 +32,47 @@ L1:
     }
 }
 
+class KillStats {
+
+    cols := [ {"title" : "Time",       "options" : "AutoHdr"}
+            , {"title" : "Area Name",  "options" : "AutoHdr"}
+            , {"title" : "Level",      "options" : "Integer"}
+            , {"title" : "Kills",      "options" : "80 Integer"}
+            , {"title" : "Gained Exp", "options" : "Integer"}
+            , {"title" : "Unique",     "options" : "Integer"}
+            , {"title" : "Rare",       "options" : "Integer"}
+            , {"title" : "Magic",      "options" : "Integer"}
+            , {"title" : "Normal",     "options" : "Integer"}
+            , {"title" : "Used Time",  "options" : "AutoHdr"} ]
+
+    __new() {
+        Gui, New,, Kill statistics
+        Gui, Margin, 5, 5
+        Gui, Font, s9, Courier New
+        Gui, Add, ListView, r20 w800 cBlue +Grid, |
+        Gui, Show
+
+        for i, col in this.cols
+            LV_InsertCol(i, col.options, col.title)
+        LV_DeleteCol(this.cols.Count() + 1)
+
+        p := ptask.getPlugin("KillCounter")
+        for i, stat in p.getStats() {
+            usedTimeStr := Format("{}m {}s", usedTime / 60, usedTime // 60)
+            LV_Add(, stat.timestamp
+                   , stat.areaName
+                   , stat.areaLevel
+                   , stat.totalKills "/" stat.totalMonsters
+                   , stat.gainedExp
+                   , stat.uniqueKills, stat.rareKills, stat.magicKills, stat.normalKills
+                   , Format("{}m {}s", stat.usedTime // 60, Mod(stat.usedTime, 60)))
+        }
+
+        for i, col in this.cols
+            LV_ModifyCol(i, col.options)
+    }
+}
+
 class Banner extends AhkGui {
 
     __new(ownerHwnd) {
@@ -51,7 +92,7 @@ class Banner extends AhkGui {
             Gui, Add, Text, % "ys w150 Hwnd" this.__var("EnergyShield"), % _("Energy Shield") ": 100`%"
         }
         Gui, Font, cBlack bold
-        Gui, Add, Text, % "ys w80 Hwnd" this.__var("Kills"), % _("Kills") ": 0/0"
+        Gui, Add, Text, % "ys w80 Hwnd" this.__var("kills") " gL1 v" this.__var("showKillStats"), % _("Kills") ": 0/0"
         Gui, Font, cRed bold
         Gui, Add, Text, % "ys x+10 w200 Hwnd" this.__var("Statusbar")
 
@@ -105,8 +146,13 @@ class Banner extends AhkGui {
     }
 
     onKillCounter(kills, total) {
-        rdebug("#KILLS", _("Kills") ": <b>{}</b>/{}", kills, total)
+        rdebug("#KILLS", _("kills") ": <b>{}</b>/{}", kills, total)
         GuiControl,, % this.Kills, kills: %kills%/%total%
+    }
+
+    showKillStats() {
+        ptask.activate()
+        stats := new KillStats()
     }
 
     lifeChanged(life, lParam) {
