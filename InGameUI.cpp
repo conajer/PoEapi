@@ -14,22 +14,22 @@
 #include "ui/NotificationArea.cpp"
 
 std::map<string, int> in_game_ui_offsets {
-    {"inventory",       0x520},
+    {"inventory",       0x500},
         {"grid",        0x3a8},
-    {"stash",           0x528},
-        {"tabs",        0x2c8},
-    {"overlay_map",     0x5a8},
+    {"stash",           0x538},
+        {"tabs",        0x2c0},
+    {"overlay_map",     0x5b8},
         {"large",       0x230},
         {"small",       0x238},
-    {"chat",            0x400},
-    {"entity_list",     0x5b0},
+    {"chat",            0x410},
+    {"entity_list",     0x5c0},
         {"root",        0x2a0},
-    {"vendor",          0x638},
-    {"purchase",        0x658},
-    {"sell",            0x660},
-    {"trade",           0x668},
-    {"gem_level_up",    0x8c8},
-    {"notifications",   0x910},
+    {"vendor",          0x648},
+    {"purchase",        0x668},
+    {"sell",            0x670},
+    {"trade",           0x678},
+    {"gem_level_up",    0x8d8},
+    {"notifications",   0x920},
 };
 
 enum {

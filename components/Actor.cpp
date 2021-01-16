@@ -75,8 +75,8 @@ static std::map<string, int> actor_component_offsets {
         {"target",   0x168},
     {"action_id",    0x208},
     {"action_count", 0x20a},
-    {"vaal_skills",  0x540},
-    {"skills",       0x668},
+    {"vaal_skills",  0x6b0},
+    {"skills",       0x680},
 };
 
 class Actor : public Component {
