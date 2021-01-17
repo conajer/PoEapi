@@ -12,6 +12,7 @@
 #include "ui/OverlayMap.cpp"
 #include "ui/Chat.cpp"
 #include "ui/NotificationArea.cpp"
+#include "ui/Favours.cpp"
 
 std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x500},
@@ -28,6 +29,8 @@ std::map<string, int> in_game_ui_offsets {
     {"purchase",        0x668},
     {"sell",            0x670},
     {"trade",           0x678},
+    {"favours",         0x7e8},
+        {"items",       0x2c0},
     {"gem_level_up",    0x8d8},
     {"notifications",   0x920},
 };
@@ -48,9 +51,11 @@ public:
     unique_ptr<OverlayMap> large_map, corner_map;
     unique_ptr<Chat> chat;
     unique_ptr<NotificationArea> notification_area;
+    unique_ptr<Favours> favours;
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
+        add_method(L"getFavours", this, (MethodType)&InGameUI::get_favours, AhkObject);
     }
 
     void __new() {
@@ -62,6 +67,7 @@ public:
         get_overlay_map();
         get_chat();
         get_notification_area();
+        get_favours();
 
         Element::__new();
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
@@ -130,6 +136,11 @@ public:
             notification_area.reset(new NotificationArea(read<addrtype>("notifications")));
         }
         return notification_area.get();
+    }
+
+    AhkObjRef* get_favours() {
+        favours.reset(new Favours(read<addrtype>("favours", "items")));
+        return *favours;
     }
 
     int get_all_entities(EntityList& entities, EntityList& removed) {
