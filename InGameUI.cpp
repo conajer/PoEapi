@@ -76,8 +76,9 @@ public:
     }
 
     Inventory* get_inventory() {
-        if (!inventory)
-            inventory.reset(new Inventory(read<addrtype>("inventory", "grid")));
+        addrtype addr = read<addrtype>("inventory", "grid");
+        if (!inventory || inventory->address != addr)
+            inventory.reset(new Inventory(addr));
         return inventory.get();
     }
 
