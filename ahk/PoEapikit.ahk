@@ -51,7 +51,7 @@ global ptask := new PoETask()
 global pricer := new Pricer()
 global trader := new Trader()
 
-version := "0.7.2"
+version := "0.7.3"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -194,10 +194,12 @@ return
     keepPrices := false
     if (ptask.stash.isOpened()) {
         for i, e in ptask.stash.Tab.getChilds() {
-            if (e.item && e.item.price >= 1) {
+            if (e.item && e.item.price >= 0.05) {
                 r := e.getPos()
                 if (e.item.price > 1000)
                     p := Format("{:.f}K", e.item.price / 1000)
+                else if (e.item.price < 1)
+                    p := Format("{:.1f}", e.item.price)
                 else
                     p := Format("{:.f}", e.item.price)
                 ptask.c.drawText(r.l, r.t, 100, 20, p, e.item.price >= 10 ? 0xfe : 0xfe0000)
@@ -207,13 +209,34 @@ return
 
     if (ptask.inventory.isOpened()) {
         for i, e in ptask.inventory.getChilds() {
-            if (e.item && e.item.price >= 1) {
+            if (e.item && e.item.price >= 0.05) {
                 r := e.getPos()
                 if (e.item.price > 1000)
                     p := Format("{:.f}K", e.item.price / 1000)
+                else if (e.item.price < 1)
+                    p := Format("{:.1f}", e.item.price)
                 else
                     p := Format("{:.f}", e.item.price)
                 ptask.c.drawText(r.l, r.t, 100, 20, p, e.item.price >= 10 ? 0xfe : 0xfe0000)
+            }
+        }
+    }
+
+    favours := ptask.getIngameUI().getFavours()
+    if (favours.isOpened()) {
+        for i, e in favours.getChilds() {
+            price := pricer[e.item]
+            if (e.item.stackCount > 0)
+                price := e.item.stackCount * price
+            if (price >= 0.05) {
+                r := e.getPos()
+                if (price > 1000)
+                    p := Format("{:.f}K", price / 1000)
+                else if (price < 1)
+                    p := Format("{:.1f}", price)
+                else
+                    p := Format("{:.f}", price)
+                ptask.c.drawText(r.l, r.t, 100, 20, p, price >= 10 ? 0xfe : 0xfe0000)
             }
         }
     }
@@ -256,23 +279,6 @@ return
     PixelGetColor, bgr, tempX, tempY
     MsgBox, % "Width:" ptask.Width " Hieght:" ptask.Height "`nX=" tempX " Y=" tempY "`nColor=" bgr
 return
-
-class PassiveSkill extends Element {
-
-    __init() {
-        address := this.getPtr(this.address + 0x1b0)
-        this.u1 := this.getByte(this.address + 0x380)
-
-        address := this.getPtr(address + 0x10)
-        this.id := this.getInt(address + 0x30)
-        address := this.getPtr(address + 0x34)
-        this.name := this.getString(address, 64)
-    }
-
-    toString() {
-        return Format("{:x}: {}{}, {:x}, {:x}, {:x}", this.address, this.u1 ? "*" : "", this.name, this.u1, this.u2, this.u3)
-    }
-}
 
 F12::
     logger.show(!logger.isVisible())

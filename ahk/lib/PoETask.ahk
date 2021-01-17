@@ -283,14 +283,14 @@ class PoETask extends AhkObj {
             if (Not item.isIdentified && (identifyAll || Not IdentifyExceptions.check(item))) {
                 if (Not shift) {
                     SendInput {Shift down}
-                    if (Not this.inventory.identify("")) {
+                    if (Not this.inventory.identify(item)) {
                         SendInput {Shift up}
                         return
                     }
                     shift := true
+                } else {
+                    this.inventory.identify(item, shift)
                 }
-
-                this.inventory.identify(item, shift)
             }
         }
 
