@@ -51,7 +51,7 @@ global ptask := new PoETask()
 global pricer := new Pricer()
 global trader := new Trader()
 
-version := "0.7.3"
+version := "0.7.4"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 

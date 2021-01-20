@@ -42,10 +42,10 @@ global PoEOffsets = { "version" : "3.12.5c", "offsets"
                         , "purchase"                    : 0x668
                         , "sell"                        : 0x670
                         , "trade"                       : 0x678
-                        , "gem_level_up"                : 0x8d8
-                        , "notifications"               : 0x910 }
+                        , "gem_level_up"                : 0x990
+                        , "notifications"               : 0x948 }
                       
-      , "ServerData"  : { "player_data"                 : 0x7ba8
+      , "ServerData"  : { "player_data"                 : 0x7b18
                         ,     "passive_skills"          : 0x160
                         ,     "player_class"            : 0x200
                         ,     "level"                   : 0x204
@@ -54,7 +54,7 @@ global PoEOffsets = { "version" : "3.12.5c", "offsets"
                         ,     "ascendancy_skill_points" : 0x214
                         , "league"                      : 0x7be0
                         , "latency"                     : 0x7c58
-                        , "party_status"                : 0x7d90
+                        , "party_status"                : 0x7dd0
                         , "stash_tabs"                  : 0x7c68
                         , "local_player"                : 0x7f08
                         , "inventory_slots"             : 0x7ff8 }
