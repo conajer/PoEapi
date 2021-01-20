@@ -279,17 +279,17 @@ class PoETask extends AhkObj {
         if (Not vendor.sell())
             return
 
-        for i, item in this.inventory.getItems() {
-            if (Not item.isIdentified && (identifyAll || Not IdentifyExceptions.check(item))) {
+        for i, aItem in this.inventory.getItems() {
+            if (Not aItem.isIdentified && (identifyAll || Not IdentifyExceptions.check(aItem))) {
                 if (Not shift) {
                     SendInput {Shift down}
-                    if (Not this.inventory.identify(item)) {
+                    if (Not this.inventory.identify(aItem)) {
                         SendInput {Shift up}
                         return
                     }
                     shift := true
                 } else {
-                    this.inventory.identify(item, shift)
+                    this.inventory.identify(aItem, shift)
                 }
             }
         }
@@ -299,14 +299,16 @@ class PoETask extends AhkObj {
             SendInput {Shift up}
         }
 
-        for i, item in this.inventory.getItems() {
-            if (item.rarity == 0 && item.baseName ~= "(Divine|Eternal) Life") {
+        for i, aItem in this.inventory.getItems() {
+            if (aItem.rarity == 0 && aItem.baseName ~= "(Divine|Eternal) Life") {
                 trans := this.inventory.findItem("Transmutation")
-                this.inventory.use(trans, item)
+                this.inventory.use(trans, aItem)
             }
 
-            if (Not VendorExceptions.check(item) && VendorRules.check(item))
-                this.inventory.move(item)
+            if (Not VendorExceptions.check(aItem) 
+                && (VendorRules.check(aItem)
+                    || (ptask.player > 70 && aItem.price && aItem.price < 0.5)))
+                this.inventory.move(aItem)
         }
         ptask.getSell().accept()
     }
@@ -316,11 +318,11 @@ class PoETask extends AhkObj {
             return
 
         Sleep, 100
-        for i, item in this.inventory.getItems() {
-            rule := StashRules.check(item)
+        for i, aItem in this.inventory.getItems() {
+            rule := StashRules.check(aItem)
             if (rule) {
                 this.stash.switchTab(rule.tabName)
-                this.inventory.move(item)
+                this.inventory.move(aItem)
             }
         }
     }
