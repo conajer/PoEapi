@@ -77,7 +77,7 @@ class TradeSession extends AhkGui {
         ownerHwnd := ptask.Hwnd
         this.__guiId := Format("__ts_{:x}", &this)
         tmpId := this.__guiId
-        Gui, %tmpId%:New, -Caption +Owner%ownerHwnd% +Hwndhwnd +LastFound
+        Gui, %tmpId%:New, -Caption +Toolwindow +AlwaysOnTop +Hwndhwnd +LastFound
         Gui, Color, c111318
         Gui, Margin, 5, 2
         WinSet, Transparent, 225
@@ -134,7 +134,6 @@ class TradeSession extends AhkGui {
     }
 
     kick() {
-        ptask.activate()
         if (this.isJoined) {
             if (ptask.getPartyStatus() == 0) {
                 ; As the party's leader
@@ -144,7 +143,6 @@ class TradeSession extends AhkGui {
     }
 
     leave() {
-        ptask.activate()
         if (this.isJoined) {
             ptask.sendKeys("/kick " ptask.player.name)
             if (this.needReturn)
