@@ -7,7 +7,11 @@ if (FileExist("..\poeapi.dll")) {
 }
 
 if (Not DllCall("LoadLibrary", "Str", "poeapi.dll", "ptr")) {
-    Msgbox, % DllCall("GetLastError") ": Load poeapi.dll failed!"
+    errCode := DllCall("GetLastError")
+    if (errCode == 0xc1)
+        Msgbox, % "You need 64-Bit AutoHotkey to run PoEapikit."
+    else
+        Msgbox, % code ": Load poeapi.dll failed!"
 }
 
 #Include, %A_ScriptDir%\lib\ahkpp.ahk
