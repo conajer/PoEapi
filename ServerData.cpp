@@ -73,7 +73,7 @@ private:
             items.__set(std::to_wstring(i.first).c_str(),
                         (AhkObjRef*)item, AhkObject, nullptr);
         }
-        __set(L"Items", (AhkObjRef*)items, AhkObject, nullptr);
+        __set(L"items", (AhkObjRef*)items, AhkObject, nullptr);
 
         return items;
     }
@@ -325,7 +325,7 @@ public:
         for (auto addr : read_array<addrtype>("inventory_slots", 0x20)) {
             shared_ptr<InventorySlot> slot(new InventorySlot(addr));
             auto i = inventory_slots.find(slot->id);
-            if (i == inventory_slots.end() || i->second->address != addr)
+            if (i == inventory_slots.end() || i->second->address != slot->address)
                 inventory_slots[slot->id] = shared_ptr<InventorySlot>(slot);
         }
 

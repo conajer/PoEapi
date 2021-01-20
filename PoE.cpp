@@ -146,6 +146,8 @@ public:
     GameState *active_game_state;
     InGameState* in_game_state;
     InGameUI* in_game_ui;
+    InGameData* in_game_data;
+    ServerData* server_data;
     unique_ptr<Canvas> hud;
 
     PoE() : game_state_controller(0) {
@@ -154,9 +156,6 @@ public:
 
     void __new() {
         if (is_in_game()) {
-            InGameData* in_game_data = in_game_state->in_game_data();
-            ServerData* server_data = in_game_state->server_data();
-
             __set(L"league", server_data->league().c_str(), AhkWString,
                   L"area", in_game_data->world_area()->name().c_str(), AhkWString,
                   nullptr);
@@ -183,6 +182,8 @@ public:
             if (game_state && game_state->is(L"InGameState")) {
                 in_game_state = (InGameState*)game_state;
                 in_game_ui = in_game_state->in_game_ui();
+                in_game_data = in_game_state->in_game_data();
+                server_data = in_game_state->server_data();
             }
 
             return game_state;

@@ -125,9 +125,6 @@ public:
     PoEObject(addrtype address, FieldOffsets* offsets = &default_offsets)
         : RemoteMemoryObject(address, offsets)
     {
-        buffer_size = 256;
-        buffer = new byte[buffer_size];
-
         add_property(L"address", &this->address, AhkPointer);
     }
 
@@ -136,7 +133,8 @@ public:
 
     static void* __read(addrtype address, size_t size) {
         if (size > buffer_size) {
-            std::free(buffer);
+            if (buffer)
+                std::free(buffer);
             buffer_size = std::max(buffer_size, size);
             buffer = std::malloc(buffer_size);
         }

@@ -12,8 +12,7 @@ public:
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
-        ServerData* server_data = in_game_state->server_data();
-        auto inventory_slots = server_data->inventory_slots;
+        auto inventory_slots = poe->server_data->inventory_slots;
         InventorySlot* flask_slot = inventory_slots[flask_slot_id].get();
         
         if (flask_slot) {

@@ -154,7 +154,8 @@ public:
         for (auto& i : removed) {
             shared_ptr<Entity>& entity = i.second;
             if (entity->is_monster) {
-                if (current_area->killed.find(i.first) == current_area->killed.end())
+                if (current_area->killed.find(i.first) == current_area->killed.end()
+                    && nearby_monsters.find(i.first) != nearby_monsters.end())
                     current_area->total.erase(i.first);
             }
         }

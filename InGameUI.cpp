@@ -84,7 +84,7 @@ public:
     Inventory* get_inventory() {
         addrtype addr = read<addrtype>("inventory", "grid");
         if (!inventory || inventory->address != addr)
-            inventory.reset(new Inventory(addr));
+            inventory = unique_ptr<Inventory>(new Inventory(addr));
         return inventory.get();
     }
 

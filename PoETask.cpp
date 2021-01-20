@@ -90,7 +90,6 @@ public:
 
     AhkObjRef* get_nearest_entity(const wchar_t* text) {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
             shared_ptr<Entity>& entity = in_game_ui->get_nearest_entity(*local_player, text);
             if (entity)
                 return (AhkObjRef*)*entity;
@@ -101,7 +100,6 @@ public:
 
     AhkObjRef* get_ingame_ui() {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
             __set(L"ingameUI", (AhkObjRef*)*in_game_ui, AhkObject, nullptr);
 
             return in_game_ui->obj_ref;
@@ -113,8 +111,7 @@ public:
 
     AhkObjRef* get_inventory() {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
-            Inventory* inventory = in_game_ui->get_inventory();
+           Inventory* inventory = in_game_ui->get_inventory();
             __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
             return inventory->obj_ref;
         }
@@ -125,7 +122,6 @@ public:
 
     AhkObjRef* get_inventory_slots() {
         if (is_in_game()) {
-            ServerData* server_data = in_game_state->server_data();
             AhkObj inventory_slots;
             for (auto& i : server_data->get_inventory_slots()) {
                 InventorySlot* slot = i.second.get();
@@ -142,7 +138,6 @@ public:
 
     AhkObjRef* get_stash() {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
             Stash* stash = in_game_ui->get_stash();
             __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
             return stash->obj_ref;
@@ -154,7 +149,6 @@ public:
 
     AhkObjRef* get_vendor() {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
             Vendor* vendor = in_game_ui->get_vendor();
             return (AhkObjRef*)*vendor;
        }
@@ -164,7 +158,6 @@ public:
 
     AhkObjRef* get_sell() {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
             Sell* sell = in_game_ui->get_sell();
             return (AhkObjRef*)*sell;
        }
@@ -174,7 +167,6 @@ public:
 
     AhkObjRef* get_trade() {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
             Trade* trade = in_game_ui->get_trade();
             return (AhkObjRef*)*trade;
        }
@@ -184,7 +176,6 @@ public:
 
     AhkObjRef* get_chat() {
         if (is_in_game()) {
-            InGameUI* in_game_ui = in_game_state->in_game_ui();
             Chat* chat = in_game_ui->get_chat();
             return (AhkObjRef*)*chat;
        }
@@ -194,7 +185,6 @@ public:
 
     AhkObjRef* get_passive_skills() {
         if (is_in_game()) {
-            ServerData* server_data = in_game_state->server_data();
             AhkObj passive_skills;
             
             for (auto i : server_data->get_passive_skills())
@@ -208,7 +198,6 @@ public:
 
     AhkObjRef* get_stash_tabs() {
         if (is_in_game()) {
-            ServerData* server_data = in_game_state->server_data();
             AhkObj stash_tabs;
             for (auto& i : server_data->get_stash_tabs()) {
                 if (i->folder_id == -1)
@@ -287,6 +276,10 @@ public:
             while (!in_game_state->unknown())
                 Sleep(500);
 
+            in_game_ui = in_game_state->in_game_ui();
+            in_game_data = in_game_state->in_game_data();
+            server_data = in_game_state->server_data();
+
             // clear cached entities.
             entities.all.clear();
             labeled_entities.clear();
@@ -318,7 +311,6 @@ public:
             return;
         }
 
-        InGameData* in_game_data = in_game_state->in_game_data();
         local_player = in_game_data->local_player();
         if (local_player) {
             if (in_game_data->area_hash() != area_hash) {
@@ -350,7 +342,6 @@ public:
         if (GetForegroundWindow() != hwnd || !local_player || !is_in_game())
             return;
 
-        InGameData* in_game_data = in_game_state->in_game_data();
         in_game_data->get_all_entities(entities, ignored_entity_exp);
 
         for (auto& i : plugins)
@@ -362,7 +353,6 @@ public:
         if (GetForegroundWindow() != hwnd || !local_player || !is_in_game())
             return;
 
-        InGameUI* in_game_ui = in_game_state->in_game_ui();
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
 
         for (auto& i : plugins)
@@ -379,12 +369,12 @@ public:
             major_version, minor_version, patch_level, supported_PoE_version);
         
         /* add plugins */
+        add_plugin(new PlayerStatus());
         add_plugin(new AutoFlask());
         add_plugin(new AutoOpen());
         add_plugin(new HeistChest());
         add_plugin(new Messenger());
         add_plugin(new MinimapSymbol());
-        add_plugin(new PlayerStatus());
         add_plugin(new KillCounter());
         add_plugin(new AutoPickup());
 
