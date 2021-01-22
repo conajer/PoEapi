@@ -48,29 +48,33 @@ class Pricer {
         http :=ComObjCreate("WinHttp.WinHttpRequest.5.1")
         for t, name in this.currencyTypes {
             url := Format(this.url, "currency", this.league, t)
-            http.Open("GET", url, true)
-            http.Send()
-            http.WaitForResponse()
+            try {
+                http.Open("GET", url, true)
+                http.Send()
+                http.WaitForResponse()
 
-            parsed := JSON.Load(http.ResponseText)
-            for i, p in parsed.lines
-                this.prices[p.currencyTypeName] := {"price" : p.receive.value, "type" : t}
-            rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loaded prices of {} ... {}</b>"
-                   , name, parsed.lines.Count())
+                parsed := JSON.Load(http.ResponseText)
+                for i, p in parsed.lines
+                    this.prices[p.currencyTypeName] := {"price" : p.receive.value, "type" : t}
+                rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loaded prices of {} ... {}</b>"
+                    , name, parsed.lines.Count())
+            } catch {}
         }
 
         for t, name in this.itemTypes {
             url := Format(this.url, "item", this.league, t)
-            http.Open("GET", url, true)
-            http.Send()
-            http.WaitForResponse()
+            try {
+                http.Open("GET", url, true)
+                http.Send()
+                http.WaitForResponse()
 
-            parsed := JSON.Load(http.ResponseText)
-            for i, p in parsed.lines
-                this.prices[p.name] := {"price" : p.chaosValue, "type" : t}
-            rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loaded prices of {} ... {}</b>"
-                   , name, parsed.lines.Count())
-        }
+                parsed := JSON.Load(http.ResponseText)
+                for i, p in parsed.lines
+                    this.prices[p.name] := {"price" : p.chaosValue, "type" : t}
+                rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loaded prices of {} ... {}</b>"
+                    , name, parsed.lines.Count())
+             } catch {}
+       }
 
         FormatTime, t,, MM/dd/yyyy hh:mm:ss
         this.lastUpdateTime := t
