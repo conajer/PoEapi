@@ -151,15 +151,9 @@ public:
     unique_ptr<Canvas> hud;
 
     PoE() : game_state_controller(0) {
-        open_target_process();
     }
 
     void __new() {
-        if (is_in_game()) {
-            __set(L"league", server_data->league().c_str(), AhkWString,
-                  L"area", in_game_data->world_area()->name().c_str(), AhkWString,
-                  nullptr);
-        }
     }
 
     GameStateController* get_game_state_controller() {
