@@ -18,7 +18,7 @@ public:
 
     AutoOpen() : PoEPlugin(L"AutoOpen", "0.1"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
-        ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase|Secure Locker|Secure Repository")
+        ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase")
     {
         total_opened = 0;
         add_property(L"range", &range, AhkInt);
@@ -66,8 +66,9 @@ public:
             int index = i.second->has_component(entity_types);
             switch (index) {
             case 0: { // Chest
-                if (i.second->has_component("MinimapIcon")
-                    || !std::regex_search(i.second->name(), ignored_chests))
+                if ((i.second->path.find(L"HeistChest") == wstring::npos)
+                    && (i.second->has_component("MinimapIcon")
+                        || !std::regex_search(i.second->name(), ignored_chests)))
                 {
                     Chest* chest = i.second->get_component<Chest>();
                     if (!chest->is_opened() && !chest->is_locked())
