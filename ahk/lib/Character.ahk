@@ -181,6 +181,10 @@ class Character {
     monsterChanged(numOfMonsters, charges) {
         this.nearbyMonsters := numOfMonsters
         this.expectCharges := charges
+        for i, aFlask in this.flasks {
+            if (charges >= aFlask.chargesPerUse && aFlask.IsUtility)
+                aFlask.use(0, this.life < LifeThreshold)
+        }
         rdebug("#MONSTERS", "<b>{}</b> " _("monsters") ", <b>{}</b> " _("charges"), numOfMonsters, charges)
     }
 
@@ -224,7 +228,7 @@ class Character {
         if (this.nearbyMonsters >= MonsterThreshold) {
             for i, aFlask in this.flasks {
                 if (aFlask.IsUtility && Not aFlask.IsQuicksilver)
-                    aFlask.use(this.expectCharges, this.life < LifeThreshold)
+                    aFlask.use(0, this.life < LifeThreshold)
             }
         }
     }
