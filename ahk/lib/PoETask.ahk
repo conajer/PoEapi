@@ -97,6 +97,12 @@ class PoETask extends AhkObj {
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
         this.player := new Character()
 
+        ; Update offsets
+        for catalog, offsets in PoEOffsets.offsets {
+            for key, value in offsets
+                this.setOffset(catalog, key, value)
+        }
+
         ; Start PoE task
         this.start()
 
@@ -136,12 +142,6 @@ class PoETask extends AhkObj {
         this.height := h
         this.actionArea := new Rect(210, 90, w - 450, h - 260)
 
-        ; Update offsets
-        for catalog, offsets in PoEOffsets.offsets {
-            for key, value in offsets
-                this.setOffset(catalog, key, value)
-        }
-
         ; Configure plugins
         plugins := this.getPlugins()
         for name, options in PluginOptions {
@@ -172,11 +172,13 @@ class PoETask extends AhkObj {
                 Sleep, 500
                 poe.activate()
             }
-        } else if (hwnd != this.banner.hwnd) {
-            if (Not WinActive("ahk_id " this.Hwnd)) {
-                this.banner.show(false, false)
-                this.c.clear()
-                this.hud.show(false, false)
+        } else {
+            if (Not WinActive("ahk_class AutoHotkeyGUI") || this.isMinimized()) {
+                if (Not WinActive("ahk_id " this.Hwnd)) {
+                    this.banner.show(false, false)
+                    this.c.clear()
+                    this.hud.show(false, false)
+                }
             }
         }
     }
@@ -394,6 +396,8 @@ class PoETask extends AhkObj {
             chest.name := chestName
             chest.x := lParam << 32 >> 48
             chest.y := lParam << 48 >> 48
+            chest.w := lParam >> 48
+            chest.h := lParam << 16 >> 48
             this.heistChests.Push(chest)
             return
         }
@@ -403,8 +407,9 @@ class PoETask extends AhkObj {
         for i, chest in this.heistChests {
             x := chest.x
             y := chest.y
-            if (RegExMatch(chest.name, HeistChestNameRegex, matched))
-                this.c.drawText(x - 100, y + 50, 200, 30, matched2, 0xff00ff)
+            if (RegExMatch(chest.name, HeistChestNameRegex, matched)) {
+                this.c.drawText(x, y + 68, 200, 30, matched2, 0xff00ff)
+            }
         }
         this.c.endPaint()
 
