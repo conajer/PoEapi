@@ -122,7 +122,8 @@ Class Canvas extends AhkGui {
     clear() {
         cBrush := DllCall("gdi32.dll\CreateSolidBrush", "UInt", __bgColor )
         cRegion := DllCall("gdi32.dll\CreateRectRgn", "Int", 0 , "Int", 0, "Int", this.Width , "Int", this.Height)
-        DllCall("gdi32.dll\FillRgn" , "UInt", this.Hdc , "UInt", cRegion , "UInt", cBrush)
+        if (this.updateDC)
+            DllCall("gdi32.dll\FillRgn" , "UInt", this.Hdc , "UInt", cRegion , "UInt", cBrush)
         DllCall("gdi32.dll\FillRgn" , "UInt", this.Cdc , "UInt", cRegion , "UInt", cBrush)
         DllCall("DeleteObject" , "UInt", cRegion)
         DllCall("DeleteObject" , "UInt", cBrush)
