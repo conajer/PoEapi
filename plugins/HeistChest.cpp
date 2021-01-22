@@ -31,11 +31,11 @@ public:
 
         if (chests.size() > 0) {
             for (auto& i : chests) {
-                Point pos = i->label->get_pos();
+                Rect r = i->label->get_rect();
                 PostThreadMessage(thread_id,
                     WM_HEIST_CHEST,
                     (WPARAM)&i->path[i->path.rfind(L'/') + 1],
-                    (LPARAM)((pos.x & 0xffff) << 16) | (pos.y & 0xffff));
+                    (LPARAM)(((__int64)r.w << 48) | ((__int64)r.h << 32) | (r.x & 0xffff) << 16) | (r.y & 0xffff));
             }
             PostThreadMessage(thread_id, WM_HEIST_CHEST, (WPARAM)0, (LPARAM)0);
             no_chest_found = false;
