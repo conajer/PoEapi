@@ -12,16 +12,26 @@ public:
         "Transitionable",       // Switch, lever, standing stone, lodestone etc.
     };
     std::wregex entity_names, ignored_chests;
+    wstring default_ignored_chests;
     RECT bounds;
     int range = 15;
     int total_opened;
 
-    AutoOpen() : PoEPlugin(L"AutoOpen", "0.1"),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.2"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
-        ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase")
+        default_ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase")
     {
         total_opened = 0;
         add_property(L"range", &range, AhkInt);
+        add_method(L"setIgnoredChests", this, (MethodType)&AutoOpen::set_ignored_chests, AhkVoid, ParamList{AhkWString});
+        set_ignored_chests();
+    }
+
+    void set_ignored_chests(const wchar_t* regex_string = nullptr) {
+        if (regex_string)
+            ignored_chests.assign(default_ignored_chests + L"|" + regex_string);
+        else
+            ignored_chests.assign(default_ignored_chests);
     }
 
     void try_open(Entity* entity) {
