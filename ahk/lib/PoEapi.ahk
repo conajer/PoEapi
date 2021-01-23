@@ -116,13 +116,14 @@ class Entity extends PoEObject {
 class Element extends PoEObject {
 
     getChild(params*) {
-        element := this
+        e := this
         for i, n in params {
-            element.getChilds()
-            element := element.childs[n]
+            if (e.getChilds().Count() < n)
+                return
+            e := e.childs[n]
         }
 
-        return element
+        return e
     }
 
     getPos(ByRef x = "", ByRef y = "") {
