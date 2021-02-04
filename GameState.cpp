@@ -145,8 +145,8 @@ public:
         return sd.get();
     }
 
-    int time_in_game() {
-        return read<int>("time_in_game");
+    unsigned int time_in_game() {
+        return read<unsigned int>("time_in_game");
     }
 
     int unknown() {
