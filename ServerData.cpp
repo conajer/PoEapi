@@ -30,12 +30,12 @@ public:
         item_address = read<addrtype>("item");
     }
 
-    Item& get_item() {
+    shared_ptr<Item> get_item() {
         addrtype addr = read<addrtype>("item");
         if (!item || item->address != addr)
             item = shared_ptr<Item>(new Item(addr));
 
-        return *item;
+        return item;
     }
 
     void to_print() {
@@ -62,16 +62,15 @@ private:
     AhkObjRef* __get_items() {
         AhkObj items;
         for (auto& i : get_items()) {
-            Item& item = i.second->get_item();
-            if (!item.obj_ref)
-                item.__set(L"index", i.first, AhkInt,
-                           L"left", i.second->x + 1, AhkInt,
-                           L"top", i.second->y + 1, AhkInt,
-                           L"width", i.second->w, AhkInt,
-                           L"height", i.second->h, AhkInt,
-                           nullptr);
+            shared_ptr<Item> item = i.second->get_item();
+            item->__set(L"index", i.first, AhkInt,
+                        L"left", i.second->x + 1, AhkInt,
+                        L"top", i.second->y + 1, AhkInt,
+                        L"width", i.second->w, AhkInt,
+                        L"height", i.second->h, AhkInt,
+                        nullptr);
             items.__set(std::to_wstring(i.first).c_str(),
-                        (AhkObjRef*)item, AhkObject, nullptr);
+                        (AhkObjRef*)*item, AhkObject, nullptr);
         }
         __set(L"items", (AhkObjRef*)items, AhkObject, nullptr);
 
