@@ -45,8 +45,11 @@ public:
 
     shared_ptr<Element>& get_sell_panel() {
         if (is_visible()) {
-            if (!sell_panel || !sell_panel->is_valid())
+            if (!sell_panel || !sell_panel->is_valid()) {
                 sell_panel = shared_ptr<Element>(get_child(path));
+                if (sell_panel)
+                    sell_panel->get_childs();
+            }
         } else {
             sell_panel.reset();
         }
@@ -84,7 +87,6 @@ public:
 
     std::vector<shared_ptr<Item>>& get_your_items() {
         if (is_opened()) {
-            get_sell_panel();
             auto elements = sell_panel->childs[0]->get_childs();
 
             std::vector<shared_ptr<Item>> new_items;
