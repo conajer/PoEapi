@@ -45,15 +45,12 @@ public:
 
     shared_ptr<Element>& get_sell_panel() {
         if (is_visible()) {
-            if (!sell_panel || !sell_panel->is_valid()) {
+            if (!sell_panel || !sell_panel->is_valid())
                 sell_panel = shared_ptr<Element>(get_child(path));
-                sell_panel->get_childs();
-                __set(L"sellPanel", sell_panel ? (AhkObjRef*)*sell_panel : nullptr, AhkObject, nullptr);
-            }
         } else {
             sell_panel.reset();
-            __set(L"sellPanel", nullptr, AhkObject, nullptr);
         }
+        __set(L"sellPanel", sell_panel ? (AhkObjRef*)*sell_panel : nullptr, AhkObject, nullptr);
 
         return sell_panel;
     }
