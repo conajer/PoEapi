@@ -23,6 +23,9 @@ std::map<string, int> in_game_ui_offsets {
         {"large",       0x230},
         {"small",       0x238},
     {"chat",            0x410},
+    {"lefe_panel",      0x508},
+    {"right_panel",     0x510},
+    {"panel_flags",     0x518},
     {"entity_list",     0x5c0},
         {"root",        0x2a0},
     {"vendor",          0x648},
@@ -79,6 +82,11 @@ public:
               L"chat", (AhkObjRef*)*chat, AhkObject,
               L"notifications", (AhkObjRef*)*notifications, AhkObject,
               nullptr);
+    }
+
+    bool has_active_panel() {
+        return read<short>("panel_flags") || vendor->is_visible() || chat->is_opened()
+               || atlas->is_visible() || skills->is_visible();
     }
 
     Inventory* get_inventory() {
