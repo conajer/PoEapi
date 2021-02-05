@@ -11,7 +11,7 @@
 #include "ui/Trade.cpp"
 #include "ui/OverlayMap.cpp"
 #include "ui/Chat.cpp"
-#include "ui/NotificationArea.cpp"
+#include "ui/Notifications.cpp"
 #include "ui/Favours.cpp"
 
 std::map<string, int> in_game_ui_offsets {
@@ -50,7 +50,7 @@ public:
     unique_ptr<Trade> trade;
     unique_ptr<OverlayMap> large_map, corner_map;
     unique_ptr<Chat> chat;
-    unique_ptr<NotificationArea> notification_area;
+    unique_ptr<Notifications> notifications;
     unique_ptr<Favours> favours;
     shared_ptr<Entity> nearest_entity;
 
@@ -66,7 +66,7 @@ public:
         get_trade();
         get_overlay_map();
         get_chat();
-        get_notification_area();
+        get_notifications();
         get_favours();
 
         Element::__new();
@@ -77,7 +77,7 @@ public:
               L"largeMap", (AhkObjRef*)*large_map, AhkObject,
               L"cornerMap", (AhkObjRef*)*corner_map, AhkObject,
               L"chat", (AhkObjRef*)*chat, AhkObject,
-              L"notificationArea", (AhkObjRef*)*notification_area, AhkObject,
+              L"notifications", (AhkObjRef*)*notifications, AhkObject,
               nullptr);
     }
 
@@ -125,17 +125,17 @@ public:
     }
 
     Chat* get_chat() {
-        if (!chat) {
+        if (!chat)
             chat = unique_ptr<Chat>(new Chat(read<addrtype>("chat")));
-        }
         return chat.get();
     }
 
-    NotificationArea* get_notification_area() {
-        if (!notification_area) {
-            notification_area.reset(new NotificationArea(read<addrtype>("notifications")));
-        }
-        return notification_area.get();
+    Notifications* get_notifications() {
+        if (!notifications)
+            notifications.reset(new Notifications(read<addrtype>("notifications")));
+        return notifications.get();
+    }
+
     }
 
     AhkObjRef* get_favours() {

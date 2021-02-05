@@ -1,17 +1,17 @@
 /*
-* Notification.cpp, 10/24/2020 11:13 AM
+* Notifications.cpp, 10/24/2020 11:13 AM
 */
 
-class NotificationArea : public Element {
+class Notifications : public Element {
 public:
 
     std::vector<shared_ptr<Element>> notifications;
     shared_ptr<Element> last_notification;
     int index = 0;
 
-    NotificationArea(addrtype address) : Element(address) {
-        add_method(L"hasNext", this, (MethodType)&NotificationArea::has_next, AhkBool);
-        add_method(L"nextNotification", this, (MethodType)&NotificationArea::next_notification, AhkWStringPtr);
+    Notifications(addrtype address) : Element(address) {
+        add_method(L"hasNext", this, (MethodType)&Notifications::has_next, AhkBool);
+        add_method(L"nextNotification", this, (MethodType)&Notifications::next_notification, AhkWStringPtr);
     }
 
     bool has_next() {
