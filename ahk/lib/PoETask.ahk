@@ -93,6 +93,7 @@ class PoETask extends AhkObj {
         OnMessage(WM_HEIST_CHEST, ObjBindMethod(this, "onHeistChest"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
+        OnMessage(WM_PTASK_LOADED, ObjBindMethod(this, "onLoaded"))
 
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
         this.player := new Character()
@@ -111,6 +112,10 @@ class PoETask extends AhkObj {
         VendorRules.base := Rules
         VendorExceptions.base := Rules
         StashRules.base := Rules
+    }
+
+    onLoaded() {
+        this.reset()
     }
 
     onAttached(hwnd) {
@@ -160,6 +165,7 @@ class PoETask extends AhkObj {
         if (EnableBanner)
             this.banner := new Banner(hwnd)
         this.activate()
+        this.reset()
         OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
     }
 
@@ -236,7 +242,7 @@ class PoETask extends AhkObj {
             return
 
         ptask.activate()
-        if (Not this.chat.isOpened())
+        if (Not this.getChat().isOpened())
             SendInput, {Enter}
 
         if (NoSend)
@@ -277,6 +283,7 @@ class PoETask extends AhkObj {
     }
 
     sellItems(identifyAll = false) {
+        this.c.clear()
         vendor := this.getVendor()
         if (Not vendor.sell())
             return
@@ -307,9 +314,7 @@ class PoETask extends AhkObj {
                 this.inventory.use(trans, aItem)
             }
 
-            if (Not VendorExceptions.check(aItem) 
-                && (VendorRules.check(aItem)
-                    || (ptask.player > 70 && aItem.price && aItem.price < 0.5)))
+            if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem))
                 this.inventory.move(aItem)
         }
         ptask.getSell().accept()
@@ -376,13 +381,6 @@ class PoETask extends AhkObj {
                 syslog(_("{:.2f}% experience gained"), gainedExp * 100 / levelExp[lvl])
             }
         }
-
-        this.getInventorySlots()
-        this.getStashTabs()
-        this.getStash()
-        this.getInventory()
-        this.flasks := this.inventories[12]
-        this.chat := this.getChat()
     }
 
     playerChanged(name) {
