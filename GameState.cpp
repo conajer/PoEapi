@@ -91,12 +91,13 @@ struct Matrix4x4 {
 
 std::map<string, int> in_game_state_offsets {
     {"name",          0x10},
+    {"load_stage1",   0x40},
     {"in_game_ui",    0x80},
     {"in_game_data", 0x500},
     {"server_data",  0x508},
     {"ui_root",      0x630},
     {"time_in_game", 0x6dc},
-    {"unknown",      0x6f0},
+    {"load_stage2",  0x6f0},
     {"camera",      0x1178},
     {"width",       0x1180},
     {"height",      0x1184},
@@ -109,6 +110,7 @@ public:
     unique_ptr<InGameUI> igu;
     unique_ptr<InGameData> igd;
     unique_ptr<ServerData> sd;
+    int load_stage = 0;
 
     float width, height;
     float center_x, center_y;
@@ -119,6 +121,30 @@ public:
         height = read<int>("height");
         center_x = width / 2;
         center_y = height / 2;
+    }
+
+    bool is_loading() {
+        int stage1 = read<short>("load_stage1");
+        if (load_stage || stage1) {
+            addrtype stage2 = read<addrtype>("load_stage2");
+            switch (load_stage) {
+                case 1:
+                    if (stage2 == 0 || !stage1) {
+                        Sleep(500);
+                        load_stage = 2;
+                    }
+                    break;
+                case 2:
+                    if (stage2 != 0)
+                        load_stage = 0;
+                    break;
+
+                default:
+                    load_stage = 1;
+            }
+        }
+
+        return load_stage;
     }
 
     InGameUI* in_game_ui() {
@@ -147,10 +173,6 @@ public:
 
     unsigned int time_in_game() {
         return read<unsigned int>("time_in_game");
-    }
-
-    int unknown() {
-        return read<addrtype>("unknown");
     }
 
     Vector3& transform(Vector3& vec) {
