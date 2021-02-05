@@ -93,7 +93,7 @@ class Character {
     }
 
     flaskChanged() {
-        flask_items := ptask.flasks.getItems()
+        flask_items := ptask.inventories[12].getItems()
         loop, 5 {
             i := (A_Index << 1) - 1
             if (flask_items[i]) {
