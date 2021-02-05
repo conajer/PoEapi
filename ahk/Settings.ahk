@@ -117,7 +117,7 @@ global AutoPickupKey := "a"
 ;
 ; Supported constraints:
 ;       index, name, baseName, isIdentified, isMirrored, isCorrupted, isRGB
-;       rarity, itemLevel, quality, sockets, links, tier, level
+;       rarity, itemLevel, quality, sockets, links, tier, level, price
 ;       and is<BaseType> is<SubType>
 ;
 global IdentifyExceptions :=[ {"baseType" : "Map"},
@@ -126,7 +126,7 @@ global IdentifyExceptions :=[ {"baseType" : "Map"},
 
 global VendorRules := [ {"baseType" : "Gem", "Constraints" : {"baseName" : "^(?!Awakened)", "level" : [1, 18], "quality" : [0, 4]}}
                       , {"baseType" : "Weapon|Armour|Belt|Amulet|Ring|Quiver|Flask|Jewel"} ]
-global VendorExceptions := [ {"baseType" : ".*", "Constraints" : {"rarity" : 3}}
+global VendorExceptions := [ {"baseType" : ".*", "Constraints" : {"rarity" : 3, "price" : [0.5, 99999]}}
                            , {"baseType" : "Currency|Map|MapFragment"}
                            , {"baseType" : "Gem", "Constraints" : {"baseName" : "Awakened"}}
                            , {"baseName" : "Blueprint|Contract|Cluster Jewel|Opal Ring|Two-Toned Boots"}
