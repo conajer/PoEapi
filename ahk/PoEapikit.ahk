@@ -222,7 +222,7 @@ return
         }
     }
 
-    favours := ptask.getIngameUI().getFavours()
+    favours := ptask.getFavours()
     if (favours.isOpened()) {
         for i, e in favours.getChilds() {
             price := pricer[e.item]

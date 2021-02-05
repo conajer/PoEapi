@@ -75,8 +75,6 @@ public:
         get_favours();
         get_atlas();
         get_skills();
-
-        add_method(L"getFavours", this, (MethodType)&InGameUI::get_favours, AhkObject);
     }
 
     void __new() {
