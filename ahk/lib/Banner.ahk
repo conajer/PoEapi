@@ -100,6 +100,7 @@ class KillStats {
 
     onmouseleave() {
         Gui, __stats:Hide
+        ptask.activate()
     }
 }
 
