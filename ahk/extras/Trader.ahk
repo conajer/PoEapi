@@ -135,6 +135,7 @@ class TradeSession extends AhkGui {
 
     kick() {
         if (this.isJoined) {
+            poe.activate()
             if (ptask.getPartyStatus() == 0) {
                 ; As the party's leader
                 ptask.sendKeys("/kick " this.player)
@@ -143,7 +144,8 @@ class TradeSession extends AhkGui {
     }
 
     leave() {
-        if (this.isJoined) {
+        if (ptask.getPartyStatus() < 3) {
+            poe.activate()
             ptask.sendKeys("/kick " ptask.player.name)
             if (this.needReturn)
                 ptask.sendKeys("/hideout")
