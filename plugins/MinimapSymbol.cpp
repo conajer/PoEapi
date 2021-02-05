@@ -5,7 +5,7 @@
 #include <map>
 #include <math.h>
 
-class MonsterPack : public AhkObj {
+class MonsterPack {
 public:
 
     int margin = 5;
@@ -23,14 +23,6 @@ public:
 
         count = 1;
         rarity = monster->rarity;
-    }
-
-    void __new() {
-        __set(L"x", cx, AhkInt, L"y", cy, AhkInt,
-              L"l", l, AhkInt, L"t", t, AhkInt, L"r", r, AhkInt, L"b", b, AhkInt,
-              L"count", count, AhkInt,
-              L"rarity", rarity, AhkInt,
-              nullptr);
     }
 
     bool add(Entity* monster, int x, int y) {
@@ -87,7 +79,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.3") {
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.4") {
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
         add_property(L"size", &size, AhkInt);
         add_property(L"borderColor", &border_color, AhkInt);
@@ -108,8 +100,15 @@ public:
 
     AhkObjRef* get_packs() {
         AhkTempObj temp_packs;
-        for (auto& pack : monster_packs)
+        for (auto& p : monster_packs) {
+            AhkObj pack;
+            pack.__set(L"x", p.cx, AhkInt, L"y", p.cy, AhkInt,
+                L"l", p.l, AhkInt, L"t", p.t, AhkInt, L"r", p.r, AhkInt, L"b", p.b, AhkInt,
+                L"count", p.count, AhkInt, L"rarity", p.rarity, AhkInt,
+                nullptr);
             temp_packs.__set(L"", (AhkObjRef*)pack, AhkObject, nullptr);
+        }
+
         return temp_packs;
     }
     
@@ -239,8 +238,10 @@ public:
                 draw_delve_chests(entity);
         }
 
-        if (show_packs)
+        if (show_packs) {
             draw_monster_packs();
+            monster_packs.clear();
+        }
 
         poe->hud->end_draw();
     }
