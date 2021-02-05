@@ -51,9 +51,8 @@ public:
 
     Vector3 player_pos;
     float shift_x, shift_y;
-    float scale;
-    float factor = 6.9f;
-    bool is_clipping = false;
+    float scale, factor = 6.9f;
+    bool is_clipped = false;
     bool show_delve_chests = true;
     int size = 8;
     int border_color = 0xffffff;
@@ -79,7 +78,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.4") {
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.5") {
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
         add_property(L"size", &size, AhkInt);
         add_property(L"borderColor", &border_color, AhkInt);
@@ -113,13 +112,21 @@ public:
     }
     
     void reset() {
-        poe->hud->begin_draw();
-        poe->hud->clear();
-        monster_packs.clear();
+        PoEPlugin::reset();
+        clear();
+    }
 
+    void clear() {
+        if (poe->hud) {
+            poe->hud->begin_draw();
+            poe->hud->clear();
+            poe->hud->end_draw();
+        }
+    }
+
+    void initialize() {
         Render* render = player->get_component<Render>();
         if (render) {
-            Vector3 bounds = render->bounds();
             player_pos = render->position();
             player_pos.z = 0.0f;
 
@@ -127,16 +134,16 @@ public:
             OverlayMap* map = poe->in_game_state->in_game_ui()->get_overlay_map();
             Rect r = map->get_rect();
             if (r.w > 0 || r.h > 0) {
-                if (!is_clipping) {
+                if (!is_clipped) {
                     poe->hud->end_draw();
                     poe->hud->begin_draw();
                     poe->hud->push_rectangle_clip(r.x, r.y, r.x + r.w, r.y + r.h);
-                    is_clipping = true;
+                    is_clipped = true;
                 }
             } else {
-                if (is_clipping) {
+                if (is_clipped) {
                     poe->hud->pop_rectangle_clip();
-                    is_clipping = false;
+                    is_clipped = false;
                 }
             }
             poe->in_game_state->transform(pos);
@@ -157,7 +164,6 @@ public:
         Render* render = e->get_component<Render>();
         if (render) {
             Vector3 pos = render->position();
-            Vector3 bounds = render->bounds();
             pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
             pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
             pos.z = 0.0f;
@@ -199,7 +205,6 @@ public:
         if (render) {
             int w1 = size + 3, w2 = size;
             Vector3 pos = render->position();
-            Vector3 bounds = render->bounds();
             pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
             pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
             pos.z = 0.0f;
@@ -224,10 +229,20 @@ public:
         if (!poe->hud)
             return;
 
-        reset();
+        if (poe->in_game_ui->has_active_panel()) {
+            clear();
+            return;
+        }
+
+        poe->hud->begin_draw();
+        poe->hud->clear();
+        monster_packs.clear();
+        initialize();
         for (auto& i : entities) {
             if (force_reset) {
                 force_reset = false;
+                poe->hud->clear();
+                poe->hud->end_draw();
                 return;
             }
 

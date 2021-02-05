@@ -98,7 +98,7 @@ public:
 
             for (int offset : (int[]){0x0, 0x10}) {
                 addr = PoEMemory::read<addrtype>(node + offset);
-                if (temp_set.count(addr) == 0) {
+                if (temp_set.count(addr) == 0 && temp_set.size() < 2048) {
                     nodes.push(addr);
                     temp_set.insert(addr);
                 }

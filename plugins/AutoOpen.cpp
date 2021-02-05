@@ -17,7 +17,7 @@ public:
     int range = 15;
     int total_opened;
 
-    AutoOpen() : PoEPlugin(L"AutoOpen", "0.2"),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.3"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
         default_ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase")
     {
@@ -34,23 +34,25 @@ public:
             ignored_chests.assign(default_ignored_chests);
     }
 
-    void try_open(Entity* entity) {
-        Point pos, old_pos;
-        int x, y, is_pressed;
+    void reset() {
+        PoEPlugin::reset();
 
         GetClientRect(poe->hwnd, &bounds);
         bounds.left = bounds.right / 2 - 200;
         bounds.top = bounds.bottom / 2 - 150;
         bounds.right = bounds.left + 400;
         bounds.bottom = bounds.top + 300;
+    }
+
+    void try_open(Entity* entity) {
+        Point pos, old_pos;
+        int x, y, is_pressed;
 
         GetCursorPos ((POINT*)&old_pos);
         is_pressed = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
         pos = poe->get_pos(entity);
         if (!PtInRect(&bounds, {pos.x, pos.y}))
             return;
-
-        log(L"[%03d] Open '%S' at %d, %d", ++total_opened, entity->name().c_str(), pos.x, pos.y);
 
         poe->mouse_click(pos.x, pos.y);
         pos = poe->get_pos(entity);

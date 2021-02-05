@@ -8,14 +8,20 @@ public:
     int flask_slot_id = 12;
     addrtype flasks[5], saved_flasks[5];
 
-    AutoFlask() : PoEPlugin(L"AutoFlask", "0.2") {
+    AutoFlask() : PoEPlugin(L"AutoFlask", "0.3") {
+    }
+
+    void reset() {
+        PoEPlugin::reset();
+        for (addrtype& flask : saved_flasks)
+            flask = 0;
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
         auto inventory_slots = poe->server_data->inventory_slots;
         InventorySlot* flask_slot = inventory_slots[flask_slot_id].get();
         
-        if (flask_slot) {
+        if (poe->is_ready && flask_slot) {
             addrtype addr = flask_slot->read<addrtype>("cells");
             flask_slot->PoEMemory::read<addrtype>(addr, flasks, 5);
             if (memcmp(flasks, saved_flasks, sizeof(flasks))) {

@@ -148,6 +148,8 @@ public:
     InGameUI* in_game_ui;
     InGameData* in_game_data;
     ServerData* server_data;
+    LocalPlayer *local_player;
+    bool is_ready = false;
     unique_ptr<Canvas> hud;
 
     PoE() : game_state_controller(0) {
@@ -173,17 +175,26 @@ public:
     GameState* get_active_game_state() {
         if (game_state_controller) {
             GameState *game_state = game_state_controller->get_active_game_state();
-            if (game_state && game_state->is(L"InGameState")) {
-                in_game_state = (InGameState*)game_state;
-                in_game_ui = in_game_state->in_game_ui();
-                in_game_data = in_game_state->in_game_data();
-                server_data = in_game_state->server_data();
-            }
-
             return game_state;
         }
 
         return nullptr;
+    }
+
+    void reset() {
+        if (is_in_game()) {
+            in_game_ui = in_game_state->in_game_ui();
+            in_game_data = in_game_state->in_game_data();
+            server_data = in_game_state->server_data();
+            if (!in_game_ui || !in_game_data || !server_data)
+                return;
+
+            local_player = in_game_data->local_player();
+            if (!local_player)
+                return;
+
+            is_ready = true;
+        }
     }
 
     bool is_in_game() {
@@ -191,7 +202,12 @@ public:
             return false;   // Path of Exile is not running!
 
         GameState* game_state = get_active_game_state();
-        return game_state && game_state->is(L"InGameState");
+        if (game_state && game_state->is(L"InGameState")) {
+            in_game_state = (InGameState*)game_state;
+            return true;
+        }
+
+        return false;
     }
 
     bool open_target_process() {

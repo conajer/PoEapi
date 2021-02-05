@@ -27,7 +27,7 @@ public:
               nullptr);
     }
 
-    void reset() {
+    virtual void reset() {
         force_reset = true;
         player = nullptr;
     }

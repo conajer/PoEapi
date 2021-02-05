@@ -28,7 +28,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.4") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.5") {
         add_property(L"range", &range, AhkInt);
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
@@ -39,6 +39,11 @@ public:
 
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
+    }
+
+    void reset() {
+        PoEPlugin::reset();
+        dropped_items.clear();
     }
 
     void set_generic_item_filter(const wchar_t* regex_string) {
@@ -114,10 +119,6 @@ public:
             return *i->second;
 
         return nullptr;
-    }
-
-    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
-        dropped_items.clear();
     }
 
     void on_labeled_entity_changed(EntityList& entities) {

@@ -4,6 +4,8 @@
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
+#include <mutex>
+
 #include "PoE.cpp"
 #include "PoEapi.c"
 #include "Task.cpp"
@@ -38,8 +40,8 @@ public:
     wstring league;
 
     std::map<wstring, shared_ptr<PoEPlugin>> plugins;
-    LocalPlayer *local_player = nullptr;
     std::wregex ignored_entity_exp;
+    std::mutex muxtex;
     bool is_attached = false;
     bool is_active = false;
     unsigned int player_timer_period = 66;
@@ -51,6 +53,7 @@ public:
 
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
+        add_method(L"reset", this, (MethodType)&PoETask::reset);
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
@@ -255,34 +258,87 @@ public:
             i->second[key] = value;
     }
 
+    void reset() {
+        std::unique_lock<std::mutex> lock;
+
+        if (is_ready || !PoE::is_in_game())
+            return;
+        
+        // reset plugins.
+        for (auto& i : plugins)
+            i.second->reset();
+
+        // clear cached entities.
+        entities.all.clear();
+        labeled_entities.clear();
+
+        if (in_game_state) {
+            in_game_ui = in_game_state->in_game_ui();
+            in_game_data = in_game_state->in_game_data();
+            server_data = in_game_state->server_data();
+            if (!in_game_ui || !in_game_data || !server_data)
+                return;
+
+            local_player = in_game_data->local_player();
+            if (!local_player)
+                return;
+
+            AreaTemplate* world_area = in_game_data->world_area();
+            league  = in_game_state->server_data()->league();
+            __set(L"league", league.c_str(), AhkWString,
+                    L"area", in_game_data->world_area()->name().c_str(), AhkWString,
+                    nullptr);
+            get_inventory_slots();
+            get_stash_tabs();
+            get_stash();
+            get_inventory();
+
+            is_ready = true;
+        }
+    }
+
     bool is_in_game() {
         bool in_game_flag = PoE::is_in_game();
+        static unsigned int time_in_game = 0;
+
+        if (!is_attached && hwnd) {
+            is_attached = true;
+            PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)hwnd, (LPARAM)0);
+        }
 
         if (!in_game_flag) {
-            if (hwnd && !is_attached) {
-                is_attached = true;
-                PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)hwnd, (LPARAM)0);
+            if (is_ready) {
+                is_ready = false;
+
+                // clear hud
+                if (hud) {
+                    hud->begin_draw();
+                    hud->clear();
+                    hud->end_draw();
+                }
             }
 
             // increase the delay of timers when PoE isn't in game state.
             Sleep(1000);
-            local_player = nullptr;
-        } else if (!in_game_state->unknown()) {
-            // reset plugins.
-            for (auto& i : plugins)
-                i.second->reset();
-
-            // wait for loading the game instance.
-            while (!in_game_state->unknown())
+        } else {
+            if (in_game_state->is_loading()) {
+                is_ready = false;
                 Sleep(500);
 
-            in_game_ui = in_game_state->in_game_ui();
-            in_game_data = in_game_state->in_game_data();
-            server_data = in_game_state->server_data();
+                // clear hud
+                if (hud) {
+                    hud->begin_draw();
+                    hud->clear();
+                    hud->end_draw();
+                }
 
-            // clear cached entities.
-            entities.all.clear();
-            labeled_entities.clear();
+                // wait for loading the game instance.
+                while (in_game_state->is_loading()) {
+                    if (!PoE::is_in_game())
+                        return false;
+                }
+                PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
+            }
         }
 
         return in_game_flag;
@@ -296,13 +352,17 @@ public:
                 Sleep(300);
                 PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
                 is_active = false;
+            } else {
+                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)0, (LPARAM)0);
             }
         } else if (!is_active) {
             PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
             is_active = true;
+        } else {
+                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)100, (LPARAM)0);
         }
 
-        if (!is_in_game()) {
+        if (!is_in_game() || !is_ready) {
             if (is_attached && !hwnd) {
                 is_attached = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
@@ -311,53 +371,42 @@ public:
             return;
         }
 
-        local_player = in_game_data->local_player();
-        if (local_player) {
-            if (in_game_data->area_hash() != area_hash) {
-                area_hash = in_game_data->area_hash();
-                AreaTemplate* world_area = in_game_data->world_area();
-                if (!world_area->name().empty()) {
-                    league  = in_game_state->server_data()->league();
-                    __set(L"league", league.c_str(), AhkWString,
-                          L"area", in_game_data->world_area()->name().c_str(), AhkWString,
-                          nullptr);
-
-                    for (auto i : plugins)
-                        i.second->on_area_changed(in_game_data->world_area(), area_hash, local_player);
-                }
+        if (in_game_data->area_hash() != area_hash) {
+            area_hash = in_game_data->area_hash();
+            AreaTemplate* world_area = in_game_data->world_area();
+            if (!world_area->name().empty()) {
+                for (auto i : plugins)
+                    i.second->on_area_changed(in_game_data->world_area(), area_hash, local_player);
             }
-
-            for (auto& i : plugins)
-                if (i.second->enabled)
-                    i.second->on_player(local_player, in_game_state);
         }
 
-        if (!is_attached && hwnd) {
-            is_attached = true;
-            PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)hwnd, (LPARAM)0);
-        }
+        for (auto& i : plugins)
+            if (i.second->enabled)
+                i.second->on_player(local_player, in_game_state);
     }
 
     void check_entities() {
-        if (GetForegroundWindow() != hwnd || !local_player || !is_in_game())
+        if (GetForegroundWindow() != hwnd || !is_ready || !is_in_game())
             return;
 
         in_game_data->get_all_entities(entities, ignored_entity_exp);
-
-        for (auto& i : plugins)
-            if (i.second->enabled && i.second->player)
-                i.second->on_entity_changed(entities.all, entities.removed, entities.added);
+        if (is_ready) {
+            for (auto& i : plugins)
+                if (i.second->enabled && i.second->player)
+                    i.second->on_entity_changed(entities.all, entities.removed, entities.added);
+        }
     }
 
     void check_labeled_entities() {
-        if (GetForegroundWindow() != hwnd || !local_player || !is_in_game())
+        if (GetForegroundWindow() != hwnd || !is_ready || !is_in_game())
             return;
 
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
-
-        for (auto& i : plugins)
-            if (i.second->enabled && i.second->player)
-                i.second->on_labeled_entity_changed(labeled_entities);
+        if (is_ready) {
+            for (auto& i : plugins)
+                if (i.second->enabled && i.second->player)
+                    i.second->on_labeled_entity_changed(labeled_entities);
+        }
     }
 
     void run() {
