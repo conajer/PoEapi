@@ -34,42 +34,72 @@ L1:
 
 class KillStats {
 
-    cols := [ {"title" : "Time",       "options" : "AutoHdr"}
-            , {"title" : "Area Name",  "options" : "AutoHdr"}
-            , {"title" : "Level",      "options" : "Integer"}
-            , {"title" : "Kills",      "options" : "80 Integer"}
-            , {"title" : "Gained Exp", "options" : "Integer"}
-            , {"title" : "Unique",     "options" : "Integer"}
-            , {"title" : "Rare",       "options" : "Integer"}
-            , {"title" : "Magic",      "options" : "Integer"}
-            , {"title" : "Normal",     "options" : "Integer"}
-            , {"title" : "Used Time",  "options" : "AutoHdr"} ]
+    cols := [ "Time", "Area Name", "Level", "Kills", "Gained Exp(%)"
+            , "Normal", "Magic", "Rare", "Unique", "Used Time" ]
 
     __new() {
-        Gui, New,, Kill statistics
-        Gui, Margin, 5, 5
-        Gui, Font, s9, Courier New
-        Gui, Add, ListView, r20 w800 cBlue +Grid, |
-        Gui, Show
+        global
 
+        styleSheet =
+        (
+        <style>
+            * { font-family: Fontin SmallCaps, Courier New; font-size: 18px; }
+            body { background: #1A1411; margin: 0;}
+            div { position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; }
+            table { text-align: right; margin: 0 auto; }
+            tr { background: #120E0A; color: #875516; padding: 5px; transition: .1s ease-in; } 
+            th { text-align: left; padding: .2rem; }
+            td { padding: .5rem; }
+            tr:first-child { background: #1A1411; color: #D9AA6F; font-size: 1rem; }
+            tr:hover:not(#firstrow) { background: #D9AA6F; color: #120E0A; }
+        </style>
+        )
+
+        Gui, __stats:New, +ToolWindow -Caption HwndHwnd, Kill statistics
+        Gui, Margin, 0, 0
+        Gui, Color, 1a1411
+        Gui, Add, ActiveX, Border r15 w900 v__mshtml, Shell.Explorer
+        Gui, Show, Hide
+
+        this.hwnd := Hwnd
+        __mshtml.Navigate("about:<meta http-equiv=""X-UA-Compatible"" content=""IE=edge""/>")
+        this.doc := __mshtml.Document
+        this.doc.write(styleSheet)
+        this.doc.write("<div id=""#KillStats""></div>")
+        this.statsTable := this.doc.getElementById("#KillStats")
+        ComObjConnect(this.statsTable, this)
+    }
+
+    show(x, y) {
+        innerHtml := "<div id=""#KillStats""><table>"
+        innerHtml .= "<tr id=""firstrow"">"
         for i, col in this.cols
-            LV_InsertCol(i, col.options, col.title)
-        LV_DeleteCol(this.cols.Count() + 1)
+            innerHtml .=  "<th>" col "</th>"
+        innerHtml .= "</tr>"
 
         p := ptask.getPlugin("KillCounter")
         for i, stat in p.getStats() {
-            usedTimeStr := Format("{}m {}s", usedTime / 60, usedTime // 60)
-            LV_Add(, stat.timestamp
-                   , stat.areaName
-                   , stat.areaLevel
-                   , stat.totalKills "/" stat.totalMonsters
-                   , stat.gainedExp
-                   , stat.uniqueKills, stat.rareKills, stat.magicKills, stat.normalKills
-                   , Format("{}m {}s", stat.usedTime // 60, Mod(stat.usedTime, 60)))
+            innerHtml .= "<tr>"
+            innerHtml .= "<td>"  stat.timestamp "</td>"
+            innerHtml .= "<td style=""text-align:left"">"  stat.areaName "</td>"
+            innerHtml .= "<td>"  stat.areaLevel "</td>"
+            innerHtml .= "<td>"  stat.totalKills "/" stat.totalMonsters "</td>"
+            innerHtml .= "<td>"  Format("{}({:.2f})", stat.gainedExp, stat.gainedExp * 100 / levelExp[ptask.player.level]) "</td>"
+            innerHtml .= "<td style=""color:#FFFAFA"">"  stat.normalKills "</td>"
+            innerHtml .= "<td style=""color:#8787FE"">"  stat.magicKills "</td>"
+            innerHtml .= "<td style=""color:#FEFE76"">"  stat.rareKills "</td>"
+            innerHtml .= "<td style=""color:#AF5F1C"">"  stat.uniqueKills "</td>"
+            innerHtml .= "<td>"  Format("{}m {:02d}s", stat.usedTime // 60, Mod(stat.usedTime, 60)) "</td>"
+            innerHtml .= "</tr>"
         }
+        this.statsTable.innerHtml := innerHtml "</table></div>"
 
-        for i, col in this.cols
-            LV_ModifyCol(i, col.options)
+        Gui, __stats:Show, % "x" x "y" y + 10
+        WinSet, Transparent, 250, % "ahk_id " this.hwnd
+    }
+
+    onmouseleave() {
+        Gui, __stats:Hide
     }
 }
 
@@ -92,7 +122,7 @@ class Banner extends AhkGui {
             Gui, Add, Text, % "ys w150 Hwnd" this.__var("EnergyShield"), % _("Energy Shield") ": 100`%"
         }
         Gui, Font, cBlack bold
-        Gui, Add, Text, % "ys w80 Hwnd" this.__var("kills") " gL1 v" this.__var("showKillStats"), % _("Kills") ": 0/0"
+        Gui, Add, Text, % "ys w90 Hwnd" this.__var("kills") " gL1 v" this.__var("showKillStats"), % _("Kills") ": 0/0"
         Gui, Font, cRed bold
         Gui, Add, Text, % "ys x+10 w200 Hwnd" this.__var("Statusbar")
 
@@ -146,13 +176,15 @@ class Banner extends AhkGui {
     }
 
     onKillCounter(kills, total) {
-        rdebug("#KILLS", _("kills") ": <b>{}</b>/{}", kills, total)
-        GuiControl,, % this.Kills, kills: %kills%/%total%
+        rdebug("#KILLS", _("Kills") ": <b>{}</b>/{}", kills, total)
+        GuiControl,, % this.Kills, Kills: %kills%/%total%
     }
 
     showKillStats() {
-        ptask.activate()
-        stats := new KillStats()
+        if (Not this.stats)
+            this.stats := new KillStats()
+        WinGetPos, x, y, w, h, % "ahk_id " this.hwnd
+        this.stats.show(x, y + h)
     }
 
     lifeChanged(life, lParam) {
