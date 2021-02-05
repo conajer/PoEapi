@@ -13,6 +13,8 @@
 #include "ui/Chat.cpp"
 #include "ui/Notifications.cpp"
 #include "ui/Favours.cpp"
+#include "ui/Atlas.cpp"
+#include "ui/Skills.cpp"
 
 std::map<string, int> in_game_ui_offsets {
     {"inventory",       0x500},
@@ -26,6 +28,8 @@ std::map<string, int> in_game_ui_offsets {
     {"lefe_panel",      0x508},
     {"right_panel",     0x510},
     {"panel_flags",     0x518},
+    {"skills",          0x560},
+    {"atlas",           0x568},
     {"entity_list",     0x5c0},
         {"root",        0x2a0},
     {"vendor",          0x648},
@@ -55,13 +59,11 @@ public:
     unique_ptr<Chat> chat;
     unique_ptr<Notifications> notifications;
     unique_ptr<Favours> favours;
+    unique_ptr<Atlas> atlas;
+    unique_ptr<Skills> skills;
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
-        add_method(L"getFavours", this, (MethodType)&InGameUI::get_favours, AhkObject);
-    }
-
-    void __new() {
         get_inventory();
         get_stash();
         get_vendor();
@@ -71,7 +73,13 @@ public:
         get_chat();
         get_notifications();
         get_favours();
+        get_atlas();
+        get_skills();
 
+        add_method(L"getFavours", this, (MethodType)&InGameUI::get_favours, AhkObject);
+    }
+
+    void __new() {
         Element::__new();
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
               L"stash", (AhkObjRef*)*stash, AhkObject,
@@ -81,6 +89,8 @@ public:
               L"cornerMap", (AhkObjRef*)*corner_map, AhkObject,
               L"chat", (AhkObjRef*)*chat, AhkObject,
               L"notifications", (AhkObjRef*)*notifications, AhkObject,
+              L"atlas", (AhkObjRef*)*atlas, AhkObject,
+              L"skills", (AhkObjRef*)*skills, AhkObject,
               nullptr);
     }
 
@@ -144,11 +154,21 @@ public:
         return notifications.get();
     }
 
+    Favours* get_favours() {
+        favours.reset(new Favours(read<addrtype>("favours", "items")));
+        return favours.get();
     }
 
-    AhkObjRef* get_favours() {
-        favours.reset(new Favours(read<addrtype>("favours", "items")));
-        return *favours;
+    Atlas* get_atlas() {
+        if (!atlas)
+            atlas = unique_ptr<Atlas>(new Atlas(read<addrtype>("atlas")));
+        return atlas.get();
+    }
+
+    Skills* get_skills() {
+        if (!skills)
+            skills = unique_ptr<Skills>(new Skills(read<addrtype>("skills")));
+        return skills.get();
     }
 
     int get_all_entities(EntityList& entities, EntityList& removed) {
