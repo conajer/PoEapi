@@ -2,19 +2,20 @@
 ; PoEOffsets.ahk 1/6/2021 10:45 AM
 ;
 
-global PoEOffsets = { "version" : "3.12.5c", "offsets"
+global PoEOffsets = { "version" : "3.13.1b", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         ,     "current"                 : 0x0
                         , "game_states"                 : 0x48
                         ,     "root"                    : 0x8 }
                       
       , "IngameState" : { "name"                        : 0x10
+                        , "load_stage1"                 : 0x40
                         , "in_game_ui"                  : 0x98
                         , "in_game_data"                : 0x30
                         , "server_data"                 : 0x418
                         , "ui_root"                     : 0x540
                         , "time_in_game"                : 0x5ec
-                        , "unknown"                     : 0x600
+                        , "load_stage2"                 : 0x600
                         , "camera"                      : 0x1080
                         , "width"                       : 0x1088
                         , "height"                      : 0x108c
@@ -36,6 +37,11 @@ global PoEOffsets = { "version" : "3.12.5c", "offsets"
                         ,     "large"                   : 0x230
                         ,     "small"                   : 0x238
                         , "chat"                        : 0x410
+                        , "lefe_panel"                  : 0x508
+                        , "right_panel"                 : 0x510
+                        , "panel_flags"                 : 0x518
+                        , "skills"                      : 0x560
+                        , "atlas"                       : 0x568
                         , "entity_list"                 : 0x5c0
                         ,     "root"                    : 0x2a0
                         , "vendor"                      : 0x648
