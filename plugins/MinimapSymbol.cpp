@@ -131,7 +131,7 @@ public:
             player_pos.z = 0.0f;
 
             Vector3 pos = player_pos;
-            OverlayMap* map = poe->in_game_state->in_game_ui()->get_overlay_map();
+            OverlayMap* map = poe->in_game_ui->get_overlay_map();
             Rect r = map->get_rect();
             if (r.w > 0 || r.h > 0) {
                 if (!is_clipped) {
