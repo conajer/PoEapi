@@ -19,8 +19,8 @@ enum MessageTypes {
     WM_MONSTER_CHANGED,
     WM_MINION_CHANGED,
     WM_KILL_COUNTER,
-    WM_DELVE_CHEST,
-    WM_PICKUP,
+    WM_DELVE_CHEST,         /* obsolete */
+    WM_PICKUP,              /* obsolete */
     WM_FLASK_CHANGED,
     WM_HEIST_CHEST,
     WM_NEW_MESSAGE,
@@ -33,7 +33,7 @@ enum MessageTypes {
 
 int major_version = 0;
 int minor_version = 16;
-int patch_level = 2;
+int patch_level = 3;
 
 const char* supported_PoE_version = "3.13.1b";
 
