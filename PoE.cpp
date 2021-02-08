@@ -271,29 +271,28 @@ public:
         return {0, 0};
     }
     
-    void mouse_click(int x, int y) {
-        RECT r;
-        GetWindowRect(hwnd, &r);
-        SetCursorPos (r.left + x, r.top + y);
+    void mouse_click(Point pos) {
+        ClientToScreen(hwnd, (LPPOINT)&pos);
+        SetCursorPos (pos.x, pos.y);
+        Sleep(30);
 
         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
     }
 
-    void mouse_move(int x, int y) {
-        RECT r;
-        GetWindowRect(hwnd, &r);
-        SetCursorPos (r.left + x, r.top + y);
+    void mouse_move(Point pos) {
+        ClientToScreen(hwnd, (LPPOINT)&pos);
+        SetCursorPos (pos.x, pos.y);
+        Sleep(30);
     }
 
     void mouse_click_and_return(Point pos, Point where, int is_moving, int is_pressed) {
-        RECT r;
-        GetWindowRect(hwnd, &r);
+        ClientToScreen(hwnd, (LPPOINT)&pos);
         if (is_pressed)
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 
-        SetCursorPos (r.left + pos.x, r.top + pos.y);
-        Sleep(10);
+        SetCursorPos (pos.x, pos.y);
+        Sleep(30);
         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 
