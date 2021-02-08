@@ -54,7 +54,7 @@ public:
         if (!PtInRect(&bounds, {pos.x, pos.y}))
             return;
 
-        poe->mouse_click(pos.x, pos.y);
+        poe->mouse_click(pos);
         pos = poe->get_pos(entity);
         poe->mouse_click_and_return(pos, old_pos, player->is_moving(), is_pressed);
         Sleep(500);
