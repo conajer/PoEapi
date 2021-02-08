@@ -28,7 +28,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.5") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.6") {
         add_property(L"range", &range, AhkInt);
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
@@ -196,14 +196,9 @@ public:
 
         selected_item = nearest_item;
         Point pos = selected_item->label->get_pos();
-        if (!PtInRect(&bounds, {pos.x, pos.y}))
-            return;
-
-        PostThreadMessage(thread_id, WM_PICKUP, (WPARAM)pos.x, (LPARAM)pos.y);
-        log(L"%x: %S, %d, %d\n",
-            selected_item->id,
-            selected_item->name().c_str(),
-            pos.x, pos.y);
-        last_pickup = GetTickCount();
+        if (PtInRect(&bounds, {pos.x, pos.y})) {
+            last_pickup = GetTickCount();
+            poe->mouse_click(pos);
+        }
     }
 };
