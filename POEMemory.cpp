@@ -117,6 +117,8 @@ public:
         std::vector<T> vec;
         for (address = begin; address < end; address += element_size) {
             vec.push_back(T(address));
+            if (vec.size() > 2048)
+                break;
         }
 
         return vec;
@@ -129,6 +131,8 @@ public:
         std::vector<T> vec;
         for (address = begin; address < end; address += element_size) {
             vec.push_back(T(read<addrtype>(address + offset)));
+            if (vec.size() > 2048)
+                break;
         }
 
         return vec;
