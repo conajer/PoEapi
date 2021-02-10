@@ -131,7 +131,7 @@ class PoETask extends AhkObj {
         this.Hwnd := hwnd
         this.activate()
         WinGetPos, x, y, w, h, ahk_id %hwnd%
-        if (Not this.isMaximized()) {
+        if (EnableAutoSize && Not this.isMaximized()) {
             r := this.getWindowRect(DllCall("GetDesktopWindow"))
             x := (r.w > w) ? r.w - w + 8 : x
             y := 0
