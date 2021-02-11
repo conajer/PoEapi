@@ -52,7 +52,7 @@ class Logger extends AhkGui {
 
         if (level >= LogLevel) {
             this.doc.write(aText)
-            this.doc.parentWindow.scrollBy(0, 20)
+            this.doc.parentWindow.scrollTo(0, this.doc.body.scrollHeight)
 
             return id
         }
