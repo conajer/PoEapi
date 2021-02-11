@@ -103,8 +103,8 @@ public:
 
     void __new() {
         PoEObject::__new();
-        __set(L"Id", id, AhkInt,
-              L"Path", path.c_str(), AhkWString,
+        __set(L"id", id, AhkInt,
+              L"path", path.c_str(), AhkWString,
               nullptr);
     }
 
