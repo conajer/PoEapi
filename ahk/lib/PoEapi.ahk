@@ -6,7 +6,7 @@ if (FileExist("..\poeapi.dll")) {
     FileMove ..\poeapi.dll, poeapi.dll, true
 }
 
-if (Not DllCall("LoadLibrary", "Str", "poeapi.dll", "ptr")) {
+if (Not loadLibrary("poeapi.dll")) {
     errCode := DllCall("GetLastError")
     if (errCode == 0xc1)
         Msgbox, % "You need 64-Bit AutoHotkey to run PoEapikit."

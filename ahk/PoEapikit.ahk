@@ -7,21 +7,21 @@
 #Persistent ; Stay open in background
 #IfWinActive, Path of Exile ahk_class POEWindowClass
 
-CoordMode, Mouse, Client
-CoordMode, Pixel, Client
-SetWorkingDir %A_ScriptDir%
-
-#Include, %A_ScriptDir%\lib\PoEapi.ahk
-#Include, %A_ScriptDir%\extras\Pricer.ahk
-#Include, %A_ScriptDir%\extras\Trader.ahk
-#Include, %A_ScriptDir%\Settings.ahk
-
 If (Not A_IsAdmin) {
     try {
         Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
         ExitApp
     }
 }
+
+SetWorkingDir %A_ScriptDir%
+CoordMode, Mouse, Client
+CoordMode, Pixel, Client
+
+#Include, %A_ScriptDir%\lib\PoEapi.ahk
+#Include, %A_ScriptDir%\extras\Pricer.ahk
+#Include, %A_ScriptDir%\extras\Trader.ahk
+#Include, %A_ScriptDir%\Settings.ahk
 
 EnvGet, homepath, USERPROFILE
 FileRead, production_config, %HOMEPATH%\Documents\My Games\Path of Exile\production_Config.ini
@@ -39,7 +39,7 @@ global InventoryKey := Chr(open_inventory_panel)
 global DropFlareKey := Chr(use_temporary_skill1)
 global DropDynamiteKey := Chr(use_temporary_skill2)
 
-DllCall("LoadLibrary", "Str", "libintl-8.dll")
+loadLibrary("libintl-8.dll")
 DllCall("msvcrt\_putenv", "AStr", "LANG=" language)
 DllCall("libintl-8\bindtextdomain", "AStr", "PoEapikit", "AStr", "./locale")
 DllCall("libintl-8\textdomain", "AStr", "PoEapikit")
@@ -63,11 +63,34 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
+OnExit("__Exit")
+
 ; end of auto-execute section
 return
 
 _(str) {
     return DllCall("libintl-8\gettext", "AStr", str, "AStr")
+}
+
+__Exit() {
+    global __libs
+
+    ptask.stop()
+    DllCall("RemoveFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
+    for filename, h in __libs
+        DllCall("FreeLibrary", "Ptr", h)
+}
+
+loadLibrary(filename) {
+    global __libs
+
+    if (Not __libs)
+        __libs := {}
+
+    h := DllCall("LoadLibrary", "Str", filename, "Ptr")
+    __libs[filename] := h
+
+    return h
 }
 
 objdump(obj, prefix = "", depth = 0) {
@@ -257,12 +280,10 @@ return
 
 ^r::
 Reload:
-    DllCall("RemoveFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
     Reload
 return
 
 ^q::
-    DllCall("RemoveFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
     ExitApp
 return
 
