@@ -94,6 +94,7 @@ class PoETask extends AhkObj {
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
         OnMessage(WM_PTASK_LOADED, ObjBindMethod(this, "onLoaded"))
+        OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
 
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
         this.player := new Character()
@@ -121,31 +122,25 @@ class PoETask extends AhkObj {
     onAttached(hwnd) {
         if (Not hwnd) {
             ; PoE window was closed.
-            this.c.destory()
-            this.hud.destroy()
-            this.setHud(-1)
             this.banner.destroy()
+            this.c.destroy()
+            this.hud.destroy()
             return
         }
 
         this.Hwnd := hwnd
-        this.activate()
-        WinGetPos, x, y, w, h, ahk_id %hwnd%
-        if (EnableAutoSize && Not this.isMaximized()) {
-            r := this.getWindowRect(DllCall("GetDesktopWindow"))
-            x := (r.w > w) ? r.w - w + 8 : x
-            y := 0
-            h := (h > r.h - 50) ? h : r.h - 42
+        if (EnableAutoSize) {
+            this.activate()
+            WinGetPos, x, y, w, h, ahk_id %hwnd%
+            if (EnableAutoSize && Not this.isMaximized()) {
+                r := this.getWindowRect(DllCall("GetDesktopWindow"))
+                x := (r.w > w) ? r.w - w + 8 : x
+                y := 0
+                h := (h > r.h - 50) ? h : r.h - 42
 
-            WinMove, ahk_class POEWindowClass,, x, y, w, h
-            WinGetPos, x, y, w, h, ahk_class POEWindowClass
+                WinMove, ahk_class POEWindowClass,, x, y, w, h
+            }
         }
-
-        this.x := x
-        this.y := y
-        this.width := w
-        this.height := h
-        this.actionArea := new Rect(210, 90, w - 450, h - 260)
 
         ; Configure plugins
         plugins := this.getPlugins()
@@ -164,28 +159,27 @@ class PoETask extends AhkObj {
 
         if (EnableBanner)
             this.banner := new Banner(hwnd)
-        this.activate()
         this.reset()
-        OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
     }
 
     onActive(hwnd) {
         if (hwnd == this.Hwnd) {
             Sleep, 300
-            if (WinActive("ahk_id " this.Hwnd)) {
-                this.banner.show(true, false)
-                this.hud.show(true, false)
-                Sleep, 500
-                poe.activate()
-            }
+            this.banner.show()
+            this.c.show()
+            this.hud.show()
+            this.setHudWindow(this.hud.Hwnd)
         } else {
-            if (Not WinActive("ahk_class AutoHotkeyGUI") || this.isMinimized()) {
+            if (Not WinActive("ahk_class AutoHotkeyGUI")) {
                 if (Not WinActive("ahk_id " this.Hwnd)) {
-                    this.banner.show(false, false)
-                    this.c.clear()
-                    this.hud.show(false, false)
+                    this.banner.show(false)
+                    this.c.show(false)
+                    this.hud.show(false)
                 }
             }
+
+            this.c.clear()
+            this.hud.clear()
         }
     }
 
@@ -201,6 +195,12 @@ class PoETask extends AhkObj {
         }
 
         WinActivate, % "ahk_id " this.Hwnd
+    }
+
+    getRect() {
+        r := this.getWindowRect(this.Hwnd)
+        this.actionArea := new Rect(210, 90, r.w - 450, r.h - 260)
+        return r
     }
 
     getWindowRect(hwnd) {
