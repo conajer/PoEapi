@@ -44,12 +44,13 @@ public:
     std::mutex muxtex;
     bool is_attached = false;
     bool is_active = false;
-    unsigned int player_timer_period = 66;
+    unsigned int status_timer_period = 66;
 
     PoETask() : Task(L"PoETask"),
         ignored_entity_exp(L"Doodad|WorldItem")
     {
-        add_property(L"playerTimerPeriod", &player_timer_period, AhkInt);
+        add_property(L"statusTimerPeriod", &status_timer_period, AhkInt);
+        add_property(L"isReady", &is_ready, AhkBool);
 
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
@@ -81,7 +82,9 @@ public:
     }
 
     ~PoETask() {
-        stop();
+        is_ready = false;
+        Sleep(300);
+        hud.reset();
     }
 
     int get_party_status() {
@@ -281,26 +284,28 @@ public:
         labeled_entities.clear();
 
         if (in_game_state) {
+            Sleep(1000);
             in_game_ui = in_game_state->in_game_ui();
             in_game_data = in_game_state->in_game_data();
             server_data = in_game_state->server_data();
             if (!in_game_ui || !in_game_data || !server_data)
                 return;
 
+            AreaTemplate* world_area = in_game_data->world_area();
             local_player = in_game_data->local_player();
-            if (!local_player)
+            if (world_area->name().empty() || !local_player)
                 return;
 
-            AreaTemplate* world_area = in_game_data->world_area();
             league  = in_game_state->server_data()->league();
             __set(L"league", league.c_str(), AhkWString,
-                    L"area", in_game_data->world_area()->name().c_str(), AhkWString,
-                    nullptr);
+                  L"area", in_game_data->world_area()->name().c_str(), AhkWString,
+                  nullptr);
             get_inventory_slots();
             get_stash_tabs();
             get_stash();
             get_inventory();
 
+            is_active = false;
             is_ready = true;
         }
     }
@@ -360,14 +365,10 @@ public:
                 Sleep(300);
                 PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
                 is_active = false;
-            } else {
-                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)0, (LPARAM)0);
             }
         } else if (!is_active) {
             PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
             is_active = true;
-        } else {
-                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)100, (LPARAM)0);
         }
 
         if (!is_in_game() || !is_ready) {
@@ -438,13 +439,12 @@ public:
         plugins[L"Messenger"]->enabled = true;
 
         /* create jobs */
-        start_job(player_timer_period, [&] {this->check_player();});
+        start_job(status_timer_period, [&] {this->check_player();});
         start_job(33, [&] {this->check_labeled_entities();});
         start_job(55, [&] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
         join(); /* wait for the jobs finish */
-        stop();
     }
 
     bool toggle_maphack() {
@@ -523,7 +523,6 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         break;
 
     case DLL_PROCESS_DETACH:
-        ptask.stop();
         break;
     }
 
