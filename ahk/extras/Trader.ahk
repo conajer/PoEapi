@@ -149,7 +149,6 @@ class TradeSession extends AhkGui {
             ptask.sendKeys("/kick " ptask.player.name)
             if (this.needReturn)
                 ptask.sendKeys("/hideout")
-            Sleep, 3000
         }
     }
 
