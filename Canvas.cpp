@@ -7,28 +7,33 @@
 class Canvas {
 public:
 
-    ID2D1Factory* d2d_factory = nullptr;
+    ID2D1Factory* factory = nullptr;
     ID2D1DCRenderTarget* render = nullptr;
 
-    Canvas(HWND hwnd) {
-        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2d_factory);
+    Canvas() {
+        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &factory);
         D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
             D2D1_RENDER_TARGET_TYPE_DEFAULT,
             D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
             0, 0,
             D2D1_RENDER_TARGET_USAGE_NONE,
             D2D1_FEATURE_LEVEL_DEFAULT);
-        d2d_factory->CreateDCRenderTarget(&props, &render);
-
-        RECT r;
-        HDC dc = GetDC(hwnd);
-        GetClientRect(hwnd, &r);
-        render->BindDC(dc, &r);
+        factory->CreateDCRenderTarget(&props, (ID2D1DCRenderTarget**)&render);
     }
 
     virtual ~Canvas() {
+        render->BeginDraw();
+        render->Clear();
+        render->EndDraw();
+
         render->Release();
-        d2d_factory->Release();
+        factory->Release();
+    }
+
+    void bind(HWND hwnd) {
+        RECT r;
+        GetClientRect(hwnd, &r);
+        render->BindDC(GetDC(hwnd), &r);
     }
 
     void begin_draw() {
