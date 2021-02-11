@@ -14,26 +14,36 @@ Class Canvas extends AhkGui {
         WS_EX_TRANSPARENT := 0x20
         Gui, %guiID%:New, +AlwaysOnTop +Toolwindow +HwndHwnd +E%WS_EX_TRANSPARENT% -Caption +LastFound
         Gui, %guiID%:Color, __bgColor
-        Gui, %guiID%:Show
+        Gui, %guiID%:Show, Hide
         WinSet, TransColor, __bgColor
-        WinMove,,, r.l, r.t, r.w, r.h
 
         this.Hwnd := Hwnd
         this.Hdc := DllCall("GetDC", "UInt", Hwnd)
         this.Cdc := DllCall("CreateCompatibleDC", "UInt", this.Hdc)
-        hBitmap := DllCall("CreateCompatibleBitmap", "UInt", this.Hdc, "Int", r.w, "Int", r.h)
-        DllCall("SelectObject", "UInt", this.Cdc, "UInt", hBitmap)
-        this.updateDC := true
-        this.Width := r.w
-        this.Height := r.h
-
-        if (ShowCanvasBorder)
-            this.drawRect(0, 0, this.Width, this.Height, 0xffbf00)
     }
 
     destroy() {
         guiID := Format("__canvas{:x}", &this)
         Gui, %guiID%:Destroy
+    }
+
+    show(flag = true) {
+        guiID := Format("__canvas{:x}", &this)
+        if (Not flag) {
+            Gui, %guiID%:Show, Hide
+            return
+        }
+
+        Gui, %guiID%:Show, NoActivate
+        r := this.getClientRect(ptask.Hwnd)
+        WinMove, % "ahk_id " this.Hwnd,, r.l, r.t, r.w, r.h
+
+        hBitmap := DllCall("CreateCompatibleBitmap", "UInt", this.Hdc, "Int", r.w, "Int", r.h)
+        hOldBitmap := DllCall("SelectObject", "UInt", this.Cdc, "UInt", hBitmap)
+        DllCall("DeleteObject", "UInt", hOldBitmap)
+        this.updateDC := true
+        this.Width := r.w
+        this.Height := r.h
     }
 
     beginPaint() {

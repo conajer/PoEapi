@@ -137,8 +137,6 @@ class Banner extends AhkGui {
         addVendorButton()
         addDebugButton()
 
-        Gui, Show, % "x" x + 150 "y" y + 6
-
         this.Hwnd := hwnd
         OnMessage(WM_PLAYER_LIFE, ObjBindMethod(this, "lifeChanged"))
         OnMessage(WM_PLAYER_MANA, ObjBindMethod(this, "manaChanged"))
@@ -148,6 +146,16 @@ class Banner extends AhkGui {
 
     destroy() {
         Gui, __banner:Destroy
+    }
+
+    show(flag = true) {
+        if (Not flag) {
+            Gui, __banner:Show, Hide
+            return
+        }
+
+        r := ptask.getRect()
+        Gui, __banner:Show, % "x"r.l + 150 " y" r.t + 6 "  NoActivate"
     }
 
     setStatusText(text = "", duration = 15000) {
@@ -177,7 +185,6 @@ class Banner extends AhkGui {
     }
 
     onKillCounter(kills, total) {
-        rdebug("#KILLS", _("Kills") ": <b>{}</b>/{}", kills, total)
         GuiControl,, % this.Kills, Kills: %kills%/%total%
     }
 
