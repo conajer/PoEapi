@@ -4,21 +4,13 @@
 
 class Logger extends AhkGui {
 
-    __new(title, filename = "", level = 0, hideWindow = false) {
+    __new(title, filename = "", level = 0) {
         static __mshtml
 
         Gui, __logger:New, +HwndHwnd +LastFound, % title
         Gui, __logger:Margin, 5
-        Gui, Font, 10, Courier New
         Gui, __logger:Add, ActiveX, Border VScroll r35 w690 v__mshtml, about:
         Gui, __logger:Show, Hide x10 y50 w700 h460
-        Gui, __logger:Show, % hideWindow ? "Hide" : "NoActivate"
-
-        clearMethod := ObjBindMethod(this, "clear")
-        Menu, Tray, NoStandard
-        Menu, Tray, Add, Clear Log History, %clearMethod%
-        Menu, Tray, Add
-        Menu, Tray, Standard
 
         this.Hwnd := Hwnd
         this.filename := filename
