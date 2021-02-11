@@ -20,6 +20,7 @@ CoordMode, Pixel, Client
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
+#Include, %A_ScriptDir%\extras\Updater.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
@@ -46,12 +47,13 @@ DllCall("libintl-8\textdomain", "AStr", "PoEapikit")
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
-global logger := new Logger("PoEapikit log",,, Not ShowLogger)
+global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 global pricer := new Pricer()
+global updater := new Updater()
 global trader := new Trader()
 
-version := "0.8.2"
+global version := "0.9.1"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -62,6 +64,11 @@ if (SecondaryAttackSkillKey)
 Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
+
+Menu, Tray, NoStandard
+Menu, Tray, Add, Check for updates..., checkUpdates
+Menu, Tray, Add
+Menu, Tray, Standard
 
 OnExit("__Exit")
 
