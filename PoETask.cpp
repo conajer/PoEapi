@@ -53,7 +53,7 @@ public:
         add_property(L"isReady", &is_ready, AhkBool);
 
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
-        add_method(L"stop", (Task*)this, (MethodType)&Task::stop);
+        add_method(L"stop", this, (MethodType)&PoETask::stop);
         add_method(L"reset", this, (MethodType)&PoETask::reset);
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
@@ -82,9 +82,7 @@ public:
     }
 
     ~PoETask() {
-        is_ready = false;
-        Sleep(300);
-        hud.reset();
+        stop();
     }
 
     int get_party_status() {
@@ -445,6 +443,13 @@ public:
 
         log(L"PoE task started (%d jobs).",  jobs.size());
         join(); /* wait for the jobs finish */
+    }
+
+    void stop() {
+        Task::stop();
+        is_ready = false;
+        Sleep(300);
+        hud.reset();
     }
 
     bool toggle_maphack() {
