@@ -155,9 +155,6 @@ public:
     PoE() : game_state_controller(0) {
     }
 
-    void __new() {
-    }
-
     GameStateController* get_game_state_controller() {
         char pattern[] = "48 83 ec 50 48 c7 44 24 ?? ?? ?? ?? ?? 48 89 9c 24 ?? ?? ?? ?? 48 8b f9 33 ed 48 39";
         addrtype addr = find_pattern(pattern);
@@ -307,10 +304,11 @@ public:
     }
 
     void set_hud_window(HWND hwnd) {
-        if (hwnd == INVALID_HANDLE_VALUE)
-            hud.reset();
-        else if (IsWindow(hwnd))
-            hud = unique_ptr<Canvas>(new Canvas(hwnd));
+        if (hwnd && IsWindow(hwnd)) {
+            if (!hud)
+                hud = unique_ptr<Canvas>(new Canvas());
+            hud->bind(hwnd);
+        }
     }
 
     void logout() {
