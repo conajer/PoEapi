@@ -22,7 +22,8 @@
 
 ; Plugins
 global PluginOptions := { "AutoFlask"     : { "enabled" : true}
-                        , "AutoOpen"      : { "enabled" : true, "range" : 15 }
+                        , "AutoOpen"      : { "enabled" : true, "range" : 15
+                                            , "ignoredChests" : "Amphora" }
                         , "AutoPickup"    : { "enabled" : true, "range" : 50
                                             , "genericItemFilter" : "Blueprint|Contract|Incubator|Scarab$|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
                                             , "rareItemFilter"    : "Jewel|Amulet|Ring|Belt" }
