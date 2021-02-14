@@ -142,8 +142,11 @@ public:
             switch (index) {
             case 0:
                 {
+                    if (ignore_chests || i.second->path.find(L"IzaroChest") != wstring::npos)
+                        continue;
+
                     Chest* chest = i.second->get_component<Chest>();
-                    if (ignore_chests || !chest || chest->is_locked())
+                    if (!chest || chest->is_locked())
                         continue;
                 }
                 break;
