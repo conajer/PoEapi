@@ -23,13 +23,15 @@ public:
     RECT bounds;
     unsigned int range = 50, last_pickup = 0;
     int try_again;
+    bool ignore_chests = false;
     bool is_picking = false;
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.6") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.7") {
         add_property(L"range", &range, AhkInt);
+        add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&AutoPickup::begin_pickup);
@@ -141,7 +143,7 @@ public:
             case 0:
                 {
                     Chest* chest = i.second->get_component<Chest>();
-                    if (!chest || chest->is_locked())
+                    if (ignore_chests || !chest || chest->is_locked())
                         continue;
                 }
                 break;
