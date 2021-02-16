@@ -11,7 +11,7 @@ public:
     ID2D1DCRenderTarget* render = nullptr;
 
     Canvas() {
-        D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &factory);
+        D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &factory);
         D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
             D2D1_RENDER_TARGET_TYPE_DEFAULT,
             D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
