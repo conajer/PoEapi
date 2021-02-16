@@ -30,7 +30,7 @@ public:
     }
 
     bool is_neutral() {
-        return read<byte>("is_neutral") & 0x7f;
+        return read<byte>("is_neutral") == 0x81;
     }
 
     Point grid_position() {
