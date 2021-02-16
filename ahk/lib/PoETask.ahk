@@ -364,23 +364,7 @@ class PoETask extends AhkObj {
         debug(_("You have entered") " <b style=""color:maroon"">{}, {}</b>", areaName, level)
         this.InMap := Not isTown && Not isHideout
         this.InHideout := isHideout
-
         Character.base := this.getPlayer()
-
-        ; Calculate gained experience
-        if (this.InMap) {
-            if (Not this.savedExp)
-                this.savedExp := this.player.getExp()
-        } else if (this.savedExp) {
-            currentExp := this.player.getExp()
-            if (currentExp != this.savedExp) {
-                gainedExp := currentExp - this.savedExp
-                this.savedExp := 0
-                lvl := this.player.level
-
-                syslog(_("{:.2f}% experience gained"), gainedExp * 100 / levelExp[lvl])
-            }
-        }
     }
 
     playerChanged(name) {
