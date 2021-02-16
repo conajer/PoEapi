@@ -90,13 +90,16 @@ tradeGems() {
         return
 
     ptask.stash.switchTab(VendorTabGems)
+    Sleep, 300
     tab := ptask.stash.Tab
     for i, item in tab.getItems() {
-        if (item.isGem && item.level < 19 && item.quality > 0 && item.quality < 18)
+        if (item.isGem && item.level < 19 && item.quality > 0 && item.quality < 18) {
             tab.move(item)
+            n += 1
+        }
     }
 
-    if (ptask.getVendor().sell()) {
+    if (n > 0 && ptask.getVendor().sell()) {
         for i, item in ptask.inventory.getItems() {
             if (item.isGem && item.level < 19 && item.quality > 0)
                 ptask.inventory.move(item)
@@ -120,15 +123,17 @@ tradeDivinationCards() {
             return
 
         ptask.stash.switchTab(VendorTabDivinationCards)
-        Sleep, 500
-
+        Sleep, 300
+        tab := ptask.stash.Tab
         for i, item in ptask.stash.Tab.getItems() {
-            if (item.isDivinationCard && item.stackCount == item.stackSize)
+            if (item.isDivinationCard && item.stackCount == item.stackSize) {
                 tab.move(item)
+                n += 1
+            }
         }
     }
 
-    if (ptask.getVendor().tradeDivinationCards()) {
+    if (n > 0 && ptask.getVendor().tradeDivinationCards()) {
         Sleep, 100
         ingameUI := ptask.getIngameUI()
         ingameUI.getChild(61, 5).getPos(x, y)
