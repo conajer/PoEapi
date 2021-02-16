@@ -266,12 +266,12 @@ class Inventory extends InventoryGrid {
         try {
             Critical
             this.open()
+            this.getItems()
             loop, % this.rows * this.cols {
-                if (Not this.getItems()[A_Index]) {
+                if (Not this.items[A_Index]) {
                     this.moveTo(A_Index)
-                    Sleep, 150
                     Click
-                    Sleep, 150
+                    Sleep, 100
                     break
                 }
             }
