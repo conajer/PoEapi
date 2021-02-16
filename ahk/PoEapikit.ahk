@@ -216,8 +216,8 @@ return
 -::NumpadSub
 +::NumpadAdd
 
-^WheelDown::Right
-^WheelUp::Left
+^WheelDown::SendInput {Right}
+^WheelUp::SendInput {Left}
 
 ~*LAlt::
     ptask.c.clear()
