@@ -309,9 +309,14 @@ class PoETask extends AhkObj {
         }
 
         for i, aItem in this.inventory.getItems() {
-            if (aItem.rarity == 0 && aItem.baseName ~= "(Divine|Eternal) Life") {
-                trans := this.inventory.findItem("Transmutation")
-                this.inventory.use(trans, aItem)
+            if (aItem.rarity == 0) {
+                if (aItem.baseName ~= "(Divine|Eternal) Life") {
+                    trans := this.inventory.findItem("Orb of Transmutation")
+                    aItem := this.inventory.use(trans, aItem)
+                } else if (aItem.baseName ~= "Two-Toned|Stygain|Convoking|Bone") {
+                    alchemy := this.inventory.findItem("Orb of Alchemy")
+                    aItem := this.inventory.use(alchemy, aItem)
+                }
             }
 
             if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem))
