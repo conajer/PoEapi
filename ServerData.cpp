@@ -59,6 +59,23 @@ std::map<string, int> inventory_offsets {
 class InventorySlot : public RemoteMemoryObject, public AhkObj {
 private:
 
+    AhkObjRef* __get_item_by_index(int index) {
+        get_items();
+        if (cells.find(index) == cells.end())
+            return nullptr;
+
+        shared_ptr<InventoryCell> cell = cells[index];
+        shared_ptr<Item> item = cell->get_item();
+        item->__set(L"index", index, AhkInt,
+                    L"left", cell->x + 1, AhkInt,
+                    L"top", cell->y + 1, AhkInt,
+                    L"width", cell->w, AhkInt,
+                    L"height", cell->h, AhkInt,
+                    nullptr);
+
+        return *item;
+    }
+
     AhkObjRef* __get_items() {
         AhkObj items;
         for (auto& i : get_items()) {
@@ -93,6 +110,7 @@ public:
 
         add_method(L"count", this, (MethodType)&InventorySlot::count, AhkInt);
         add_method(L"freeCells", this, (MethodType)&InventorySlot::free_cells, AhkInt);
+        add_method(L"getItemByIndex", this, (MethodType)&InventorySlot::__get_item_by_index, AhkObject, ParamList{AhkInt});
         add_method(L"getItems", this, (MethodType)&InventorySlot::__get_items, AhkObject);
     }
 
