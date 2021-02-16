@@ -165,6 +165,12 @@ class PoETask extends AhkObj {
     onActive(hwnd) {
         if (hwnd == this.Hwnd) {
             Sleep, 300
+            WinGetPos, x, y, w, h, ahk_id %hwnd%
+            this.x := x
+            this.y := y
+            this.width := w
+            this.height := h
+
             this.banner.show()
             this.c.show()
             this.hud.show()
