@@ -72,7 +72,9 @@ class InventoryGrid extends Element {
     }
 
     getItemByIndex(index) {
-        return this.getItems()[index]
+        item := ptask.inventories[this.id].getItemByIndex(index)
+        item.price := pricer[item]
+        return item
     }
 
     getItems() {
