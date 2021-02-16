@@ -91,7 +91,8 @@ public:
         get_all_components();
         if (has_component("Monster")) {
             is_monster = true;
-            is_neutral = get_component<Positioned>()->is_neutral();
+            Positioned *positioned = get_component<Positioned>();
+            is_neutral = positioned ? positioned->is_neutral() : false;
             ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
             rarity = props ? props->rarity() : 0;
         }
