@@ -43,7 +43,8 @@ public:
     wstring* next_message() {
         if (messages->child_count() > index) {
             last_message = messages->get_child(index++);
-            return &last_message->get_text();
+            if (last_message)
+                return &last_message->get_text();
         }
 
         return nullptr;
