@@ -216,8 +216,9 @@ public:
         player_name = player->name();
         player_class = get_component<PlayerClass>()->name();
 
-        add_method(L"level", this, (MethodType)&LocalPlayer::level, AhkInt);
         add_method(L"getExp", this, (MethodType)&LocalPlayer::get_exp, AhkUInt);
+        add_method(L"isMoving", this, (MethodType)&LocalPlayer::is_moving, AhkBool);
+        add_method(L"level", this, (MethodType)&LocalPlayer::level, AhkInt);
     }
 
     void __new() {
