@@ -40,19 +40,21 @@ public:
     wstring* next_notification() {
         if (child_count() > index) {
             last_notification = get_child(index++);
-            notifications.push_back(last_notification);
+            if (last_notification) {
+                notifications.push_back(last_notification);
 
-            int n = last_notification->child_count();
-            if (n > 2) {
-                shared_ptr<Element> player = last_notification->get_child(std::vector<int>{0, 0, 1});
-                shared_ptr<Element> notification_text = last_notification->get_child(std::vector<int>{0, 1});
-                last_notification->text = player->get_text() + L" " + notification_text->get_text();
-            } else {
-                shared_ptr<Element> notification_text = last_notification->get_child(0);
-                last_notification->text = notification_text->get_text();
+                int n = last_notification->child_count();
+                if (n > 2) {
+                    shared_ptr<Element> player = last_notification->get_child(std::vector<int>{0, 0, 1});
+                    shared_ptr<Element> notification_text = last_notification->get_child(std::vector<int>{0, 1});
+                    last_notification->text = player->get_text() + L" " + notification_text->get_text();
+                } else {
+                    shared_ptr<Element> notification_text = last_notification->get_child(0);
+                    last_notification->text = notification_text->get_text();
+                }
+
+                return &last_notification->get_text();
             }
-
-            return &last_notification->get_text();
         }
 
         return nullptr;
