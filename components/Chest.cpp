@@ -31,7 +31,7 @@ public:
     void to_print() {
         Component::to_print();
         printf("%s%s", is_opened() ? "\t\t\t! Opened"
-                                     : (is_locked() ? "\t\t\t! Locked" : ""),
+                                   : (is_locked() ? "\t\t\t! Locked" : ""),
                is_strongbox() ? ", Strongbox" : "");
     }
 };
