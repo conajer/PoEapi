@@ -125,10 +125,10 @@ public:
     PoEObject(addrtype address, FieldOffsets* offsets = &default_offsets)
         : RemoteMemoryObject(address, offsets)
     {
-        add_property(L"address", &this->address, AhkPointer);
     }
 
     void __new() {
+        __set(L"address", address, AhkPointer, nullptr);
     }
 
     static void* __read(addrtype address, size_t size) {
