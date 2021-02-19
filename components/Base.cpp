@@ -9,8 +9,8 @@ static std::map<string, int> base_component_offsets {
         {"x_cells",    0x10},
         {"y_cells",    0x14},
         {"name",       0x18},
-    {"influence_type", 0xd8},
-    {"is_corrupted",   0xda},
+    {"influence_type", 0xd6},
+    {"is_corrupted",   0xd7},
 };
 
 class Base : public Component {
@@ -34,7 +34,7 @@ public:
     }
 
     bool is_corrupted() {
-        return read<byte>("is_corrupted");
+        return read<byte>("is_corrupted") & 0x01;
     }
 
     int width() {
