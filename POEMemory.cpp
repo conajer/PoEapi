@@ -83,6 +83,62 @@ template <> wstring read<wstring>(HANDLE handle, addrtype address) {
     return L"";
 }
 
+template <typename T> std::vector<T> read_array(HANDLE handle, addrtype address, int element_size) {
+    addrtype begin = read<addrtype>(handle, address);
+    addrtype end = read<addrtype>(handle, address + 0x8);
+
+    std::vector<T> vec;
+    for (address = begin; address < end; address += element_size) {
+        vec.push_back(T(address));
+        if (vec.size() > 2048)
+            break;
+    }
+
+    return vec;
+}
+
+template <> std::vector<wstring> read_array(HANDLE handle, addrtype address, int element_size) {
+    addrtype begin = read<addrtype>(handle, address);
+    addrtype end = read<addrtype>(handle, address + 0x8);
+
+    std::vector<wstring> vec;
+    for (address = begin; address < end; address += element_size) {
+        vec.push_back(read<wstring>(handle, address));
+        if (vec.size() > 2048)
+            break;
+    }
+
+    return vec;
+}
+
+template <typename T> std::vector<T> read_array(HANDLE handle, addrtype address, int offset, int element_size) {
+    addrtype begin = read<addrtype>(handle, address);
+    addrtype end = read<addrtype>(handle, address + 0x8);
+
+    std::vector<T> vec;
+    for (address = begin; address < end; address += element_size) {
+        vec.push_back(T(read<addrtype>(handle, address + offset)));
+        if (vec.size() > 2048)
+            break;
+    }
+
+    return vec;
+}
+
+template <> std::vector<wstring> read_array(HANDLE handle, addrtype address, int offset, int element_size) {
+    addrtype begin = read<addrtype>(handle, address);
+    addrtype end = read<addrtype>(handle, address + 0x8);
+
+    std::vector<wstring> vec;
+    for (address = begin; address < end; address += element_size) {
+        vec.push_back(read<wstring>(handle, read<addrtype>(handle, address + offset)));
+        if (vec.size() > 2048)
+            break;
+    }
+
+    return vec;
+}
+
 class PoEMemory {
 protected:
 
@@ -111,31 +167,11 @@ public:
     }
 
     template <typename T> std::vector<T> read_array(addrtype address, int element_size) {
-        addrtype begin = read<addrtype>(address);
-        addrtype end = read<addrtype>(address + 0x8);
-
-        std::vector<T> vec;
-        for (address = begin; address < end; address += element_size) {
-            vec.push_back(T(address));
-            if (vec.size() > 2048)
-                break;
-        }
-
-        return vec;
+        return ::read_array<T>(process_handle, address, element_size);
     }
 
     template <typename T> std::vector<T> read_array(addrtype address, int offset, int element_size) {
-        addrtype begin = read<addrtype>(address);
-        addrtype end = read<addrtype>(address + 0x8);
-
-        std::vector<T> vec;
-        for (address = begin; address < end; address += element_size) {
-            vec.push_back(T(read<addrtype>(address + offset)));
-            if (vec.size() > 2048)
-                break;
-        }
-
-        return vec;
+        return ::read_array<T>(process_handle, address, offset, element_size);
     }
 
     template <typename T> bool write(addrtype address, T* buffer, int n) {
