@@ -17,7 +17,7 @@ public:
     int range = 15;
     int total_opened;
 
-    AutoOpen() : PoEPlugin(L"AutoOpen", "0.3"),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.4"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
         default_ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase|Izaro")
     {
@@ -46,17 +46,31 @@ public:
 
     void try_open(Entity* entity) {
         Point pos, old_pos;
-        int x, y, is_pressed;
+        if (player->actor->target_address == entity->address)
+            return;
 
-        GetCursorPos ((POINT*)&old_pos);
-        is_pressed = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
         pos = poe->get_pos(entity);
         if (!PtInRect(&bounds, {pos.x, pos.y}))
             return;
 
+        GetCursorPos ((POINT*)&old_pos);
+        bool is_button_pressed = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
+        bool is_moving = player->is_moving();
+
+        if (is_button_pressed)
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+
         poe->mouse_click(pos);
-        pos = poe->get_pos(entity);
-        poe->mouse_click_and_return(pos, old_pos, player->is_moving(), is_pressed);
+        poe->mouse_click(poe->get_pos(entity));
+
+        SetCursorPos (old_pos.x, old_pos.y);
+        Sleep(30);
+        if (is_button_pressed) {
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        } else if (is_moving) {
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        }
         Sleep(500);
     }
 

@@ -283,26 +283,6 @@ public:
         Sleep(30);
     }
 
-    void mouse_click_and_return(Point pos, Point where, int is_moving, int is_pressed) {
-        ClientToScreen(hwnd, (LPPOINT)&pos);
-        if (is_pressed)
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-
-        SetCursorPos (pos.x, pos.y);
-        Sleep(30);
-        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-
-        Sleep(10);
-        SetCursorPos (where.x, where.y);
-        if (is_pressed) {
-            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-        } else if (is_moving) {
-            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-        }
-    }
-
     void set_hud_window(HWND hwnd) {
         if (hwnd && IsWindow(hwnd)) {
             if (!hud)
