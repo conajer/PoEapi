@@ -71,7 +71,7 @@ public:
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
         add_method(L"getPlugin", this, (MethodType)&PoETask::get_plugin, AhkObject, ParamList{AhkWString});
         add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
-        add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject);
+        add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject, ParamList{AhkWString});
         add_method(L"getPlayer", this, (MethodType)&PoETask::get_player, AhkObject);
         add_method(L"setOffset", this, (MethodType)&PoETask::set_offset, AhkVoid, ParamList{AhkWString, AhkString, AhkInt});
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
@@ -246,10 +246,12 @@ public:
         return temp_plugins;
     }
 
-    AhkObjRef* get_entities() {
+    AhkObjRef* get_entities(const wchar_t* types) {
         AhkTempObj temp_entities;
+        std::wregex types_exp;
         for (auto& i : entities.all) {
-            temp_entities.__set(L"", (AhkObjRef*)*i.second, AhkObject, nullptr);
+            if (std::regex_search(i.second->path, types_exp))
+                temp_entities.__set(L"", (AhkObjRef*)*i.second, AhkObject, nullptr);
         }
 
         return temp_entities;
