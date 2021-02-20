@@ -288,6 +288,9 @@ public:
         add_method(L"charges", this, (MethodType)&Item::get_charges);
         add_method(L"size", this, (MethodType)&Item::get_size);
         add_method(L"getInfluenceType", this, (MethodType)&Item::get_influence_type, AhkInt);
+        add_method(L"getAffixes", this, (MethodType)&Item::get_affixes, AhkObject);
+        add_method(L"getExplicitMods", this, (MethodType)&Item::get_explicit_mods, AhkObject);
+        add_method(L"getMods", this, (MethodType)&Item::get_mods, AhkObject);
     }
 
     void __new() {
@@ -433,5 +436,50 @@ public:
 
     int get_influence_type() {
         return base ? base->influence_type() : 0;
+    }
+
+    AhkObjRef* get_affixes() {
+        AhkTempObj affixes;
+        if (mods) {
+            mods->get_mods();
+            for (auto& i : mods->explicit_mods)
+                affixes.__set(L"", i.name.c_str(), AhkWString, nullptr);
+        }
+        
+        return affixes;
+    }
+
+    AhkObjRef* get_explicit_mods() {
+        AhkTempObj explicit_mods;
+        if (mods) {
+            mods->get_mods();
+            for (auto& i : mods->fractured_stats)
+                explicit_mods.__set(L"", (i + L" (fractured)").c_str(), AhkWString, nullptr);
+            for (auto& i : mods->explicit_stats)
+                explicit_mods.__set(L"", i.c_str(), AhkWString, nullptr);
+            for (auto& i : mods->crafted_stats)
+                explicit_mods.__set(L"", (i + L" (crafted)").c_str(), AhkWString, nullptr);
+        }
+        
+        return explicit_mods;
+    }
+
+    AhkObjRef* get_mods() {
+        AhkTempObj all_mods;
+        if (mods) {
+            mods->get_stats();
+            for (auto& i : mods->enchant_stats)
+                all_mods.__set(L"", (i + L" (enchant)").c_str(), AhkWString, nullptr);
+            for (auto& i : mods->implicit_stats)
+                all_mods.__set(L"", (i + L" (implicit)").c_str(), AhkWString, nullptr);
+            for (auto& i : mods->fractured_stats)
+                all_mods.__set(L"", (i + L" (fractured)").c_str(), AhkWString, nullptr);
+            for (auto& i : mods->explicit_stats)
+                all_mods.__set(L"", i.c_str(), AhkWString, nullptr);
+            for (auto& i : mods->crafted_stats)
+                all_mods.__set(L"", (i + L" (crafted)").c_str(), AhkWString, nullptr);
+        }
+
+        return all_mods;
     }
 };
