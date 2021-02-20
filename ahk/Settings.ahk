@@ -25,6 +25,7 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                         , "AutoOpen"      : { "enabled" : true, "range" : 15
                                             , "ignoredChests" : "Amphora" }
                         , "AutoPickup"    : { "enabled" : true, "range" : 50
+                                            , "ignoreChests"      : false
                                             , "genericItemFilter" : "Blueprint|Contract|Incubator|Scarab$|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
                                             , "rareItemFilter"    : "Jewel|Amulet|Ring|Belt" }
                         , "HeistChest"    : { "enabled" : true}
@@ -100,7 +101,8 @@ global HeistChestNameRegex := "HeistChest(Secondary|RewardRoom)(.*)(Military|Rob
 ;     2. unique items
 ;     3. 6 sockets, 6 linked or 3 linked R-G-B items
 ;     4. gems whose quality > 5 or level > 12
-;     5. All weapon/armour items whose item level is between 60 to 75
+;     5. All weapon/armour items whose item level are between 60 to 75
+;     6. Influenced items
 ;
 global AutoPickupKey := "a"
 
