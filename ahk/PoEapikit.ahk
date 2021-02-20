@@ -53,7 +53,7 @@ global pricer := new Pricer()
 global updater := new Updater()
 global trader := new Trader()
 
-global version := "0.9.1"
+global version := "0.9.2"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -77,6 +77,10 @@ return
 
 _(str) {
     return DllCall("libintl-8\gettext", "AStr", str, "AStr")
+}
+
+$(item) {
+    return pricer.getPrice(item)
 }
 
 __Exit() {
@@ -255,7 +259,7 @@ return
     favours := ptask.getFavours()
     if (favours.isOpened()) {
         for i, e in favours.getChilds() {
-            price := pricer[e.item]
+            price := $(e.item)
             if (e.item.stackCount > 0)
                 price := e.item.stackCount * price
             if (price >= 0.05) {
