@@ -79,6 +79,9 @@ class KillStats {
 
         p := ptask.getPlugin("KillCounter")
         for i, stat in p.getStats() {
+            if (stat.totalKills == 0)
+                continue
+
             innerHtml .= "<tr>"
             innerHtml .= "<td>"  stat.timestamp "</td>"
             innerHtml .= "<td style=""text-align:left"">"  stat.areaName "</td>"
@@ -155,7 +158,7 @@ class Banner extends AhkGui {
         }
 
         r := ptask.getRect()
-        Gui, __banner:Show, % "x"r.l + 150 " y" r.t + 6 "  NoActivate"
+        Gui, __banner:Show, % "x" r.l + 150 " y" r.t + 6 "  NoActivate"
     }
 
     setStatusText(text = "", duration = 15000) {
