@@ -24,15 +24,28 @@ class Flask {
         FlaskInfo := item.components["Flask"]
         ChargesInfo := item.components["Charges"]
 
-        reduced := RegExMatch(this.Mods, "([0-9]+)% reduced Charges used", matched) ? matched1 : 0
-        increased := RegExMatch(this.Mods, "([0-9]+)% increased Duration", matched) ? matched1 : 0
+        increased := reduced := 0
+        for i, affix in item.getAffixes() {
+            if (RegExMatch(affix, "Catalysed", matched))
+                increased += 50
+            else if (RegExMatch(affix, "Bubbling", matched))
+                increased += 135
+            else if (RegExMatch(affix, "Experimenter's", matched))
+                increased += 40
+            else if (RegExMatch(affix, "Alchemist's", matched))
+                increased -= 33
+            else if (RegExMatch(affix, "Chemist's", matched))
+                reduced += 20
+        }
 
         this.maxCharges := ChargesInfo.maxCharges
         this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 - reduced) / 100)
-        this.duration := Flaskinfo.duration * (100 + item.quality + increased)
+        if (this.IsUtility)
+            this.duration := Flaskinfo.duration * (100 + item.quality + increased)
+        else
+            this.duration := Floor(Flaskinfo.duration * 10000 / (100 + increased))
         this.endTime := A_Tickcount
         this.key := item.left
-        this.index := item.index
         this.item := item
     }
 
