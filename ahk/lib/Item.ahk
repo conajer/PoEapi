@@ -4,6 +4,10 @@
 
 class Item extends Entity {
 
+    fullName() {
+        return this.rarity > 0 ? this.name " " this.baseName : this.baseName
+    }
+
     __Get(key) {
         if (RegExMatch(key, "i)baseType|subType|is.*")) {
             if (RegExMatch(this.path, "Metadata/Items/(([^/]+)s)/((Gloves|Boots|[^/]+[^/s])s?)*", matched)) {
