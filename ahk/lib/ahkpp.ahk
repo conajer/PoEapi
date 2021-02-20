@@ -179,6 +179,9 @@ __Set(obj, key, params*) {
             value := StrGet(NumGet(params + offset, "Ptr"), "utf-8")
         case 9: ; Unicode  String
             value := StrGet(NumGet(params + offset, "Ptr"))
+        case 12: ; Pointer
+            ptr := NumGet(params + offset, "Ptr")
+            value := Format("{:#x}", ptr)
         case 13: ; Object
             objPtr := NumGet(params + offset, "Ptr")
             value := objPtr ? Object(objPtr) : {}
