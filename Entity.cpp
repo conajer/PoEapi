@@ -269,9 +269,13 @@ public:
         base = get_component<Base>();
         mods = get_component<Mods>();
 
-        add_method(L"isMirrored", this, (MethodType)&Item::is_mirrored, AhkBool);
         add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted, AhkBool);
+        add_method(L"isCrafted", this, (MethodType)&Item::is_crafted, AhkBool);
+        add_method(L"isEnchanted", this, (MethodType)&Item::is_enchanted, AhkBool);
+        add_method(L"isFractured", this, (MethodType)&Item::is_fractured, AhkBool);
+        add_method(L"isMirrored", this, (MethodType)&Item::is_mirrored, AhkBool);
         add_method(L"isSynthesised", this, (MethodType)&Item::is_synthesised, AhkBool);
+        add_method(L"isVeiled", this, (MethodType)&Item::is_veiled, AhkBool);
         add_method(L"isRGB", this, (MethodType)&Item::is_rgb, AhkBool);
         add_method(L"itemLevel", this, (MethodType)&Item::get_item_level);
         add_method(L"quality", this, (MethodType)&Item::get_quality);
@@ -283,6 +287,7 @@ public:
         add_method(L"stackSize", this, (MethodType)&Item::get_stack_size);
         add_method(L"charges", this, (MethodType)&Item::get_charges);
         add_method(L"size", this, (MethodType)&Item::get_size);
+        add_method(L"getInfluenceType", this, (MethodType)&Item::get_influence_type, AhkInt);
     }
 
     void __new() {
@@ -315,16 +320,56 @@ public:
         return mods ? mods->is_identified() : true;
     }
 
-    bool is_mirrored() {
-        return mods ? mods->is_mirrored() : false;
-    }
-
     bool is_corrupted() {
         return base ? base->is_corrupted() : false;
     }
 
+    bool is_crafted() {
+        if (mods) {
+            mods->get_mods();
+            if (!mods->explicit_mods.empty())
+                return mods->explicit_mods.back().domain == 9;
+        }
+
+        return false;
+    }
+
+    bool is_enchanted() {
+        if (mods) {
+            mods->get_mods();
+            return !mods->enchant_mods.empty();
+        }
+
+        return false;
+    }
+
+    bool is_fractured() {
+        if (mods) {
+            mods->get_stats();
+            return !mods->fractured_stats.empty();
+        }
+
+        return false;
+    }
+
+    bool is_mirrored() {
+        return mods ? mods->is_mirrored() : false;
+    }
+
     bool is_synthesised() {
         return mods ? mods->is_synthesised() : false;
+    }
+
+    bool is_veiled() {
+        if (mods) {
+            mods->get_mods();
+            for (auto& i : mods->explicit_mods) {
+                if (i.id.find(L"Veiled") != wstring::npos)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     int get_item_level() {
@@ -384,5 +429,9 @@ public:
         int w = base->width();
         int h = base->height();
         return (w << 16) & h;
+    }
+
+    int get_influence_type() {
+        return base ? base->influence_type() : 0;
     }
 };
