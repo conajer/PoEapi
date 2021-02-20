@@ -37,7 +37,7 @@ class Pricer {
 
     areaChanged() {
         if (ptask.league != this.league) {
-            prices := {}
+            this.prices := {}
             this.league := ptask.league
             t := ObjBindMethod(this, "update")
             SetTimer, % t, -1000
@@ -55,7 +55,7 @@ class Pricer {
 
                 parsed := JSON.Load(http.ResponseText)
                 for i, p in parsed.lines
-                    this.prices[p.currencyTypeName] := {"price" : p.receive.value, "type" : t}
+                    this.prices[p.currencyTypeName] := {"value" : p.receive.value, "type" : t}
                 rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loaded prices of {} ... {}</b>"
                     , name, parsed.lines.Count())
             } catch {}
@@ -70,7 +70,7 @@ class Pricer {
 
                 parsed := JSON.Load(http.ResponseText)
                 for i, p in parsed.lines
-                    this.prices[p.name] := {"price" : p.chaosValue, "type" : t}
+                    this.prices[p.name] := {"value" : p.chaosValue, "type" : t}
                 rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loaded prices of {} ... {}</b>"
                     , name, parsed.lines.Count())
              } catch {}
@@ -82,7 +82,7 @@ class Pricer {
         rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Total {} prices loaded.</b>", this.prices.Count())
     }
 
-    __Get(item) {
-        return this.prices[item.name].price
+    getPrice(item) {
+        return this.prices[item.name].value
     }
 }
