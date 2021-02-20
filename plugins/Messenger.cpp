@@ -14,14 +14,17 @@ public:
 
         if (chat->has_next()) {
             wstring* new_message = chat->next_message();
-            PostThreadMessage(thread_id, WM_NEW_MESSAGE, (WPARAM)new_message->c_str(), (LPARAM)chat->index);
+            if (new_message)
+                PostThreadMessage(thread_id, WM_NEW_MESSAGE,
+                                  (WPARAM)new_message->c_str(), (LPARAM)chat->index);
         }
 
         if (notifications->has_next()) {
             wstring* new_notification = notifications->next_notification();
-            PostThreadMessage(thread_id, WM_NEW_MESSAGE,
-                              (WPARAM)new_notification->c_str(),
-                              (LPARAM)notifications->address);
+            if (new_notification)
+                PostThreadMessage(thread_id, WM_NEW_MESSAGE,
+                                  (WPARAM)new_notification->c_str(),
+                                  (LPARAM)notifications->address);
         }
     }
 };
