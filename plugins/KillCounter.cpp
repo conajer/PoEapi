@@ -68,6 +68,9 @@ public:
         AhkObj stats;
         wchar_t buffer[64];
 
+        if (player == nullptr)
+            return nullptr;
+
         for (auto& i : latest_areas) {
             AreaStat* stat = i.second;
             wstring index = std::to_wstring(stat->index + 1);
@@ -193,7 +196,7 @@ public:
                                 Vector3 pos = render->position();
                                 poe->in_game_state->transform(pos);
                                 PostThreadMessage(thread_id, WM_NEW_MONSTER, (WPARAM)entity->name().c_str(),
-                                                  (LPARAM)entity);
+                                                  (LPARAM)entity->id);
                             }
                         }
                         current_area->total.insert(i.first);
