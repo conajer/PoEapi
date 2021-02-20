@@ -59,6 +59,7 @@ class Updater {
                 }
             }
         } catch {}
+        SetTimer,, % 3600 * 1000
 
         return false
     }
