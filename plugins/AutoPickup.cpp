@@ -78,7 +78,7 @@ public:
     bool check_item(addrtype address) {
         Item item(address);
 
-        if (item.has_component(item_types) >= 0)
+        if (item.get_influence_type() || item.has_component(item_types) >= 0)
             return true;
 
         if (std::regex_search(item.base_name(), generic_item_filter))
