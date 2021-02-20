@@ -78,7 +78,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.5") {
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.6") {
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
         add_property(L"size", &size, AhkInt);
         add_property(L"borderColor", &border_color, AhkInt);
@@ -166,7 +166,7 @@ public:
             Vector3 pos = render->position();
             pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
             pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
-            pos.z = 0.0f;
+            pos.z = pos.z * scale;
             poe->in_game_state->transform(pos);
 
             pos.x += shift_x;
