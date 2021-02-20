@@ -29,9 +29,10 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.7") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.8") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
+
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&AutoPickup::begin_pickup);
@@ -45,6 +46,8 @@ public:
 
     void reset() {
         PoEPlugin::reset();
+        ignored_entities.clear();
+        selected_item.reset();
         dropped_items.clear();
     }
 
@@ -57,7 +60,11 @@ public:
     }
 
     void begin_pickup() {
-        stop_pickup();
+        if (!player || is_picking)
+            return;
+
+        ignored_entities.clear();
+        selected_item.reset();
         is_picking = true;
         last_pickup = GetTickCount();
         try_again = 0;
@@ -70,8 +77,6 @@ public:
     }
 
     void stop_pickup() {
-        ignored_entities.clear();
-        selected_item.reset();
         is_picking = false;
     }
 
@@ -136,7 +141,7 @@ public:
             if (index < 0)
                 continue;
 
-            if (ignored_entities.find(i.second->id) != ignored_entities.end())
+            if (is_picking && ignored_entities.find(i.second->id) != ignored_entities.end())
                 continue;
 
             switch (index) {
@@ -187,7 +192,7 @@ public:
 
         if (nearest_item == selected_item) {
             addrtype target_address = player->actor->target_address;
-            if (target_address == selected_item->address || GetTickCount() - last_pickup < 500)
+            if (target_address == selected_item->address || GetTickCount() - last_pickup < 200)
                 return;
 
             if (++try_again > 3) {
