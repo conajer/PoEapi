@@ -11,7 +11,8 @@ if (Not loadLibrary("poeapi.dll")) {
     if (errCode == 0xc1)
         Msgbox, % "You need 64-Bit AutoHotkey to run PoEapikit."
     else
-        Msgbox, % code ": Load poeapi.dll failed!"
+        Msgbox, % errCode ": Failed to load poeapi.dll!"
+    ExitApp
 }
 
 #Include, %A_ScriptDir%\lib\ahkpp.ahk
@@ -389,6 +390,7 @@ class Stash extends Element {
     }
 
     __getTabs() {
+        ptask.getStashTabs()
         this.tabs := {}
         stashTabs := this.getChild(2)
         for i, tab in stashTabs.getChilds() {
