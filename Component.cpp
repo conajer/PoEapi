@@ -27,7 +27,8 @@ public:
     }
 
     void __new() {
-        __set(L"TypeName", type_name.c_str(), AhkString, 0);
+        PoEObject::__new();
+        __set(L"typeName", type_name.c_str(), AhkString, 0);
     }
 
     void to_print() {
