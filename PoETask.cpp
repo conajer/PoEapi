@@ -46,9 +46,7 @@ public:
     bool is_active = false;
     unsigned int status_timer_period = 66;
 
-    PoETask() : Task(L"PoETask"),
-        ignored_entity_exp(L"Doodad|WorldItem")
-    {
+    PoETask() : Task(L"PoETask"), ignored_entity_exp(L"Doodad|WorldItem") {
         add_property(L"statusTimerPeriod", &status_timer_period, AhkInt);
         add_property(L"isReady", &is_ready, AhkBool);
 
@@ -212,8 +210,15 @@ public:
         if (is_in_game()) {
             AhkObj stash_tabs;
             for (auto& i : server_data->get_stash_tabs()) {
-                if (i->folder_id == -1)
+                if (i->folder_id == -1) {
                     stash_tabs.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
+                    if (i->type == 16) {
+                        AhkObj tabs;
+                        for (auto& t : i->tabs)
+                            tabs.__set(L"", (AhkObjRef*)*t, AhkObject, nullptr);
+                        i->__set(L"tabs", (AhkObjRef*)tabs, AhkObject, nullptr);
+                    }
+                }
             }
             __set(L"stashTabs", (AhkObjRef*)stash_tabs, AhkObject, nullptr);
             return stash_tabs.obj_ref;
@@ -284,7 +289,6 @@ public:
         labeled_entities.clear();
 
         if (in_game_state) {
-            Sleep(1000);
             in_game_ui = in_game_state->in_game_ui();
             in_game_data = in_game_state->in_game_data();
             server_data = in_game_state->server_data();
@@ -305,6 +309,7 @@ public:
             get_stash();
             get_inventory();
 
+            Sleep(500);
             is_active = false;
             is_ready = true;
         }
