@@ -221,6 +221,7 @@ public:
     bool is_affinity;
     int affinities, id = 0;
     short folder_id;
+    std::vector<shared_ptr<StashTab>> tabs;
 
     StashTab(addrtype address) : RemoteMemoryObject(address, &stash_tab_offsets) {
         name = read<wstring>("name");
@@ -325,9 +326,10 @@ public:
 
         int last_index = 0;
         for (auto& i : stash_tabs) {
-            if (i->folder_id >= 0)
-                i->index = stash_tabs[i->folder_id]->index;
-            else {
+            if (i->folder_id >= 0) {
+                i->index = stash_tabs[i->folder_id]->tabs.size();
+                stash_tabs[i->folder_id]->tabs.push_back(i);
+            } else {
                 if (i->index > last_index + 1)
                     i->index = last_index + 1;
             }
