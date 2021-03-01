@@ -30,7 +30,7 @@ public:
     int total_monsters, kills;
     int maximum_area_count = 99;
 
-    KillCounter() : PoEPlugin(L"KillCounter", "0.5"), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.6"), current_area(nullptr) {
         add_property(L"radius", &nearby_radius, AhkInt);
         add_property(L"monsters", &num_of_monsters, AhkInt);
         add_property(L"minions", &num_of_minions, AhkInt);
@@ -188,6 +188,9 @@ public:
 
                         continue;
                     }
+
+                    if (entity->path.find(L"AfflictionVolatile") != wstring::npos)
+                        continue;
 
                     if (current_area->total.find(i.first) == current_area->total.end()) {
                         if (entity->rarity > 1) {     // rare and unique monsters
