@@ -77,17 +77,31 @@ public:
         brush->Release();
     }
 
-    void fill_rect(float x0, float y0, float x1, float y1, int rgb) {
+    void draw_circle(float x, float y, float radius, int rgb, float width = 1) {
         ID2D1SolidColorBrush* brush;
         render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        render->DrawEllipse({{x, y}, radius, radius}, brush, width);
+        brush->Release();
+    }
+
+    void fill_rect(float x0, float y0, float x1, float y1, int rgb, float alpha = 1.0) {
+        ID2D1SolidColorBrush* brush;
+        render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
         render->FillRectangle({x0, y0, x1, y1}, brush);
         brush->Release();
     }
 
-    void fill_rounded_rect(float x0, float y0, float x1, float y1, float rx, float ry, int rgb) {
+    void fill_rounded_rect(float x0, float y0, float x1, float y1, float rx, float ry, int rgb, float alpha = 1.0) {
         ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
         render->FillRoundedRectangle({{x0, y0, x1, y1}, rx, ry}, brush);
+        brush->Release();
+    }
+
+    void fill_circle(float x, float y, float radius, int rgb, float alpha = 1.0) {
+        ID2D1SolidColorBrush* brush;
+        render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
+        render->FillEllipse({{x, y}, radius, radius}, brush);
         brush->Release();
     }
 };
