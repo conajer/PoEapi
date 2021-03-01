@@ -8,17 +8,10 @@ class Canvas {
 public:
 
     ID2D1Factory* factory = nullptr;
-    ID2D1DCRenderTarget* render = nullptr;
+    ID2D1RenderTarget* render = nullptr;
 
     Canvas() {
         D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &factory);
-        D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
-            D2D1_RENDER_TARGET_TYPE_DEFAULT,
-            D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
-            0, 0,
-            D2D1_RENDER_TARGET_USAGE_NONE,
-            D2D1_FEATURE_LEVEL_DEFAULT);
-        factory->CreateDCRenderTarget(&props, (ID2D1DCRenderTarget**)&render);
     }
 
     virtual ~Canvas() {
@@ -30,10 +23,27 @@ public:
         factory->Release();
     }
 
-    void bind(HWND hwnd) {
+    void bind(HWND hwnd, bool use_dc = true) {
         RECT r;
-        GetClientRect(hwnd, &r);
-        render->BindDC(GetDC(hwnd), &r);
+        D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+            D2D1_RENDER_TARGET_TYPE_DEFAULT,
+            D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
+            0, 0,
+            D2D1_RENDER_TARGET_USAGE_NONE,
+            D2D1_FEATURE_LEVEL_DEFAULT);
+
+        if (use_dc) {
+            GetClientRect(hwnd, &r);
+            factory->CreateDCRenderTarget(&props, (ID2D1DCRenderTarget**)&render);
+            ((ID2D1DCRenderTarget*)render)->BindDC(GetDC(hwnd), &r);
+        } else {
+            GetWindowRect(hwnd, &r);
+            D2D1_SIZE_U size = D2D1::SizeU(r.right - r.left, r.bottom - r.top);
+            factory->CreateHwndRenderTarget(
+                props,
+                D2D1::HwndRenderTargetProperties(hwnd, size),
+                (ID2D1HwndRenderTarget**)&render);            
+        }
     }
 
     void begin_draw() {
