@@ -76,8 +76,12 @@ public:
     shared_ptr<Element> label;
     Point pos;
 
+    bool is_player = false;
+    bool is_npc = false;
+
     /* Monster related fields */
-    bool is_monster = false, is_neutral = false;
+    bool is_monster = false;
+    bool is_neutral = false;
     int rarity = 0;
 
     Entity(addrtype address) : PoEObject(address, &entity_offsets) {
@@ -89,8 +93,11 @@ public:
         id = read<int>("id");
 
         get_all_components();
-        if (has_component("Monster")) {
-            is_monster = true;
+        is_player = has_component("Player");
+        is_npc = has_component("NPC");
+        is_monster = has_component("Monster");
+
+        if (is_monster) {
             Positioned *positioned = get_component<Positioned>();
             is_neutral = positioned ? positioned->is_neutral() : false;
             ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
@@ -115,7 +122,7 @@ public:
             wstring name(i.second->type_name.begin(), i.second->type_name.end());
             temp_components.__set(name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
         }
-        __set(L"Components", (AhkObjRef*)temp_components, AhkObject, nullptr);
+        __set(L"components", (AhkObjRef*)temp_components, AhkObject, nullptr);
 
         return temp_components;
     }
@@ -270,6 +277,7 @@ public:
         mods = get_component<Mods>();
 
         add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted, AhkBool);
+        add_method(L"isBlighted", this, (MethodType)&Item::is_blighted, AhkBool);
         add_method(L"isCrafted", this, (MethodType)&Item::is_crafted, AhkBool);
         add_method(L"isEnchanted", this, (MethodType)&Item::is_enchanted, AhkBool);
         add_method(L"isFractured", this, (MethodType)&Item::is_fractured, AhkBool);
@@ -321,6 +329,16 @@ public:
 
     bool is_identified() {
         return mods ? mods->is_identified() : true;
+    }
+
+    bool is_blighted() {
+        if (mods) {
+            mods->get_mods();
+            if (!mods->implicit_mods.empty())
+                return mods->implicit_mods.front().id == L"InfectedMap";
+        }
+
+        return false;
     }
 
     bool is_corrupted() {
@@ -452,7 +470,7 @@ public:
     AhkObjRef* get_explicit_mods() {
         AhkTempObj explicit_mods;
         if (mods) {
-            mods->get_mods();
+            mods->get_stats();
             for (auto& i : mods->fractured_stats)
                 explicit_mods.__set(L"", (i + L" (fractured)").c_str(), AhkWString, nullptr);
             for (auto& i : mods->explicit_stats)
