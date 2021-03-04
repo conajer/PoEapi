@@ -137,12 +137,18 @@ public:
     }
 
     std::vector<shared_ptr<Element>>& get_childs() {
-        childs.clear();
-        for (auto addr : read_array<addrtype>("childs", 0x0, 0x8)) {
-            if (addr)
-                childs.push_back(shared_ptr<Element>(new Element(addr)));
-            else
-                childs.push_back(shared_ptr<Element>());
+        std::vector<addrtype> vec = read_array<addrtype>("childs", 0x0, 0x8);
+        if (childs.size() == vec.size()) {
+            for (int i = 0; i < childs.size(); ++i)
+                childs[i]->address = vec[i];
+        } else {
+            childs.clear();
+            for (auto addr : vec) {
+                if (addr)
+                    childs.push_back(shared_ptr<Element>(new Element(addr)));
+                else
+                    childs.push_back(shared_ptr<Element>());
+            }
         }
 
         return childs;
