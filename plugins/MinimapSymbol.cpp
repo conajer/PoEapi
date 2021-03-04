@@ -2,6 +2,7 @@
 * MinimapSymbol.cpp, 11/6/2020 3:12 PM
 */
 
+#include <regex>
 #include <map>
 #include <math.h>
 
@@ -50,24 +51,41 @@ class MinimapSymbol : public PoEPlugin {
 public:
 
     Vector3 player_pos;
+
+    // overlapped map 
     float shift_x, shift_y;
-    float scale, factor = 6.9f;
+    float scale;
+    float factor = 6.9f;
     bool is_clipped = false;
-    bool show_delve_chests = true;
-    int size = 8;
-    int border_color = 0xffffff;
-    std::wregex ignored_delve_chests;
+
+    // monsters
     bool show_monsters = true;
-    bool show_minions = true;
     bool show_corpses = false;
     int rarity = 0;
-    std::vector<MonsterPack> monster_packs;
     bool show_packs = false;
+    std::vector<MonsterPack> monster_packs;
 
-    int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // normal, magic, rare, unique
-                             0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // is dead
-                             0xfe00, 0, 0, 0,                           // is minion
-                             0x7f00, 0, 0, 0};
+    // delve chests
+    bool show_delve_chests = true;
+    std::wregex ignored_delve_chests;
+
+    // heist chests
+    bool show_heist_chests = true;
+    std::wregex heist_regex;
+
+    bool show_player = true;
+    bool show_npc = true;
+    bool show_minions = true;
+
+    // minimal size of the symbols
+    int min_size = 4;
+
+
+    int entity_colors[64] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // monster
+                             0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // corpse
+                             0xfe00,                                    // minion
+                             0xffd700,                                  // NPC
+                             0xfe00fe};                                 // player
     
     std::map<wstring, int> chest_colors = {{L"AzuriteVein", 0xff}, 
                                            {L"Resonator", 0xff7f},
@@ -78,19 +96,23 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.6") {
-        add_property(L"showDelveChests", &show_delve_chests, AhkBool);
-        add_property(L"size", &size, AhkInt);
-        add_property(L"borderColor", &border_color, AhkInt);
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.7"),
+        ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
+        heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
+    {
         add_property(L"showMonsters", &show_monsters, AhkBool);
-        add_property(L"showMinions", &show_minions, AhkBool);
         add_property(L"showCorpses", &show_corpses, AhkBool);
         add_property(L"rarity", &rarity, AhkInt);
         add_property(L"showPacks", &show_packs, AhkBool);
-        add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
-        add_method(L"getPacks", this, (MethodType)&MinimapSymbol::get_packs, AhkObject);
+        add_property(L"showDelveChests", &show_delve_chests, AhkBool);
+        add_property(L"showHeistChests", &show_heist_chests, AhkBool);
+        add_property(L"showPlayer", &show_player, AhkBool);
+        add_property(L"showNPC", &show_player, AhkBool);
+        add_property(L"showMinions", &show_minions, AhkBool);
+        add_property(L"minSize", &min_size, AhkInt);
 
-        set_ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter");
+        add_method(L"getPacks", this, (MethodType)&MinimapSymbol::get_packs, AhkObject);
+        add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
     }
 
     void set_ignored_delve_chests(const wchar_t* regex_string) {
@@ -155,12 +177,28 @@ public:
     }
 
     void draw_entity(Entity* e) {
-        if (e->is_monster && ((!e->is_neutral && e->rarity < rarity)
-                              || (!show_corpses && e->is_dead()) || (!show_minions && e->is_neutral)))
+        int index, size = 0;
+        bool is_dead = e->is_dead();
+
+        if (e->is_monster) {
+            if (is_dead) {
+                if (show_corpses)
+                    index = 4 + e->rarity, size = min_size + e->rarity;
+            } else if (e->is_neutral) {
+                if (show_minions)
+                    index = 8, size = min_size + 1;
+            } else if (e->is_npc) {
+                index = 9, size = min_size + 2;
+            } else if (e->rarity >= rarity)
+                index = e->rarity, size = min_size + e->rarity;
+        } else if (e->is_npc) {
+            index = 9, size = min_size + 2;
+        } else if (e->is_player)
+            index = 10, size = min_size + 4;
+
+        if (size == 0)
             return;
 
-        int index = e->rarity | (e->is_dead() ? 4 : 0) | (e->is_neutral ? 8 : 0);
-        int w = e->rarity + 2 + (e->is_neutral ? 1 : 0) + (!e->is_monster ? 2 : 0);
         Render* render = e->get_component<Render>();
         if (render) {
             Vector3 pos = render->position();
@@ -169,13 +207,11 @@ public:
             pos.z = pos.z * scale;
             poe->in_game_state->transform(pos);
 
-            pos.x += shift_x;
-            pos.y += shift_y;
-            poe->hud->fill_rect(pos.x - w, pos.y - w, pos.x + w, pos.y + w, entity_colors[index]);
-            if (e->rarity == 3) {
-                w += 1;
-                poe->hud->draw_rect(pos.x - w, pos.y - w, pos.x + w, pos.y + w, 0xff0000, 2);
-            }
+            int x = pos.x + shift_x - size;
+            int y = pos.y + shift_y - size;
+            poe->hud->fill_circle(x, y, size, entity_colors[index], .8);
+            if (e->rarity == 3)
+                poe->hud->draw_circle(x, y, size + 2, 0xff0000, 2);
 
             if (show_packs && (e->is_monster && !e->is_neutral)) {
                 Point p = poe->get_pos(e);
@@ -198,12 +234,11 @@ public:
             return;
 
         Targetable* targetable = e->get_component<Targetable>();
-        if (!targetable || !targetable->is_targetable() || !e->has_component("Chest"))
+        if (!targetable || !targetable->is_targetable())
             return;
 
         Render* render = e->get_component<Render>();
         if (render) {
-            int w1 = size + 3, w2 = size;
             Vector3 pos = render->position();
             pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
             pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
@@ -220,8 +255,26 @@ public:
 
             pos.x += shift_x;
             pos.y += shift_y;
-            poe->hud->fill_rounded_rect(pos.x - w1, pos.y - w1, pos.x + w1, pos.y + w1, w1, w1, border_color);
-            poe->hud->fill_rounded_rect(pos.x - w2, pos.y - w2, pos.x + w2, pos.y + w2, w2, w2, color);
+            poe->hud->fill_circle(pos.x, pos.y, min_size + 7, 0xffffff, 0.8);
+            poe->hud->fill_circle(pos.x, pos.y, min_size + 4, color, 0.8);
+        }
+    }
+
+    void draw_heist_chests(Entity* e) {
+        Targetable* targetable = e->get_component<Targetable>();
+        if (!targetable || !targetable->is_targetable())
+            return;
+
+        Render* render = e->get_component<Render>();
+        if (render) {
+            Vector3 pos = render->position();
+            Vector3 bound = render->position();
+            pos.z += 2 * bound.z;
+            poe->in_game_state->transform(pos);
+
+            std::wsmatch match;
+            if (std::regex_search(e->path, match, heist_regex) && match.size() > 0)
+                poe->hud->draw_text(match[2].str(), pos.x, pos.y, 0xffffff, 0xad1616, 1.0, 1);
         }
     }
 
@@ -247,10 +300,13 @@ public:
             }
 
             Entity* entity = i.second.get();
-            if (show_monsters && (entity->is_monster || entity->has_component("NPC")))
+            if ((show_monsters && entity->is_monster)
+                || (show_npc && entity->is_npc) || (show_player && entity->is_player))
                 draw_entity(entity);
             else if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)
                 draw_delve_chests(entity);
+            else if (show_heist_chests && entity->path.find(L"/HeistChest") != string::npos)
+                draw_heist_chests(entity);
         }
 
         if (show_packs) {
