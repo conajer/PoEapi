@@ -3,15 +3,36 @@
 */
 
 #include <d2d1.h>
+#include <dwrite.h>
 
 class Canvas {
 public:
 
     ID2D1Factory* factory = nullptr;
+    IDWriteFactory* write_factory = nullptr;
     ID2D1RenderTarget* render = nullptr;
+    IDWriteTextFormat* text_format = nullptr;
+
+    const wchar_t* font_name = L"Fontin Smallcaps";
+    float font_size = 18;
 
     Canvas() {
         D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &factory);
+        HRESULT hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
+            __uuidof(write_factory),
+            reinterpret_cast<IUnknown **>(&write_factory));
+
+        if (SUCCEEDED(hr)) {
+            write_factory->CreateTextFormat(
+                font_name,
+                nullptr,
+                DWRITE_FONT_WEIGHT_NORMAL,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                font_size,
+                L"en-us",
+                &text_format);
+        }
     }
 
     virtual ~Canvas() {
@@ -19,7 +40,9 @@ public:
         render->Clear();
         render->EndDraw();
 
+        text_format->Release();
         render->Release();
+        write_factory->Release();
         factory->Release();
     }
 
@@ -64,6 +87,26 @@ public:
 
     void pop_rectangle_clip() {
         render->PopAxisAlignedClip();
+    }
+
+    void draw_text(wstring text, float x, float y, int rgb, int backgroud, float alpha = 1.0, int align = 0) {
+        IDWriteTextLayout* layout;
+        
+        HRESULT hr = write_factory->CreateTextLayout(text.c_str(), text.size(),
+            text_format, 1920, 1080, &layout);
+
+        if (SUCCEEDED(hr)) {
+            ID2D1SolidColorBrush* brush;
+            DWRITE_TEXT_METRICS m;
+
+            layout->GetMetrics(&m);
+            x = x - m.width * align / 2;
+            fill_rect(x, y, x + m.width, y + m.height, backgroud, alpha);
+            render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
+            render->DrawTextLayout({x, y}, layout, brush);
+            brush->Release();
+            layout->Release();
+        }
     }
 
     void draw_line(float x0, float y0, float x1, float y1, int rgb) {
