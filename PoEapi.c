@@ -22,7 +22,7 @@ enum MessageTypes {
     WM_DELVE_CHEST,         /* obsolete */
     WM_PICKUP,              /* obsolete */
     WM_FLASK_CHANGED,
-    WM_HEIST_CHEST,
+    WM_HEIST_CHEST,         /* obsolete */
     WM_NEW_MESSAGE,
     WM_NEW_ITEM,
     WM_NEW_MONSTER,
@@ -32,10 +32,10 @@ enum MessageTypes {
 };
 
 int major_version = 0;
-int minor_version = 17;
-int patch_level = 1;
+int minor_version = 18;
+int patch_level = 2;
 
-const char* supported_PoE_version = "3.13.1c";
+const char* supported_PoE_version = "3.13.1e";
 
 DLLEXPORT void poeapi_get_version(int& major, int& minor, int &patch_level) {
     major = major_version;
