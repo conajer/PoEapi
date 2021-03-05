@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Terrain.cpp"
+
 using EntityList = std::unordered_map<int, shared_ptr<Entity>>;
 
 class EntitySet {
@@ -33,6 +35,7 @@ std::map<string, int> in_game_data_offsets {
     {"entity_list",       0x490},
         {"root",            0x8},
     {"entity_list_count", 0x498},
+    {"terrain",           0x670},
 };
 
 class InGameData : public RemoteMemoryObject {
@@ -53,6 +56,7 @@ public:
 
     shared_ptr<AreaTemplate> area;
     shared_ptr<LocalPlayer> player;
+    shared_ptr<Terrain> terrain;
 
     InGameData(addrtype address) : RemoteMemoryObject(address, &in_game_data_offsets)
     {
@@ -82,6 +86,12 @@ public:
         }
 
         return player.get();
+    }
+
+    Terrain* get_terrain() {
+        if (!terrain)
+            terrain = shared_ptr<Terrain>(new Terrain(address + (*offsets)["terrain"]));
+        return terrain.get();
     }
 
     int get_all_entities(EntitySet& entities, std::wregex& ignored_exp) {

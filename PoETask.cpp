@@ -70,6 +70,7 @@ public:
         add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
         add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject, ParamList{AhkWString});
         add_method(L"getPlayer", this, (MethodType)&PoETask::get_player, AhkObject);
+        add_method(L"getTerrain", this, (MethodType)&PoETask::get_terrain, AhkObject);
         add_method(L"setOffset", this, (MethodType)&PoETask::set_offset, AhkVoid, ParamList{AhkWString, AhkString, AhkInt});
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
@@ -264,6 +265,12 @@ public:
     AhkObjRef* get_player() {
         if (local_player)
             return (AhkObjRef*)*local_player;
+        return nullptr;
+    }
+
+    AhkObjRef* get_terrain() {
+        if (is_in_game())
+            return *in_game_data->get_terrain();
         return nullptr;
     }
 
