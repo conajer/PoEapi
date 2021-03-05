@@ -28,6 +28,13 @@ public:
     {
     }
 
+    template<typename T> T* read(const string& field_name, T* buffer, int n) {
+        if (offsets->find(field_name) != offsets->end())
+            return PoEMemory::read<T>(read<addrtype>(field_name), buffer, n);
+
+        return nullptr;
+    }
+
     template<typename T> T read(const string& field_name) {
         if (offsets->find(field_name) != offsets->end())
             return PoEMemory::read<T>(address + (*offsets)[field_name]);
