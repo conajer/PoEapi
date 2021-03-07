@@ -139,8 +139,12 @@ public:
     std::vector<shared_ptr<Element>>& get_childs() {
         std::vector<addrtype> vec = read_array<addrtype>("childs", 0x0, 0x8);
         if (childs.size() == vec.size()) {
-            for (int i = 0; i < childs.size(); ++i)
-                childs[i]->address = vec[i];
+            for (int i = 0; i < childs.size(); ++i) {
+                if (childs[i])
+                    childs[i]->address = vec[i];
+                else
+                    childs[i] = shared_ptr<Element>(new Element(vec[i]));
+            }
         } else {
             childs.clear();
             for (auto addr : vec) {
