@@ -105,8 +105,9 @@ public:
     }
 
     Stash* get_stash() {
-        if (!stash)
-            stash = unique_ptr<Stash>(new Stash(read<addrtype>("stash", "tabs")));
+        addrtype addr = read<addrtype>("stash", "tabs");
+        if (!stash || stash->address != addr)
+            stash = unique_ptr<Stash>(new Stash(addr));
         return stash.get();
     }
 
