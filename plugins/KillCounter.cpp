@@ -9,6 +9,7 @@ struct AreaStat : public AhkObj {
     int index;
     wstring name;
     int level;
+    int player_level;
     std::time_t timestamp;
     unsigned int latest_exp;
     unsigned int gained_exp = 0;
@@ -30,7 +31,7 @@ public:
     int total_monsters, kills;
     int maximum_area_count = 99;
 
-    KillCounter() : PoEPlugin(L"KillCounter", "0.6"), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.7"), current_area(nullptr) {
         add_property(L"radius", &nearby_radius, AhkInt);
         add_property(L"monsters", &num_of_monsters, AhkInt);
         add_property(L"minions", &num_of_minions, AhkInt);
@@ -47,9 +48,13 @@ public:
     AhkObjRef* get_stat() {
         wchar_t buffer[64];
 
+        if (!current_area)
+            return nullptr;
+
         std::wcsftime(buffer, 64, L"%m/%d/%y %H:%M:%S", std::localtime(&current_area->timestamp));
         current_area->__set(L"areaName", current_area->name.c_str(), AhkWString,
                             L"areaLevel", current_area->level, AhkInt,
+                            L"playerLevel", current_area->player_level, AhkInt,
                             L"timestamp", buffer, AhkWString,
                             L"gainedExp", current_area->gained_exp + player->get_exp() - current_area->latest_exp, AhkInt,
                             L"usedTime", (current_area->used_time + GetTickCount() - current_area->latest_time) / 1000, AhkInt,
@@ -68,9 +73,6 @@ public:
         AhkObj stats;
         wchar_t buffer[64];
 
-        if (player == nullptr)
-            return nullptr;
-
         for (auto& i : latest_areas) {
             AreaStat* stat = i.second;
             wstring index = std::to_wstring(stat->index + 1);
@@ -79,6 +81,7 @@ public:
             std::wcsftime(buffer, 64, L"%m/%d/%y %H:%M:%S", std::localtime(&stat->timestamp));
             stat->__set(L"areaName", stat->name.c_str(), AhkWString,
                         L"areaLevel", stat->level, AhkInt,
+                        L"playerLevel", stat->player_level, AhkInt,
                         L"timestamp", buffer, AhkWString,
                         L"gainedExp", stat->gained_exp, AhkInt,
                         L"usedTime", stat->used_time / 1000, AhkInt,
@@ -102,15 +105,16 @@ public:
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
-        if (world_area->is_town() || world_area->is_hideout()) {
-            PostThreadMessage(thread_id, WM_KILL_COUNTER, 0, 0);
-            return;
-        }
-        
         nearby_monsters.clear();
         if (current_area) {
             current_area->used_time += GetTickCount() - current_area->latest_time;
             current_area->gained_exp += player->get_exp() - current_area->latest_exp;
+        }
+
+        if (world_area->is_town() || world_area->is_hideout()) {
+            current_area = nullptr;
+            PostThreadMessage(thread_id, WM_KILL_COUNTER, 0, 0);
+            return;
         }
 
         if (latest_areas.find(hash_code) == latest_areas.end()) {
@@ -121,6 +125,7 @@ public:
             current_area = new AreaStat();
             current_area->name = world_area->name();
             current_area->level = world_area->level();
+            current_area->player_level = player->level();
             current_area->timestamp = std::time(nullptr);
             current_area->latest_exp = player->get_exp();
             current_area->latest_time = GetTickCount();
