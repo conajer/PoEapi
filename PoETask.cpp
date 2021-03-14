@@ -361,6 +361,7 @@ public:
                 while (in_game_state->is_loading()) {
                     if (!PoE::is_in_game())
                         return false;
+                    Sleep(500);
                 }
                 PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
             }
