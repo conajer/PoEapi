@@ -253,7 +253,7 @@ public:
 
     AhkObjRef* get_entities(const wchar_t* types) {
         AhkTempObj temp_entities;
-        std::wregex types_exp;
+        std::wregex types_exp(types);
         for (auto& i : entities.all) {
             if (std::regex_search(i.second->path, types_exp))
                 temp_entities.__set(L"", (AhkObjRef*)*i.second, AhkObject, nullptr);
