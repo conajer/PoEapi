@@ -17,9 +17,10 @@ class MapData : public AhkObj {
 public:
 
     int width, height;
+    float scale;
     shared_ptr<byte> data;
 
-    MapData(int w, int h) : width(w), height(h) {
+    MapData(int w, int h, float scale) : width(w), height(h), scale(scale) {
         size_t size = width * height;
         byte* buffer = new byte[size];
         std::fill(buffer, buffer + size - 1, 0);
@@ -29,6 +30,7 @@ public:
     void __new() {
         __set(L"width", width, AhkInt,
               L"height", height, AhkInt,
+              L"scale", scale, AhkFloat,
               L"data", data.get(), AhkPointer,
               nullptr);
     }
@@ -109,7 +111,7 @@ public:
         scale = std::min(scale, 1.0f);
         w = round((x2 - x1) * 2 * scale);
         h = round((y2 - y1) * scale);
-        map_data = shared_ptr<MapData>(new MapData(w, h));
+        map_data = shared_ptr<MapData>(new MapData(w, h, scale));
         byte* data = map_data->data.get();
         for (r = y1; r < y2; ++r)
             for (c = x1; c < x2; ++c) {
