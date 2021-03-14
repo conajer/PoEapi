@@ -42,6 +42,7 @@ class InGameData : public RemoteMemoryObject {
 protected:
 
     std::unordered_set<addrtype> temp_set;
+    std::unordered_set<addrtype> ignored_entity_set;
     std::queue<addrtype> nodes;
 
     int get_entity_id(addrtype address) {
@@ -60,8 +61,10 @@ public:
 
     InGameData(addrtype address) : RemoteMemoryObject(address, &in_game_data_offsets)
     {
-        area = nullptr;
-        player = nullptr;
+    }
+
+    ~InGameData() {
+        nodes = {};
     }
 
     int area_hash() {
@@ -120,15 +123,20 @@ public:
                 || entity_address > (addrtype)0x7F0000000000)
                 continue;
 
-            wstring path = get_entity_path(entity_address);
-            if (path[0] != L'M' || std::regex_search(path, ignored_exp))
-                continue;
-
             int entity_id = get_entity_id(entity_address);
             auto i = entities.removed.find(entity_id);
             if (i != entities.removed.end()) {
                 entities.all.insert(*i);
                 entities.removed.erase(i);
+                continue;
+            }
+
+            if (ignored_entity_set.count(entity_id))
+                continue;
+
+            wstring path = get_entity_path(entity_address);
+            if (path[0] != L'M' || std::regex_search(path, ignored_exp)) {
+                ignored_entity_set.insert(entity_id);
                 continue;
             }
 
