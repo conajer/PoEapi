@@ -21,7 +21,7 @@ public:
     shared_ptr<byte> data;
 
     MapData(int w, int h, float scale) : width(w), height(h), scale(scale) {
-        size_t size = width * height;
+        size_t size = width * height + 16;
         byte* buffer = new byte[size];
         std::fill(buffer, buffer + size - 1, 0);
         data = shared_ptr<byte>(buffer);
