@@ -52,7 +52,7 @@ public:
 
         add_method(L"getMeleeLayerData", this, (MethodType)&Terrain::get_melee_layer_data, AhkPointer);
         add_method(L"getRangedLayerData", this, (MethodType)&Terrain::get_ranged_layer_data, AhkPointer);
-        add_method(L"getMapData", this, (MethodType)&Terrain::get_map_data, AhkObject, ParamList{AhkInt, AhkInt});
+        add_method(L"getMapData", this, (MethodType)&Terrain::get_map_data, AhkObject, ParamList{AhkInt, AhkInt, AhkInt});
     }
 
     void __new() {
@@ -85,8 +85,11 @@ public:
         return ranged_layer_data.get();
     }
 
-    AhkObjRef* get_map_data(int w, int h) {
+    AhkObjRef* get_map_data(int w, int h, int val) {
         byte* layer_data = get_melee_layer_data();
+        if (!layer_data)
+            return nullptr;
+
         int r, c;
         int x1 = (rows - 1) * 23, y1 = (cols / 2 - 1) * 23;
         int x2 = 0, y2 = 0;
@@ -118,10 +121,10 @@ public:
                 int x = round((c - x1) * 2 * scale);
                 int y = round((r - y1) * scale);
                 int d = layer_data[r * bytes_per_row + c];
-                if ((d & 0xf) < 3)
+                if ((d & 0xf) == val)
                     data[y * w + x] |= d;
-                if ((d >> 4) < 3)
-                    data[y * w + x + 1] |= d;
+                if ((d >> 4) == val)
+                    data[y * w + (int)round(x + scale)] |= d;
             }
 
         return *map_data;
