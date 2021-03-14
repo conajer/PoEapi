@@ -308,7 +308,8 @@ public:
 
             league  = in_game_state->server_data()->league();
             __set(L"league", league.c_str(), AhkWString,
-                  L"area", in_game_data->world_area()->name().c_str(), AhkWString,
+                  L"areaName", in_game_data->world_area()->name().c_str(), AhkWString,
+                  L"areaLevel", in_game_data->world_area()->level(), AhkInt,
                   nullptr);
             get_inventory_slots();
             get_stash_tabs();
