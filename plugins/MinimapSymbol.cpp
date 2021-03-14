@@ -84,7 +84,7 @@ public:
     int entity_colors[64] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // monster
                              0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // corpse
                              0xfe00,                                    // minion
-                             0xffd700,                                  // NPC
+                             0xe0ffff,                                  // NPC
                              0xfe00fe};                                 // player
     
     std::map<wstring, int> chest_colors = {{L"AzuriteVein", 0xff}, 
@@ -180,7 +180,9 @@ public:
         int index, size = 0;
         bool is_dead = e->is_dead();
 
-        if (e->is_monster) {
+        if (e->is_npc) {
+            index = 9, size = min_size + 2;
+        } else if (e->is_monster) {
             if (is_dead) {
                 if (show_corpses)
                     index = 4 + e->rarity, size = min_size + e->rarity;
@@ -191,8 +193,6 @@ public:
                 index = 9, size = min_size + 2;
             } else if (e->rarity >= rarity)
                 index = e->rarity, size = min_size + e->rarity;
-        } else if (e->is_npc) {
-            index = 9, size = min_size + 2;
         } else if (e->is_player)
             index = 10, size = min_size + 4;
 
