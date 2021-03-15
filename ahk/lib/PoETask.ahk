@@ -90,7 +90,6 @@ class PoETask extends AhkObj {
         OnMessage(WM_POEAPI_LOG, ObjBindMethod(this, "onLog"))
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
-        OnMessage(WM_HEIST_CHEST, ObjBindMethod(this, "onHeistChest"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
         OnMessage(WM_PTASK_LOADED, ObjBindMethod(this, "onLoaded"))
@@ -380,33 +379,6 @@ class PoETask extends AhkObj {
 
     playerChanged(name) {
         syslog(this.player.whois())
-    }
-
-    onHeistChest(chestName, lParam) {
-        chestName := StrGet(chestName)
-        if (chestName) {
-            chest := {}
-            chest.name := chestName
-            chest.x := lParam << 32 >> 48
-            chest.y := lParam << 48 >> 48
-            chest.w := lParam >> 48
-            chest.h := lParam << 16 >> 48
-            this.heistChests.Push(chest)
-            return
-        }
-
-        this.c.beginPaint()
-        this.c.clear()
-        for i, chest in this.heistChests {
-            x := chest.x
-            y := chest.y
-            if (RegExMatch(chest.name, HeistChestNameRegex, matched)) {
-                this.c.drawText(x, y + 68, 200, 30, matched2, 0xff00ff)
-            }
-        }
-        this.c.endPaint()
-
-        this.heistChests := {}
     }
 
     onPickup(x, y) {
