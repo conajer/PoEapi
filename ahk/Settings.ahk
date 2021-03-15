@@ -44,21 +44,6 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                                             , "autoQuitThresholdPercentage" : 20
                                             , "autoQuitMinLevel"   : 90 } }
 
-; Canvas, doesn't support full screen mode
-global EnableCanvas := true
-global ShowCanvasBorder := false
-global EnableHud := true
-
-; Banner, doesn't support full screen mode
-global EnableBanner := true
-global ShowEnergyShield := false
-global ShowDebugMenu := false
-
-; Log
-global ShowLogger := false
-global LogLevel := 0
-global ShowLogMessage := false
-
 ; Flasks
 global LifeThreshold := 80
 global ManaThreshold := 30
