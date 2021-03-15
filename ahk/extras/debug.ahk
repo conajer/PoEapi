@@ -2,38 +2,168 @@
 ; debug.ahk, 9/21/2020 9:10 PM
 ;
 
-addDebugButton() {
-    if (ShowDebugMenu) {
-        Menu, __debugMenu, Add, % _("Draw inventory"), drawInventory
-        Menu, __debugMenu, Add, % _("List inventory items"), listInventoryItems
-        Menu, __debugMenu, Add, % _("List inventory slots"), listInventorySlots
-        Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, % _("Draw stash tab"), drawStashTab
-        Menu, __debugMenu, Add, % _("List stash tab items"), listStashTabItems
-        Menu, __debugMenu, Add, % _("List stash tabs"), listStashTabs
-        Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, % _("List vendor services"), listVendorServices
-        Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, % _("List flasks"), listFlasks
-        Menu, __debugMenu, Add, % _("List flask slot"), listFlaskSlot
-        Menu, __debugMenu, Add
-        Menu, __debugMenu, Add, % _("Show log messages"), toggleLogMessage
+#Include, %A_ScriptDir%\extras\Eval.ahk
 
-        Gui, Add, Button, x+2 y0 gpopupDebugCommands, % _("Debug")
+addMenuItem("__debug", _("Console"), "openConsole")
+addMenuItem("__debug", _("IngameUI Inspector"), "openInspector")
+addMenuItem("__debug")
+addMenuItem("__debug", _("List inventory items"), "listInventoryItems")
+addMenuItem("__debug", _("List inventory slots"), "listInventorySlots")
+addMenuItem("__debug")
+addMenuItem("__debug", _("List stash tab items"), "listStashTabItems")
+addMenuItem("__debug", _("List stash tabs"), "listStashTabs")
+addMenuItem("__debug")
+addMenuItem("__debug", _("List vendor services"), "listVendorServices")
+addMenuItem("__debug")
+addMenuItem("__debug", _("List flasks"), "listFlasks")
+addMenuItem("__debug", _("List flask slot"), "listFlaskSlot")
+
+addExtraMenu(_("Debug"), ":__debug")
+
+class IngameUIInspector extends AhkGui {
+
+    elements := {}
+
+    __new() {
+        global
+
+        base.__new("IngameUI Inspector")
+        Gui, Margin, 5, 5
+        Gui, Color, White
+        Gui, Font, s9, Courier New
+        Gui, Add, TreeView, % "r20 w400 h600 AltSubmit vIngameUITree gL1 v" this.__var("onSelected")
+        Gui, Add, Edit, % "ys w300 h300 ReadOnly Multi Hwnd" this.__var("elementInfo")
+
+        ingameUI := ptask.getIngameUI()
+        this.addElement(ingameUI, 0, "IngameUI", 0, 2)
+    }
+
+    addElement(e, index, label = "", parentId = 0, depth = 1) {
+        label := label ? "<" label "> " e.getText() : e.getText()
+        itemId := TV_Add(Format("{:d}. {:X} {}", index, e.address, label), parentId, "Expand")
+        e.getChilds()
+        this.elements[itemId] := e
+
+        if (depth > 0) {
+            for i, c in e.childs
+                this.addElement(c, i,, itemId, depth - 1)
+        }
+    }
+
+    expandAll(itemId) {
+        if (Not itemId)
+            return
+
+        TV_Modify(itemId, "Expand")
+        itemId := TV_GetChild(itemId)
+        loop, {
+            if (Not itemId)
+                break
+
+            this.expandAll(itemId)
+            itemId := TV_GetNext(itemId)
+        }
+    }
+
+    onSelected() {
+        if (A_GuiEvent == "S") {
+            e := this.elements[A_EventInfo]
+            r := e.getPos()
+            GuiControl,, % this.elementInfo
+                , % Format("Address: {:x}`nText: {}`nX: {}`nY: {}`nWidth: {}`nHeight: {}`nChilds: {}"
+                , e.address, e.getText(), r.l, r.t, r.w, r.h, e.childs.Count())
+
+            ptask.c.clear()
+            e.draw()
+        } else if (A_GuiEvent == "DoubleClick") {
+            e := this.elements[A_EventInfo]
+            if (Not TV_GetChild(A_EventInfo) && e.childs.Count() > 0)
+                for i, c in e.childs
+                    this.addElement(c, i,, A_EventInfo, 1)
+            this.expandAll(A_EventInfo)
+        }
+    }
+
+    drawElement() {
+        itemId := TV_GetSelection()
+        if (itemId == 0)
+            return
+
+        e := this.elements[itemId]
+        e.draw()
     }
 }
 
-toggleLogMessage() {
-    ShowLogMessage := !ShowLogMessage
+class Console extends AhkGui {
+
+    static __history := {}
+    static __index := 0
+
+    __new() {
+        global
+
+        base.__new("Console")
+        Gui, Margin, 5
+        Gui, Font, s10, Calibri
+        Gui, Add, ActiveX, Border VScroll r20 w700 v__mshtml, about:
+        Gui, Add, Edit, % "-WantReturn w625 HwndinputHwnd v" this.__var("input")
+        Gui, Add, Button, % "Default x+10 yp+0 gL1 v" this.__var("execute"), Execute
+
+        this.hInput:= inputHwnd
+        this.doc := __mshtml.Document
+        this.doc.write("<pre style=""font-family:Consolas; font-size:18px; line-height:1.2"">")
+
+        OnMessage(0x100, ObjBindMethod(this, "onKeyDown"))
+    }
+
+    onKeyDown(keyCode, lParam, message, hwnd) {
+        static EM_SETSEL = 0xb1
+        static EM_SCROLL := 0xb5
+        static EM_REPLACESEL := 0xC2
+
+        if (hwnd == this.hInput) {
+            if (keyCode == 0x26 && Console.__index > 1) {
+                GuiControl,, % this.__var("input"), % this.__history[--Console.__index]
+                len := DllCall("GetWindowTextLength", "uint", this.hInput)
+                SendMessage, EM_SETSEL, len, len,, % "ahk_id " this.hInput
+                return 0
+            } else if (keyCode == 0x28 && Console.__index > 0 && Console.__index < this.__history.Count()) {
+                GuiControl,, % this.__var("input"), % this.__history[++Console.__index]
+                len := DllCall("GetWindowTextLength", "uint", this.hInput)
+                SendMessage, EM_SETSEL, len, len,, % "ahk_id " this.hInput
+                return 0
+            } else if (keyCode == 0x1b) {
+                GuiControl,, % this.__var("input")
+            }
+        }
+    }
+
+    execute() {
+        guiId := this.Hwnd
+        Gui, %guiId%:Submit, NoHide
+        if (Not Trim(this.input))
+            return
+
+        this.doc.write(Format("<b>></b> {}`n", this.input))
+        this.__history.Push(this.input)
+        Console.__index := this.__history.Count() + 1
+        result := Eval(this.input)
+        result := StrJoin(result, "`n")
+        if (result)
+            this.doc.write(Format("<i style=""color:red"">{}`n</i>", result))
+        this.doc.parentWindow.scrollTo(0, this.doc.body.scrollHeight)
+        GuiControl,, % this.__var("input")
+    }
 }
 
-popupDebugCommands() {
-    Menu, __debugMenu, % ShowLogMessage ? "Check" : "Uncheck", % _("Show log messages")
-    Menu, __debugMenu, Show
+openConsole() {
+    con := new Console()
+    con.show()
 }
 
-drawInventory() {
-    ptask.inventory.draw()
+openInspector() {
+    inspector := new IngameUIInspector()
+    inspector.show()
 }
 
 listInventoryItems() {
@@ -54,12 +184,8 @@ listInventorySlots() {
         debug("    {:2d}. {}, {}, {}", slot.id, slot.rows, slot.cols, slot.items.Count())
 }
 
-drawStashTab() {
-    ptask.stash.draw()
-}
-
 listStashTabItems() {
-    debug("{}: {}", _("Stash tab name"), ptask.stash.Tab.name)
+    debug(_("Stash tab name:") " {}", ptask.stash.Tab.name)
     for i, item in ptask.stash.Tab.getItems()
         debug("    {:3d}. {}", item.index, item.name)
 }
@@ -73,12 +199,19 @@ listStashTabs() {
 
     debug(_("Stash tabs:"))
     for i, tab in stashTabs {
-        debug("    {:2d}. {:2d}, {:-32s}, {:#x}, {:#x} {:#x}", i
+        debug("    {:2d}. {:2d}, <b>{:-32s}</b>, {:-#4x}, {:-#4x}, {:#x}", i
               , tab.index
-              , (tab.folderId >= 0) ? "    " tab.name : tab.name
+              , tab.name
               , tab.type
               , tab.flags
               , tab.affinities)
+        for j, t in tab.tabs
+            debug("    {:2d}.{:d}.  {:2d}, {:-29s}, {:-#4x}, {:-#4x}, {:#x}", i, j
+                  , t.index
+                  , t.name
+                  , t.type
+                  , t.flags
+                  , t.affinities)
     }
 }
 
