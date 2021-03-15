@@ -32,24 +32,24 @@ class TradeItem {
                       , "trans"        : "Orb of Transmutation"
                       , "vaal"         : "Vaal Orb" }
 
-    __new(text) {
-        if (Not text) {
-            this.rawText := "???"
+    __new(fullName) {
+        if (Not fullName) {
+            this.fullName := "???"
         } else {
-            this.rawText := text
+            this.fullName := fullName
             this.count := 1
         }
 
-        if (RegExMatch(s, "level ([0-9]+) ([0-9]+)% (.+)", matched)) {
+        if (RegExMatch(fullName, "level ([0-9]+) ([0-9]+)% (.+)", matched)) {
             this.isGem := true
             this.level := matched1
             this.quality := matched2
             this.name := matched3
-        } else if (RegExMatch(item1, "(.+) \(T([0-9]+)\)", matched)) {
+        } else if (RegExMatch(fullName, "(.+) \(T([0-9]+)\)", matched)) {
             this.isMap := true
             this.name := matched1
             this.tier := matched2
-        } else if (RegExMatch(item1, "([0-9.,]*)([ ]*)([^-]+)", matched)) {
+        } else if (RegExMatch(fullName, "([0-9.,]*)([ ]*)([^-]+)", matched)) {
             this.name := this.__alias[matched3] ? this.__alias[matched3] : matched3
             if (matched1) {
                 RegExMatch(matched1, "([0-9])(,([0-9]+))*", matched)
@@ -115,7 +115,7 @@ class TradeSession extends AhkGui {
     }
 
     ask() {
-        this.whisper(Format(TraderMessages["ask"], this.item2.rawText, this.item1.rawText))
+        this.whisper(Format(TraderMessages["ask"], this.item2.fullName, this.item1.fullName))
     }
 
     hideout() {
@@ -236,7 +236,7 @@ class Trader {
 
         this.tsQueue.Push(aTrade)
         rdebug("#" aTrade.__guiId, "Queued trade session with <b style=""color:blue"">{}</b> ({}/{})"
-               , aTrade.player, aTrade.item1.rawText, aTrade.item2.rawText)
+               , aTrade.player, aTrade.item1.fullName, aTrade.item2.fullName)
         this.nextTrade()
     }
 
@@ -432,7 +432,7 @@ class IncomingTradeSession extends TradeSession {
             Gui, Font, cFEFE76 bold s10, Fontin SmallCaps
             Gui, Add, Text, % "y6 gL1 v" this.__var("whois"), % this.player
             Gui, Font, cFFFAFA bold s10
-            Gui, Add, Text, ys x+10, %  "=> " this.item1.rawText 
+            Gui, Add, Text, ys x+10, %  "=> " this.item1.fullName 
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x325 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
             Gui, Font, bold s8
@@ -442,7 +442,7 @@ class IncomingTradeSession extends TradeSession {
             Gui, Add, Button, % "x+2 y5 gL1 v" this.__var("close"), X
 
             Gui, Font, cD20000 bold s10
-            Gui, Add, Text, % "xs y30 w350 gL1 v" this.__var("checkItem"), % this.item2.rawText
+            Gui, Add, Text, % "xs y30 w350 gL1 v" this.__var("checkItem"), % this.item2.fullName
             Gui, Font, bold s8
             Gui, Add, Button, % "x350 y30 w65 gL1 v" this.__var("1sec"), % _("1 sec")
             Gui, Add, Button, % "x+2 y30 w65 gL1 v" this.__var("thanks"), % _("Thanks")
@@ -452,9 +452,9 @@ class IncomingTradeSession extends TradeSession {
             Gui, Font, cFEFE76 bold s10, Fontin SmallCaps
             Gui, Add, Text, % "y6 w100 gL1 v" this.__var("whois"), % ellipsis(this.player, 12)
             Gui, Font, cFFFAFA bold s10
-            Gui, Add, Text, ys, % this.item1.rawText " => "
+            Gui, Add, Text, ys, % this.item1.fullName " => "
             Gui, Font, cD20000 bold s10
-            Gui, Add, Text, % "x+0 w300 gL1 v" this.__var("checkItem"), % this.item2.rawText
+            Gui, Add, Text, % "x+0 w300 gL1 v" this.__var("checkItem"), % this.item2.fullName
 
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x500 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
@@ -490,7 +490,7 @@ class OutgoingTradeSession extends TradeSession {
             Gui, Font, cFEFE76 bold s10, Fontin SmallCaps
             Gui, Add, Text, % "y6 gL1 v" this.__var("whois"), % this.player
             Gui, Font, cFFFAFA bold s10
-            Gui, Add, Text, % "ys x+10 gL1 v"  this.__var("checkItem"), %  "<= " this.item2.rawText
+            Gui, Add, Text, % "ys x+10 gL1 v"  this.__var("checkItem"), %  "<= " this.item2.fullName
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x325 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
             Gui, Add, Button, % "x350 y5 w65 gL1 v" this.__var("trade"), % _("Trade")
@@ -499,7 +499,7 @@ class OutgoingTradeSession extends TradeSession {
             Gui, Add, Button, % "x+2 y5 gL1 v" this.__var("close"), X
 
             Gui, Font, c47E635 bold s10
-            Gui, Add, Text, % "xs y30 w350", % this.item1.rawText
+            Gui, Add, Text, % "xs y30 w350", % this.item1.fullName
             Gui, Font, bold s8
             Gui, Add, Button, % "x350 y30 w65 c020f29 gL1 v" this.__var("whisper"), % _("Whisper")
             Gui, Add, Button, % "x+2 y30 w65 gL1 v" this.__var("resend"), % _("Resend")
@@ -508,9 +508,9 @@ class OutgoingTradeSession extends TradeSession {
             Gui, Font, cFEFE76 bold s10, Fontin SmallCaps
             Gui, Add, Text, % "y6 w100 gL1 v" this.__var("whois"), % ellipsis(this.player, 13)
             Gui, Font, cFFFAFA bold s10
-            Gui, Add, Text, % "ys gL1 v"  this.__var("checkItem"), % this.item2.rawText " => " 
+            Gui, Add, Text, % "ys gL1 v"  this.__var("checkItem"), % this.item2.fullName " => " 
             Gui, Font, c47E635 bold s10
-            Gui, Add, Text, x+0 w300, % this.item1.rawText
+            Gui, Add, Text, x+0 w300, % this.item1.fullName
 
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x500 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
