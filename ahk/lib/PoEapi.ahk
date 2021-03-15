@@ -136,28 +136,24 @@ class Element extends PoEObject {
         return r
     }
 
-    draw(label = "", color = "", depth = 1) {
+    draw(label = "", color = "", depth = 1, x = 0.5, y = 0.5) {
         if (depth < 0)
             return
 
-        if (Not color)
-            Random, bgr, 0, 0xffffff
-        else
-            bgr := color
+        Random, bgr, 0, 0xffffff
+        bgr := color ? color : Format("#{:06x}", bgr)
 
         r := this.getPos()
         if (r.w < 0 || r.h < 0)
             return
-
-        ptask.c.drawRect(r.l, r.t, r.w, r.h, bgr)
-        if (label)
-            ptask.c.drawText(r.l, r.t, 100, 20, label, bgr)
+        ptask.c.drawRect(r.l + x, r.t + y, r.w, r.h, bgr)
+        ptask.c.drawText(label, r.l + x, r.t + y, bgr, "white")
 
         for i, e in this.getChilds() {
             if (e.isVisible()) {
                 r := e.getPos()
                 if (r.w != 317 && r.h != 317)
-                    e.draw(label ? label "." i : i, color, depth - 1)
+                    e.draw(label ? label "." i : i, color, depth - 1, x, y)
             }
         }
     }
