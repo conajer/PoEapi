@@ -2,6 +2,8 @@
 ; Trader.ahk, 10/24/2020 7:49 PM
 ;
 
+global trader := new Trader()
+
 class TradeItem {
 
     static __alias := { "alchemy"      : "Orb of Alchemy"
