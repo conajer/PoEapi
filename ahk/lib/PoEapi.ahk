@@ -186,8 +186,13 @@ class Inventory extends InventoryGrid {
 
         if (Not this.isOpened()) {
             SendInput, %InventoryKey%
-            Sleep, 100
-            closeInventory := true
+            loop, 5 {
+                Sleep, 50
+                if (this.isOpened()) {
+                    closeInventory := true
+                    break
+                }
+            }
         }
 
         MouseGetPos, tempX, tempY
@@ -199,13 +204,13 @@ class Inventory extends InventoryGrid {
         if (closeInventory)
             SendInput {f}
 
-        ;if (Not ptask.player.isMoving()) {
+        if (Not ptask.player.isMoving()) {
             Sleep, 100
             portal := ptask.getNearestEntity("Portal")
             portal.getPos(x, y)
             MouseMove, x, y + 100, 0
             return
-        ;}
+        }
 
         MouseMove, tempX, tempY, 0
         if (isLBttonPressed)
