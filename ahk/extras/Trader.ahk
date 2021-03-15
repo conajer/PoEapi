@@ -74,7 +74,6 @@ class TradeSession extends AhkGui {
             this.tabName := matched1 ? matched1 : matched2
         }
 
-        ownerHwnd := ptask.Hwnd
         this.__guiId := Format("__ts_{:x}", &this)
         tmpId := this.__guiId
         Gui, %tmpId%:New, -Caption +Toolwindow +AlwaysOnTop +Hwndhwnd +LastFound
@@ -477,6 +476,22 @@ class IncomingTradeSession extends TradeSession {
     close() {
         this.kick()
         base.close()
+    }
+
+    checkItem() {
+        ptask.activate()
+        if (Not ptask.stash.open())
+            return
+
+        if (this.tabName) {
+            ptask.stash.switchTab(this.tabName)
+            Sleep, 300
+            tab := ptask.stash.Tab
+            item := tab.getItem(this.left, this.top)
+            if (Not item)
+                return false
+            tab.moveTo(item.index)
+        }
     }
 }
 
