@@ -45,7 +45,10 @@ public:
     bool is_active = false;
     unsigned int status_timer_period = 66;
 
-    PoETask() : Task(L"PoETask"), ignored_entity_exp(L"Doodad|WorldItem") {
+    PoETask() : Task(L"PoETask"),
+        ignored_entity_exp(L"Doodad|WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
+                           "|BlightFoundation|BlightTower")
+    {
         add_property(L"statusTimerPeriod", &status_timer_period, AhkInt);
         add_property(L"isReady", &is_ready, AhkBool);
 
