@@ -364,6 +364,61 @@ class PoETask extends AhkObj {
             MouseMove, oldX, oldY, 0
     }
 
+    displayItemPrice(e, sum = false) {
+        price := e.item.price
+        if (sum && e.item.stackCount > 0)
+            price := e.item.stackCount * price
+
+        if (e.item && price >= 0.05) {
+            if (price > 1000)
+                p := Format("{:.f}k", price / 1000)
+            else if (price < 1)
+                p := Format("{:.g}", price)
+            else
+                p := Format("{:.f}", price)
+
+            r := e.getPos()
+            if (price >= 10)
+                this.c.drawText(p, r.r, r.b, "white", "red", 2)
+            else
+                this.c.drawText(p, r.r, r.b, "#00007f", "gold", 2)
+        }
+    }
+
+    showPrices() {
+        stickyMode := false
+        shift := GetKeyState("Shift")
+        this.c.clear()
+        if (this.stash.isOpened()) {
+            for i, e in this.stash.Tab.getChilds()
+                this.displayItemPrice(e, shift)
+        }
+
+        if (this.inventory.isOpened()) {
+            for i, e in this.inventory.getChilds()
+                this.displayItemPrice(e, shift)
+        }
+
+        favours := this.getFavours()
+        if (favours.isOpened()) {
+            for i, e in favours.getChilds() {
+                e.item.price := $(e.item)
+                this.displayItemPrice(e, true)
+            }
+        }
+
+        loop, {
+            if (GetKeyState("Ctrl"))
+                stickyMode := true
+            Sleep, 100
+            if (Not GetKeyState("Alt")) {
+                if (Not stickyMode)
+                    this.c.clear()
+                break
+            }
+        }
+    }
+
     areaChanged(areaName, lParam) {
         Critical
         areaName := StrGet(areaName)
