@@ -9,33 +9,36 @@ class AhkGui {
         Gui, New, +Resize -DPIScale +LastFound +HwndHwnd %options%, %title%
         this.hwnd := Hwnd
 
-        OnMessage(0x02, ObjBindMethod(this, "__onDestroy"))
-        OnMessage(0x05, ObjBindMethod(this, "__onSize"))
+        OnMessage(0x005, ObjBindMethod(this, "__onSize"))
+        OnMessage(0x010, ObjBindMethod(this, "__onClose"))
+        OnMessage(0x112, ObjBindMethod(this, "__onClose"))
     }
 
     activate() {
         WinActivate, % "ahk_id " this.Hwnd
     }
 
+    close() {
+        WinClose, % "ahk_id " this.Hwnd
+    }
+
     show(options = "", title = "") {
         try {
             guiId := this.Hwnd
             Gui, %guiId%:Show, %options%, %title%
-        } catch {
-            debug(this.__Class)
-        }
+        } catch {}
 
         return this
     }
 
-    close() {
-        guiId := this.Hwnd
-        WinClose, % "ahk_id " this.Hwnd
+    hide() {
+        DllCall("ShowWindow", "UInt", this.Hwnd, "Int", 0)
     }
 
-    __onDestroy(wParam, lParam, msg, hwnd) {
+    __onClose(wParam, lParam, msg, hwnd) {
         if (this.Hwnd == hwnd) {
-        debug(this.hwnd ", " hwnd)
+            if (msg == 0x112 && wParam != 0xf060)
+                return
             Gui, %hwnd%:Destroy
         }
     }
