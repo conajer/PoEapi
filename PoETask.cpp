@@ -75,7 +75,7 @@ public:
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
-        add_method(L"setHudWindow", (PoE*)this, (MethodType)&PoE::set_hud_window, AhkVoid, ParamList{AhkUInt});
+        add_method(L"bindHud", (PoE*)this, (MethodType)&PoE::bind_hud, AhkVoid, ParamList{AhkUInt});
         add_method(L"__logout", (PoE*)this, (MethodType)&PoE::logout, AhkVoid);
     }
 

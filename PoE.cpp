@@ -283,7 +283,7 @@ public:
         Sleep(30);
     }
 
-    void set_hud_window(HWND hwnd) {
+    void bind_hud(HWND hwnd) {
         if (hwnd && IsWindow(hwnd)) {
             if (!hud)
                 hud = unique_ptr<Canvas>(new Canvas());
