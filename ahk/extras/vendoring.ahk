@@ -2,6 +2,26 @@
 ; vendoring.ahk, 9/29/2020 10:37 PM
 ;
 
+addMenuItem("__vendoring", _("Trade quality gems"), "tradeGems")
+addMenuItem("__vendoring", _("Trade divination cards"), "tradeDivinationCards")
+addMenuItem("__vendoring", _("Trade full rare sets"), "tradeFullRareSets")
+addMenuItem("__vendoring")
+addMenuItem("__vendoring", _("Unstack divination cards"), "unstackCards")
+addMenuItem("__vendoring")
+addMenuItem("__vendoring", _("Sort items"), "sortItems")
+addMenuItem("__vendoring", _("Dump useless items (< 1 Chaos)"), "dumpUselessItems")
+addMenuItem("__vendoring")
+addMenuItem("__vendoring", _("Dump inventory items"), "dumpInventoryItems")
+addMenuItem("__vendoring", _("Dump stash tab items"), "dumpStashTabItems")
+
+Hotkey, IfWinActive, ahk_class POEWindowClass
+Hotkey, F6, dumpInventoryItems
+Hotkey, ^F6, dumpStashTabItems
+Hotkey, F7, tradeFullRareSets
+Hotkey, IfWinActive
+
+addExtraMenu(_("Vendoring"), ":__vendoring")
+
 class FullRareSets {
 
     types := ["Weapon", "Helmet", "BodyArmour", "Gloves", "Boots", "Belt", "Amulet", "Ring"]
@@ -56,32 +76,6 @@ class FullRareSets {
 
         return rareItems
     }
-}
-
-addVendorButton() {
-    Menu, __vendoringMenu, Add, % _("Trade quality gems"), tradeGems
-    Menu, __vendoringMenu, Add, % _("Trade divination cards"), tradeDivinationCards
-    Menu, __vendoringMenu, Add, % _("Trade full rare sets"), tradeFullRareSets
-    Menu, __vendoringMenu, Add
-    Menu, __vendoringMenu, Add, % _("Unstack divination cards"), unstackCards
-    Menu, __vendoringMenu, Add
-    Menu, __vendoringMenu, Add, % _("Sort items"), sortItems
-    Menu, __vendoringMenu, Add, % _("Dump useless items (< 1 Chaos)"), dumpUselessItems
-    Menu, __vendoringMenu, Add
-    Menu, __vendoringMenu, Add, % _("Dump inventory items"), dumpInventoryItems
-    Menu, __vendoringMenu, Add, % _("Dump stash tab items"), dumpStashTabItems
-
-    Gui, Add, Button, x+2 y0 gpopupVendorCommands, % _("Vendoring")
-
-    Hotkey, IfWinActive, ahk_class POEWindowClass
-    Hotkey, F6, dumpInventoryItems
-    Hotkey, ^F6, dumpStashTabItems
-    Hotkey, F7, tradeFullRareSets
-    Hotkey, IfWinActive
-}
-
-popupVendorCommands() {
-    Menu, __vendoringMenu, Show
 }
 
 tradeGems() {
