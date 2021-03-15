@@ -87,13 +87,12 @@ class PoETask extends AhkObj {
 
     __new() {
         base.__new()
-        OnMessage(WM_POEAPI_LOG, ObjBindMethod(this, "onLog"))
-        OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
-        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
-        OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
-        OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
         OnMessage(WM_PTASK_LOADED, ObjBindMethod(this, "onLoaded"))
+        OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
         OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
+        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
+        OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
+        OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
 
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
         this.player := new Character()
@@ -453,10 +452,5 @@ class PoETask extends AhkObj {
     onAttack() {
         this.stopPickup()
         this.player.onAttack()
-    }
-
-    onLog(text) {
-        if (ShowLogMessage)
-            rsyslog("#PoEapi", "<b>{}</b>", StrGet(text))
     }
 }
