@@ -28,16 +28,17 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                                             , "ignoreChests"      : false
                                             , "genericItemFilter" : "Blueprint|Contract|Incubator|Scarab$|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
                                             , "rareItemFilter"    : "Jewel|Amulet|Ring|Belt" }
-                        , "HeistChest"    : { "enabled" : true}
                         , "KillCounter"   : { "enabled" : true, "radius" : 50 }
                         , "MinimapSymbol" : { "enabled" : true
+                                            , "showNPC"            : true
+                                            , "showPlayers"        : true
                                             , "showMonsters"       : true
                                             , "showMinions"        : true
                                             , "showCorpses"        : false
                                             , "rarity"             : 1
                                             , "showDelveChests"    : true
-                                            , "size"               : 8
-                                            , "borderColor"        : 0xffffff
+                                            , "showHeistChests"    : true
+                                            , "minSize"            : 4
                                             , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter" }
                         , "PlayerStatus"  : { "enabled" : true
                                             , "autoQuitThresholdPercentage" : 20
