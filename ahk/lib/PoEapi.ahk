@@ -318,6 +318,50 @@ class SpecialStashTab extends StashTab {
     }
 }
 
+class FolderTab extends SpecialStashTab {
+
+    id {
+        Get {
+            return this.getTab().id
+        }
+    }
+
+    getChilds() {
+        return this.getTab().getChilds()
+    }
+
+    getRectByIndex(index) {
+        tab := this.getTab().getRectByIndex(index)
+    }
+
+    getTab() {
+        this.__Call("getChilds")
+        tabIndex := this.childs[2].getInt(0x9a0)
+        __tab := ptask.stashTabs[this.index].tabs[tabIndex + 1]
+        if (Not __tab.getId())
+            return
+
+        tab := this.childs[2].getChild(2, tabIndex + 1)
+        if (__tab.type > 2 && __tab.type != 7) {
+            tab := tab.getChild(1)
+            tab.base := SpecialStashTab
+        } else {
+            tab := tab.getChild(1, 1)
+            tab.base := StashTab
+        }
+
+        tab.id := __tab.id
+        tab.name := __tab.name
+        tab.index := i
+        tab.type := __tab.type
+
+        this.name := __tab.name
+        this.type := __tab.type
+
+        return tab
+    }
+}
+
 class Stash extends Element {
 
     __new() {
@@ -395,12 +439,12 @@ class Stash extends Element {
         stashTabs := this.getChild(2)
         for i, tab in stashTabs.getChilds() {
             __tab := ptask.stashTabs[i]
-            if (Not __tab.getId())
+            if (Not __tab.getId() && __tab.type != 16)
                 continue
 
             if (__tab.type > 2 && __tab.type != 7) {
                 tab := tab.getChild(1)
-                tab.base := SpecialStashTab
+                tab.base := (__tab.type == 16) ? FolderTab : SpecialStashTab
             } else {
                 tab := tab.getChild(1, 1)
                 tab.base := StashTab
