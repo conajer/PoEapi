@@ -18,6 +18,9 @@ addMenuItem("__debug")
 addMenuItem("__debug", _("List flasks"), "listFlasks")
 addMenuItem("__debug", _("List flask slot"), "listFlaskSlot")
 
+Hotkey, ^d, openConsole
+Hotkey, ^i, openInspector
+
 addExtraMenu(_("Debug"), ":__debug")
 
 class IngameUIInspector extends AhkGui {
