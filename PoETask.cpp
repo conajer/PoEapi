@@ -43,14 +43,28 @@ public:
     std::mutex muxtex;
     bool is_attached = false;
     bool is_active = false;
-    unsigned int status_timer_period = 66;
 
     PoETask() : Task(L"PoETask"),
         ignored_entity_exp(L"Doodad|WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
                            "|BlightFoundation|BlightTower")
     {
-        add_property(L"statusTimerPeriod", &status_timer_period, AhkInt);
+        /* add jobs */
+        add_job(L"PlayerStatusJob", 99, [&] {this->check_player();});
+        add_job(L"EntityJob", 55, [&] {this->check_entities();});
+        add_job(L"LabeledEntityJob", 66, [&] {this->check_labeled_entities();});
+
+        /* add plugins */
+        add_plugin(new PlayerStatus());
+        add_plugin(new AutoFlask());
+        add_plugin(new AutoOpen());
+        add_plugin(new Messenger(), true);
+        add_plugin(new MinimapSymbol());
+        add_plugin(new KillCounter());
+        add_plugin(new AutoPickup());
+
         add_property(L"isReady", &is_ready, AhkBool);
+        add_property(L"isAttached", &is_attached, AhkBool);
+        add_property(L"isActive", &is_active, AhkBool);
 
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", this, (MethodType)&PoETask::stop);
@@ -69,6 +83,8 @@ public:
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
         add_method(L"getFavours", this, (MethodType)&PoETask::get_favours, AhkObject);
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
+        add_method(L"getJobs", this, (MethodType)&PoETask::get_jobs, AhkObject);
+        add_method(L"setJob", this, (MethodType)&PoETask::set_job, AhkVoid, ParamList{AhkInt});
         add_method(L"getPlugin", this, (MethodType)&PoETask::get_plugin, AhkObject, ParamList{AhkWString});
         add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
         add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject, ParamList{AhkWString});
@@ -84,6 +100,18 @@ public:
 
     ~PoETask() {
         stop();
+    }
+
+    void set_job(wstring name, int period) {
+        jobs[name]->delay = period;
+    }
+
+    void add_plugin(PoEPlugin* plugin, bool enabled = false) {
+        plugins[plugin->name] = shared_ptr<PoEPlugin>(plugin);
+        plugin->enabled = enabled;
+        plugin->on_load(*this, owner_thread_id);
+
+        log(L"added plugin %S %s", plugin->name.c_str(), plugin->version.c_str());
     }
 
     int get_party_status() {
@@ -231,11 +259,18 @@ public:
         return nullptr;
     }
 
-    void add_plugin(PoEPlugin* plugin) {
-        plugins[plugin->name] = shared_ptr<PoEPlugin>(plugin);
-        plugin->on_load(*this, owner_thread_id);
-
-        log(L"added plugin %S %s", plugin->name.c_str(), plugin->version.c_str());
+    AhkObjRef* get_jobs() {
+        AhkTempObj temp_jobs;
+        for (auto& i : jobs) {
+            AhkObj job;
+            job.__set(L"name", i.second->name.c_str(), AhkWString,
+                      L"id", i.second->id, AhkUInt,
+                      L"delay", i.second->delay, AhkInt,
+                      L"resolution", i.second->resolution, AhkUInt,
+                      nullptr);
+            temp_jobs.__set(i.first.c_str(), (AhkObjRef*)job, AhkObject, nullptr);
+        }
+        return temp_jobs;
     }
 
     AhkObjRef* get_plugin(wchar_t* name) {
@@ -441,30 +476,14 @@ public:
 
         log(L"PoEapi v%d.%d.%d (supported Path of Exile %s).",
             major_version, minor_version, patch_level, supported_PoE_version);
-        
-        /* add plugins */
-        add_plugin(new PlayerStatus());
-        add_plugin(new AutoFlask());
-        add_plugin(new AutoOpen());
-        add_plugin(new Messenger());
-        add_plugin(new MinimapSymbol());
-        add_plugin(new KillCounter());
-        add_plugin(new AutoPickup());
-
-        plugins[L"Messenger"]->enabled = true;
-
-        /* create jobs */
-        start_job(status_timer_period, [&] {this->check_player();});
-        start_job(33, [&] {this->check_labeled_entities();});
-        start_job(55, [&] {this->check_entities();});
 
         log(L"PoE task started (%d jobs).",  jobs.size());
-        join(); /* wait for the jobs finish */
+        Task::run();
     }
 
     void stop() {
-        Task::stop();
         is_ready = false;
+        Task::stop();
         Sleep(300);
         hud.reset();
     }
