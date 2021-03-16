@@ -78,6 +78,9 @@ class InventoryGrid extends Element {
     }
 
     getItems() {
+        if (Not ptask.inventories[this.id])
+            ptask.getInventorySlots()
+
         this.items := ptask.inventories[this.id].getItems()
         for i, item in this.items
             item.price := $(item)
