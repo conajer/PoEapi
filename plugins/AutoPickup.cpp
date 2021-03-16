@@ -25,13 +25,15 @@ public:
     int try_again;
     bool ignore_chests = false;
     bool is_picking = false;
+    bool event_enabled = false;
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.8") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.9") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
+        add_property(L"eventEnabled", &event_enabled, AhkBool);
 
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
@@ -130,6 +132,9 @@ public:
 
     void on_labeled_entity_changed(EntityList& entities) {
         shared_ptr<Entity> nearest_item;
+        if (!is_picking && !event_enabled)
+            return;
+
         int min_dist = range;
         for (auto& i : entities) {
             if (force_reset) {
@@ -162,7 +167,7 @@ public:
                     if (!world_item || !check_item(world_item->item()))
                         continue;
 
-                    if (dropped_items.find(i.second->id) == dropped_items.end()) {
+                    if (event_enabled && dropped_items.find(i.second->id) == dropped_items.end()) {
                         Item* item = new Item(world_item->item());
                         dropped_items[i.second->id] = shared_ptr<Item>(item);
                         PostThreadMessage(thread_id, WM_NEW_ITEM, (WPARAM)item->name().c_str(),
@@ -207,8 +212,8 @@ public:
         selected_item = nearest_item;
         Point pos = selected_item->label->get_pos();
         if (PtInRect(&bounds, {pos.x, pos.y})) {
-            last_pickup = GetTickCount();
             poe->mouse_click(pos);
+            last_pickup = GetTickCount();
         }
     }
 };
