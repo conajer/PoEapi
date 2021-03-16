@@ -31,7 +31,7 @@ public:
     int total_monsters, kills;
     int maximum_area_count = 99;
 
-    KillCounter() : PoEPlugin(L"KillCounter", "0.7"), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.8"), current_area(nullptr) {
         add_property(L"radius", &nearby_radius, AhkInt);
         add_property(L"monsters", &num_of_monsters, AhkInt);
         add_property(L"minions", &num_of_minions, AhkInt);
@@ -240,12 +240,14 @@ public:
             PostThreadMessage(thread_id, WM_MONSTER_CHANGED, num_of_monsters, charges);
         }
 
-        if (kills != current_area->killed.size()
-            || total_monsters != current_area->total.size())
-        {
+        if (kills != current_area->killed.size() || total_monsters != current_area->total.size()) {
             total_monsters = current_area->total.size();
             kills = current_area->killed.size();
-            PostThreadMessage(thread_id, WM_KILL_COUNTER, kills, total_monsters);
+            __int64 gained_exp = current_area->gained_exp + player->get_exp() - current_area->latest_exp;
+            
+            __int64 wparam = (total_monsters << 16) | kills;
+            __int64 lparam = (gained_exp << 16) | current_area->player_level;
+            PostThreadMessage(thread_id, WM_KILL_COUNTER, wparam, lparam);
         }
     }
 };
