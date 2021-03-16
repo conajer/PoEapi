@@ -19,9 +19,6 @@ CoordMode, Mouse, Client
 CoordMode, Pixel, Client
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
-#Include, %A_ScriptDir%\extras\Pricer.ahk
-#Include, %A_ScriptDir%\extras\Updater.ahk
-#Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
 EnvGet, homepath, USERPROFILE
@@ -49,9 +46,6 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
-global pricer := new Pricer()
-global updater := new Updater()
-global trader := new Trader()
 
 global version := "0.9.2"
 poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
@@ -65,10 +59,10 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
-Menu, Tray, NoStandard
-Menu, Tray, Add, Check for updates..., checkUpdates
-Menu, Tray, Add
-Menu, Tray, Standard
+#Include, %A_ScriptDir%\extras\vendoring.ahk
+#Include, %A_ScriptDir%\extras\Pricer.ahk
+#Include, %A_ScriptDir%\extras\Trader.ahk
+#Include, %A_ScriptDir%\extras\Updater.ahk
 
 OnExit("__Exit")
 
@@ -316,87 +310,5 @@ return
 return
 
 F12::
-    logger.show(!logger.isVisible())
-return
-
-class PassiveSkill extends Element {
-
-    __init() {
-        address := this.getPtr(this.address + 0x1b0)
-        this.u1 := this.getByte(this.address + 0x380)
-
-        address := this.getPtr(address + 0x10)
-        this.id := this.getInt(address + 0x30)
-        address := this.getPtr(address + 0x34)
-        this.name := this.getString(address, 64)
-    }
-
-    toString() {
-        return Format("{:x}: {}{}, {:x}, {:x}, {:x}", this.address, this.u1 ? "*" : "", this.name, this.u1, this.u2, this.u3)
-    }
-}
-
-saveAs(filename) {
-    stats := ptask.getPlugin("KillCounter").getStats()
-    stats := JSON.dump(stats)
-    debug(stats)
-}
-
-F10::
-    debug("{:x}", A_Tickcount)
-    ingameUI := ptask.getIngameUI()
-    debug(ingameUI.isVisible())
-    return
-    objdump(ptask.inventory,,2)
-    objdump(ptask.stash,,2)
-    objdump(p,, 2)
-    debug(p.isOpened())
-return
-
-    ptask.getInventories()
-    objdump(ptask.flasks,, 2)
-    objdump(ptask.inventories[12].getItems())
-return
-    ptask.c.clear()
-    ingameUI := ptask.getIngameUI()
-    passiveSkillTree := ingameUI.getChild(26, 1)
-
-    r := passiveSkillTree.getPos()
-    x := r.w / 2
-    y := r.h / 2 ; - 1400
-
-    ;passiveSkillTree := ingameUI.getChild(26, 1, 569)
-    ;debug("{} {} {} {}", r.l, r.t, x, y)
-    ;passiveSkillTree.draw(,, 3, x, y)
-    return
-
-    passiveSkills := {}
-    for i, e in passiveSkillTree.getChilds() {
-        if (e.hasChild()) {
-            for j, node in e.childs {
-                if (node.hasChild()) {
-                } else {
-                    node.base := PassiveSkill
-                    node.__init()
-                    passiveSkills[node.id] := node
-                }
-            }
-        }
-    }
-
-    debug("Total {} nodes.", passiveSkills.Count())
-    for i, id in ptask.getPassiveSkills() {
-        debug("{:3d}. {:4x}, {}", i, id, passiveSkills[id].name)
-    }
-    return
-
-
-    ptask.c.clear()
-    for i, s in passiveSkills {
-        if (s.u1) {
-            debug(i "." s.toString())
-            r := s.getPos()
-            ptask.c.drawRect(r.l + x, r.t + y, r.w, r.h, 0xffff, 3)
-        }
-    }
+    logger.show()
 return
