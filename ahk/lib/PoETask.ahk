@@ -94,8 +94,8 @@ class PoETask extends AhkObj {
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "onAreaChanged"))
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "onPlayerChanged"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
+        OnMessage(WM_USE_SKILL, ObjBindMethod(this, "onUseSkill"))
 
-        this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
         this.player := new Character()
 
         ; Update offsets
@@ -266,17 +266,18 @@ class PoETask extends AhkObj {
             return
 
         this.selected := false
-        this.entity := this.getNearestEntity(name)
-        if (Not this.entity)
+        this.target := this.getNearestEntity(name)
+        if (Not this.target)
             return false
 
-        OnMessage(WM_USE_SKILL, this.useSkillHandler)
+        vendor := this.getVendor()
         loop, 5 {
-            if (this.selected)
+            if (this.selected || (this.target.path ~= "NPC" && vendor.isSelected())) {
+                this.target := ""
                 return true
-            if (this.entity.path ~= "NPC" && this.getVendor().isSelected())
-                return true
-            this.entity.getPos(x, y)
+            }
+
+            this.target.getPos(x, y)
             clipToRect(this.actionArea, x, y)
             MouseClick(x, y)
             Sleep, 300
@@ -442,9 +443,9 @@ class PoETask extends AhkObj {
     onUseSkill(skill, target) {
         skill := StrGet(skill)
         if (skill == "Interactive") {
-            if (this.entity && this.entity.address == target) {
-                this.selected := true
-                OnMessage(WM_USE_SKILL, this.useSkillHandler, 0)
+            if (this.target) {
+                if (this.target.address == target)
+                    this.selected := true
             }
         }
     }
