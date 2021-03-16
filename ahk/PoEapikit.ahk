@@ -218,67 +218,7 @@ return
 ^WheelUp::SendInput {Left}
 
 ~*LAlt::
-    ptask.c.clear()
-    keepPrices := false
-    if (ptask.stash.isOpened()) {
-        for i, e in ptask.stash.Tab.getChilds() {
-            if (e.item && e.item.price >= 0.05) {
-                r := e.getPos()
-                if (e.item.price > 1000)
-                    p := Format("{:.f}K", e.item.price / 1000)
-                else if (e.item.price < 1)
-                    p := Format("{:.1f}", e.item.price)
-                else
-                    p := Format("{:.f}", e.item.price)
-                ptask.c.drawText(r.l, r.t, 100, 20, p, e.item.price >= 10 ? 0xfe : 0xfe0000)
-            }
-        }
-    }
-
-    if (ptask.inventory.isOpened()) {
-        for i, e in ptask.inventory.getChilds() {
-            if (e.item && e.item.price >= 0.05) {
-                r := e.getPos()
-                if (e.item.price > 1000)
-                    p := Format("{:.f}K", e.item.price / 1000)
-                else if (e.item.price < 1)
-                    p := Format("{:.1f}", e.item.price)
-                else
-                    p := Format("{:.f}", e.item.price)
-                ptask.c.drawText(r.l, r.t, 100, 20, p, e.item.price >= 10 ? 0xfe : 0xfe0000)
-            }
-        }
-    }
-
-    favours := ptask.getFavours()
-    if (favours.isOpened()) {
-        for i, e in favours.getChilds() {
-            price := $(e.item)
-            if (e.item.stackCount > 0)
-                price := e.item.stackCount * price
-            if (price >= 0.05) {
-                r := e.getPos()
-                if (price > 1000)
-                    p := Format("{:.f}K", price / 1000)
-                else if (price < 1)
-                    p := Format("{:.1f}", price)
-                else
-                    p := Format("{:.f}", price)
-                ptask.c.drawText(r.l, r.t, 100, 20, p, price >= 10 ? 0xfe : 0xfe0000)
-            }
-        }
-    }
-
-    loop, {
-        if (GetKeyState("Ctrl", "P"))
-            keepPrices := true
-        Sleep, 100
-        if (Not GetKeyState("Alt", "P")) {
-            if (Not keepPrices)
-                ptask.c.clear()
-            break
-        }
-    }
+    ptask.showPrices()
 return
 
 #IfWinActive
