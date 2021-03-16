@@ -365,11 +365,6 @@ class FolderTab extends SpecialStashTab {
 
 class Stash extends Element {
 
-    __new() {
-        this.__getTabs()
-        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "__getTabs"))
-    }
-
     Tab {
         Get {
             activeTabIndex := this.activeTabIndex() + 1
