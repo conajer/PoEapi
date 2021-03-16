@@ -432,7 +432,7 @@ class Stash extends Element {
     __getTabs() {
         ptask.getStashTabs()
         this.tabs := {}
-        stashTabs := this.getChild(2)
+        stashTabs := this.getChild(1, 2, 2)
         for i, tab in stashTabs.getChilds() {
             __tab := ptask.stashTabs[i]
             if (Not __tab.getId() && __tab.type != 16)
