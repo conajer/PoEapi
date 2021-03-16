@@ -37,7 +37,7 @@ class Pricer extends WebGui {
 
     __new() {
         base.__new()
-        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "__onAreaChanged"))
+        this.onMessage(WM_AREA_CHANGED, "__onAreaChanged")
     }
 
     addPrice(p) {

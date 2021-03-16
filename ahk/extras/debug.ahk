@@ -113,7 +113,7 @@ class Console extends AhkGui {
         this.doc := __mshtml.Document
         this.doc.write("<pre style=""font-family:Consolas; font-size:18px; line-height:1.2"">")
 
-        OnMessage(0x100, ObjBindMethod(this, "onKeyDown"))
+        this.onMessage(0x100, "onKeyDown")
     }
 
     onKeyDown(keyCode, lParam, message, hwnd) {
