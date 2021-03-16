@@ -191,8 +191,14 @@ class Navi extends WebGui {
             </div>
 
             <script>
-                var canvas = document.querySelector('canvas')
+                var canvas = document.querySelector('canvas');
                 var ctx = canvas.getContext('2d', {alpha:false});
+
+                function setkills(kills, total, gainedExp) {
+                    document.querySelector('.kills').innerText = kills;
+                    document.querySelector('.total').innerText = total;
+                    document.querySelector('.gained_exp').innerText = gainedExp;
+                }
 
                 ctx.fillRoundedRect = function (x, y, w, h, r) {
                     this.beginPath();
@@ -268,6 +274,7 @@ class Navi extends WebGui {
         </html>
         )")
         this.document.close()
+        this.window := this.document.parentWindow
         this.bind("menu", "onmouseenter")
         this.bind("menu", "onmouseleave")
         this.bind("menu", "onclick", "showMenu")
@@ -291,12 +298,13 @@ class Navi extends WebGui {
         addMenuItem("__main")
         addMenuItem("__main", _("Quit"), "ExitApp")
 
-        OnMessage(WM_MONSTER_CHANGED, ObjBindMethod(this, "onMonsterChanged"))
-        OnMessage(WM_KILL_COUNTER, ObjBindMethod(this, "onKillCounter"))
+        this.menu := this.document.querySelector("#menu")
+        this.killStats := this.document.querySelector("#kill_stats")
+        this.onMessage(WM_KILL_COUNTER, "onKillCounter")
     }
 
     getCanvas() {
-        return this.document.parentWindow.ctx
+        return this.window.ctx
     }
 
     about() {
@@ -326,11 +334,11 @@ class Navi extends WebGui {
     onmouseenter() {
         MouseGetPos, x, y, hwnd
         if (hwnd == this.Hwnd)
-            this.document.querySelector("#menu").style.background := "red"
+            this.menu.style.background := "red"
     }
 
     onmouseleave() {
-        this.document.querySelector("#menu").style.background := "#0c0c0c"
+        this.menu.style.background := "#0c0c0c"
     }
 
     showMenu() {
@@ -350,7 +358,7 @@ class Navi extends WebGui {
             return
 
         for i, stat in stats {
-            if (stat.totalKills == 0)
+            if (stat.totalMonsters == 0)
                 continue
 
             statsTable .= "<tr>"
@@ -366,21 +374,18 @@ class Navi extends WebGui {
             statsTable .= Format("<td>{}m {:02d}s</td>", stat.usedTime // 60, Mod(stat.usedTime, 60))
             statsTable .= "</tr>"
         }
-        this.document.querySelector("#kill_stats").innerHtml := statsTable
-        this.document.querySelector("#kill_stats").focus()
+        this.killStats.innerHtml := statsTable
+        this.killStats.focus()
     }
 
     hideKillStats() {
         if (Not this.document.hasFocus())
-            this.document.querySelector("#kill_stats").innerHtml := ""
+            this.killStats.innerHtml := ""
     }
 
-    onKillCounter(kills, total) {
-        this.document.querySelector(".kills").innerText := kills
-        this.document.querySelector(".total").innerText := total
-
-        stat := this.kc.getStat()
-        , gainedExp := stat.gainedExp * 100 / levelExp[stat.playerLevel]
-        , this.document.querySelector(".gained_exp").innerText := Format("{:+.3f}%", gainedExp)
+    onKillCounter(wParam, lParam) {
+        level := lparam & 0xff
+        , gainedExp := (lParam >> 16) * 100 / levelExp[level]
+        , this.window.setKills(wParam & 0xffff, wParam >> 16, Format("{:+.3f}%", gainedExp))
     }
 }
