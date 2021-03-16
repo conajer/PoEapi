@@ -50,49 +50,68 @@ public:
     }
 };
 
+class Job {
+public:
+
+    wstring name;
+    UINT id = 0;
+    UINT delay;
+    UINT resolution;
+    std::function<void()> func;
+
+    Job(wstring name, UINT delay, std::function<void()> func)
+        : name(name), delay(delay), func(func)
+    {
+    }
+};
+
 class Task {
 private:
 
-    static std::unordered_map<UINT, std::function<void()>> all_jobs;
+    static std::unordered_map<UINT, shared_ptr<Job>> all_jobs;
 
     static void dispatcher_proc(UINT job_id) {
-        all_jobs[job_id]();
+        all_jobs[job_id]->func();
     }
 
 protected:
 
-    std::map<UINT, UINT> jobs;
+    std::map<wstring, shared_ptr<Job>> jobs;
     int owner_thread_id;
     HANDLE stopped_event;
     buffer<wchar_t> log_buffer;
 
-    int start_job(UINT delay, std::function<void ()> func) {
+    int start_job(shared_ptr<Job>& job) {
+        if (job->delay <= 0)
+            return 0;
+
         TIMECAPS tc;
         timeGetDevCaps(&tc, sizeof(TIMECAPS));
-        UINT resolution = std::min(std::max(tc.wPeriodMin, delay / 3), tc.wPeriodMax);
+        UINT resolution = std::min(std::max(tc.wPeriodMin, job->delay / 3), tc.wPeriodMax);
         timeBeginPeriod(resolution);
-        int job_id = timeSetEvent(delay, resolution, (LPTIMECALLBACK)dispatcher_proc, 0, TIME_PERIODIC);
+        int job_id = timeSetEvent(job->delay, resolution, (LPTIMECALLBACK)dispatcher_proc, 0, TIME_PERIODIC);
 
         if (job_id) {
-            jobs.insert(std::make_pair(job_id, resolution));
-            all_jobs.insert(std::make_pair(job_id, func));
+            job->id = job_id;
+            job->resolution = resolution;
+            all_jobs[job_id] = job;
 
-            log(L"new job @%x, delay %dms", job_id, delay);
+            log(L"new job %S@%x, delay %dms", job->name, job_id, job->delay);
         }
 
         return job_id;
     }
 
-    void stop_job(int job_id) {
-        auto i = jobs.find(job_id);
+    void stop_job(shared_ptr<Job>& job) {
+        auto i = jobs.find(job->name);
         if (i != jobs.end()) {
-            timeKillEvent(job_id);
-            timeEndPeriod(i->second);
+            timeKillEvent(job->id);
+            timeEndPeriod(job->resolution);
 
             /* remove from global task id list */
-            all_jobs.erase(job_id);
+            all_jobs.erase(job->id);
             
-            log(L"job @%x stopped", job_id);
+            log(L"job %S@%x stopped", job->name, job->id);
         }
     }
 
@@ -108,20 +127,28 @@ public:
         stop();
     }
 
+    void add_job(shared_ptr<Job>& job) {
+        jobs[job->name] = job;
+    }
+
+    void add_job(wstring name, UINT delay, std::function<void ()> func) {
+        jobs[name] = shared_ptr<Job>(new Job(name, delay, func));
+    }
+
     virtual void run() {
-        stop();
+        if (!jobs.empty()) {
+            for (auto& i : jobs)
+                start_job(i.second);
+            join(); /* wait for the jobs finish */
+        }
     }
 
     virtual bool start() {
-        if (jobs.empty()) {
-            stopped_event = CreateEvent(0, true, false, 0);
-            std::thread t(&Task::run, std::ref(*this));
-            t.detach();
+        stopped_event = CreateEvent(0, true, false, 0);
+        std::thread t(&Task::run, std::ref(*this));
+        t.detach();
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     void join(int milliseconds = INFINITE) {
@@ -130,7 +157,7 @@ public:
 
     void stop() {
         for (auto i = jobs.begin(); i != jobs.end();) {
-            stop_job(i->first);
+            stop_job(i->second);
             i = jobs.erase(i);
         }
         SetEvent(stopped_event);
@@ -150,4 +177,4 @@ public:
     }
 };
 
-std::unordered_map<UINT, std::function<void()>> Task::all_jobs;
+std::unordered_map<UINT, shared_ptr<Job>> Task::all_jobs;
