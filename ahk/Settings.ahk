@@ -31,7 +31,7 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                         , "KillCounter"   : { "enabled" : true, "radius" : 50 }
                         , "MinimapSymbol" : { "enabled" : true
                                             , "showNPC"            : true
-                                            , "showPlayers"        : true
+                                            , "showPlayer"         : true
                                             , "showMonsters"       : true
                                             , "showMinions"        : true
                                             , "showCorpses"        : false
