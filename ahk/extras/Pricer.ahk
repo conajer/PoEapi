@@ -44,7 +44,7 @@ class Pricer extends WebGui {
         if (p.hasOwnProperty("chaosEquivalent")) {
             this.prices[p.currencyTypeName] := {"value" : p.chaosEquivalent}
         } else {
-            if (p.mapTier) {
+            if (p.mapTier && Not (p.name ~= "Essence of")) {
                 if (Not (p.name ~= p.baseType))
                     this.prices["Unique " p.baseType " T" p.mapTier] := {"value" : p.chaosValue}
                 pName := p.name " T" p.mapTier
