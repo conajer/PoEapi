@@ -24,8 +24,8 @@ class AhkGui {
 
     show(options = "", title = "") {
         try {
-            guiId := this.Hwnd
-            Gui, %guiId%:Show, %options%, %title%
+            hwnd := this.Hwnd
+            Gui, %hwnd%:Show, %options%, %title%
         } catch {}
 
         return this
@@ -50,6 +50,8 @@ class AhkGui {
         if (this.Hwnd == hwnd) {
             if (msg == 0x112 && wParam != 0xf060)
                 return
+
+            hwnd := this.Hwnd
             Gui, %hwnd%:Destroy
             for number, handler in this.__handlers
                 OnMessage(number, handler, 0)
