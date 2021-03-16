@@ -3,8 +3,9 @@
 ;
 
 #Include, %A_ScriptDir%\lib\PoEOffsets.ahk
-#Include, %A_ScriptDir%\lib\Banner.ahk
-#Include, %A_ScriptDir%\lib\Canvas.ahk
+#Include, %A_ScriptDir%\lib\WebGui.ahk
+#Include, %A_ScriptDir%\lib\Navi.ahk
+#Include, %A_ScriptDir%\lib\Hud.ahk
 #include, %A_ScriptDir%\lib\Logger.ahk
 #Include, %A_ScriptDir%\lib\Character.ahk
 
@@ -90,8 +91,8 @@ class PoETask extends AhkObj {
         OnMessage(WM_PTASK_LOADED, ObjBindMethod(this, "onLoaded"))
         OnMessage(WM_PTASK_ATTACHED, ObjBindMethod(this, "onAttached"))
         OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
-        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "areaChanged"))
-        OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "playerChanged"))
+        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "onAreaChanged"))
+        OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "onPlayerChanged"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
 
         this.useSkillHandler := ObjBindMethod(this, "onUseSkill")
@@ -119,10 +120,9 @@ class PoETask extends AhkObj {
 
     onAttached(hwnd) {
         if (Not hwnd) {
-            ; PoE window was closed.
-            this.banner.destroy()
-            this.c.destroy()
-            this.hud.destroy()
+            ; PoE window closed.
+            this.nav.close()
+            this.hud.close()
             return
         }
 
@@ -136,7 +136,7 @@ class PoETask extends AhkObj {
                 y := 0
                 h := (h > r.h - 50) ? h : r.h - 42
 
-                WinMove, ahk_class POEWindowClass,, x, y, w, h
+                WinMove, % "ahk_id " hwnd,, x, y, w, h
             }
         }
 
@@ -147,16 +147,9 @@ class PoETask extends AhkObj {
                 plugins[name][key] := value
         }
 
-        if (EnableCanvas)
-            this.c := new Canvas(hwnd)
-
-        if (EnableHud) {
-            this.hud := new Canvas(hwnd)
-            this.setHudWindow(this.hud.hwnd)
-        }
-
-        if (EnableBanner)
-            this.banner := new Banner(hwnd)
+        this.nav := new Navi()
+        this.c := this.nav.getCanvas()
+        this.hud := new Hud()
         this.reset()
     }
 
@@ -168,21 +161,17 @@ class PoETask extends AhkObj {
             this.y := y
             this.width := w
             this.height := h
+            this.actionArea := new Rect(210, 90, w - 450, h - 260)
 
-            this.banner.show()
-            this.c.show()
+            this.nav.show()
             this.hud.show()
-            this.setHudWindow(this.hud.Hwnd)
         } else {
             if (Not WinActive("ahk_class AutoHotkeyGUI")) {
                 if (Not WinActive("ahk_id " this.Hwnd)) {
-                    this.banner.show(false)
-                    this.c.show(false)
-                    this.hud.show(false)
+                    this.nav.hide()
+                    this.hud.hide()
                 }
             }
-
-            this.c.clear()
             this.hud.clear()
         }
     }
@@ -201,15 +190,24 @@ class PoETask extends AhkObj {
         WinActivate, % "ahk_id " this.Hwnd
     }
 
-    getRect() {
-        r := this.getWindowRect(this.Hwnd)
-        this.actionArea := new Rect(210, 90, r.w - 450, r.h - 260)
-        return r
+    getClientRect(hwnd = "") {
+        hwnd := hwnd ? hwnd : this.Hwnd
+        VarSetCapacity(r, 16)
+        DllCall("GetClientRect", "UInt", hwnd, "Ptr", &r)
+        DllCall("ClientToScreen", "UInt", hwnd, "Ptr", &r)
+
+        left := NumGet(r, 0, "Int")
+        top := NumGet(r, 4, "Int")
+        width := NumGet(r, 8, "Int")
+        height := NumGet(r, 12, "Int")
+
+        return new Rect(left, top, width, height)
     }
 
-    getWindowRect(hwnd) {
+    getWindowRect(hwnd = "") {
+        hwnd := hwnd ? hwnd : this.Hwnd
         VarSetCapacity(r, 16)
-        DllCall("GetWindowRect", "UInt", hwnd, "UInt", &r)
+        DllCall("GetWindowRect", "UInt", hwnd, "Ptr", &r)
 
         left := NumGet(r, 0, "Int")
         top := NumGet(r, 4, "Int")
@@ -242,10 +240,10 @@ class PoETask extends AhkObj {
     }
 
     sendKeys(keys, NoSend = false) {
-        if (ptask.isMinimized())
+        if (this.isMinimized())
             return
 
-        ptask.activate()
+        this.activate()
         if (Not this.getChat().isOpened())
             SendInput, {Enter}
 
@@ -276,18 +274,19 @@ class PoETask extends AhkObj {
         loop, 5 {
             if (this.selected)
                 return true
-
+            if (this.entity.path ~= "NPC" && this.getVendor().isSelected())
+                return true
             this.entity.getPos(x, y)
             clipToRect(this.actionArea, x, y)
             MouseClick(x, y)
-            Sleep, 500
+            Sleep, 300
         }
 
         return false
     }
 
     sellItems(identifyAll = false) {
-        this.c.clear()
+        this.activate()
         vendor := this.getVendor()
         if (Not vendor.sell())
             return
@@ -326,10 +325,11 @@ class PoETask extends AhkObj {
             if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem))
                 this.inventory.move(aItem)
         }
-        ptask.getSell().accept()
+        this.getSell().accept()
     }
 
     stashItems() {
+        this.activate()
         if (Not this.stash.open())
             return
 
@@ -345,7 +345,7 @@ class PoETask extends AhkObj {
 
     levelupGems() {
         l := this.width - 150
-        t := 200
+        t := 170
         r := this.width - 50
         b := this.height - 300
 
@@ -418,7 +418,7 @@ class PoETask extends AhkObj {
         }
     }
 
-    areaChanged(areaName, lParam) {
+    onAreaChanged(areaName, lParam) {
         Critical
         areaName := StrGet(areaName)
         level := lParam & 0xff
@@ -431,7 +431,7 @@ class PoETask extends AhkObj {
         Character.base := this.getPlayer()
     }
 
-    playerChanged(name) {
+    onPlayerChanged(name) {
         syslog(this.player.whois())
     }
 
