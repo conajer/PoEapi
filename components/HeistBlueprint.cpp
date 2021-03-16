@@ -2,17 +2,17 @@
 * HeistBlueprint.cpp, 11/9/2020 7:49 PM
 */
 
-static std::map<string, int> job_offsets {
+static std::map<string, int> heist_job_offsets {
     {"skill_name", 0x0},
 };
 
-class Job : public PoEObject {
+class HeistJob : public PoEObject {
 public:
 
     wstring skill_name;
     int level;
 
-    Job(addrtype address) : PoEObject(address, &job_offsets) {
+    HeistJob(addrtype address) : PoEObject(address, &heist_job_offsets) {
         wchar_t buffer[32];
         skill_name = PoEMemory::read<wchar_t>(read<addrtype>("skill_name"), buffer, 32);
     }
@@ -77,7 +77,7 @@ private:
 
 public:
 
-    std::vector<shared_ptr<Job>> jobs;
+    std::vector<shared_ptr<HeistJob>> jobs;
     std::vector<shared_ptr<RewardRoom>> reward_rooms;
 
     Wing(addrtype address) : PoEObject(address, &wing_offsets)
@@ -92,12 +92,12 @@ public:
         __get_reward_rooms();
     }
 
-    std::vector<shared_ptr<Job>>& get_jobs() {
+    std::vector<shared_ptr<HeistJob>>& get_jobs() {
         if (jobs.empty()) {
             for (auto addr : read_array<addrtype>("jobs", 0x18)) {
-                Job* job = new Job(PoEMemory::read<addrtype>(addr + 0x8));
+                HeistJob* job = new HeistJob(PoEMemory::read<addrtype>(addr + 0x8));
                 job->level = PoEMemory::read<byte>(addr + 0x10);
-                jobs.push_back(shared_ptr<Job>(job));
+                jobs.push_back(shared_ptr<HeistJob>(job));
             }
         }
         return jobs;

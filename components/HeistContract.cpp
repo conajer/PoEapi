@@ -21,7 +21,7 @@ private:
 
 public:
 
-    std::vector<shared_ptr<Job>> jobs;
+    std::vector<shared_ptr<HeistJob>> jobs;
 
     HeistContract(addrtype address)
         : Component(address, "HeistContract", &heist_contract_component_offsets)
@@ -29,12 +29,12 @@ public:
         add_method(L"getJobs", this, (MethodType)&HeistContract::__get_jobs, AhkObject);
     }
 
-    std::vector<shared_ptr<Job>>& get_jobs() {
+    std::vector<shared_ptr<HeistJob>>& get_jobs() {
         if (jobs.empty()) {
             for (auto addr : read_array<addrtype>("jobs", 0x18)) {
-                Job* job = new Job(PoEMemory::read<addrtype>(addr + 0x8));
+                HeistJob* job = new HeistJob(PoEMemory::read<addrtype>(addr + 0x8));
                 job->level = PoEMemory::read<byte>(addr + 0x10);
-                jobs.push_back(shared_ptr<Job>(job));
+                jobs.push_back(shared_ptr<HeistJob>(job));
             }
         }
         return jobs;
