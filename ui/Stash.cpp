@@ -11,12 +11,11 @@ class Stash : public Element {
 public:
 
     Stash(addrtype address) : Element(address, &stash_offsets) {
-        this->address = read<addrtype>("tabs");
         add_method(L"isOpened", (Element*)this, (MethodType)&Element::is_visible, AhkBool);
         add_method(L"activeTabIndex", this, (MethodType)&Stash::active_tab_index);
     }
 
     int active_tab_index() {
-        return read<int>("active_tab_index");
+        return read<int>("tabs", "active_tab_index");
     }
 };
