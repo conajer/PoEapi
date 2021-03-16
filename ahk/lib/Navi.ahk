@@ -307,6 +307,11 @@ class Navi extends WebGui {
         new Hotkeys().show()
     }
 
+    close() {
+        Menu, __main, Delete
+        base.close()
+    }
+
     show(options = "") {
         if (options ~= "Hide") {
             base.show(options)
