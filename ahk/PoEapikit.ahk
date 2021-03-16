@@ -48,7 +48,7 @@ global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
 global version := "0.9.2"
-poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
+global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
 Hotkey, IfWinActive, ahk_class POEWindowClass
@@ -229,6 +229,7 @@ Reload:
 return
 
 ^q::
+ExitApp:
     ExitApp
 return
 
