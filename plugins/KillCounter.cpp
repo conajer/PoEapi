@@ -30,14 +30,16 @@ public:
     int num_of_monsters, num_of_minions;
     int total_monsters, kills;
     int maximum_area_count = 99;
+    bool event_enabled;
 
-    KillCounter() : PoEPlugin(L"KillCounter", "0.8"), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.9"), current_area(nullptr) {
         add_property(L"radius", &nearby_radius, AhkInt);
         add_property(L"monsters", &num_of_monsters, AhkInt);
         add_property(L"minions", &num_of_minions, AhkInt);
         add_property(L"total", &total_monsters, AhkInt);
         add_property(L"kills", &kills, AhkInt);
-        
+        add_property(L"eventEnabled", &event_enabled, AhkBool);
+
         add_method(L"getStat", this, (MethodType)&KillCounter::get_stat, AhkObject);
         add_method(L"getStats", this, (MethodType)&KillCounter::get_stats, AhkObject);
 
@@ -190,7 +192,6 @@ public:
                             current_area->killed.insert(i.first);
                             current_area->kills[entity->rarity]++;
                         }
-
                         continue;
                     }
 
@@ -198,7 +199,7 @@ public:
                         continue;
 
                     if (current_area->total.find(i.first) == current_area->total.end()) {
-                        if (entity->rarity > 1) {     // rare and unique monsters
+                        if (event_enabled && entity->rarity > 1) {     // rare and unique monsters
                             Render* render = entity->get_component<Render>();
                             if (render) {
                                 Vector3 pos = render->position();
