@@ -156,8 +156,9 @@ class Navi extends WebGui {
                 
                 .nav table { border-collapse: collapse; }
                 .nav td { margin: 0 10px; padding: 1px 20px; }
-                
-                #kill_counter { color: #0c0c0c; background-color: skyblue; }
+
+                #kill_counter { color: #0c0c0c; background-color: lightcyan; }
+                #kill_counter:hover { background-color: cyan; }
                 .kills { color: crimson; }
                 .total { color: green; }
                  
