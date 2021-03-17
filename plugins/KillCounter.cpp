@@ -30,7 +30,6 @@ public:
     int num_of_monsters, num_of_minions;
     int total_monsters, kills;
     int maximum_area_count = 99;
-    int monster_threshold = 15;
     bool event_enabled;
 
     KillCounter() : PoEPlugin(L"KillCounter", "0.10"), current_area(nullptr) {
@@ -39,7 +38,6 @@ public:
         add_property(L"minions", &num_of_minions, AhkInt);
         add_property(L"total", &total_monsters, AhkInt);
         add_property(L"kills", &kills, AhkInt);
-        add_property(L"monsterThreshold", &monster_threshold, AhkInt);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
 
         add_method(L"getStat", this, (MethodType)&KillCounter::get_stat, AhkObject);
@@ -252,8 +250,5 @@ public:
             __int64 lparam = (gained_exp << 16) | current_area->player_level;
             PostThreadMessage(thread_id, WM_KILL_COUNTER, wparam, lparam);
         }
-
-        if (nearby_monsters.size() > monster_threshold)
-            Sleep(50);
     }
 };
