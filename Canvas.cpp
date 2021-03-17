@@ -12,6 +12,7 @@ public:
     IDWriteFactory* write_factory = nullptr;
     ID2D1RenderTarget* render = nullptr;
     IDWriteTextFormat* text_format = nullptr;
+    bool is_dc_render_target = true;
 
     const wchar_t* font_name = L"Fontin Smallcaps";
     float font_size = 18;
@@ -21,6 +22,11 @@ public:
         HRESULT hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED,
             __uuidof(write_factory),
             reinterpret_cast<IUnknown **>(&write_factory));
+
+        D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
+            D2D1_RENDER_TARGET_TYPE_DEFAULT,
+            D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
+        factory->CreateDCRenderTarget(&props, (ID2D1DCRenderTarget**)&render);
 
         if (SUCCEEDED(hr)) {
             write_factory->CreateTextFormat(
@@ -48,24 +54,19 @@ public:
 
     void bind(HWND hwnd, bool use_dc = true) {
         RECT r;
-        D2D1_RENDER_TARGET_PROPERTIES props = D2D1::RenderTargetProperties(
-            D2D1_RENDER_TARGET_TYPE_DEFAULT,
-            D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE),
-            0, 0,
-            D2D1_RENDER_TARGET_USAGE_NONE,
-            D2D1_FEATURE_LEVEL_DEFAULT);
 
-        if (use_dc) {
+        if (is_dc_render_target && use_dc) {
             GetClientRect(hwnd, &r);
-            factory->CreateDCRenderTarget(&props, (ID2D1DCRenderTarget**)&render);
             ((ID2D1DCRenderTarget*)render)->BindDC(GetDC(hwnd), &r);
         } else {
             GetWindowRect(hwnd, &r);
             D2D1_SIZE_U size = D2D1::SizeU(r.right - r.left, r.bottom - r.top);
             factory->CreateHwndRenderTarget(
-                props,
+                D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT,
+                    D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)),
                 D2D1::HwndRenderTargetProperties(hwnd, size),
-                (ID2D1HwndRenderTarget**)&render);            
+                (ID2D1HwndRenderTarget**)&render);
+            is_dc_render_target = false;
         }
     }
 
