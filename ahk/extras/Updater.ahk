@@ -77,7 +77,7 @@ class Updater extends WebGui {
             item := src.Items().Item(A_Index - 1)
             if (item.Name != "Settings.ahk")
                 dest.CopyHere(item, 4|16|1024)
-            this.show(Format("Installing ... {:.f}%", A_Index * 100 / Count))
+            this.show(, Format("Installing ... {:.f}%", A_Index * 100 / Count))
         }
     }
 
@@ -85,7 +85,7 @@ class Updater extends WebGui {
         assets := this.release.assets
         EnvGet, tempDir, TEMP
 
-        this.show(Format("Downloading {} ...", assets[0].name))
+        this.show(, Format("Downloading {} ...", assets[0].name))
         UrlDownloadToFile, % assets[0].browser_download_url, % tempDir "\" assets[0].name
         if (ErrorLevel) {
             MsgBox,, Updater, % "Failed to download '" assets[0].name "'!"
@@ -108,6 +108,6 @@ class Updater extends WebGui {
     }
 
     cancel() {
-        this.show("Hide")
+        this.hide()
     }
 }
