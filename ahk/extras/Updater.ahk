@@ -96,6 +96,8 @@ class Updater extends WebGui {
         package := shell.NameSpace(tempDir "\" assets[0].name)
         if (package) {
             __Exit()
+            FileDelete, %A_ScriptDir%\extras\*.ahk
+            FileDelete, %A_ScriptDir%\lib\*.ahk
             src := package.Items().Item(0).GetFolder
             dest := shell.NameSpace(A_ScriptDir)
             this.copy(src, dest)
