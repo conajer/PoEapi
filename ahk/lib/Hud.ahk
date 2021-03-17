@@ -8,8 +8,6 @@ class Hud extends AhkGui {
         base.__new("", "+AlwaysOnTop +Toolwindow +E0x20 -Caption -Resize")
         Gui, Color, 0
         WinSet, TransColor, 0
-
-        ptask.bindHud(this.Hwnd)
     }
 
     clear() {
