@@ -63,6 +63,9 @@ class Logger extends WebGui {
         else
             element.innerHtml := Format("<span style=""color:black"">{}</span> {}", t, aText)
     }
+
+    __onClose(wParam, lParam, msg, hwnd) {
+    }
 }
 
 debug(string, args*) {
