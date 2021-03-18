@@ -96,7 +96,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.7"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.8"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -176,29 +176,7 @@ public:
         }
     }
 
-    void draw_entity(Entity* e) {
-        int index, size = 0;
-        bool is_dead = e->is_dead();
-
-        if (e->is_npc) {
-            index = 9, size = min_size + 2;
-        } else if (e->is_monster) {
-            if (is_dead) {
-                if (show_corpses)
-                    index = 4 + e->rarity, size = min_size + e->rarity;
-            } else if (e->is_neutral) {
-                if (show_minions)
-                    index = 8, size = min_size + 1;
-            } else if (e->is_npc) {
-                index = 9, size = min_size + 2;
-            } else if (e->rarity >= rarity)
-                index = e->rarity, size = min_size + e->rarity;
-        } else if (e->is_player)
-            index = 10, size = min_size + 4;
-
-        if (size == 0)
-            return;
-
+    void draw_entity(Entity* e, int index, int size) {
         Render* render = e->get_component<Render>();
         if (render) {
             Vector3 pos = render->position();
@@ -300,13 +278,29 @@ public:
             }
 
             Entity* entity = i.second.get();
-            if ((show_monsters && entity->is_monster)
-                || (show_npc && entity->is_npc) || (show_player && entity->is_player))
-                draw_entity(entity);
-            else if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)
-                draw_delve_chests(entity);
-            else if (show_heist_chests && entity->path.find(L"/HeistChest") != string::npos)
-                draw_heist_chests(entity);
+            if (entity->is_npc) {
+                if (show_npc)
+                    draw_entity(entity, 9, min_size + 2);
+            } else if (entity->is_monster) {
+                if (show_monsters) {
+                    if (entity->is_dead()) {
+                        if (show_corpses)
+                            draw_entity(entity, 4 + entity->rarity, min_size + entity->rarity);
+                    } else if (entity->is_neutral) {
+                        if (show_minions)
+                            draw_entity(entity, 8, min_size + 1);
+                    } else if (entity->rarity >= rarity) {
+                        draw_entity(entity, entity->rarity, min_size + entity->rarity);
+                    }
+                }
+            } else if (entity->is_player) {
+                draw_entity(entity, 10, min_size + 4);
+            } else if (entity->has_component("Chest")) {
+                if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)
+                    draw_delve_chests(entity);
+                else if (show_heist_chests && entity->path.find(L"/HeistChest") != string::npos)
+                    draw_heist_chests(entity);
+            }
         }
 
         if (show_packs) {
