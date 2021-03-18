@@ -186,7 +186,7 @@ class Inventory extends InventoryGrid {
 
         if (Not this.isOpened()) {
             SendInput, %InventoryKey%
-            loop, 5 {
+            loop, 10 {
                 Sleep, 50
                 if (this.isOpened()) {
                     closeInventory := true
