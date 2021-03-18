@@ -451,9 +451,12 @@ public:
 
         in_game_data->get_all_entities(entities, ignored_entity_exp);
         if (is_ready) {
-            for (auto& i : plugins)
+            for (auto& i : plugins) {
+                if (entities.all.size() > 128)
+                    SwitchToThread();
                 if (i.second->enabled && i.second->player)
                     i.second->on_entity_changed(entities.all, entities.removed, entities.added);
+            }
         }
     }
 
@@ -463,9 +466,12 @@ public:
 
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
         if (is_ready) {
-            for (auto& i : plugins)
+            for (auto& i : plugins) {
+                if (labeled_entities.size() > 128)
+                    SwitchToThread();
                 if (i.second->enabled && i.second->player)
                     i.second->on_labeled_entity_changed(labeled_entities);
+            }
         }
     }
 
