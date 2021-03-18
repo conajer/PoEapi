@@ -396,8 +396,12 @@ class Navi extends WebGui {
     }
 
     updateTime() {
-        tt := this.usedTime + (A_Tickcount - this.enterTime) / 1000
-        , this.areaTime.innerHtml := Format("{:02d}:<span class='second'>{:02d}</span>", tt / 60, Mod(tt, 60))
+        try {
+            tt := this.usedTime + (A_Tickcount - this.enterTime) / 1000
+            , this.areaTime.innerHtml := Format("{:02d}:<span class='second'>{:02d}</span>", tt / 60, Mod(tt, 60))
+        } catch {
+            SetTimer,, Delete
+        }
     }
 
     onAreaChanged() {
