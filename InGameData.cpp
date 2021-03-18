@@ -124,15 +124,15 @@ public:
                 continue;
 
             int entity_id = get_entity_id(entity_address);
+            if (ignored_entity_set.count(entity_id))
+                continue;
+
             auto i = entities.removed.find(entity_id);
             if (i != entities.removed.end()) {
                 entities.all.insert(*i);
                 entities.removed.erase(i);
                 continue;
             }
-
-            if (ignored_entity_set.count(entity_id))
-                continue;
 
             wstring path = get_entity_path(entity_address);
             if (path[0] != L'M' || std::regex_search(path, ignored_exp)) {
