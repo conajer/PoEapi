@@ -355,8 +355,11 @@ class Navi extends WebGui {
         )"
 
         stats := this.kc.getStats()
-        if (Not stats.Count())
+        if (Not stats.Count()) {
+            this.killStats.innerHtml := "<tr><td>No Kills</td></tr>"
+            this.killStats.focus()
             return
+        }
 
         for i, stat in stats {
             if (stat.totalMonsters == 0)
