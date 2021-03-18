@@ -46,7 +46,7 @@ public:
 
     PoETask() : Task(L"PoETask"),
         ignored_entity_exp(L"Doodad|WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
-                           "|BlightFoundation|BlightTower")
+                           "|BlightFoundation|BlightTower|Effects")
     {
         /* add jobs */
         add_job(L"PlayerStatusJob", 99, [&] {this->check_player();});
