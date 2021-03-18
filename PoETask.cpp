@@ -84,7 +84,7 @@ public:
         add_method(L"getFavours", this, (MethodType)&PoETask::get_favours, AhkObject);
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
         add_method(L"getJobs", this, (MethodType)&PoETask::get_jobs, AhkObject);
-        add_method(L"setJob", this, (MethodType)&PoETask::set_job, AhkVoid, ParamList{AhkInt});
+        add_method(L"setJob", this, (MethodType)&PoETask::set_job, AhkVoid, ParamList{AhkWString, AhkInt});
         add_method(L"getPlugin", this, (MethodType)&PoETask::get_plugin, AhkObject, ParamList{AhkWString});
         add_method(L"getPlugins", this, (MethodType)&PoETask::get_plugins, AhkObject);
         add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject, ParamList{AhkWString});
@@ -102,7 +102,7 @@ public:
         stop();
     }
 
-    void set_job(wstring name, int period) {
+    void set_job(const wchar_t* name, int period) {
         jobs[name]->delay = period;
     }
 
