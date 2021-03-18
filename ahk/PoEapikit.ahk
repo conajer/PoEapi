@@ -47,7 +47,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
-global version := "1.0.0"
+global version := "1.0.1"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -113,13 +113,14 @@ objdump(obj, prefix = "", depth = 0) {
         base := base.base
     }
 
-    if (obj.base)
-        debug("{}{:#x}{}", prefix, &obj, baseClasses)
-
+    if (depth == 0)
+        debug("{}{:#x}{}:", prefix, &obj, baseClasses)
     for k, v in obj {
-        debug("{}   {}{}, {}", prefix, IsObject(v) ? "*" : " ", k, IsObject(v) ? v.Count() : v)
-        if (depth > 0 && IsObject(v))
-            objdump(v, prefix "    ", depth - 1)
+        try {
+            debug("{}   {}{}, {}", prefix, IsObject(v) ? "*" : " ", k, IsObject(v) ? v.Count() : v)
+            if (depth > 0 && IsObject(v))
+                objdump(v, prefix "    ", depth - 1)
+        } catch {}
     }
 }
 
