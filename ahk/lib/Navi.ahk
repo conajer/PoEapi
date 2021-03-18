@@ -155,8 +155,10 @@ class Navi extends WebGui {
                 canvas { position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: -1; } 
                 
                 .nav table { border-collapse: collapse; }
-                .nav td { margin: 0 10px; padding: 1px 20px; }
+                .nav td { margin: 0 10px; padding: 1px 15px; }
 
+                #area_time { font-family: Arail Narrow; font-weight: bold; color: #0c0c0c; background-color: lightgreen; }
+                .second { font-family: Arail Narrow; color: maroon; }
                 #kill_counter { color: #0c0c0c; background-color: lightcyan; }
                 #kill_counter:hover { background-color: cyan; }
                 .kills { color: crimson; }
@@ -181,6 +183,7 @@ class Navi extends WebGui {
             <div class=nav>
                 <table class=nav align='right'>
                     <tr>
+                        <td id='area_time'></td>
                         <td id='kill_counter'>Kills <b class=kills>0</b>/<b class=total>0<b></td>
                         <td class=exp>Exp <b class='gained_exp'>+0.000%</b></td>
                         <td id='menu'>&#8801;</td>
@@ -281,7 +284,6 @@ class Navi extends WebGui {
         this.bind("menu", "onclick", "showMenu")
         this.bind("kill_counter",, "showKillStats")
         this.bind("kill_stats", "onfocusout", "hideKillStats")
-        this.kc := ptask.getPlugin("KillCounter")
 
         addMenuItem("__main", _("Hideout"), ObjBindMethod(ptask, "sendKeys", "/hideout", 0))
         addMenuItem("__main", _("Sell items"), ObjBindMethod(ptask, "sellItems"))
@@ -301,7 +303,13 @@ class Navi extends WebGui {
 
         this.menu := this.document.querySelector("#menu")
         this.killStats := this.document.querySelector("#kill_stats")
+        this.areaTime := this.document.querySelector("#area_time")
+        this.kc := ptask.getPlugin("KillCounter")
         this.onMessage(WM_KILL_COUNTER, "onKillCounter")
+        this.onMessage(WM_AREA_CHANGED, "onAreaChanged")
+
+        t := ObjBindMethod(this, "updateTime")
+        SetTimer, %t%, 1000
     }
 
     getCanvas() {
@@ -385,6 +393,17 @@ class Navi extends WebGui {
     hideKillStats() {
         if (Not this.document.hasFocus())
             this.killStats.innerHtml := ""
+    }
+
+    updateTime() {
+        tt := this.usedTime + (A_Tickcount - this.enterTime) / 1000
+        , this.areaTime.innerHtml := Format("{:02d}:<span class='second'>{:02d}</span>", tt / 60, Mod(tt, 60))
+    }
+
+    onAreaChanged() {
+        stat := this.kc.getStat()
+        this.usedTime := stat ? stat.usedTime : 0
+        this.enterTime := A_Tickcount
     }
 
     onKillCounter(wParam, lParam) {
