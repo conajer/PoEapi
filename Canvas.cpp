@@ -12,6 +12,7 @@ public:
     IDWriteFactory* write_factory = nullptr;
     ID2D1RenderTarget* render = nullptr;
     IDWriteTextFormat* text_format = nullptr;
+    ID2D1SolidColorBrush* brush;
     bool is_dc_render_target = true;
 
     const wchar_t* font_name = L"Fontin Smallcaps";
@@ -38,6 +39,7 @@ public:
                 font_size,
                 L"en-us",
                 &text_format);
+            render->CreateSolidColorBrush(D2D1::ColorF(0, 0), &brush);
         }
     }
 
@@ -97,65 +99,49 @@ public:
             text_format, 1920, 1080, &layout);
 
         if (SUCCEEDED(hr)) {
-            ID2D1SolidColorBrush* brush;
             DWRITE_TEXT_METRICS m;
 
             layout->GetMetrics(&m);
             x = x - m.width * align / 2;
             fill_rect(x, y, x + m.width, y + m.height, backgroud, alpha);
-            render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
+            brush->SetColor(D2D1::ColorF(rgb, alpha));
             render->DrawTextLayout({x, y}, layout, brush);
-            brush->Release();
             layout->Release();
         }
     }
 
     void draw_line(float x0, float y0, float x1, float y1, int rgb) {
-        ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        brush->SetColor(D2D1::ColorF(rgb));
         render->DrawLine({x0, y0}, {x1, y1}, brush);
-        brush->Release();
     }
 
     void draw_rect(float x0, float y0, float x1, float y1, int rgb, float width = 1.0) {
-        ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        brush->SetColor(D2D1::ColorF(rgb));
         render->DrawRectangle({x0, y0, x1, y1}, brush, width);
-        brush->Release();
     }
 
     void draw_rounded_rect(float x0, float y0, float x1, float y1, float rx, float ry, int rgb, float width = 1.0) {
-        ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        brush->SetColor(D2D1::ColorF(rgb));
         render->DrawRoundedRectangle({{x0, y0, x1, y1}, rx, ry}, brush, width);
-        brush->Release();
     }
 
     void draw_circle(float x, float y, float radius, int rgb, float width = 1) {
-        ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb), &brush);
+        brush->SetColor(D2D1::ColorF(rgb));
         render->DrawEllipse({{x, y}, radius, radius}, brush, width);
-        brush->Release();
     }
 
     void fill_rect(float x0, float y0, float x1, float y1, int rgb, float alpha = 1.0) {
-        ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
+        brush->SetColor(D2D1::ColorF(rgb, alpha));
         render->FillRectangle({x0, y0, x1, y1}, brush);
-        brush->Release();
     }
 
     void fill_rounded_rect(float x0, float y0, float x1, float y1, float rx, float ry, int rgb, float alpha = 1.0) {
-        ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
+        brush->SetColor(D2D1::ColorF(rgb, alpha));
         render->FillRoundedRectangle({{x0, y0, x1, y1}, rx, ry}, brush);
-        brush->Release();
     }
 
     void fill_circle(float x, float y, float radius, int rgb, float alpha = 1.0) {
-        ID2D1SolidColorBrush* brush;
-        render->CreateSolidColorBrush(D2D1::ColorF(rgb, alpha), &brush);
+        brush->SetColor(D2D1::ColorF(rgb, alpha));
         render->FillEllipse({{x, y}, radius, radius}, brush);
-        brush->Release();
     }
 };
