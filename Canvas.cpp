@@ -92,6 +92,11 @@ public:
         render->PopAxisAlignedClip();
     }
 
+    void draw_bitmap(ID2D1Bitmap* bitmap, float x0, float y0, float x1, float y1, float opacity = 1.0) {
+        D2D1_RECT_F dest = D2D1::RectF(x0, y0, x1, y1);
+        render->DrawBitmap(bitmap, &dest, opacity);
+    }
+
     void draw_text(wstring text, float x, float y, int rgb, int backgroud, float alpha = 1.0, int align = 0) {
         IDWriteTextLayout* layout;
         
