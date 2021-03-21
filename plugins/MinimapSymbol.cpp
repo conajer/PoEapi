@@ -79,11 +79,15 @@ public:
 
     // minimal size of the symbols
     int min_size = 4;
+    float opacity = .8;
 
+    ID2D1Bitmap* textures[16] = {};
+    bool use_texture = true;
+    bool texture_loaded = false;
 
-    int entity_colors[64] = {0xfefefe, 0x5882fe, 0xfefe76, 0xaf5f1c,    // monster
+    int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xb57741,    // monster
                              0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // corpse
-                             0xfe00,                                    // minion
+                             0x00fe00,                                  // minion
                              0xe0ffff,                                  // NPC
                              0xfe00fe};                                 // player
     
@@ -96,7 +100,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.8"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.9"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -107,9 +111,11 @@ public:
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
         add_property(L"showHeistChests", &show_heist_chests, AhkBool);
         add_property(L"showPlayer", &show_player, AhkBool);
-        add_property(L"showNPC", &show_player, AhkBool);
+        add_property(L"showNPC", &show_npc, AhkBool);
         add_property(L"showMinions", &show_minions, AhkBool);
         add_property(L"minSize", &min_size, AhkInt);
+        add_property(L"opacity", &opacity, AhkFloat);
+        add_property(L"useTexture", &use_texture, AhkBool);
 
         add_method(L"getPacks", this, (MethodType)&MinimapSymbol::get_packs, AhkObject);
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
@@ -146,7 +152,41 @@ public:
         }
     }
 
+    void load_textures() {
+        if (poe->hud) {
+            ID2D1BitmapRenderTarget* bitmap_render;
+            ID2D1SolidColorBrush* brush;
+
+            for (int i = 0; i < 11; ++i) {
+                float size = min_size + ((i < 8) ? (i & 0x3) : (1 << (i & 0x3)));
+                if ((i & 0x3) == 0x3)
+                    size += 2;
+
+                float x = size, y = size;
+                poe->hud->render->CreateCompatibleRenderTarget(D2D1::SizeF(size * 2, size * 2), &bitmap_render);
+                bitmap_render->BeginDraw();
+                bitmap_render->CreateSolidColorBrush(D2D1::ColorF(0), &brush);
+                if ((i & 0x3) == 0x3) {
+                    brush->SetColor(D2D1::ColorF(0xff0000, opacity));
+                    bitmap_render->DrawEllipse({{x, y}, size, size}, brush, 2);
+                    size -= 2;
+                }
+                brush->SetColor(D2D1::ColorF(entity_colors[i], opacity));
+                bitmap_render->FillEllipse({{x, y}, size, size}, brush);
+                bitmap_render->EndDraw();
+                bitmap_render->GetBitmap(&textures[i]);
+                brush->Release();
+                bitmap_render->Release();
+            }
+
+            texture_loaded = true;
+        }
+    }
+
     void initialize() {
+        if (use_texture && !texture_loaded)
+            load_textures();
+
         Render* render = player->get_component<Render>();
         if (render) {
             player_pos = render->position();
@@ -185,11 +225,17 @@ public:
             pos.z = pos.z * scale;
             poe->in_game_state->transform(pos);
 
-            int x = pos.x + shift_x - size;
-            int y = pos.y + shift_y - size;
-            poe->hud->fill_circle(x, y, size, entity_colors[index], .8);
-            if (e->rarity == 3)
-                poe->hud->draw_circle(x, y, size + 2, 0xff0000, 2);
+            int x = pos.x + shift_x;
+            int y = pos.y + shift_y;
+            if (use_texture) {
+                if (e->rarity == 3 && !e->is_npc)
+                    size += 2;
+                poe->hud->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
+            } else {
+                poe->hud->fill_circle(x, y, size, entity_colors[index], opacity);
+                if (e->rarity == 3)
+                    poe->hud->draw_circle(x, y, size + 2, 0xff0000, 2);
+            }
 
             if (show_packs && (e->is_monster && !e->is_neutral)) {
                 Point p = poe->get_pos(e);
@@ -294,7 +340,8 @@ public:
                     }
                 }
             } else if (entity->is_player) {
-                draw_entity(entity, 10, min_size + 4);
+                if (show_player)
+                    draw_entity(entity, 10, min_size + 4);
             } else if (entity->has_component("Chest")) {
                 if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)
                     draw_delve_chests(entity);
