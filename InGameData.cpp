@@ -58,6 +58,7 @@ public:
     shared_ptr<AreaTemplate> area;
     shared_ptr<LocalPlayer> player;
     shared_ptr<Terrain> terrain;
+    bool force_reset = false;
 
     InGameData(addrtype address) : RemoteMemoryObject(address, &in_game_data_offsets)
     {
@@ -108,6 +109,11 @@ public:
         while (!nodes.empty()) {
             addrtype node = nodes.front();
             nodes.pop();
+
+            if (force_reset) {
+                force_reset = false;
+                break;
+            }
 
             for (int offset : (int[]){0x0, 0x10}) {
                 addr = PoEMemory::read<addrtype>(node + offset);

@@ -386,6 +386,7 @@ public:
         } else {
             if (in_game_state->is_loading()) {
                 is_ready = false;
+                in_game_data->force_reset = true;
                 Sleep(500);
 
                 // clear hud
