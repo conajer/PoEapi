@@ -139,6 +139,11 @@ public:
         return type_name;            
     }
 
+    int life() {
+        Life* life = get_component<Life>();
+        return life ? life->life() : -1;
+    }
+
     bool is_dead() {
         Life* life = get_component<Life>();
         return life && life->life() == 0;
@@ -296,9 +301,9 @@ public:
         add_method(L"charges", this, (MethodType)&Item::get_charges);
         add_method(L"size", this, (MethodType)&Item::get_size);
         add_method(L"getInfluenceType", this, (MethodType)&Item::get_influence_type, AhkInt);
-        add_method(L"getAffixes", this, (MethodType)&Item::get_affixes, AhkObject);
-        add_method(L"getExplicitMods", this, (MethodType)&Item::get_explicit_mods, AhkObject);
         add_method(L"getMods", this, (MethodType)&Item::get_mods, AhkObject);
+        add_method(L"getExplicitStats", this, (MethodType)&Item::get_explicit_stats, AhkObject);
+        add_method(L"getStats", this, (MethodType)&Item::get_stats, AhkObject);
     }
 
     void __new() {
@@ -456,48 +461,48 @@ public:
         return base ? base->influence_type() : 0;
     }
 
-    AhkObjRef* get_affixes() {
-        AhkTempObj affixes;
+    AhkObjRef* get_mods() {
+        AhkTempObj temp_mods;
         if (mods) {
             mods->get_mods();
             for (auto& i : mods->explicit_mods)
-                affixes.__set(L"", i.name.c_str(), AhkWString, nullptr);
+                temp_mods.__set(L"", i.id.c_str(), AhkWString, nullptr);
         }
         
-        return affixes;
+        return temp_mods;
     }
 
-    AhkObjRef* get_explicit_mods() {
-        AhkTempObj explicit_mods;
+    AhkObjRef* get_explicit_stats() {
+        AhkTempObj explicit_stats;
         if (mods) {
             mods->get_stats();
             for (auto& i : mods->fractured_stats)
-                explicit_mods.__set(L"", (i + L" (fractured)").c_str(), AhkWString, nullptr);
+                explicit_stats.__set(L"", (i + L" (fractured)").c_str(), AhkWString, nullptr);
             for (auto& i : mods->explicit_stats)
-                explicit_mods.__set(L"", i.c_str(), AhkWString, nullptr);
+                explicit_stats.__set(L"", i.c_str(), AhkWString, nullptr);
             for (auto& i : mods->crafted_stats)
-                explicit_mods.__set(L"", (i + L" (crafted)").c_str(), AhkWString, nullptr);
+                explicit_stats.__set(L"", (i + L" (crafted)").c_str(), AhkWString, nullptr);
         }
         
-        return explicit_mods;
+        return explicit_stats;
     }
 
-    AhkObjRef* get_mods() {
-        AhkTempObj all_mods;
+    AhkObjRef* get_stats() {
+        AhkTempObj all_stats;
         if (mods) {
             mods->get_stats();
             for (auto& i : mods->enchant_stats)
-                all_mods.__set(L"", (i + L" (enchant)").c_str(), AhkWString, nullptr);
+                all_stats.__set(L"", (i + L" (enchant)").c_str(), AhkWString, nullptr);
             for (auto& i : mods->implicit_stats)
-                all_mods.__set(L"", (i + L" (implicit)").c_str(), AhkWString, nullptr);
+                all_stats.__set(L"", (i + L" (implicit)").c_str(), AhkWString, nullptr);
             for (auto& i : mods->fractured_stats)
-                all_mods.__set(L"", (i + L" (fractured)").c_str(), AhkWString, nullptr);
+                all_stats.__set(L"", (i + L" (fractured)").c_str(), AhkWString, nullptr);
             for (auto& i : mods->explicit_stats)
-                all_mods.__set(L"", i.c_str(), AhkWString, nullptr);
+                all_stats.__set(L"", i.c_str(), AhkWString, nullptr);
             for (auto& i : mods->crafted_stats)
-                all_mods.__set(L"", (i + L" (crafted)").c_str(), AhkWString, nullptr);
+                all_stats.__set(L"", (i + L" (crafted)").c_str(), AhkWString, nullptr);
         }
 
-        return all_mods;
+        return all_stats;
     }
 };
