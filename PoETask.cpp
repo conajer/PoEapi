@@ -174,6 +174,7 @@ public:
     AhkObjRef* get_stash() {
         if (is_in_game()) {
             Stash* stash = in_game_ui->get_stash();
+            stash->__set(L"tabs", nullptr, AhkObject, nullptr);
             __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
             return stash->obj_ref;
         }
