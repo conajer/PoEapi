@@ -184,8 +184,11 @@ public:
                     if (entity->has_component("DiesAfterTime"))
                         continue;
 #endif
+                    int life = entity->life();
+                    if (life == 1)  // Some special monsters only have 1 life.
+                        continue;
 
-                    if (entity->is_dead()) {
+                    if (life == 0) {
                         if (current_area->total.find(i.first) != current_area->total.end()
                             && current_area->killed.find(i.first) == current_area->killed.end())
                         {
