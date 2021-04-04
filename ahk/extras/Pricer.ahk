@@ -28,8 +28,10 @@ class Pricer extends WebGui {
              , "Unique Jewels"      : {"catalog" : "item", "type" : "UniqueJewel"}
              , "Unique Maps"        : {"catalog" : "item", "type" : "UniqueMap"}
              , "Unique Weapons"     : {"catalog" : "item", "type" : "UniqueWeapon"}
-             , "Watchstones"        : {"catalog" : "item", "type" : "Watchstone"} }
+             , "Watchstones"        : {"catalog" : "item", "type" : "Watchstone"}
+             , "Base Types"         : {"catalog" : "item", "type" : "BaseType"} }
 
+    influenceTypes := ["Shaper", "Elder", "Crusader", "Redeemer", "Hunter", "Warlord"]
     league := ""
     lastUpdateTime := ""
     updatePeriod := 30 * 60000
@@ -44,54 +46,86 @@ class Pricer extends WebGui {
         if (p.hasOwnProperty("chaosEquivalent")) {
             this.prices[p.currencyTypeName] := {"value" : p.chaosEquivalent}
         } else {
+            pName := p.name
             if (p.mapTier && Not (p.name ~= "Essence of")) {
                 if (Not (p.name ~= p.baseType))
                     this.prices["Unique " p.baseType " T" p.mapTier] := {"value" : p.chaosValue}
-                pName := p.name " T" p.mapTier
+                pName .= " T" p.mapTier
+            } else if (p.gemLevel && p.corrupted) {
+                pName .= " " p.gemLevel "/" p.gemQuality " corrupted"
+                if (p.gemQuality > 0 && p.gemQuality < 20)
+                    pName .= " " p.gemLevel "/0 corrupted"
+            } else if (p.gemLevel) {
+                pName .= " " p.gemLevel "/" p.gemQuality
+                if (p.gemQuality > 0 && p.gemQuality < 20)
+                    pName .= " " p.gemLevel "/0"
+            } else if (p.links) {
+                pName .= " " p.links "L"
+            } else if (p.variant) {
+                pName .= " " p.variant
             }
-            else if (p.gemLevel && p.corrupted)
-                pName := p.name " " p.gemLevel "/" p.gemQuality " corrupted"
-            else if (p.gemLevel)
-                pName := p.name " " p.gemLevel "/" p.gemQuality
-            else
-                pName := p.name
+            
+            if (p.levelRequired >= 82) {
+                pName .= " " p.levelRequired
+            }
+
             this.prices[pName] := {"value" : p.chaosValue}
         }
     }
 
     getPrice(item) {
-        qName := item.name
-        ratio := 1
+        qNames := [item.name]
         if (item.isMap) {
             if (item.rarity < 3)
-                qName := item.baseName
+                qNames[1] := item.baseName
             if (item.isBlighted())
-                qName := "Blighted " item.baseName
-            qName .= " T" item.tier
+                qNames[1] := "Blighted " item.baseName
+            qNames[1] .= " T" item.tier
             if (item.rarity == 3 && Not item.isIdentified)
-                qName := "Unique " qName
+                qNames[1] := "Unique " qName
         } else if (item.isGem) {
             level := item.level
-            if (level < 20) {
-                if (level >= 18)
-                    level := 20
-                else
-                    level := 1
-            }
-            quality := item.quality
-            if (quality < 20) {
-                if (quality > 15)
-                    quality := 20
-                else
-                    quality := 0                  
-            }
-            qName .= " " level "/" quality
-            if (item.isCorrupted())
-                qName .= " corrupted"
-        } else if (item.isMapFragment && item.rarity > 0)
-            qName := item.baseName
+            , quality := item.quality
+            , qNames[1] .= " " level "/" quality
+            , qNames.Push(item.name " " level "/0")
 
-        return this.prices[qName].value * ratio
+            , level := (level < 19) ? 1 : 20
+            , qNames.Push(item.name " " level "/" quality)
+
+            , quality := (quality < 19) ? 0 : 20
+            , qNames.Push(item.name " " level "/" quality)
+            , qNames.Push(item.name " " level "/0")
+
+            if (item.name ~= "Anomalous|Divergent|Phantasmal")
+                qNames.Push(item.name " 20/20")
+
+            if (item.isCorrupted()) {
+                for i in qNames
+                    qNames[i] .= " corrupted"
+            }
+        } else if (item.isMapFragment && item.rarity > 0) {
+            qNames[1] := item.baseName
+        } else if (item.rarity == 3 && item.baseName ~= "Cluster Jewel") {
+            mods := item.getMods()
+            if (RegExMatch(mods[2], "ExpansionJewelEmptyPassiveUnique__?([0-9])", matched))
+            qNames[1] .= " " (matched1 * 2 - 1) " passives"
+        } else if (item.links() >= 5) {
+            qNames[1] .= " " item.links() "L"
+        }
+        
+        if (item.rarity < 3 && (ilvl := item.itemLevel()) >= 82) {
+            ilvl := (ilvl >= 86) ? 86 : ilvl
+            qNames[1] := item.baseName
+            influence := item.getInfluenceType()
+            if (influence)
+                qNames[1] .= " " this.influenceTypes[Floor(Log(influence)/Log(2)) + 1]
+            qNames[1] .= " " ilvl
+        }
+
+        for i, name in qNames {
+            if (this.prices[name].value)
+                return this.prices[name].value
+        }
     }
 
     update() {
