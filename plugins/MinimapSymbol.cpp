@@ -50,6 +50,7 @@ public:
 class MinimapSymbol : public PoEPlugin {
 public:
 
+    std::unordered_set<int> ignored_entities;
     Vector3 player_pos;
 
     // overlapped map 
@@ -100,7 +101,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.9"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.10"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -302,6 +303,10 @@ public:
         }
     }
 
+    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
+        ignored_entities.clear();
+    }
+
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
         if (!poe->hud)
             return;
@@ -323,6 +328,9 @@ public:
                 return;
             }
 
+            if (ignored_entities.find(i.second->id) != ignored_entities.end())
+                continue;
+
             Entity* entity = i.second.get();
             if (entity->is_npc) {
                 if (show_npc)
@@ -332,21 +340,31 @@ public:
                     if (entity->is_dead()) {
                         if (show_corpses)
                             draw_entity(entity, 4 + entity->rarity, min_size + entity->rarity);
+                        else
+                            ignored_entities.insert(i.second->id);
                     } else if (entity->is_neutral) {
                         if (show_minions)
                             draw_entity(entity, 8, min_size + 1);
+                        else
+                            ignored_entities.insert(i.second->id);
                     } else if (entity->rarity >= rarity) {
                         draw_entity(entity, entity->rarity, min_size + entity->rarity);
+                    } else {
+                        ignored_entities.insert(i.second->id);
                     }
                 }
             } else if (entity->is_player) {
                 if (show_player)
                     draw_entity(entity, 10, min_size + 4);
             } else if (entity->has_component("Chest")) {
-                if (show_delve_chests && entity->path.find(L"/DelveChests") != string::npos)
+                if (show_delve_chests && entity->path.find(L"/DelveChests") != wstring::npos)
                     draw_delve_chests(entity);
-                else if (show_heist_chests && entity->path.find(L"/HeistChest") != string::npos)
+                else if (show_heist_chests && entity->path.find(L"/HeistChest") != wstring::npos)
                     draw_heist_chests(entity);
+                else
+                    ignored_entities.insert(i.second->id);
+            } else {
+                ignored_entities.insert(i.second->id);
             }
         }
 
