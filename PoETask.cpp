@@ -78,6 +78,7 @@ public:
         add_method(L"getStash", this, (MethodType)&PoETask::get_stash, AhkObject);
         add_method(L"getStashTabs", this, (MethodType)&PoETask::get_stash_tabs, AhkObject);
         add_method(L"getVendor", this, (MethodType)&PoETask::get_vendor, AhkObject);
+        add_method(L"getPurchase", this, (MethodType)&PoETask::get_purchase, AhkObject);
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
         add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
@@ -185,6 +186,15 @@ public:
         if (is_in_game()) {
             Vendor* vendor = in_game_ui->get_vendor();
             return (AhkObjRef*)*vendor;
+       }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_purchase() {
+        if (is_in_game()) {
+            Purchase* purchase = in_game_ui->get_purchase();
+            return (AhkObjRef*)*purchase;
        }
 
         return nullptr;

@@ -7,6 +7,7 @@
 #include "ui/Inventory.cpp"
 #include "ui/Stash.cpp"
 #include "ui/Vendor.cpp"
+#include "ui/Purchase.cpp"
 #include "ui/Sell.cpp"
 #include "ui/Trade.cpp"
 #include "ui/OverlayMap.cpp"
@@ -53,6 +54,7 @@ public:
     unique_ptr<Inventory> inventory;
     unique_ptr<Stash> stash;
     unique_ptr<Vendor> vendor;
+    unique_ptr<Purchase> purchase;
     unique_ptr<Sell> sell;
     unique_ptr<Trade> trade;
     unique_ptr<OverlayMap> large_map, corner_map;
@@ -67,6 +69,7 @@ public:
         get_inventory();
         get_stash();
         get_vendor();
+        get_purchase();
         get_sell();
         get_trade();
         get_overlay_map();
@@ -82,6 +85,7 @@ public:
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
               L"stash", (AhkObjRef*)*stash, AhkObject,
               L"vendor", (AhkObjRef*)*vendor, AhkObject,
+              L"purchase", (AhkObjRef*)*purchase, AhkObject,
               L"sell", (AhkObjRef*)*sell, AhkObject,
               L"largeMap", (AhkObjRef*)*large_map, AhkObject,
               L"cornerMap", (AhkObjRef*)*corner_map, AhkObject,
@@ -115,6 +119,12 @@ public:
         if (!vendor)
             vendor = unique_ptr<Vendor>(new Vendor(read<addrtype>("vendor")));
         return vendor.get();
+    }
+
+    Purchase* get_purchase() {
+        if (!purchase)
+            purchase = unique_ptr<Purchase>(new Purchase(read<addrtype>("purchase")));
+        return purchase.get();
     }
 
     Sell* get_sell() {
