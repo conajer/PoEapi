@@ -323,6 +323,10 @@ public:
             Prophecy* prophecy = get_component<Prophecy>();
             if (prophecy)
                 return prophecy->name();
+        } else if (has_component("SkillGem")) {
+            SkillGem* skill_gem = get_component<SkillGem>();
+            if (skill_gem)
+                return skill_gem->name(base_name());
         }
 
         return base_name();                                 /* normal or unidentified items */
