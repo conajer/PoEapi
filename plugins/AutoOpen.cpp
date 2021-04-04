@@ -11,18 +11,25 @@ public:
         "TriggerableBlockage",  // Door or switch
         "Transitionable",       // Switch, lever, standing stone, lodestone etc.
     };
+    std::unordered_set<int> ignored_entities;
     std::wregex entity_names, ignored_chests;
     wstring default_ignored_chests;
     RECT bounds;
     int range = 15;
     int total_opened;
+    bool chest_enabled = true;
+    bool delve_chest_only = true;
+    bool door_enabled = true;
 
-    AutoOpen() : PoEPlugin(L"AutoOpen", "0.4"),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.5"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
         default_ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase|Izaro")
     {
         total_opened = 0;
         add_property(L"range", &range, AhkInt);
+        add_property(L"chest", &chest_enabled, AhkBool);
+        add_property(L"delveChestOnly", &delve_chest_only, AhkBool);
+        add_property(L"door", &door_enabled, AhkBool);
         add_method(L"setIgnoredChests", this, (MethodType)&AutoOpen::set_ignored_chests, AhkVoid, ParamList{AhkWString});
         set_ignored_chests();
     }
@@ -74,6 +81,10 @@ public:
         Sleep(500);
     }
 
+    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
+        ignored_entities.clear();
+    }
+
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& add) {
         for (auto& i : entities) {
             if (force_reset) {
@@ -81,8 +92,11 @@ public:
                 return;
             }
 
+            if (ignored_entities.find(i.second->id) != ignored_entities.end())
+                continue;
+
             int dist = player->dist(*i.second);
-            if (dist > range)
+            if (dist > 2 * range)
                 continue;
 
             Targetable* targetable = i.second->get_component<Targetable>();
@@ -92,10 +106,14 @@ public:
             int index = i.second->has_component(entity_types);
             switch (index) {
             case 0: { // Chest
-                if ((i.second->path.find(L"HeistChest") == wstring::npos)
-                    && (i.second->has_component("MinimapIcon")
-                        || !std::regex_search(i.second->name(), ignored_chests)))
-                {
+                if (dist <= range && chest_enabled) {
+                    if (delve_chest_only) {
+                        if ((i.second->path.find(L"DelveChest") == wstring::npos))
+                            break;
+                    } else if (std::regex_search(i.second->name(), ignored_chests) || (i.second->path.find(L"HeistChest") != wstring::npos)) {
+                        break;
+                    }
+
                     Chest* chest = i.second->get_component<Chest>();
                     if (!chest->is_opened() && !chest->is_locked())
                         try_open(i.second.get());
@@ -111,9 +129,11 @@ public:
             }
 
             case 2: { // TriggerableBlockage
-                TriggerableBlockage* blockage = i.second->get_component<TriggerableBlockage>();
-                if (blockage->is_closed() && i.second->path.find(L"Labyrinth/Objects") == string::npos)
-                    try_open(i.second.get());
+                if (door_enabled) {
+                    TriggerableBlockage* blockage = i.second->get_component<TriggerableBlockage>();
+                    if (blockage->is_closed() && i.second->path.find(L"Labyrinth/Objects") == string::npos)
+                        try_open(i.second.get());
+                }
                 break;
             }
 
@@ -123,7 +143,7 @@ public:
                 break;
 
             default:
-                ;
+                ignored_entities.insert(i.second->id);
             }
         };
     }
