@@ -96,7 +96,7 @@ protected:
             job->resolution = resolution;
             all_jobs[job_id] = job;
 
-            log(L"new job %S@%x, delay %dms", job->name, job_id, job->delay);
+            log(L"new job %S@%x, delay %dms", job->name.c_str(), job_id, job->delay);
         }
 
         return job_id;
