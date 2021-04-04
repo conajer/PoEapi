@@ -332,9 +332,8 @@ public:
             } else {
                 if (i->index > last_index + 1)
                     i->index = last_index + 1;
+                last_index = i->index;
             }
-            
-            last_index = i->index;
         }
 
         return stash_tabs;
