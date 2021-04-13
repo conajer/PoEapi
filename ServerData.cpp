@@ -17,8 +17,7 @@ class InventoryCell : public RemoteMemoryObject {
 public:
 
     shared_ptr<Item> item;
-    addrtype item_address;
-    int index, x, y, w, h;
+    int x, y, w, h;
 
     InventoryCell(addrtype address)
         : RemoteMemoryObject(address, &inventory_cell_offsets)
@@ -27,7 +26,6 @@ public:
         y = read<int>("t");
         w = read<int>("r") - x;
         h = read<int>("b") - y;
-        item_address = read<addrtype>("item");
     }
 
     shared_ptr<Item> get_item() {
@@ -60,25 +58,25 @@ class InventorySlot : public RemoteMemoryObject, public AhkObj {
 private:
 
     AhkObjRef* __get_item_by_index(int index) {
-        get_items();
-        if (cells.find(index) == cells.end())
-            return nullptr;
+        shared_ptr<InventoryCell> cell = get_cell(index);
+        if (cell) {
+            shared_ptr<Item> item = cell->get_item();
+            item->__set(L"index", index, AhkInt,
+                        L"left", cell->x + 1, AhkInt,
+                        L"top", cell->y + 1, AhkInt,
+                        L"width", cell->w, AhkInt,
+                        L"height", cell->h, AhkInt,
+                        nullptr);
 
-        shared_ptr<InventoryCell> cell = cells[index];
-        shared_ptr<Item> item = cell->get_item();
-        item->__set(L"index", index, AhkInt,
-                    L"left", cell->x + 1, AhkInt,
-                    L"top", cell->y + 1, AhkInt,
-                    L"width", cell->w, AhkInt,
-                    L"height", cell->h, AhkInt,
-                    nullptr);
+            return *item;
+        }
 
-        return *item;
+        return nullptr;
     }
 
     AhkObjRef* __get_items() {
         AhkObj items;
-        for (auto& i : get_items()) {
+        for (auto& i : get_cells()) {
             shared_ptr<Item> item = i.second->get_item();
             item->__set(L"index", i.first, AhkInt,
                         L"left", i.second->x + 1, AhkInt,
@@ -138,7 +136,7 @@ public:
         return free_cells;
     }
 
-    std::unordered_map<int, shared_ptr<InventoryCell>>& get_items() {
+    std::unordered_map<int, shared_ptr<InventoryCell>>& get_cells() {
         std::unordered_map<int, shared_ptr<InventoryCell>> removed_cells;
         removed_cells.swap(cells);
 
@@ -163,11 +161,23 @@ public:
         return cells;
     }
 
+    shared_ptr<InventoryCell> get_cell(int index) {
+        int n = ((index  - 1) % rows) * cols + (index  - 1) / rows;
+        addrtype addr = PoEMemory::read<addrtype>(read<addrtype>("cells") + n * 8);
+        if (addr > 0) {
+            shared_ptr<InventoryCell> cell(new InventoryCell(addr));
+            cells[index] = cell;
+            return cell;
+        }
+
+        return nullptr;
+    }
+
     void to_print() {
         printf("    %llx %3d %3d  %3d  %4d\n", address, id, rows, cols, count());
         if (verbose) {
             printf("    ----------- --- ---- ---- -----\n");
-            for (auto i : get_items()) {
+            for (auto i : get_cells()) {
                 i.second->to_print();
             }
         }
