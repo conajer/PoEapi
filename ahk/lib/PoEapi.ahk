@@ -315,7 +315,7 @@ class SpecialStashTab extends StashTab {
         if (this.type == 3)
             index := (index > 28) ? index - 1 : index
 
-        return this.childs[index].getRect()
+        return this.getItemByIndex(index).getRect()
     }
 }
 
