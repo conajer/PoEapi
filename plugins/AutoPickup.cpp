@@ -14,7 +14,9 @@ public:
         "Stack",                // Currency/DivinationCard items
         "Map",                  // Maps
         "Quest",                // Quest items
-        "HeistObjective",       // Heist objective item
+        "HeistContract",        // Heist contracts
+        "HeistBlueprint",       // Heist blueprints
+        "HeistObjective",       // Heist objective items
     };
 
     std::map<int, shared_ptr<Entity>> ignored_entities;
@@ -22,18 +24,19 @@ public:
     shared_ptr<Entity> selected_item;
     RECT bounds;
     unsigned int range = 50, last_pickup = 0;
-    int try_again;
     bool ignore_chests = false;
     bool is_picking = false;
     bool event_enabled = false;
+    int strict_level = 0;
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.9") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.10") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
+        add_property(L"strictLevel", &strict_level, AhkBool);
 
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
@@ -69,7 +72,6 @@ public:
         selected_item.reset();
         is_picking = true;
         last_pickup = GetTickCount();
-        try_again = 0;
 
         GetClientRect(poe->hwnd, &bounds);
         bounds.left += 200;
@@ -85,29 +87,33 @@ public:
     bool check_item(addrtype address) {
         Item item(address);
 
-        if (item.get_influence_type() || item.has_component(item_types) >= 0)
+        if (item.has_component(item_types) >= 0)
             return true;
 
-        if (std::regex_search(item.base_name(), generic_item_filter))
+        if (item.get_links() == 6)
             return true;
 
-        if (item.has_component("SkillGem"))
-            return (item.get_quality() >= 5 || item.get_level() > 12);
-
-        int rarity = item.get_rarity();
-        if (rarity > 1) {
-            if (rarity == 3)
-                return true;
-
+        if (strict_level < 3) {
+            int rarity = item.get_rarity();
             int ilvl = item.get_item_level();
-            if (!item.is_identified()
-                && ((ilvl >= 60 && ilvl < 75)
-                    || std::regex_search(item.path, rare_item_filter)))
-                return true;
-        }
+            switch (strict_level) {
+                case 0:
+                    if (rarity == 2 && !item.is_identified() && (ilvl >= 60 && ilvl < 75))
+                        return true;
 
-        if (item.get_sockets() == 6 || item.is_rgb())
-            return true;
+                case 1:
+                    if (rarity == 3 || item.get_sockets() == 6 || item.is_rgb())
+                        return true;
+                    if (std::regex_search(item.base_name(), generic_item_filter))
+                        return true;
+
+                case 2:
+                    if (ilvl >= 82 && item.get_influence_type())
+                        return true;
+                    if (rarity == 2 && std::regex_search(item.path, rare_item_filter))
+                        return true;
+            }
+        }
 
         return false;
     }
@@ -135,6 +141,16 @@ public:
         if (!is_picking && !event_enabled)
             return;
 
+        if (GetTickCount() - last_pickup > 3000) {
+            if (selected_item)
+                ignored_entities[selected_item->id] = selected_item;
+            stop_pickup();
+            return;
+        }
+
+        if (selected_item && entities.find(selected_item->id) != entities.end())
+            return;
+
         int min_dist = range;
         for (auto& i : entities) {
             if (force_reset) {
@@ -146,7 +162,7 @@ public:
             if (index < 0)
                 continue;
 
-            if (is_picking && ignored_entities.find(i.second->id) != ignored_entities.end())
+            if (ignored_entities.find(i.second->id) != ignored_entities.end())
                 continue;
 
             switch (index) {
@@ -184,30 +200,8 @@ public:
             }
         }
 
-        if (!is_picking)
+        if (!is_picking || !nearest_item)
             return;
-
-        if (GetTickCount() - last_pickup > 3000) {
-            stop_pickup();
-            return;
-        }
-
-        if (!nearest_item)
-            return;
-
-        if (nearest_item == selected_item) {
-            addrtype target_address = player->actor->target_address;
-            if (target_address == selected_item->address || GetTickCount() - last_pickup < 200)
-                return;
-
-            if (++try_again > 3) {
-                ignored_entities[selected_item->id] = selected_item;
-                try_again = 0;
-                return;
-            }
-        } else {
-            try_again = 0;
-        }
 
         selected_item = nearest_item;
         Point pos = selected_item->label->get_pos();
