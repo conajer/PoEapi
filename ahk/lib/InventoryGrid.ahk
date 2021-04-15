@@ -29,14 +29,14 @@ class InventoryGrid extends Element {
     }
 
     dump(regex = "", n = 0) {
-        this.checkLayout()
+        dumped := 0
         for i, aItem in this.getItems() {
-            if (regex && Not RegExMatch(aItem.Name " " aItem.BaseName, "i)" regex))
+            if (regex && Not RegExMatch(aItem.fullName, "i)" regex))
                 continue
 
             count := aItem.stackCount ? aItem.stackCount : 1
             if (n == 0 || (dumped + count) <= n) {
-                this.moveItem(aItem)
+                this.move(aItem)
                 dumped += count
             }
 
