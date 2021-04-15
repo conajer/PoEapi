@@ -35,6 +35,7 @@ class Pricer extends WebGui {
     league := ""
     lastUpdateTime := ""
     updatePeriod := 30 * 60000
+    lowConfidence := false
     prices := {}
 
     __new() {
@@ -46,43 +47,50 @@ class Pricer extends WebGui {
         if (p.hasOwnProperty("chaosEquivalent")) {
             this.prices[p.currencyTypeName] := {"value" : p.chaosEquivalent}
         } else {
+            if (!lowConfidenceSparkline && p.sparkline.data.length == 0)
+                return
+
             pName := p.name
             if (p.mapTier && Not (p.name ~= "Essence of")) {
                 if (Not (p.name ~= p.baseType))
-                    this.prices["Unique " p.baseType " T" p.mapTier] := {"value" : p.chaosValue}
+                    this.prices[p.baseType " unique T" p.mapTier] := {"value" : p.chaosValue}
                 pName .= " T" p.mapTier
             } else if (p.gemLevel && p.corrupted) {
-                pName .= " " p.gemLevel "/" p.gemQuality " corrupted"
                 if (p.gemQuality > 0 && p.gemQuality < 20)
                     pName .= " " p.gemLevel "/0 corrupted"
+                else
+                    pName .= " " p.gemLevel "/" p.gemQuality " corrupted"
             } else if (p.gemLevel) {
-                pName .= " " p.gemLevel "/" p.gemQuality
                 if (p.gemQuality > 0 && p.gemQuality < 20)
                     pName .= " " p.gemLevel "/0"
+                else
+                    pName .= " " p.gemLevel "/" p.gemQuality
             } else if (p.links) {
                 pName .= " " p.links "L"
             } else if (p.variant) {
                 pName .= " " p.variant
             }
             
-            if (p.levelRequired >= 82) {
+            if (p.levelRequired >= 82)
                 pName .= " " p.levelRequired
-            }
 
             this.prices[pName] := {"value" : p.chaosValue}
         }
     }
 
     getPrice(item) {
+        if (Not IsObject(item))
+            return this.prices[item].value
+
         qNames := [item.name]
         if (item.isMap) {
             if (item.rarity < 3)
                 qNames[1] := item.baseName
             if (item.isBlighted())
                 qNames[1] := "Blighted " item.baseName
-            qNames[1] .= " T" item.tier
             if (item.rarity == 3 && Not item.isIdentified)
-                qNames[1] := "Unique " qName
+                qNames[1] := qName " unique"
+            qNames[1] .= " T" item.tier
         } else if (item.isGem) {
             level := item.level
             , quality := item.quality
@@ -119,6 +127,9 @@ class Pricer extends WebGui {
             influence := item.getInfluenceType()
             if (influence)
                 qNames[1] .= " " this.influenceTypes[Floor(Log(influence)/Log(2)) + 1]
+
+            if (ilvl > 82)
+                qNames[2] := qNames[1] " " (ilvl - 1)
             qNames[1] .= " " ilvl
         }
 
@@ -158,7 +169,7 @@ class Pricer extends WebGui {
 
     __onAreaChanged() {
         if (ptask.league != this.league) {
-            this.prices := {}
+            this.prices := {"Chaos Orb" : {"value" : 1}}
             this.league := ptask.league
             t := ObjBindMethod(this, "update")
             SetTimer, %t%, -1000
