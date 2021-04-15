@@ -288,6 +288,60 @@ class Inventory extends InventoryGrid {
 }
 
 class StashTab extends InventoryGrid {
+
+    dump(regex, n = 0) {
+        dumped := 0
+        for i, aItem in this.getItems() {
+            if (n && dumped >= n)
+                break
+
+            if (Not ptask.inventory.freeCells())
+                break
+
+            if (aItem.name ~= "i)"regex) {
+                stackCount := aItem.stackCount()
+                if (Not stackCount) {
+                    this.move(aItem)
+                    dumped += 1
+                    continue
+                }
+
+                stackSize := aItem.stackSize()
+                m := (n && (n - dumped < stackCount)) ? n - dumped : stackCount
+                while (m > 0) {
+                    this.moveTo(aItem.index)
+                    if (m >= stackSize || m == stackCount) {
+                        SendInput {Ctrl down}
+                        Click
+                        SendInput {Ctrl up}
+                        Sleep, 30
+                    } else {
+                        SendInput +{Click}
+                        SendInput, %m%{Enter}
+                        Sleep, 100
+                        
+                        if (Not ptask.inventory.drop()) {
+                            this.moveTo(aItem.index)
+                            Click
+                            return dumped
+                        }
+                    }
+
+                    aItem := this.getItemByIndex(aItem.index)
+                    k := aItem ? stackCount - aItem.stackCount() : stackCount
+                    dumped += k
+                    stackCount -= k
+                    m -= k
+
+                    if (Not ptask.inventory.freeCells())
+                        break
+                }
+                SendInput {Ctrl up}
+            }
+        }
+
+        return dumped
+    }
 }
 
 class SpecialStashTab extends StashTab {
@@ -421,12 +475,10 @@ class Stash extends Element {
                     if (this.activeTabIndex() == tabIndex)
                         break
                 }
-
-                return true
             }
         }
 
-        return false
+        return true
     }
 
     __getTabs() {
