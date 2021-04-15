@@ -397,7 +397,7 @@ public:
         } else {
             if (in_game_state->is_loading()) {
                 is_ready = false;
-                in_game_data->force_reset = true;
+                in_game_data ? in_game_data->force_reset = true : false;
                 Sleep(500);
 
                 // clear hud
@@ -411,7 +411,7 @@ public:
                 while (in_game_state->is_loading()) {
                     if (!PoE::is_in_game())
                         return false;
-                    Sleep(500);
+                    Sleep(50);
                 }
                 PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
             }
@@ -421,6 +421,15 @@ public:
     }
 
     void check_player() {
+        if (!is_in_game() || !is_ready) {
+            if (is_attached && !hwnd) {
+                is_attached = false;
+                PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
+            }
+            area_hash = 0;
+            return;
+        }
+
         HANDLE h = GetForegroundWindow();
         if (h != hwnd) {
             if (is_active) {
@@ -432,15 +441,6 @@ public:
         } else if (!is_active) {
             PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
             is_active = true;
-        }
-
-        if (!is_in_game() || !is_ready) {
-            if (is_attached && !hwnd) {
-                is_attached = false;
-                PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
-            }
-            area_hash = 0;
-            return;
         }
 
         if (in_game_data->area_hash() != area_hash) {
