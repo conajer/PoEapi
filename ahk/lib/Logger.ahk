@@ -34,11 +34,9 @@ class Logger extends WebGui {
     }
 
     log(aText, id = "", level = 0) {
-        if (id == "") {
-            ; Increment logId by 1
-            this.logId += 1
-            id := "#" this.logId
-        }
+        ; Increment logId by 1
+        this.logId += 1
+        id := (Not id) ? "#" this.logId : id
 
         FormatTime, t,, MM/dd hh:mm:ss
         aText := Format("<span id=""{}""><span class=timestamp>{}</span> {}</span>"
@@ -69,7 +67,7 @@ class Logger extends WebGui {
 }
 
 debug(string, args*) {
-    logger.log(Format("[D] <i>" string "</i>", args*), 0)
+    return logger.log(Format("[D] <i>" string "</i>", args*),, 0)
 }
 
 rdebug(id, string, args*) {
@@ -81,7 +79,7 @@ adebug(id, string, args*) {
 }
 
 syslog(string, args*) {
-    logger.log(Format("[I] " string, args*),, 1)
+    return logger.log(Format("[I] " string, args*),, 1)
 }
 
 rsyslog(id, string, args*) {
@@ -89,6 +87,6 @@ rsyslog(id, string, args*) {
 }
 
 error(string, args*) {
-    logger.log(Format("[E]<span style=""color: red""> !!! " string "</span>", args*), 2)
     SendInput {F8}
+    return logger.log(Format("[E]<span style=""color: red""> !!! " string "</span>", args*),, 2)
 }
