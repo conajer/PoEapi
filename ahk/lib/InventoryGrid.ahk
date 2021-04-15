@@ -103,7 +103,6 @@ class InventoryGrid extends Element {
         SendInput {Ctrl down}
         Click
         SendInput {Ctrl up}
-        Sleep, 10
     }
 
     highlight(aItem) {
@@ -118,12 +117,11 @@ class InventoryGrid extends Element {
 
     getRectByIndex(index) {
         l := (index - 1) // this.rows + 1
-        t := Mod(index - 1, this.rows) + 1
-
-        w := this.rect.w / this.cols
-        h := this.rect.h / this.rows
-        x := this.rect.l + w * (l - 1)
-        y := this.rect.t + h * (t - 1)
+        , t := Mod(index - 1, this.rows) + 1
+        , w := this.rect.w / this.cols
+        , h := this.rect.h / this.rows
+        , x := this.rect.l + w * (l - 1)
+        , y := this.rect.t + h * (t - 1)
 
         return new Rect(x, y, w + 1, h + 1)
     }
