@@ -377,8 +377,8 @@ class PoETask extends AhkObj {
             else
                 p := Format("{:.f}", price)
 
-            r := e.getPos()
-            if (price >= 10)
+            r := e.getRect()
+            if (p >= 10)
                 this.c.drawText(p, r.r, r.b, "white", "red", 2)
             else
                 this.c.drawText(p, r.r, r.b, "#00007f", "gold", 2)
@@ -404,6 +404,14 @@ class PoETask extends AhkObj {
             for i, e in favours.getChilds() {
                 e.item.price := $(e.item)
                 this.displayItemPrice(e, true)
+            }
+        }
+
+        purchase := ptask.getPurchase()
+        if (purchase.isOpened()) {
+            for i, e in purchase.getChilds() {
+                e.item.price := $(e.item)
+                this.displayItemPrice(e)
             }
         }
 
