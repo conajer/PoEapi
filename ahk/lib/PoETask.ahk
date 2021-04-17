@@ -104,6 +104,13 @@ class PoETask extends AhkObj {
                 this.setOffset(catalog, key, value)
         }
 
+        ; Configure plugins
+        plugins := this.getPlugins()
+        for name, options in PluginOptions {
+            for key, value in options
+                plugins[name][key] := value
+        }
+
         ; Start PoE task
         this.start()
 
@@ -138,13 +145,6 @@ class PoETask extends AhkObj {
 
                 WinMove, % "ahk_id " hwnd,, x, y, w, h
             }
-        }
-
-        ; Configure plugins
-        plugins := this.getPlugins()
-        for name, options in PluginOptions {
-            for key, value in options
-                plugins[name][key] := value
         }
 
         this.nav := new Navi()
