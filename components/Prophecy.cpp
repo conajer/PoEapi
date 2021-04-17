@@ -5,7 +5,7 @@
 /* Prophecy component offsets */
 
 static std::map<string, int> prophecy_component_offsets {
-    {"base",               0x20},
+    {"base",               0x18},
         {"id_string",       0x0},
         {"prediction_text", 0x8},
         {"id",             0x10},
