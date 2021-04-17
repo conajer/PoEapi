@@ -64,11 +64,13 @@ class About extends WebGui {
     }
 
     onclick(e) {
-        switch (e.srcElement.href) {
-        case "#github": url := "https://github.com/conajer/PoEapi"
-        case "#latest_version": url := "https://github.com/conajer/PoEapi/releases/latest"
-        case "#donate": url := "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TDU8JSQAXNTU6&currency_code=USD"
-        }
+        href := e.srcElement.href
+        if (href ~= "#github")
+            url := "https://github.com/conajer/PoEapi"
+        else if (href ~= "#latest_version")
+            url := "https://github.com/conajer/PoEapi/releases/latest"
+        else if (href ~= "#donate")
+            url := "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TDU8JSQAXNTU6&currency_code=USD"
         Run, % url
     }
 }
