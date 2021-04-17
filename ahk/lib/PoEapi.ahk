@@ -45,6 +45,7 @@ global WM_NEW_MONSTER      := 0x9014
 global WM_PTASK_ATTACHED   := 0x9100
 global WM_PTASK_ACTIVE     := 0x9101
 global WM_PTASK_LOADED     := 0x9102
+global WM_PTASK_EXIT       := 0x9103
 
 ; Register PoEapi classes
 ahkpp_register_class(PoETask)
