@@ -47,10 +47,12 @@ public:
                 if (n > 2) {
                     shared_ptr<Element> player = last_notification->get_child(std::vector<int>{0, 0, 1});
                     shared_ptr<Element> notification_text = last_notification->get_child(std::vector<int>{0, 1});
-                    last_notification->text = player->get_text() + L" " + notification_text->get_text();
+                    if (notification_text)
+                        last_notification->text = player->get_text() + L" " + notification_text->get_text();
                 } else {
                     shared_ptr<Element> notification_text = last_notification->get_child(0);
-                    last_notification->text = notification_text->get_text();
+                    if (notification_text)
+                        last_notification->text = notification_text->get_text();
                 }
 
                 return &last_notification->get_text();

@@ -12,7 +12,7 @@ public:
     Chat(addrtype address) : Element(address) {
         get_childs();
         messages = get_child(std::vector<int>{1, 2, 1});
-        index = messages->child_count();
+        index = messages ? messages->child_count() : 0;
 
         add_method(L"isOpened", this, (MethodType)&Chat::is_opened, AhkBool);
         add_method(L"hasNext", this, (MethodType)&Chat::has_next, AhkBool);
@@ -24,6 +24,9 @@ public:
     }
 
     bool has_next() {
+        if (!messages)
+            return false;
+
         int n = messages->child_count();
         if (n < index) {
             if (n > 500) {
@@ -41,16 +44,18 @@ public:
     }
 
     wstring* next_message() {
-        if (messages->child_count() > index) {
-            last_message = messages->get_child(index++);
-            if (last_message)
-                return &last_message->get_text();
+        if (messages) {
+            if (messages->child_count() > index) {
+                last_message = messages->get_child(index++);
+                if (last_message)
+                    return &last_message->get_text();
+            }
         }
 
         return nullptr;
     }
 
     int count() {
-        return messages->child_count();
+        return messages ? messages->child_count() : 0;
     }
 };
