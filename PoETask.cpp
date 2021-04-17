@@ -94,6 +94,7 @@ public:
         add_method(L"setOffset", this, (MethodType)&PoETask::set_offset, AhkVoid, ParamList{AhkWString, AhkString, AhkInt});
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
+        add_method(L"getBuffs", this, (MethodType)&PoETask::get_buffs, AhkObject);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
         add_method(L"bindHud", (PoE*)this, (MethodType)&PoE::bind_hud, AhkVoid, ParamList{AhkUInt});
         add_method(L"__logout", (PoE*)this, (MethodType)&PoE::logout, AhkVoid);
@@ -537,13 +538,24 @@ public:
         return false;
     }
 
+    AhkObjRef* get_buffs() {
+        if (local_player) {
+            Buffs* buffs = local_player->get_component<Buffs>();
+            if (buffs) {
+                AhkTempObj temp_buffs;
+                for (auto& i : buffs->get_buffs())
+                    temp_buffs.__set(L"", i.first.c_str(), AhkWString, nullptr);
+                return temp_buffs;
+            }
+        }
+
+        return nullptr;
+    }
+
     int has_buff(wchar_t* name) {
         if (local_player) {
-            Life* life = local_player->get_component<Life>();
-            auto& buffs = life->get_buffs();
-            auto i = buffs.find(name);
-            if (i != buffs.end())
-                return i->second.charges();
+            Buffs* buffs = local_player->get_component<Buffs>();
+            return buffs ? buffs->has_buff(name) : 0;
         }
 
         return 0;
@@ -592,6 +604,7 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 
 int main(int argc, char* argv[]) {
     SetProcessDPIAware();
+    ptask.reset();
     ptask.list_game_states();
     ptask.start();
     ptask.join();
