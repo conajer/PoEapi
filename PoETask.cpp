@@ -390,6 +390,8 @@ public:
                     hud->clear();
                     hud->end_draw();
                 }
+
+                PostThreadMessage(owner_thread_id, WM_PTASK_EXIT, (WPARAM)0, (LPARAM)0);
             }
 
             // increase the delay of timers when PoE isn't in game state.

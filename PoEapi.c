@@ -29,6 +29,7 @@ enum MessageTypes {
     WM_PTASK_ATTACHED =  0x9100,
     WM_PTASK_ACTIVE,
     WM_PTASK_LOADED,
+    WM_PTASK_EXIT,
 };
 
 int major_version = 0;
