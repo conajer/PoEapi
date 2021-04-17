@@ -76,7 +76,7 @@ static std::map<string, int> actor_component_offsets {
     {"action_id",    0x208},
     {"action_count", 0x20a},
     {"vaal_skills",  0x6b0},
-    {"skills",       0x680},
+    {"skills",       0x690},
 };
 
 class Actor : public Component {
@@ -100,7 +100,7 @@ public:
 
     int action_id() {
         int tmp_action_id = read<short>("action_id");
-        if (tmp_action_id) {
+        if (tmp_action_id & ACTION_USING_SKILL) {
             addrtype addr = read<addrtype>("action", "skill");
             if (!skill || addr != skill->address) {
                 auto i = skills.find(addr);
