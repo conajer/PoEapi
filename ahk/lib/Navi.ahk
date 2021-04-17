@@ -307,6 +307,10 @@ class Navi extends WebGui {
         this.killStats := this.document.querySelector("#kill_stats")
         this.areaTime := this.document.querySelector("#area_time")
         this.kc := ptask.getPlugin("KillCounter")
+        if (Not this.kc.enabled) {
+            this.document.querySelector("#kill_counter").style.display := "none"
+            this.document.querySelector(".exp").style.display := "none"
+        }
         this.onMessage(WM_KILL_COUNTER, "onKillCounter")
         this.onMessage(WM_AREA_CHANGED, "onAreaChanged")
 
@@ -410,11 +414,18 @@ class Navi extends WebGui {
         stat := this.kc.getStat()
         this.usedTime := stat ? stat.usedTime : 0
         this.enterTime := A_Tickcount
+
+        if (this.kc.enabled) {
+            exp := this.document.querySelector(".exp")
+            , exp.style.display := ptask.InMap ? "table-cell" : "none"
+        }
     }
 
     onKillCounter(wParam, lParam) {
-        level := lparam & 0xff
-        , gainedExp := (lParam >> 16) * 100 / levelExp[level]
-        , this.window.setKills(wParam & 0xffff, wParam >> 16, Format("{:+.3f}%", gainedExp))
+        try {
+            level := lparam & 0xff
+            , gainedExp := (lParam >> 16) * 100 / levelExp[level]
+            , this.window.setKills(wParam & 0xffff, wParam >> 16, Format("{:+.3f}%", gainedExp))
+        } catch {}
     }
 }
