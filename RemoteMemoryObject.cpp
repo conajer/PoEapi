@@ -168,6 +168,7 @@ Factory<RemoteMemoryObject> RemoteMemoryObject::factory = {
     NEW_ENTRY(InGameState),
     NEW_ENTRY(Actor),
     NEW_ENTRY(Base),
+    NEW_ENTRY(Buffs),
     NEW_ENTRY(Charges),
     NEW_ENTRY(Chest),
     NEW_ENTRY(Flask),
