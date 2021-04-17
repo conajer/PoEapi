@@ -165,7 +165,7 @@ public:
 
     bool is_visible() {
         if (!get_parent() || parent->is_visible())
-            return read<byte>("is_visible") & 0x4;
+            return read<byte>("is_visible") & 0x8;
         return false;
     }
 
