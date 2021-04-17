@@ -51,10 +51,13 @@ class AhkGui {
             if (msg == 0x112 && wParam != 0xf060)
                 return
 
+            this.document.close()
+            this.document.write("")
             hwnd := this.Hwnd
             Gui, %hwnd%:Destroy
             for number, handler in this.__handlers
                 OnMessage(number, handler, 0)
+            this.__handlers := ""
         }
     }
 
