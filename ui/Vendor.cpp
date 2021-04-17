@@ -4,7 +4,7 @@
 
 static std::map<string, int> vendor_offsets {
     {"service",  0x268},
-        {"list", 0x408},
+        {"list", 0x418},
     {"name",     0x278},
 };
 

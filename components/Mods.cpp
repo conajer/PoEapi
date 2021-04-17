@@ -58,10 +58,10 @@ static std::map<string, int> mods_component_offsets {
     {"explicit_stats",  0x1f0},
     {"crafted_stats",   0x208},
     {"fractured_stats", 0x220},
-    {"item_level",      0x484},
-    {"required_level",  0x488},
-    {"is_mirrored",     0x481},
-    {"is_synthesised",  0x4a6},
+    {"item_level",      0x48c},
+    {"required_level",  0x490},
+    {"is_mirrored",     0x489},
+    {"is_synthesised",  0x4ae},
 };
 
 class Mods : public Component {
@@ -105,7 +105,7 @@ public:
 
         case 2:
         case 3:
-            for (auto addr : read_array<addrtype>("unique_name", 0x8, 0x10))
+            for (auto addr : read_array<addrtype>("unique_name", 0x0, 0x10))
                 unique_name += PoEMemory::read<wstring>(addr + 0x30, 32);
         }
 
@@ -128,9 +128,9 @@ public:
         if (!explicit_mods.empty())
             return;
 
-        implicit_mods = read_array<Modifier>("implicit_mods", 0x20, 0x28);
-        enchant_mods = read_array<Modifier>("enchant_mods", 0x20, 0x28);
-        explicit_mods = read_array<Modifier>("explicit_mods", 0x20, 0x28);
+        implicit_mods = read_array<Modifier>("implicit_mods", 0x18, 0x28);
+        enchant_mods = read_array<Modifier>("enchant_mods", 0x18, 0x28);
+        explicit_mods = read_array<Modifier>("explicit_mods", 0x18, 0x28);
     }
 
     void get_stats() {
