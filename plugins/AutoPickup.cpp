@@ -32,7 +32,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.10") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.11") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -98,12 +98,15 @@ public:
             int ilvl = item.get_item_level();
             switch (strict_level) {
                 case 0:
-                    if (rarity == 2 && !item.is_identified() && (ilvl >= 60 && ilvl < 75))
+                    if (rarity == 2 && (ilvl >= 60 && ilvl < 75)
+                        && !item.is_identified() && item.get_size() <= 6)
                         return true;
 
                 case 1:
                     if (rarity == 3 || item.get_sockets() == 6 || item.is_rgb())
                         return true;
+                    if (item.has_component("SkillGem"))
+                        return (item.get_quality() >= 5);
                     if (std::regex_search(item.base_name(), generic_item_filter))
                         return true;
 
@@ -208,6 +211,9 @@ public:
         if (PtInRect(&bounds, {pos.x, pos.y})) {
             poe->mouse_click(pos);
             last_pickup = GetTickCount();
+        } else {
+            ignored_entities[selected_item->id] = selected_item;
+            selected_item = nullptr;
         }
     }
 };
