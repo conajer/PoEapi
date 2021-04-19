@@ -456,9 +456,7 @@ public:
     }
 
     int get_size() {
-        int w = base->width();
-        int h = base->height();
-        return (w << 16) & h;
+        return base ? base->size() : 1;
     }
 
     int get_influence_type() {
@@ -469,6 +467,10 @@ public:
         AhkTempObj temp_mods;
         if (mods) {
             mods->get_mods();
+            for (auto& i : mods->enchant_mods)
+                temp_mods.__set(L"", i.id.c_str(), AhkWString, nullptr);
+            for (auto& i : mods->implicit_mods)
+                temp_mods.__set(L"", i.id.c_str(), AhkWString, nullptr);
             for (auto& i : mods->explicit_mods)
                 temp_mods.__set(L"", i.id.c_str(), AhkWString, nullptr);
         }
