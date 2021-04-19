@@ -7,7 +7,7 @@
 static std::map<string, int> base_component_offsets {
     {"internal",       0x10},
         {"x_cells",    0x10},
-        {"y_cells",    0x14},
+        {"y_cells",    0x11},
         {"name",       0x18},
     {"influence_type", 0xd6},
     {"is_corrupted",   0xd7},
@@ -38,16 +38,16 @@ public:
     }
 
     int width() {
-        return read<int>("internal", "x_cells");
+        return read<byte>("internal", "x_cells");
     }
 
     int height() {
-        return read<int>("internal", "y_cells");
+        return read<byte>("internal", "y_cells");
     }
 
     int size() {
-        int w = read<int>("internal", "x_cells");
-        int h = read<int>("internal", "y_cells");
+        int w = read<byte>("internal", "x_cells");
+        int h = read<byte>("internal", "y_cells");
 
         return w * h;
     }
