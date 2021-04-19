@@ -37,6 +37,9 @@ public:
     }
 
     int links() {
+        if (number_of_sockets == 0)
+            sockets();
+        
         if (number_of_links == 0) {
             int rgb = 0, i = 0;
 
