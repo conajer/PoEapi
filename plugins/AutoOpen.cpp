@@ -107,10 +107,13 @@ public:
             switch (index) {
             case 0: { // Chest
                 if (dist <= range && chest_enabled) {
+                    if (std::regex_search(i.second->name(), ignored_chests))
+                        break;
+
                     if (delve_chest_only) {
                         if ((i.second->path.find(L"DelveChest") == wstring::npos))
                             break;
-                    } else if (std::regex_search(i.second->name(), ignored_chests) || (i.second->path.find(L"HeistChest") != wstring::npos)) {
+                    } else if (i.second->path.find(L"HeistChest") != wstring::npos) {
                         break;
                     }
 
