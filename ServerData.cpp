@@ -108,6 +108,8 @@ public:
 
         add_method(L"count", this, (MethodType)&InventorySlot::count, AhkInt);
         add_method(L"freeCells", this, (MethodType)&InventorySlot::free_cells, AhkInt);
+        add_method(L"nextCell", this, (MethodType)&InventorySlot::next_cell, AhkInt, ParamList{AhkInt, AhkInt});
+        add_method(L"getLayout", this, (MethodType)&InventorySlot::get_layout, AhkObject);
         add_method(L"getItemByIndex", this, (MethodType)&InventorySlot::__get_item_by_index, AhkObject, ParamList{AhkInt});
         add_method(L"getItems", this, (MethodType)&InventorySlot::__get_items, AhkObject);
     }
@@ -136,6 +138,50 @@ public:
         return free_cells;
     }
 
+    AhkObjRef* get_layout() {
+        AhkObj layout;
+
+        std::unordered_map<int, shared_ptr<InventoryCell>> removed_cells;
+        removed_cells.swap(cells);
+
+        int n = 0, l = 0;
+        for (auto addr : read_array<addrtype>("cells", 0x0, 8)) {
+            l <<= 1;
+            l |= addr ? 1 : 0;
+            if (++n == cols) {
+                layout.__set(L"", l, AhkInt, nullptr);
+                n = 0;
+                l = 0;
+            }
+        }
+        __set(L"layout", (AhkObjRef*)layout, AhkObject, nullptr);
+
+        return layout;
+    }
+
+    int next_cell(int width = 1, int height = 1) {
+        auto all_cells = read_array<addrtype>("cells", 0x0, 8);
+        for (int l = 0; l < cols; ++l)
+            for (int t = 0; t < rows; ++t) {
+                if (all_cells[t * cols + l] == 0) {
+                    if (l + width <= cols && t + height <= rows) {
+                        int w, h;
+
+                        for (w = 1; w < width; ++w)
+                            if (all_cells[t * cols + l + w] > 0)
+                                break;
+                        for (h = 1; h < height; ++h)
+                            if (all_cells[(t + h) * cols + l] > 0)
+                                break;
+                        if (w == width && h == height)
+                            return l * rows + t + 1;
+                    }
+                }
+            }
+
+        return 0;
+    }
+
     std::unordered_map<int, shared_ptr<InventoryCell>>& get_cells() {
         std::unordered_map<int, shared_ptr<InventoryCell>> removed_cells;
         removed_cells.swap(cells);
@@ -145,6 +191,9 @@ public:
                 if (addr > 0) {
                     shared_ptr<InventoryCell> cell(new InventoryCell(addr));
                     int index = cell->x * rows + cell->y + 1;
+                    if (cells.find(index) != cells.end())
+                        continue;
+
                     auto i = removed_cells.find(index);
                     if (i == removed_cells.end() || i->second->address != addr) {
                         cells[index] = cell;
