@@ -47,7 +47,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
-global version := "1.1.0"
+global version := "1.1.1"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -59,7 +59,9 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
+#Include, %A_ScriptDir%\extras\debug.ahk
 #Include, %A_ScriptDir%\extras\vendoring.ahk
+#Include, %A_ScriptDir%\extras\Minimap.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
@@ -113,8 +115,7 @@ objdump(obj, prefix = "", depth = 0) {
         base := base.base
     }
 
-    if (depth == 0)
-        debug("{}{:#x}{}:", prefix, &obj, baseClasses)
+    debug("{}{:#x}{}:", prefix, &obj, baseClasses)
     for k, v in obj {
         try {
             debug("{}   {}{}, {}", prefix, IsObject(v) ? "*" : " ", k, IsObject(v) ? v.Count() : v)
@@ -134,6 +135,8 @@ return
 
 AutoPickup:
     ptask.levelupGems()
+    if (Not ptask.hasBuff("flask_utility_sprint"))
+        SendInput, {5}
     ptask.beginPickup()
 return
 
@@ -225,22 +228,35 @@ return
 #IfWinActive
 
 ^r::
-Reload:
+Reload() {
     Reload
-return
+}
 
 ^q::
-ExitApp:
+ExitApp() {
     ExitApp
-return
+}
 
 ~^c::
     Sleep, 100
     if (Clipboard) {
-        if (SubStr(Clipboard, 1, 7) == "Rarity:") {
+        if (SubStr(Clipboard, 1, 11) == "Item Class:") {
             MsgBox, 0, Item Info, %clipboard%
-            RegExMatch(Clipboard, "Rarity:[^\n]*\n([^\n]+)", matched)
+            RegExMatch(Clipboard, "Rarity: [^\n]*\n([^\n]+)", matched)
             Clipboard := matched1
+        }
+    }
+return
+
+^w::
+    SendInput, ^{c}
+    Sleep, 100
+    if (Clipboard) {
+        if (SubStr(Clipboard, 1, 11) == "Item Class:") {
+            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n]+)", matched)
+            if (matched1 ~= "Magic|Rare")
+                return
+            Run, % "https://pathofexile.fandom.com/wiki/" RegExReplace(matched2, " ", "_")
         }
     }
 return
@@ -253,4 +269,23 @@ return
 
 F12::
     logger.show()
+return
+
+F10::
+    map := ptask.inventory.getItemByIndex(1)
+    orb := ptask.inventory.findItem("Orb of Horizons")
+    objdump(item)
+    objdump(orb)
+    loop, 2 {
+        map := ptask.inventory.use(orb, map)
+        debug(map.getMods()[1])
+    }
+   ;for i, m in ptask.getEntities("Monster") {
+   ;    if (m.path ~= "HarvestNessaCrabT3") {
+   ;        Msgbox, % "Found!!!"
+   ;        return
+   ;    }
+   ;}
+   ;SendInput, {w}
+   ;Sleep, 1000
 return
