@@ -270,13 +270,11 @@ class Inventory extends InventoryGrid {
             Critical
             this.open()
             this.getItems()
-            loop, % this.rows * this.cols {
-                if (Not this.items[A_Index]) {
-                    this.moveTo(A_Index)
-                    Click
-                    Sleep, 100
-                    break
-                }
+            index := this.nextCell()
+            if (Not this.items[index]) {
+                this.moveTo(index)
+                Click
+                Sleep, 100
             }
         } finally {
             Critical off
@@ -370,7 +368,7 @@ class SpecialStashTab extends StashTab {
         if (this.type == 3)
             index := (index > 28) ? index - 1 : index
 
-        return this.getItemByIndex(index).getRect()
+        return this.getChilds()[index].getRect()
     }
 }
 
