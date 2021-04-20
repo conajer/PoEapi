@@ -146,7 +146,7 @@ class Character {
                 SendInput, %DropFlareKey%
         }
 
-        if (life < LifeThreshold) {
+        if (life < LifeThreshold && A_TickCount > this.lifeFlaskTime + 1000) {
             maxUses := 0
             for i, aFlask in this.flasks {
                 if (aFlask.IsLife) {
@@ -157,7 +157,10 @@ class Character {
                     }
                 }
             }
-            selected.use()
+            if (selected) {
+                selected.use()
+                this.lifeFlaskTime := A_Tickcount
+            }
         }
         this.life := life
     }
@@ -167,7 +170,7 @@ class Character {
         reserved := lParam >> 16
         mana := Round(mana * 100 / (maximum - reserved))
 
-        if (mana < ManaThreshold) {
+        if (mana < ManaThreshold && A_TickCount > this.manaFlaskTime + 1000) {
             maxUses := 0
             for i, aFlask in this.flasks {
                 if (aFlask.IsMana) {
@@ -178,7 +181,10 @@ class Character {
                     }
                 }
             }
-            selected.use()
+            if (selected) {
+                selected.use()
+                this.manaFlaskTime := A_Tickcount
+            }
         }
     }
 
