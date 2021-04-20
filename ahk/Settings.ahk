@@ -23,10 +23,14 @@
 ; Plugins
 global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                         , "AutoOpen"      : { "enabled" : true, "range" : 15
-                                            , "ignoredChests" : "Amphora" }
+                                            , "ignoredChests" : "Amphora"
+                                            , "chest"   : true
+                                            , "delveChestOnly" : true
+                                            , "door"    : true }
                         , "AutoPickup"    : { "enabled" : true, "range" : 50
                                             , "ignoreChests"      : false
-                                            , "genericItemFilter" : "Blueprint|Contract|Incubator|Scarab$|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
+                                            , "strictLevel"       : 0
+                                            , "genericItemFilter" : "Incubator|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
                                             , "rareItemFilter"    : "Jewel|Amulet|Ring|Belt" }
                         , "KillCounter"   : { "enabled" : true, "radius" : 50 }
                         , "MinimapSymbol" : { "enabled" : true
