@@ -25,18 +25,16 @@ class Flask {
         ChargesInfo := item.components["Charges"]
 
         increased := reduced := 0
-        for i, affix in item.getAffixes() {
-            if (RegExMatch(affix, "Catalysed", matched))
-                increased += 50
-            else if (RegExMatch(affix, "Bubbling", matched))
-                increased += 135
-            else if (RegExMatch(affix, "Experimenter's", matched))
-                increased += 40
-            else if (RegExMatch(affix, "Alchemist's", matched))
-                increased -= 33
-            else if (RegExMatch(affix, "Chemist's", matched))
-                reduced += 20
-        }
+        if (RegExMatch(item.name, "Catalysed", matched))
+            increased += 50
+        else if (RegExMatch(item.name, "Bubbling", matched))
+            increased += 135
+        else if (RegExMatch(item.name, "Experimenter's", matched))
+            increased += 40
+        else if (RegExMatch(item.name, "Alchemist's", matched))
+            increased -= 33
+        else if (RegExMatch(item.name, "Chemist's", matched))
+            reduced += 25
 
         this.maxCharges := ChargesInfo.maxCharges
         this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 - reduced) / 100)
