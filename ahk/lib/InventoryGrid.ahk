@@ -126,8 +126,16 @@ class InventoryGrid extends Element {
         return new Rect(x, y, w + 1, h + 1)
     }
 
+    getLayout() {
+        return ptask.inventories[this.id].getLayout()
+    }
+
     freeCells() {
         return ptask.inventories[this.id].freeCells()
+    }
+
+    nextCell(w = 1, h = 1) {
+        return ptask.inventories[this.id].nextCell(w, h)
     }
 
     getChilds() {
