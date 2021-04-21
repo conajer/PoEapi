@@ -47,7 +47,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
-global version := "1.1.1"
+global version := "1.1.2"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -59,9 +59,7 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
-#Include, %A_ScriptDir%\extras\debug.ahk
 #Include, %A_ScriptDir%\extras\vendoring.ahk
-#Include, %A_ScriptDir%\extras\Minimap.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
@@ -135,8 +133,6 @@ return
 
 AutoPickup:
     ptask.levelupGems()
-    if (Not ptask.hasBuff("flask_utility_sprint"))
-        SendInput, {5}
     ptask.beginPickup()
 return
 
@@ -269,23 +265,4 @@ return
 
 F12::
     logger.show()
-return
-
-F10::
-    map := ptask.inventory.getItemByIndex(1)
-    orb := ptask.inventory.findItem("Orb of Horizons")
-    objdump(item)
-    objdump(orb)
-    loop, 2 {
-        map := ptask.inventory.use(orb, map)
-        debug(map.getMods()[1])
-    }
-   ;for i, m in ptask.getEntities("Monster") {
-   ;    if (m.path ~= "HarvestNessaCrabT3") {
-   ;        Msgbox, % "Found!!!"
-   ;        return
-   ;    }
-   ;}
-   ;SendInput, {w}
-   ;Sleep, 1000
 return
