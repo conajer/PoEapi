@@ -197,7 +197,7 @@ public:
                 continue;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x10);
-            int entity_id = PoEMemory::read<int>(entity_address + 0x58);
+            int entity_id = PoEMemory::read<int>(entity_address + 0x60);
             auto i = removed.find(entity_id);
             if (i != removed.end()) {
                 entities.insert(*i);

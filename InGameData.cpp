@@ -46,7 +46,7 @@ protected:
     std::queue<addrtype> nodes;
 
     int get_entity_id(addrtype address) {
-        return PoEMemory::read<int>(address + 0x58);
+        return PoEMemory::read<int>(address + 0x60);
     }
 
     wstring get_entity_path(addrtype address) {
