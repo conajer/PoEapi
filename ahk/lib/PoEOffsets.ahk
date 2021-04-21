@@ -2,7 +2,7 @@
 ; PoEOffsets.ahk 1/6/2021 10:45 AM
 ;
 
-global PoEOffsets = { "version" : "3.13.1b", "offsets"
+global PoEOffsets = { "version" : "3.14.0c", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         ,     "current"                 : 0x0
                         , "game_states"                 : 0x48
@@ -16,18 +16,18 @@ global PoEOffsets = { "version" : "3.13.1b", "offsets"
                         , "ui_root"                     : 0x548
                         , "time_in_game"                : 0x5f4
                         , "load_stage2"                 : 0x608
-                        , "camera"                      : 0x1088
-                        , "width"                       : 0x1090
-                        , "height"                      : 0x1094
-                        , "matrix"                      : 0x1148 }
+                        , "camera"                      : 0x1080
+                        , "width"                       : 0x1088
+                        , "height"                      : 0x108c
+                        , "matrix"                      : 0x1140 }
                       
-      , "IngameData"  : { "world_area"                  : 0x78
-                        , "area_level"                  : 0x98
-                        , "area_hash"                   : 0xfc
-                        , "local_player"                : 0x470
-                        , "entity_list"                 : 0x518
+      , "IngameData"  : { "world_area"                  : 0x80
+                        , "area_level"                  : 0xa0
+                        , "area_hash"                   : 0x104
+                        , "local_player"                : 0x478
+                        , "entity_list"                 : 0x520
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x520 }
+                        , "entity_list_count"           : 0x528 }
                       
       , "IngameUI"    : { "inventory"                   : 0x538
                         ,     "grid"                    : 0x3a8
@@ -50,7 +50,7 @@ global PoEOffsets = { "version" : "3.13.1b", "offsets"
                         , "trade"                       : 0x680
                         , "favours"                     : 0x7f0
                         , "gem_level_up"                : 0x998
-                        , "notifications"               : 0x950 }
+                        , "notifications"               : 0x958 }
                       
       , "ServerData"  : { "player_data"                 : 0x7d18
                         ,     "passive_skills"          : 0x160
@@ -69,7 +69,7 @@ global PoEOffsets = { "version" : "3.13.1b", "offsets"
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
                         , "component_list"              : 0x10
-                        , "id"                          : 0x58 }
+                        , "id"                          : 0x60 }
                       
       , "Element"     : { "self"                        : 0x18
                         , "childs"                      : 0x38
