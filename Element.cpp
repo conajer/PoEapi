@@ -140,10 +140,7 @@ public:
             for (int i = 0; i < childs.size(); ++i) {
                 if (!vec[i])
                     childs[i].reset();
-                else if (childs[i])
-                    childs[i]->address = vec[i],
-                    childs[i]->__set(L"address", vec[i], AhkPointer, nullptr);
-                else
+                else if (vec[i] != childs[i]->address)
                     childs[i] = shared_ptr<Element>(new Element(vec[i]));
             }
         } else {
