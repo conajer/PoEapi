@@ -390,8 +390,10 @@ class PoETask extends AhkObj {
         shift := GetKeyState("Shift")
         this.c.clear()
         if (this.stash.isOpened()) {
-            for i, e in this.stash.Tab.getChilds()
-                this.displayItemPrice(e, shift)
+            for i, e in this.stash.Tab.getChilds() {
+                if (e.isVisible())
+                    this.displayItemPrice(e, shift)
+            }
         }
 
         if (this.inventory.isOpened()) {
