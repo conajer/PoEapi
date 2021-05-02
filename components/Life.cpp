@@ -30,7 +30,7 @@ public:
         if (maximum) {
             *maximum = read<int>("maximum_life");;
             if (reserved) {
-                int reserved_percent = read<int>("reserved_life_percent");
+                float reserved_percent = read<int>("reserved_life_percent") / 100.;
                 int reserved_flat = read<int>("reserved_life_flat");
                 *reserved = reserved_flat + *maximum * reserved_percent / 100. + 0.99;
             }
@@ -43,7 +43,7 @@ public:
         if (maximum) {
             *maximum = read<int>("maximum_mana");
             if (reserved) {
-                int reserved_percent = read<int>("reserved_mana_percent");
+                float reserved_percent = read<int>("reserved_mana_percent") / 100.;
                 int reserved_flat = read<int>("reserved_mana_flat");
                 *reserved = reserved_flat + *maximum * reserved_percent / 100. + 0.99;
             }
