@@ -12,7 +12,7 @@ struct AreaStat : public AhkObj {
     int player_level;
     std::time_t timestamp;
     unsigned int latest_exp;
-    unsigned int gained_exp = 0;
+    int gained_exp = 0;
     unsigned int latest_time;
     unsigned int used_time = 0;
     int kills[4] = {0, 0, 0, 0};
@@ -166,7 +166,10 @@ public:
             if (entity->is_monster) {
                 if (current_area->killed.find(i.first) == current_area->killed.end()
                     && nearby_monsters.find(i.first) != nearby_monsters.end())
-                    current_area->total.erase(i.first);
+                {
+                    current_area->killed.insert(i.first);
+                    current_area->kills[entity->rarity]++;
+                }
             }
         }
 
@@ -248,6 +251,7 @@ public:
             total_monsters = current_area->total.size();
             kills = current_area->killed.size();
             __int64 gained_exp = current_area->gained_exp + player->get_exp() - current_area->latest_exp;
+            gained_exp = (gained_exp << 32) >> 32;
             
             __int64 wparam = (total_monsters << 16) | kills;
             __int64 lparam = (gained_exp << 16) | current_area->player_level;
