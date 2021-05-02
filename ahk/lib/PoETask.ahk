@@ -162,6 +162,7 @@ class PoETask extends AhkObj {
             this.width := w
             this.height := h
             this.actionArea := new Rect(210, 90, w - 450, h - 260)
+            this.isActive := true
 
             this.nav.show()
             this.hud.show()
@@ -173,6 +174,7 @@ class PoETask extends AhkObj {
                 }
             }
             this.hud.clear()
+            this.isActive := false
         }
     }
 
