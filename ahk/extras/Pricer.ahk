@@ -43,38 +43,46 @@ class Pricer extends WebGui {
         this.onMessage(WM_AREA_CHANGED, "__onAreaChanged")
     }
 
-    addPrice(p) {
-        if (p.hasOwnProperty("chaosEquivalent")) {
-            this.prices[p.currencyTypeName] := {"value" : p.chaosEquivalent}
-        } else {
-            if (!lowConfidenceSparkline && p.sparkline.data.length == 0)
-                return
-
-            pName := p.name
-            if (p.mapTier && Not (p.name ~= "Essence of")) {
-                if (Not (p.name ~= p.baseType))
-                    this.prices[p.baseType " unique T" p.mapTier] := {"value" : p.chaosValue}
-                pName .= " T" p.mapTier
-            } else if (p.gemLevel && p.corrupted) {
-                if (p.gemQuality > 0 && p.gemQuality < 20)
-                    pName .= " " p.gemLevel "/0 corrupted"
-                else
-                    pName .= " " p.gemLevel "/" p.gemQuality " corrupted"
-            } else if (p.gemLevel) {
-                if (p.gemQuality > 0 && p.gemQuality < 20)
-                    pName .= " " p.gemLevel "/0"
-                else
-                    pName .= " " p.gemLevel "/" p.gemQuality
-            } else if (p.links) {
-                pName .= " " p.links "L"
-            } else if (p.variant) {
-                pName .= " " p.variant
+    addPrice(type, p) {
+        try {
+            if (p.hasOwnProperty("chaosEquivalent")) {
+                this.prices[p.currencyTypeName] := {"value" : p.chaosEquivalent}
+            } else {
+                if (!lowConfidenceSparkline && p.sparkline.data.length == 0)
+                    return
+                pName := p.name
+                switch type {
+                case "Map":
+                    if (Not (p.name ~= "Essence of")) {
+                        if (Not (p.name ~= p.baseType))
+                            this.prices[p.baseType " unique T" p.mapTier] := {"value" : p.chaosValue}
+                        pName .= " T" p.mapTier
+                    }
+                case "SkillGem":
+                    quality := p.hasOwnProperty("gemQuality") ? p.gemQuality : 0
+                    if (p.hasOwnProperty("corrupted")) {
+                        if (p.gemLevel > 1 && p.gemLevel < 20)
+                            this.prices[pName " " p.gemLevel "/0 corrupted"] := {"value" : p.chaosValue}
+                        pName .= " " p.gemLevel "/" quality " corrupted"
+                    } else {
+                        if (p.gemLevel > 1 && p.gemLevel < 20)
+                            this.prices[pName " " p.gemLevel "/0"] := {"value" : p.chaosValue}
+                        pName .= " " p.gemLevel "/" quality
+                    }
+                case "UniqueWeapon":
+                case "UniqueArmour":
+                    if (p.hasOwnProperty("links"))
+                        pName .= " " p.links "L"
+                case "BaseType":
+                    if (p.hasOwnProperty("variant"))
+                        pName .= " " p.variant
+                    if (p.levelRequired >= 82)
+                        pName .= " " p.levelRequired
+                }
+                
+                this.prices[pName] := {"value" : p.chaosValue}
             }
-            
-            if (p.levelRequired >= 82)
-                pName .= " " p.levelRequired
-
-            this.prices[pName] := {"value" : p.chaosValue}
+        } catch {
         }
     }
 
@@ -111,26 +119,28 @@ class Pricer extends WebGui {
                 for i in qNames
                     qNames[i] .= " corrupted"
             }
-        } else if (item.isMapFragment && item.rarity > 0) {
+        } else if (item.isMapFragment) {
             qNames[1] := item.baseName
         } else if (item.rarity == 3 && item.baseName ~= "Cluster Jewel") {
             mods := item.getMods()
             if (RegExMatch(mods[2], "ExpansionJewelEmptyPassiveUnique__?([0-9])", matched))
             qNames[1] .= " " (matched1 * 2 - 1) " passives"
-        } else if (item.links() >= 5) {
-            qNames[1] .= " " item.links() "L"
-        }
-        
-        if (item.rarity < 3 && (ilvl := item.itemLevel()) >= 82) {
-            ilvl := (ilvl >= 86) ? 86 : ilvl
-            qNames[1] := item.baseName
-            influence := item.getInfluenceType()
-            if (influence)
-                qNames[1] .= " " this.influenceTypes[Floor(Log(influence)/Log(2)) + 1]
+        } else {
+            if (item.links() >= 5) {
+                qNames[1] .= " " item.links() "L"
+            } else 
+            
+            if (item.rarity < 3 && (ilvl := item.itemLevel()) >= 82) {
+                ilvl := (ilvl >= 86) ? 86 : ilvl
+                qNames[1] := item.baseName
+                influence := item.getInfluenceType()
+                if (influence)
+                    qNames[1] .= " " this.influenceTypes[Floor(Log(influence)/Log(2)) + 1]
 
-            if (ilvl > 82)
-                qNames[2] := qNames[1] " " (ilvl - 1)
-            qNames[1] .= " " ilvl
+                if (ilvl > 82)
+                    qNames[2] := qNames[1] " " (ilvl - 1)
+                qNames[1] .= " " ilvl
+            }
         }
 
         for i, name in qNames {
@@ -141,7 +151,6 @@ class Pricer extends WebGui {
 
     update() {
         http := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-        callback := ObjBindMethod(this, "addPrice")
         for name, t in this.types {
             url := Format(this.url, t.catalog, this.league, t.type)
             try {
@@ -149,8 +158,9 @@ class Pricer extends WebGui {
                 http.Send()
                 http.WaitForResponse()
                 parsed := this.document.parentWindow.JSON.parse(http.ResponseText)
-                parsed.lines.forEach(callback)
+                callback := ObjBindMethod(this, "addPrice", t.type)
                 rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loading prices of {} ... {}</b>", name, parsed.lines.length)
+                parsed.lines.forEach(callback)
             } catch {}
         }
 
