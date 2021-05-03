@@ -87,7 +87,7 @@ tradeGems() {
     Sleep, 300
     tab := ptask.stash.Tab
     for i, item in tab.getItems() {
-        if (item.isGem && item.level < 19 && item.quality > 0 && item.quality < 18) {
+        if (item.isGem && item.price < 2 && item.level < 19 && item.quality > 0 && item.quality < 18) {
             tab.move(item)
             n += 1
         }
@@ -130,7 +130,7 @@ tradeDivinationCards() {
     if (n > 0 && ptask.getVendor().tradeDivinationCards()) {
         Sleep, 100
         ingameUI := ptask.getIngameUI()
-        ingameUI.getChild(61, 5).getPos(x, y)
+        ingameUI.getChild(62, 5).getPos(x, y)
         for i, item in ptask.inventory.getItems() {
             if (item.isDivinationCard && item.stackCount == item.stackSize) {
                 ptask.inventory.move(item)
@@ -259,7 +259,7 @@ dumpUselessItems() {
     tab := ptask.stash.Tab
     for i, e in tab.getChilds() {
         if (e.item && Not e.item.isCurrency) {
-            if (e.item.price && e.item.price < 1) {
+            if (e.item.price && e.item.stackCount == 1 && e.item.price <= 1) {
                 debug("{}, {}", e.item.name, e.item.price)
                 e.getPos(x, y)
                 MouseMove, x, y, 0
@@ -351,7 +351,7 @@ sortItems() {
 
         tab.moveTo(A_Index)
         SendInput, {Click}
-        Sleep, 30
+        Sleep, 50
         ;if (items[A_Index])
         ;    debug("    Replaced " A_Index ", " items[A_Index].Name)
         ;else
