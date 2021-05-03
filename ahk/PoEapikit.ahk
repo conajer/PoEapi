@@ -235,13 +235,31 @@ ExitApp() {
 }
 
 ~^c::
+~^+c::
     Sleep, 100
     if (Clipboard) {
         if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-            MsgBox, 0, Item Info, %clipboard%
-            RegExMatch(Clipboard, "Rarity: [^\n]*\n([^\n]+)", matched)
-            Clipboard := matched1
+            if (GetKeyState("Shift")) {
+                MsgBox, 0, Item Info, %clipboard%
+            } else {
+                RegExMatch(Clipboard, "Rarity: [^\n]*\n([^\n]+)", matched)
+                Clipboard := matched1
+            }
         }
+    }
+return
+
+*^f::
+    SendInput, ^{c}
+    SendInput, ^{f}
+    Sleep, 100
+    if (Clipboard) {
+        if (SubStr(Clipboard, 1, 11) == "Item Class:") {
+            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n]+)", matched)
+            if (ptask.stash.isOpened())
+                SendInput, %matched2%
+        }
+        Clipboard := ""
     }
 return
 
