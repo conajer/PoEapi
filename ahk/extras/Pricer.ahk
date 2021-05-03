@@ -96,8 +96,11 @@ class Pricer extends WebGui {
                 qNames[1] := item.baseName
             if (item.isBlighted())
                 qNames[1] := "Blighted " item.baseName
-            if (item.rarity == 3 && Not item.isIdentified)
-                qNames[1] := qName " unique"
+            if (item.rarity == 3) {
+                if (Not item.isIdentified)
+                    qNames[1] := item.baseName " unique"
+                qNames[2] := item.name
+            }
             qNames[1] .= " T" item.tier
         } else if (item.isGem) {
             level := item.level
