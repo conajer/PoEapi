@@ -96,7 +96,7 @@ public:
                 continue;
 
             int dist = player->dist(*i.second);
-            if (dist > 2 * range)
+            if (dist > 4 * range)
                 continue;
 
             Targetable* targetable = i.second->get_component<Targetable>();
@@ -126,7 +126,7 @@ public:
 
             case 1: { // MinimapIcon
                 MinimapIcon* minimap_icon = i.second->get_component<MinimapIcon>();
-                if (std::regex_search(minimap_icon->name(), entity_names))
+                if (dist <= 2 * range && std::regex_search(minimap_icon->name(), entity_names))
                     try_open(i.second.get());
                 break;
             }
@@ -141,7 +141,7 @@ public:
             }
 
             case 3: // Transitionable
-                if (std::regex_search(i.second->name(), entity_names))
+                if (dist <= 2 * range && std::regex_search(i.second->name(), entity_names))
                     try_open(i.second.get());
                 break;
 
