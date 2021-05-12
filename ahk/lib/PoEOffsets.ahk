@@ -14,12 +14,12 @@ global PoEOffsets = { "version" : "3.14.0c", "offsets"
                         , "in_game_data"                : 0x30
                         , "server_data"                 : 0x420
                         , "ui_root"                     : 0x548
-                        , "time_in_game"                : 0x5f4
-                        , "load_stage2"                 : 0x608
-                        , "camera"                      : 0x1080
-                        , "width"                       : 0x1088
-                        , "height"                      : 0x108c
-                        , "matrix"                      : 0x1140 }
+                        , "time_in_game"                : 0x5fc
+                        , "load_stage2"                 : 0x610
+                        , "camera"                      : 0x1088
+                        , "width"                       : 0x1090
+                        , "height"                      : 0x1094
+                        , "matrix"                      : 0x1148 }
                       
       , "IngameData"  : { "world_area"                  : 0x80
                         , "area_level"                  : 0xa0
