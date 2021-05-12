@@ -47,7 +47,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
-global version := "1.1.3"
+global version := "1.2.0"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -138,9 +138,13 @@ AutoPickup:
 return
 
 AutoClick() {
+    global clickerEnabled
+
     MouseGetPos, x0, y0
     Loop {
-        if (Not GetKeyState("Ctrl", "P"))
+        if (Not clickerEnabled && Not GetKeyState("LButton", "P"))
+            break
+        if (Not GetKeyState("Ctrl", "P") && Not GetKeyState("Shift", "P"))
             break
 
         MouseGetPos, x, y
@@ -149,12 +153,15 @@ AutoClick() {
 
         x0 := x
         y0 := y
-        if (GetKeyState("Shift", "P"))
-            SendInput, ^+{Click}
-        else
+        if (GetKeyState("Shift", "P")) {
+            SendInput, +{Click}
+            Sleep, 100
+        } else {
             SendInput, ^{Click}
+        }
         Sleep, 30
     }
+    clickerEnabled := false
 }
 
 ~LButton::
@@ -198,9 +205,14 @@ return
     ptask.sendKeys("/menagerie")
 return
 
+~+LButton::
+    SetTimer, AutoClick, -200
+return
+
 ~^LButton::
     If (A_PriorHotKey = A_ThisHotKey and A_TimeSincePriorHotkey < 200)
-        SetTimer, AutoClick, -200
+        clickerEnabled := true
+    SetTimer, AutoClick, -30
 return
 
 #d::
@@ -222,18 +234,6 @@ return
     ptask.showPrices()
 return
 
-#IfWinActive
-
-^r::
-Reload() {
-    Reload
-}
-
-^q::
-ExitApp() {
-    ExitApp
-}
-
 ~^c::
 ~^+c::
     Sleep, 100
@@ -242,7 +242,7 @@ ExitApp() {
             if (GetKeyState("Shift")) {
                 MsgBox, 0, Item Info, %clipboard%
             } else {
-                RegExMatch(Clipboard, "Rarity: [^\n]*\n([^\n]+)", matched)
+                RegExMatch(Clipboard, "Rarity: [^\n]*\n([^\n\r]+)", matched)
                 Clipboard := matched1
             }
         }
@@ -250,17 +250,19 @@ ExitApp() {
 return
 
 *^f::
+    savedClipboard := Clipboard
+    Clipboard := ""
     SendInput, ^{c}
     SendInput, ^{f}
     Sleep, 100
     if (Clipboard) {
         if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n]+)", matched)
+            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n\r]+)", matched)
             if (ptask.stash.isOpened())
-                SendInput, %matched2%
+                SendInput, %matched2%{Enter}
         }
-        Clipboard := ""
     }
+    Clipboard := savedClipboard
 return
 
 ^w::
@@ -268,7 +270,7 @@ return
     Sleep, 100
     if (Clipboard) {
         if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n]+)", matched)
+            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n\r]+)", matched)
             if (matched1 ~= "Magic|Rare")
                 return
             Run, % "https://pathofexile.fandom.com/wiki/" RegExReplace(matched2, " ", "_")
@@ -281,6 +283,18 @@ return
     PixelGetColor, bgr, tempX, tempY
     MsgBox, % "Width:" ptask.Width " Hieght:" ptask.Height "`nX=" tempX " Y=" tempY "`nColor=" bgr
 return
+
+#IfWinActive
+
+^r::
+Reload() {
+    Reload
+}
+
+^q::
+ExitApp() {
+    ExitApp
+}
 
 F12::
     logger.show()
