@@ -14,19 +14,59 @@ static std::map<string, int> prophecy_component_offsets {
 };
 
 class Prophecy : public Component {
+private:
+
+    const wchar_t* get_id_text() {
+        return id_text().c_str();
+    }
+
+    const wchar_t* get_prediction_text() {
+        return prediction_text().c_str();
+    }
+
+    const wchar_t* get_name() {
+        return name().c_str();
+    }
+
+    const wchar_t* get_flavour_text() {
+        return flavour_text().c_str();
+    }
+
 public:
 
+    wstring id_string;
+    wstring prediction;
     wstring prophecy_name;
+    wstring flavour;
 
     Prophecy(addrtype address) : Component(address, "Prophecy", &prophecy_component_offsets) {
+        add_method(L"idText", this, (MethodType)&Prophecy::get_id_text, AhkWString);
+        add_method(L"id", this, (MethodType)&Prophecy::id, AhkInt);
+        add_method(L"predictionText", this, (MethodType)&Prophecy::get_prediction_text, AhkWString);
+        add_method(L"name", this, (MethodType)&Prophecy::get_name, AhkWString);
+        add_method(L"flavourText", this, (MethodType)&Prophecy::get_flavour_text, AhkWString);
     }
 
-    wstring id_string() {
-        return read<wstring>("base", "id_string");
+    wstring& id_text() {
+        if (id_string.empty()) {
+            wchar_t buffer[256];
+            addrtype addr = read<addrtype>("base", "id_string");
+            PoEMemory::read<wchar_t>(addr, buffer, 256);
+            id_string = buffer;
+        }
+
+        return id_string;
     }
 
-    wstring prediction_text() {
-        return read<wstring>("base", "prediction_text");
+    wstring& prediction_text() {
+        if (prediction.empty()) {
+            wchar_t buffer[256];
+            addrtype addr = read<addrtype>("base", "prediction_text");
+            PoEMemory::read<wchar_t>(addr, buffer, 256);
+            prediction = buffer;
+        }
+
+        return prediction;
     }
 
     int id() {
@@ -44,12 +84,19 @@ public:
         return prophecy_name;
     }
 
-    wstring flavour_text() {
-        return read<wstring>("base", "flavour_text");
+    wstring& flavour_text() {
+        if (flavour.empty()) {
+            wchar_t buffer[256];
+            addrtype addr = read<addrtype>("base", "flavour_text");
+            PoEMemory::read<wchar_t>(addr, buffer, 256);
+            flavour = buffer;
+        }
+
+        return flavour;
     }
 
     void to_print() {
         Component::to_print();
-        wprintf(L"\t\t\t! %S", id_string().c_str());
+        wprintf(L"\t\t\t! %S", id_text().c_str());
     }
 };
