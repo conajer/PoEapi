@@ -137,7 +137,7 @@ class Pricer extends WebGui {
             mods := item.getMods()
             if (RegExMatch(mods[2], "ExpansionJewelEmptyPassiveUnique__?([0-9])", matched))
                 qNames[1] .= " " (matched1 * 2 - 1) " passives"
-        } else {
+        } else if (Not item.isCurrency) {
             if (item.links() >= 5) {
                 qNames[1] .= " " item.links() "L"
             } else 
@@ -162,13 +162,14 @@ class Pricer extends WebGui {
     }
 
     update() {
-        http := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        http := ComObjCreate("MSXML2.XMLHTTP")
         for name, t in this.types {
             url := Format(this.url, t.catalog, this.league, t.type)
             try {
                 http.Open("GET", url, true)
                 http.Send()
-                http.WaitForResponse()
+                while (http.readyState != 4)
+                    Sleep, 100
                 parsed := this.document.parentWindow.JSON.parse(http.ResponseText)
                 callback := ObjBindMethod(this, "addPrice", t.type)
                 rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loading prices of {} ... {}</b>", name, parsed.lines.length)
