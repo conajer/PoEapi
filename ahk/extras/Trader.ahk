@@ -148,6 +148,7 @@ class TradeSession extends AhkGui {
         if (ptask.getPartyStatus() < 3) {
             poe.activate()
             ptask.sendKeys("/kick " ptask.player.name)
+            Sleep, 30
             if (this.needReturn)
                 ptask.sendKeys("/hideout")
         }
@@ -273,6 +274,7 @@ class Trader {
     }
 
     showAll() {
+        Critical
         y :=38
         for i, ts in this.tsActiveList {
             ts.show()
@@ -302,19 +304,20 @@ class Trader {
             player := matched3
             message := matched4
 
-            if (RegExMatch(message, "Hi, I'd like to buy your (.*)( for my (.*)) in ([a-zA-Z]*)", matched)
-                || RegExMatch(message, "U)Hi, I would like to buy your (.*) (listed for (.*) )?in (.*) \((.*)\)(.*)", matched)) {
-                if (ptask.league != matched4)
+            if (RegExMatch(message, "Hi, I'd like to buy your (.*) for my (.*) in ([a-zA-Z]*)", matched)
+                || RegExMatch(message, "Hi, I would like to buy your (.*) listed for (.*) in (.*) \((.*)\)(.*)", matched)
+                || RegExMatch(message, "Hi, I would like to buy your (.*) ()in (.*) \((.*)\)(.*)", matched)) {
+                if (ptask.league != matched3)
                     return
 
                 if (domain == "@From") {
-                    aTrade := new IncomingTradeSession(player, matched3, matched1, matched5, matched6)
+                    aTrade := new IncomingTradeSession(player, matched2, matched1, matched4, matched5)
                     aTrade.priority := 0
                 } else {
                     if (player == ptask.player.name)
                         return
 
-                    aTrade := new OutgoingTradeSession(player, matched1, matched3, matched6)
+                    aTrade := new OutgoingTradeSession(player, matched1, matched2, matched5)
                     aTrade.priority := 1
                 }
 
