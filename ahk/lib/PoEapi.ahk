@@ -237,8 +237,11 @@ class Inventory extends InventoryGrid {
     }
 
     use(item, targetItem = "", n = 1) {
-        if (Not item)
-            return item
+        if (Not IsObject(item)) {
+            item := this.findItem(item)
+            if (Not item)
+                return
+        }
 
         if (n > 1)
             SendInput {Shift down}
@@ -263,7 +266,7 @@ class Inventory extends InventoryGrid {
             SendInput, {Enter}
 
         cursor := ptask.inventories[13]
-        if (Not cursor.getItems()[1])
+        if (Not cursor.getItemByIndex(1))
             return false
 
         try {
@@ -274,14 +277,11 @@ class Inventory extends InventoryGrid {
             if (Not this.items[index]) {
                 this.moveTo(index)
                 Click
-                Sleep, 100
             }
         } finally {
             Critical off
         }
 
-        if (cursor.getItems()[1])
-            return false
         return true
     }
 }
@@ -306,36 +306,48 @@ class StashTab extends InventoryGrid {
                 }
 
                 stackSize := aItem.stackSize()
-                m := (n && (n - dumped < stackCount)) ? n - dumped : stackCount
-                while (m > 0) {
+                k := (n && (n - dumped < stackCount)) ? n - dumped : stackCount
+                while (k > 0) {
+                    m  := k
                     this.moveTo(aItem.index)
-                    if (m >= stackSize || m == stackCount) {
-                        SendInput {Ctrl down}
-                        Click
-                        SendInput {Ctrl up}
-                        Sleep, 30
-                    } else {
-                        SendInput +{Click}
-                        SendInput, %m%{Enter}
-                        Sleep, 100
-                        
-                        if (Not ptask.inventory.drop()) {
-                            this.moveTo(aItem.index)
-                            Click
-                            return dumped
+                    while (m > 0) {
+                        if (m >= stackSize || k == stackCount) {
+                            SendInput, ^{Click}
+                            Sleep, 30
+                            m -= stackSize
+                        } else {
+                            aItem := this.getItemByIndex(aItem.index)
+                            l := stackCount - aItem.stackCount()
+                            if (l < k - m) {
+                                m := k - l
+                                continue
+                            }
+
+                            Sleep, 30
+                            SendInput +{Click}
+                            SendInput, %m%{Enter}
+                            Sleep, 100
+                            
+                            if (Not ptask.inventory.drop()) {
+                                this.moveTo(aItem.index)
+                                Click
+                                return dumped
+                            }
+
+                            m -= m
                         }
+
+                        if (Not ptask.inventory.freeCells())
+                            break
                     }
 
+                    Sleep, 50
                     aItem := this.getItemByIndex(aItem.index)
-                    k := aItem ? stackCount - aItem.stackCount() : stackCount
-                    dumped += k
-                    stackCount -= k
-                    m -= k
-
-                    if (Not ptask.inventory.freeCells())
-                        break
+                    m := aItem ? stackCount - aItem.stackCount() : stackCount
+                    dumped += m
+                    stackCount -= m
+                    k -= m
                 }
-                SendInput {Ctrl up}
             }
         }
 
