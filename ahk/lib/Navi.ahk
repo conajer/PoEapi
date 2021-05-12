@@ -78,7 +78,7 @@ class About extends WebGui {
 class Hotkeys extends WebGui {
 
     __new() {
-        base.__new("Hotkeys",, 640, 800)
+        base.__new("Hotkeys",, 700, 800)
         this.document.write("
         (%
         <!DOCTYPE html>
@@ -116,8 +116,14 @@ class Hotkeys extends WebGui {
                     <tr><td>F12</td><td>Toggle log window</td><tr>
                     <tr><td>Left Alt</td><td>Hold down the left Alt key to show price of items</td><tr>
                     <tr><td>Windows + d</td><td>Minimize PoE window</td><tr>
+                    <tr><td>Shift + LButton</td><td>Hold Shift and LButton to activate auto clicker</td><tr>
+                    <tr><td>Ctrl + Double Click</td><td>Hold Ctrl then double click to activate auto clicker</td><tr>
+                    <tr><td>Ctrl + LButton</td><td>Hold Ctrl and LButton to activate auto clicker</td><tr>
+                    <tr><td>Ctrl + c</td><td>Copy item name</td><tr>
+                    <tr><td>Ctrl + f</td><td>Highlight items in stash tab</td><tr>
                     <tr><td>Ctrl + m</td><td>Toggle maphack</td><tr>
                     <tr><td>Ctrl + r</td><td>Reload script</td><tr>
+                    <tr><td>Ctrl + w</td><td>Open wiki</td><tr>
                     <tr><td>Ctrl + q</td><td>Quit PoEapikit</td><tr>
                 </table>
             </div>
