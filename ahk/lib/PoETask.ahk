@@ -261,7 +261,9 @@ class PoETask extends AhkObj {
     }
 
     beginPickup() {
-        this.getPlugin("AutoPickup").beginPickup()
+        ap := this.getPlugin("AutoPickup")
+        ap.stopPickup()
+        ap.beginPickup()
     }
 
     stopPickup() {
@@ -287,7 +289,7 @@ class PoETask extends AhkObj {
             this.target.getPos(x, y)
             clipToRect(this.actionArea, x, y)
             MouseClick(x, y)
-            Sleep, 300
+            Sleep, 500
         }
 
         return false
