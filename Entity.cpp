@@ -55,6 +55,23 @@ protected:
         }
     }
 
+    AhkObjRef* __get_component(const char* name) {
+        if (components.find(name) != components.end())
+            return (AhkObjRef*)*components[name].get();
+        return nullptr;
+    }
+
+    AhkObjRef* get_components() {
+        AhkObj temp_components;
+        for (auto& i : components) {
+            wstring name(i.second->type_name.begin(), i.second->type_name.end());
+            temp_components.__set(name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
+        }
+        __set(L"components", (AhkObjRef*)temp_components, AhkObject, nullptr);
+
+        return temp_components;
+    }
+
     AhkObjRef* __get_pos() {
         if (label) {
             Point p = label->get_pos();
@@ -105,6 +122,7 @@ public:
         }
 
         add_method(L"name", this, (MethodType)&Entity::name, AhkWStringPtr);
+        add_method(L"getComponent", this, (MethodType)&Entity::__get_component, AhkObject, ParamList{AhkString});
         add_method(L"getComponents", this, (MethodType)&Entity::get_components, AhkObject);
         add_method(L"__getPos", this, (MethodType)&Entity::__get_pos, AhkObject);
     }
@@ -114,17 +132,6 @@ public:
         __set(L"id", id, AhkInt,
               L"path", path.c_str(), AhkWString,
               nullptr);
-    }
-
-    AhkObjRef* get_components() {
-        AhkObj temp_components;
-        for (auto& i : components) {
-            wstring name(i.second->type_name.begin(), i.second->type_name.end());
-            temp_components.__set(name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
-        }
-        __set(L"components", (AhkObjRef*)temp_components, AhkObject, nullptr);
-
-        return temp_components;
     }
 
     virtual wstring& name() {
@@ -162,12 +169,6 @@ public:
 
     bool is(const string& type_name) {
         return components.find(type_name) != components.end();
-    }
-
-    AhkObjRef* get_component(const char* name) {
-        if (components.find(name) != components.end())
-            return (AhkObjRef*)*components[name].get();
-        return nullptr;
     }
 
     template <typename T> T* get_component() {
