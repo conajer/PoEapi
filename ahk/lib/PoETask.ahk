@@ -62,12 +62,17 @@ class Rules {
             || (rule.baseName && RegExMatch(item.baseName, rule.baseName)))
         {
             for key, val in rule.constraints {
-
                 if (IsObject(val)) {
-                    if (item[key] < val[1] || item[key] > val[2])
+                    if (item[key] < val[1] || item[key] >= val[2])
                         return false
-                } else if (Not (item[key] ~= val)) {
-                    return false
+                } else {
+                    if val is number
+                        if (item[key] != val)
+                            return false
+
+                    if val is not number
+                        if (Not (item[key] ~= val))
+                            return false
                 }
             }
 
