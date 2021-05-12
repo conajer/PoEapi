@@ -69,6 +69,9 @@ class Pricer extends WebGui {
                             this.prices[pName " " p.gemLevel "/0"] := {"value" : p.chaosValue}
                         pName .= " " p.gemLevel "/" quality
                     }
+                case "Prophecy":
+                    if (p.hasOwnProperty("variant"))
+                        pName .= " " p.variant
                 case "UniqueWeapon":
                 case "UniqueArmour":
                     if (p.hasOwnProperty("links"))
@@ -124,10 +127,16 @@ class Pricer extends WebGui {
             }
         } else if (item.isMapFragment) {
             qNames[1] := item.baseName
+        } else if (item.isProphecy) {
+            if (item.name == "A Master Seeks Help") {
+                prophecy := item.getComponent("Prophecy")
+                if (RegExMatch(prophecy.predictionText, "You will find (.*) and complete (his|her) mission.", matched))
+                    qNames[1] .= " " matched1
+            }
         } else if (item.rarity == 3 && item.baseName ~= "Cluster Jewel") {
             mods := item.getMods()
             if (RegExMatch(mods[2], "ExpansionJewelEmptyPassiveUnique__?([0-9])", matched))
-            qNames[1] .= " " (matched1 * 2 - 1) " passives"
+                qNames[1] .= " " (matched1 * 2 - 1) " passives"
         } else {
             if (item.links() >= 5) {
                 qNames[1] .= " " item.links() "L"
