@@ -2,7 +2,7 @@
 ; PoEOffsets.ahk 1/6/2021 10:45 AM
 ;
 
-global PoEOffsets = { "version" : "3.14.0c", "offsets"
+global PoEOffsets = { "version" : "3.14.1d", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         ,     "current"                 : 0x0
                         , "game_states"                 : 0x48
@@ -16,10 +16,10 @@ global PoEOffsets = { "version" : "3.14.0c", "offsets"
                         , "ui_root"                     : 0x548
                         , "time_in_game"                : 0x5fc
                         , "load_stage2"                 : 0x610
-                        , "camera"                      : 0x1088
-                        , "width"                       : 0x1090
-                        , "height"                      : 0x1094
-                        , "matrix"                      : 0x1148 }
+                        , "camera"                      : 0x1080
+                        , "width"                       : 0x1088
+                        , "height"                      : 0x108c
+                        , "matrix"                      : 0x1140 }
                       
       , "IngameData"  : { "world_area"                  : 0x80
                         , "area_level"                  : 0xa0
@@ -29,42 +29,42 @@ global PoEOffsets = { "version" : "3.14.0c", "offsets"
                         ,     "root"                    : 0x8
                         , "entity_list_count"           : 0x528 }
                       
-      , "IngameUI"    : { "inventory"                   : 0x538
+      , "IngameUI"    : { "inventory"                   : 0x530
                         ,     "grid"                    : 0x3a8
-                        , "stash"                       : 0x540
+                        , "stash"                       : 0x538
                         ,     "tabs"                    : 0x2c0
-                        , "overlay_map"                 : 0x5c0
+                        , "overlay_map"                 : 0x5b8
                         ,     "large"                   : 0x230
                         ,     "small"                   : 0x238
-                        , "chat"                        : 0x418
-                        , "lefe_panel"                  : 0x510
-                        , "right_panel"                 : 0x518
-                        , "panel_flags"                 : 0x520
-                        , "skills"                      : 0x568
-                        , "atlas"                       : 0x570
-                        , "entity_list"                 : 0x5c8
+                        , "chat"                        : 0x410
+                        , "lefe_panel"                  : 0x508
+                        , "right_panel"                 : 0x510
+                        , "panel_flags"                 : 0x518
+                        , "skills"                      : 0x560
+                        , "atlas"                       : 0x568
+                        , "entity_list"                 : 0x5c0
                         ,     "root"                    : 0x2a0
-                        , "vendor"                      : 0x650
-                        , "purchase"                    : 0x670
-                        , "sell"                        : 0x678
-                        , "trade"                       : 0x680
-                        , "favours"                     : 0x7f0
-                        , "gem_level_up"                : 0x998
-                        , "notifications"               : 0x958 }
+                        , "vendor"                      : 0x648
+                        , "purchase"                    : 0x668
+                        , "sell"                        : 0x670
+                        , "trade"                       : 0x678
+                        , "favours"                     : 0x7e8
+                        , "gem_level_up"                : 0x990
+                        , "notifications"               : 0x950 }
                       
-      , "ServerData"  : { "player_data"                 : 0x7d18
+      , "ServerData"  : { "player_data"                 : 0x7d98
                         ,     "passive_skills"          : 0x160
                         ,     "player_class"            : 0x200
                         ,     "level"                   : 0x204
                         ,     "skill_points_from_quest" : 0x20c
                         ,     "skill_points_left"       : 0x210
                         ,     "ascendancy_skill_points" : 0x214
-                        , "league"                      : 0x7de0
-                        , "latency"                     : 0x7e58
-                        , "party_status"                : 0x7fd0
-                        , "stash_tabs"                  : 0x7e68
-                        , "local_player"                : 0x8108
-                        , "inventory_slots"             : 0x8220 }
+                        , "league"                      : 0x7e60
+                        , "latency"                     : 0x7ed8
+                        , "party_status"                : 0x8050
+                        , "stash_tabs"                  : 0x7ee8
+                        , "local_player"                : 0x8188
+                        , "inventory_slots"             : 0x82a0 }
                       
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
