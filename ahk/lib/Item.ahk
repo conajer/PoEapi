@@ -16,6 +16,8 @@ class Item extends Entity {
                     this.gripType := (matched4 == "OneHandWeapon") ? "1H" : "2H"
                 else if (matched2 == "Armour")
                     subType := matched4
+                else if (matched1 == "AtlasExiles")
+                    baseType := "Currency"
                 else if (matched1 == "Metamorphosis")
                     baseType := "Metamorph"
             } else if (RegExMatch(this.path, "Metadata/Items/([^/]*)/([^/]*)", matched)) {
