@@ -113,6 +113,8 @@ public:
                 case 2:
                     if (ilvl >= 82 && item.get_influence_type())
                         return true;
+                    if (item.is_synthesised())
+                        return true;
                     if (rarity == 2 && std::regex_search(item.path, rare_item_filter))
                         return true;
             }
