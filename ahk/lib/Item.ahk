@@ -26,6 +26,8 @@ class Item extends Entity {
                     baseType := "Currency"
                 else if (InStr(matched2, "Prophecy"))
                     baseType := "Prophecy"
+                else if (InStr(matched2, "CapturedMonster"))
+                    baseType := "Beast"
             }
 
             this["baseType"] := baseType
