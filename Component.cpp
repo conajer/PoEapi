@@ -39,6 +39,7 @@ public:
 #include "components/Actor.cpp"
 #include "components/Base.cpp"
 #include "components/Buffs.cpp"
+#include "components/CapturedMonster.cpp"
 #include "components/Charges.cpp"
 #include "components/Chest.cpp"
 #include "components/Flask.cpp"

@@ -250,7 +250,7 @@ public:
     }
 
     int dist(Entity& entity) {
-        if (positioned && !entity.has_component("Positioned"))
+        if (!positioned || !entity.has_component("Positioned"))
             return -1;
 
         Point pos1 = positioned->grid_position();
@@ -334,6 +334,9 @@ public:
     }
 
     wstring& base_name() {
+         if (has_component("CapturedMonster"))
+            return get_component<CapturedMonster>()->name();
+
         return base ? base->name() : type_name;
     }
 
