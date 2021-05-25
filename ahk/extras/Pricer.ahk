@@ -28,6 +28,7 @@ class Pricer extends WebGui {
              , "Unique Jewels"      : {"catalog" : "item", "type" : "UniqueJewel"}
              , "Unique Maps"        : {"catalog" : "item", "type" : "UniqueMap"}
              , "Unique Weapons"     : {"catalog" : "item", "type" : "UniqueWeapon"}
+             , "Beasts"             : {"catalog" : "item", "type" : "Beast"}
              , "Watchstones"        : {"catalog" : "item", "type" : "Watchstone"}
              , "Base Types"         : {"catalog" : "item", "type" : "BaseType"} }
 
@@ -125,7 +126,7 @@ class Pricer extends WebGui {
                 for i in qNames
                     qNames[i] .= " corrupted"
             }
-        } else if (item.isMapFragment) {
+        } else if (item.isMapFragment || item.isBeast) {
             qNames[1] := item.baseName
         } else if (item.isProphecy) {
             if (item.name == "A Master Seeks Help") {
@@ -139,9 +140,10 @@ class Pricer extends WebGui {
                 qNames[1] .= " " (matched1 * 2 - 1) " passives"
         } else if (Not item.isCurrency) {
             if (item.links() >= 5) {
+                qNames.Push(qNames[1])
                 qNames[1] .= " " item.links() "L"
-            } else 
-            
+            }
+
             if (item.rarity < 3 && (ilvl := item.itemLevel()) >= 82) {
                 ilvl := (ilvl >= 86) ? 86 : ilvl
                 qNames[1] := item.baseName
@@ -161,11 +163,20 @@ class Pricer extends WebGui {
         }
     }
 
-    update() {
-        http := ComObjCreate("MSXML2.XMLHTTP")
-        for name, t in this.types {
-            url := Format(this.url, t.catalog, this.league, t.type)
-            try {
+    update(league) {
+        Sleep, 3000
+        if (Not ptask.isReady || league != this.league) {
+            SetTimer,, Delete
+            return
+        }
+
+        try {
+            if (RegExMatch(league, "([^ ]+) HC", matched))
+                league := "Hardcore " matched1
+
+            http := ComObjCreate("MSXML2.XMLHTTP")
+            for name, t in this.types {
+                url := Format(this.url, t.catalog, league, t.type)
                 http.Open("GET", url, true)
                 http.Send()
                 while (http.readyState != 4)
@@ -174,8 +185,12 @@ class Pricer extends WebGui {
                 callback := ObjBindMethod(this, "addPrice", t.type)
                 rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loading prices of {} ... {}</b>", name, parsed.lines.length)
                 parsed.lines.forEach(callback)
-            } catch {}
+            }
+        } catch {
+            SetTimer,, -1000
+            return
         }
+        this.prices["Ritual Splinter"] := {"value" : this.prices["Ritual Vessel"].value / 100}
 
         FormatTime, t,, MM/dd/yyyy hh:mm:ss
         this.lastUpdateTime := t
@@ -191,10 +206,16 @@ class Pricer extends WebGui {
     }
 
     __onAreaChanged() {
+        if (ptask.league ~= "SSF")
+            return
+
         if (ptask.league != this.league) {
+            if (ptask.league ~= "SSF")
+                return
+
             this.prices := {"Chaos Orb" : {"value" : 1}}
             this.league := ptask.league
-            t := ObjBindMethod(this, "update")
+            t := ObjBindMethod(this, "update", this.league)
             SetTimer, %t%, -1000
         }
     }
