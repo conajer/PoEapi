@@ -35,7 +35,7 @@ std::map<string, int> in_game_data_offsets {
     {"entity_list",       0x490},
         {"root",            0x8},
     {"entity_list_count", 0x498},
-    {"terrain",           0x670},
+    {"terrain",           0x6c8},
 };
 
 class InGameData : public RemoteMemoryObject {
