@@ -252,7 +252,7 @@ class PoETask extends AhkObj {
 
         this.activate()
         if (Not this.getChat().isOpened())
-            SendInput, {Enter}
+            keys := "{Enter}" keys
 
         if (NoSend)
             SendInput, %keys%
