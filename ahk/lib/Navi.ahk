@@ -2,14 +2,10 @@
 ; Navi.ahk, 3/7/2021 5:26 PM
 ;
 
-global extraMenus := []
+global extraControls := []
 
-addMenuItem(menu, itemName = "", handler = "", options ="") {
-    Menu, %menu%, Add, %itemName%, %handler%, %options%
-}
-
-addExtraMenu(name, handler, options = "") {
-    extraMenus.Push({"name":name, "handler":handler, "options":options})
+addExtraControl(control) {
+    extraControls.Push(control)
 }
 
 class About extends WebGui {
@@ -101,7 +97,8 @@ class Hotkeys extends WebGui {
                 <h2>Hotkeys</h2>
                 <table>
                     <tr><td>``</td><td>Exit to character selection</td><tr>
-                    <tr><td>a</td><td>Auto pickup/levelup gems</td><tr>
+                    <tr><td>a</td><td>Auto pickup</td><tr>
+                    <tr><td>s</td><td>Level up skill gems</td><tr>
                     <tr><td>F1</td><td>Auto aruas</td><tr>
                     <tr><td>F2</td><td>Auto portal</td><tr>
                     <tr><td>F3</td><td>Auto identify/sell</td><tr>
@@ -145,12 +142,47 @@ class Hotkeys extends WebGui {
     }
 }
 
+class Help extends WebControl {
+
+    __new() {
+        this.innerHtml := "
+        (
+            <li class=divider></li>
+            <li id='help' class=level1>Help</li>
+            <div id='help_items' class=submenu>
+                <li id='about' class=level2>About PoEapikit</li>
+                <li id='hotkeys' class=level2>Hotkeys...</li>
+            </div>
+        )"
+    }
+
+    bind(g) {
+        base.bind(g)
+        g.bind("help",, ObjBindMethod(this, "onclick"))
+        g.bind("about",, ObjBindMethod(this, "about"))
+        g.bind("hotkeys",, ObjBindMethod(this, "hotkeys"))
+    }
+
+    onclick() {
+        style := this.document.querySelector("#help_items").style
+        style.display := (style.display == "block") ? "none" : "block"
+    }
+
+    about() {
+        new About().show()
+    }
+
+    hotkeys() {
+        new Hotkeys().show()
+    }
+}
+
 class Navi extends WebGui {
 
     __new() {
         base.__new(, "+AlwaysOnTop +Toolwindow -Caption -Resize")
         Gui, Color, 0
-        WinSet, TransColor, 0 210
+        WinSet, TransColor, 0 190
 
         this.document.write("
         (%
@@ -161,7 +193,8 @@ class Navi extends WebGui {
                 * { font-family: Fontin SmallCaps, Serif; font-size: 18px; }
                 body { background: black; border: 0; margin: 0; padding: 0; }
                 canvas { position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: -1; } 
-                
+
+                .nav { position: fixed; right: 0; }
                 .nav table { border-collapse: collapse; }
                 .nav td { margin: 0 10px; padding: 1px 15px; }
 
@@ -171,12 +204,21 @@ class Navi extends WebGui {
                 #kill_counter:hover { background-color: cyan; }
                 .kills { color: crimson; }
                 .total { color: green; }
-                 
                 .exp { color: #0c0c0c; background-color: yellow; }
                 .gained_exp { color: blue; }
-                
                 #menu { color: white; background-color: #0c0c0c; }
-                
+                #menu:hover { background-color: red; }
+
+                .sidebar { display: none; position: fixed; right:0; min-width: 250px; background: #1a1411; padding: 10px 0 10px 50px; }
+                .sidebar ul { list-style-type: none; color: #fef0c8; margin: 0; padding: 0; }
+                .sidebar li { font-family: Georgia, Serif; line-height: 32px; padding: 0 4px 0 5px; }
+                .sidebar li:hover { background: red; }
+                .sidebar .level1 { margin-left: -4px; }
+                .sidebar .level2 { padding-left: 30px; }
+                .sidebar .level3 { padding-left: 60px; }
+                .sidebar .submenu { display: none; }
+                .sidebar .divider { height: 0; border-top: 1px solid lightgray; border-bottom: 1px solid dimgray; margin: 10px 0; }
+
                 .stats { color: white; background: #1a1411; position: fixed; left: 50%; top: 80px; transform: translate(-50%, 0); width: 1000px; max-height: 600px; overflow: auto; }
                 .stats table { text-align: right; }
                 .stats tr { background: #120e0a; color: #b57741; padding: 5px; transition: .1s ease-in; } 
@@ -189,7 +231,7 @@ class Navi extends WebGui {
         <body>
             <canvas></canvas>
             <div class=nav>
-                <table class=nav align='right'>
+                <table>
                     <tr>
                         <td id='area_time'></td>
                         <td id='kill_counter'>Kills <b class=kills>0</b>/<b class=total>0<b></td>
@@ -197,6 +239,19 @@ class Navi extends WebGui {
                         <td id='menu'>&#8801;</td>
                     </tr>
                 </table>
+
+                <div class=sidebar>
+                    <ul>
+                      <li id='hideout' class=level1>Hideout</li>
+                      <li id='sell' class=level1>Sell items</li>
+                      <li id='stash' class=level1>Stash</li>
+                      <li id='reload' class=level1>Reload</li>
+                      <div class=extras></div>
+                      <div class=help></div>
+                      <li class=divider></li>
+                      <li id='quit' class=level1>Quit</li>
+                    </ul>
+                </div>
             </div>
             <div class='stats' align='center'>
                 <table id='kill_stats'></table>
@@ -287,27 +342,26 @@ class Navi extends WebGui {
         )")
         this.document.close()
         this.window := this.document.parentWindow
-        this.bind("menu", "onmouseenter")
-        this.bind("menu", "onmouseleave")
         this.bind("menu", "onclick", "showMenu")
         this.bind("kill_counter",, "showKillStats")
         this.bind("kill_stats", "onfocusout", "hideKillStats")
 
-        addMenuItem("__main", _("Hideout"), ObjBindMethod(ptask, "sendKeys", "/hideout", 0))
-        addMenuItem("__main", _("Sell items"), ObjBindMethod(ptask, "sellItems"))
-        addMenuItem("__main", _("Stash"), ObjBindMethod(ptask, "stashItems"))
-        addMenuItem("__main", _("Reload"), "Reload")
-        if (extraMenus.Count()) {
-            addMenuItem("__main")
-            for i, m in extraMenus
-                addMenuItem("__main", m.name, m.handler, m.options)
+        this.bind("hideout",, ObjBindMethod(ptask, "sendKeys", "/hideout", 0))
+        this.bind("sell",, ObjBindMethod(ptask, "sellItems"))
+        this.bind("stash",, ObjBindMethod(ptask, "stashItems"))
+        this.bind("reload",, Func("Reload"))
+
+        if (extraControls.Length() > 0) {
+            this.addControls(".extras", "<li class=divider></li>")
+            this.addControls(".extras", extraControls)
+            ;for i, feature in extraControls {
+            ;    if (feature.control)
+            ;        this.addControl(".extras", feature.control)
+            ;}
         }
-        addMenuItem("__main")
-        addMenuItem("__help", _("About PoEapikit"), ObjBindMethod(this, "about"))
-        addMenuItem("__help", _("Hotkeys..."), ObjBindMethod(this, "hotkeys"))
-        addMenuItem("__main", _("Help"), ":__help")
-        addMenuItem("__main")
-        addMenuItem("__main", _("Quit"), "ExitApp")
+
+        this.addControls(".help", new Help())
+        this.bind("quit",, Func("ExitApp"))
 
         this.menu := this.document.querySelector("#menu")
         this.killStats := this.document.querySelector("#kill_stats")
@@ -326,19 +380,6 @@ class Navi extends WebGui {
 
     getCanvas() {
         return this.window.ctx
-    }
-
-    about() {
-        new About().show()
-    }
-
-    hotkeys() {
-        new Hotkeys().show()
-    }
-
-    close() {
-        Menu, __main, Delete
-        base.close()
     }
 
     show(options = "") {
@@ -363,7 +404,9 @@ class Navi extends WebGui {
     }
 
     showMenu() {
-        Menu, __main, Show
+        ;Menu, __main, Show
+        style := this.document.querySelector(".sidebar").style
+        style.display := (style.display == "block") ? "none" : "block"
     }
 
     showKillStats() {
