@@ -543,8 +543,17 @@ public:
             Buffs* buffs = local_player->get_component<Buffs>();
             if (buffs) {
                 AhkTempObj temp_buffs;
-                for (auto& i : buffs->get_buffs())
-                    temp_buffs.__set(L"", i.first.c_str(), AhkWString, nullptr);
+                for (auto& i : buffs->get_buffs()) {
+                    AhkObj buff;
+                    buff.__set(L"name", i.first.c_str(), AhkWString,
+                               L"description", i.second.description().c_str(), AhkWString,
+                               L"duration", i.second.duration(), AhkFloat,
+                               L"timer", i.second.timer(), AhkFloat,
+                               L"charges", i.second.charges(), AhkInt,
+                               nullptr);
+                    temp_buffs.__set(L"", (AhkObjRef*)buff, AhkObject, nullptr);
+                }
+
                 return temp_buffs;
             }
         }
@@ -555,7 +564,7 @@ public:
     int has_buff(wchar_t* name) {
         if (local_player) {
             Buffs* buffs = local_player->get_component<Buffs>();
-            return buffs ? buffs->has_buff(name) : 0;
+            return buffs->has_buff(name);
         }
 
         return 0;
