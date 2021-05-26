@@ -5,83 +5,83 @@
 #include <unordered_set>
 
 static FieldOffsets buff_offsets {
-    {"name",      0x0},
+    {"internal",        0x0},
+        {"name",        0x0},
+        {"description", 0x8},
+    {"duration",       0x10},
+    {"timer",          0x14},
+    {"charges",        0x36},
 };
 
 class Buff : public RemoteMemoryObject {
-protected:
-
-    wstring buff_name;
-
 public:
+
+    addrtype internal;
+    wstring buff_name;
     
     Buff(addrtype address) : RemoteMemoryObject(address, &buff_offsets) {
+        internal = read<addrtype>("internal");
     }
 
     wstring& name() {
         if (buff_name.empty())
-            buff_name = PoEMemory::read<wstring>(address + (*offsets)["name"], 64);
+            buff_name = PoEMemory::read<wstring>(internal + (*offsets)["name"], 64);
+
         return buff_name;
     }
 
+    wstring description() {
+        return PoEMemory::read<wstring>(internal + (*offsets)["description"], 256);
+    }
+
+    int charges() {
+        return read<short>("charges");
+    }
+
+    float duration() {
+        return read<float>("duration");
+    }
+
+    float timer() {
+        return read<float>("timer");
+    }
+
     void to_print() {
-        wprintf(L"    %llx: %S\n", address, name().c_str());
+        wprintf(L"    %llx: %4d, %4.2f, %4.2f, %S\n",
+                address, charges(), duration(), timer(), name().c_str());
     }
 };
 
 /* Buffs component offsets */
 
 static FieldOffsets buffs_component_offsets {
-    {"buffs",     0xd8},
-        {"root",  0x60},
-        {"count", 0x68},
+    {"buffs",     0x158},
 };
 class Buffs : public Component {
 public:
 
-    std::map<wstring, shared_ptr<Buff>> buffs;
+    std::map<wstring, Buff> buffs;
     std::queue<addrtype> nodes;
     std::unordered_set<addrtype> temp_set;
+    int last_checking = 0;
 
     Buffs(addrtype address) : Component(address, "Buffs", &buffs_component_offsets) {
     }
 
-    std::map<wstring, shared_ptr<Buff>>& get_buffs() {
-        buffs.clear();
-        temp_set.clear();
-        
-        addrtype root = read<addrtype>("buffs", "root");
-        nodes.push(root);
-        temp_set.insert(root);
-        while (!nodes.empty()) {
-            addrtype node = nodes.front();
-            nodes.pop();
-
-            for (int offset : (int[]){0x0, 0x8, 0x10}) {
-                addrtype address = PoEMemory::read<addrtype>(node + offset);
-                if (temp_set.count(address) == 0 && temp_set.size() < 128) {
-                    nodes.push(address);
-                    temp_set.insert(address);
-                }
-            }
-
-            if (node == root)
-                continue;
-
-            addrtype address = PoEMemory::read<addrtype>(node + 0x20);
-            if (address < (addrtype)0x10000000 || address > (addrtype)0x7F0000000000)
-                continue;
-
-            shared_ptr<Buff> buff = shared_ptr<Buff>(new Buff(address));
-            buffs[buff->name()] = buff;
+    std::map<wstring, Buff>& get_buffs() {
+        if (GetTickCount() - last_checking > 1000 || buffs.empty()) {
+            buffs.clear();
+            for (auto& buff : read_array<Buff>("buffs", 0x0, 8))
+                buffs.insert(std::make_pair(buff.name(), buff));
+            last_checking = GetTickCount();
         }
 
         return buffs;
     }
 
-    bool has_buff(wstring name) {
-        get_buffs();
-        return buffs.find(name) != buffs.end();
+    int has_buff(wstring name) {
+        auto i = get_buffs().find(name);
+        return (i != buffs.end()) ? i->second.charges() : 0;
     }
 
     void list_buffs() {
@@ -93,7 +93,7 @@ public:
 
         wprintf(L"%llx: Buffs\n", read<addrtype>("buff"));
         for (auto& b : buffs) {
-            b.second->to_print();
+            b.second.to_print();
         }
     }
 };
