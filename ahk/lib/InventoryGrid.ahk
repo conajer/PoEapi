@@ -53,9 +53,23 @@ class InventoryGrid extends Element {
                 continue
 
             index := aItem.Index + 1
-            if (aItem.rarity <= rarity && RegExMatch(aItem.name, "i)" regex))
+            if (aItem.rarity <= rarity && RegExMatch(aItem.fullName(), "i)" regex))
                 return aItem
         }
+    }
+
+    findItems(regex, rarity = 3) {
+        result := []
+        for i, aItem in this.getItems() {
+            if (aItem.Index < index)
+                continue
+
+            index := aItem.Index + 1
+            if (aItem.rarity <= rarity && RegExMatch(aItem.fullName(), "i)" regex))
+                result.Push(aItem)
+        }
+
+        return result
     }
 
     checkItem(regex) {
