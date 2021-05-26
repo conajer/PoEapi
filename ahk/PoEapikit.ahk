@@ -47,7 +47,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
-global version := "1.2.1"
+global version := "1.2.2"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -132,8 +132,11 @@ QuickDefense:
     SendInput, %QuickDefenseAction%
 return
 
-AutoPickup:
+~s::
     ptask.levelupGems()
+return
+
+AutoPickup:
     ptask.beginPickup()
 return
 
@@ -209,10 +212,11 @@ return
     SetTimer, AutoClick, -200
 return
 
-~^LButton::
+^LButton::
     If (A_PriorHotKey = A_ThisHotKey and A_TimeSincePriorHotkey < 200)
         clickerEnabled := true
-    SetTimer, AutoClick, -30
+    SendInput, ^{Click}
+    SetTimer, AutoClick, -200
 return
 
 #d::
@@ -259,7 +263,7 @@ return
         if (SubStr(Clipboard, 1, 11) == "Item Class:") {
             RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n\r]+)", matched)
             if (ptask.stash.isOpened())
-                SendInput, %matched2%{Enter}
+                SendInput, "%matched2%"{Enter}
         }
     }
     Clipboard := savedClipboard
