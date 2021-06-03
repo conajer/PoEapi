@@ -77,6 +77,9 @@ class Pricer extends WebGui {
                 case "UniqueArmour":
                     if (p.hasOwnProperty("links"))
                         pName .= " " p.links "L"
+                case "UniqueJewel":
+                    if (p.hasOwnProperty("variant"))
+                        pName .= " " p.variant
                 case "BaseType":
                     if (p.hasOwnProperty("variant"))
                         pName .= " " p.variant
@@ -158,33 +161,29 @@ class Pricer extends WebGui {
         }
 
         for i, name in qNames {
-            if (this.prices[name].value)
-                return this.prices[name].value
+            if (value := this.prices[name].value)
+                return value
         }
     }
 
     update(league) {
         Sleep, 3000
-        if (Not ptask.isReady || league != this.league) {
+        if (league != this.league) {
             SetTimer,, Delete
             return
         }
 
-        try {
-            if (RegExMatch(league, "([^ ]+) HC", matched))
-                league := "Hardcore " matched1
+        if (Not ptask.isReady) {
+            SetTimer,, -60000
+            return
+        }
 
-            http := ComObjCreate("MSXML2.XMLHTTP")
+        try {
             for name, t in this.types {
                 url := Format(this.url, t.catalog, league, t.type)
-                http.Open("GET", url, true)
-                http.Send()
-                while (http.readyState != 4)
-                    Sleep, 100
-                parsed := this.document.parentWindow.JSON.parse(http.ResponseText)
-                callback := ObjBindMethod(this, "addPrice", t.type)
+                parsed := JSON.__parse(ajax(url))
                 rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Loading prices of {} ... {}</b>", name, parsed.lines.length)
-                parsed.lines.forEach(callback)
+                parsed.lines.forEach(ObjBindMethod(this, "addPrice", t.type))
             }
         } catch {
             SetTimer,, -1000
@@ -198,10 +197,14 @@ class Pricer extends WebGui {
         rdebug("#PRICER", "<b style=""background-color:gold;color:black"">Total {} prices loaded.</b>", this.prices.Count())
     }
 
-    dump(exp) {
+    dump(exp, limit = 100) {
         for name, p in this.prices {
-            if (name ~= "i)"exp)
+            if (name ~= "i)"exp) {
                 debug(name ", " p.value)
+                n += 1
+                if (n >= limit)
+                    break
+            }
         }
     }
 
@@ -210,9 +213,6 @@ class Pricer extends WebGui {
             return
 
         if (ptask.league != this.league) {
-            if (ptask.league ~= "SSF")
-                return
-
             this.prices := {"Chaos Orb" : {"value" : 1}}
             this.league := ptask.league
             t := ObjBindMethod(this, "update", this.league)
