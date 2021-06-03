@@ -42,6 +42,7 @@ class About extends WebGui {
                 <span class=deps>AutoHotkey version <strong id=ahk_version></strong></span><br>
                 <a href='#github'>GitHub</a>
                 <a href='#latest_version'>Latest version</a>
+                <a href='#patreon'>Patreon</a>
                 <a href='#donate'>Donate</a>
             </div>
             <span>
@@ -69,6 +70,8 @@ class About extends WebGui {
             url := "https://github.com/conajer/PoEapi"
         else if (href ~= "#latest_version")
             url := "https://github.com/conajer/PoEapi/releases/latest"
+        else if (href ~= "#patreon")
+            url := "https://www.patreon.com/conajer"
         else if (href ~= "#donate")
             url := "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TDU8JSQAXNTU6&currency_code=USD"
         Run, % url
@@ -120,7 +123,9 @@ class Hotkeys extends WebGui {
                     <tr><td>Shift + LButton</td><td>Hold Shift and LButton to activate auto clicker</td><tr>
                     <tr><td>Ctrl + Double Click</td><td>Hold Ctrl then double click to activate auto clicker</td><tr>
                     <tr><td>Ctrl + LButton</td><td>Hold Ctrl and LButton to activate auto clicker</td><tr>
-                    <tr><td>Ctrl + c</td><td>Copy item name</td><tr>
+                    <tr><td>Ctrl + c</td><td>Copy the selected item's name</td><tr>
+                    <tr><td>Ctrl + d</td><td><b style='color:darkred'>[Patreon only]</b>Check the price of selected item or items in nearby curio displays</td><tr>
+                    <tr><td>Ctrl + Shift + d</td><td><b style='color:darkred'>[Patreon only]</b>Check the price of items in current stash tab or inventory</td><tr>
                     <tr><td>Ctrl + f</td><td>Highlight items in stash tab</td><tr>
                     <tr><td>Ctrl + m</td><td>Toggle maphack</td><tr>
                     <tr><td>Ctrl + r</td><td>Reload script</td><tr>
