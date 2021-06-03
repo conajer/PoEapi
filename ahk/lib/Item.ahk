@@ -5,7 +5,15 @@
 class Item extends Entity {
 
     fullName() {
-        return this.rarity > 0 ? this.name " " this.baseName : this.baseName
+        qName := this.name
+        if (this.IsIdentified && this.rarity > 0)
+            qName .= " " this.baseName
+        if (this.IsMap)
+            qName .= " (T" this.tier ")"
+        if (this.IsGem)
+            qName := "Level " this.level " " this.quality "% " qName
+
+        return qName
     }
 
     __Get(key) {
