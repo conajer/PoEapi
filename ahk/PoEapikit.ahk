@@ -19,6 +19,7 @@ CoordMode, Mouse, Client
 CoordMode, Pixel, Client
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
+#Include, %A_ScriptDir%\lib\ajax.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
 EnvGet, homepath, USERPROFILE
