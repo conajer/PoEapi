@@ -77,7 +77,8 @@ class AhkGui {
     __Get(key) {
         if (Not this.HasKey(key)) {
             var := this.__var(key)
-            return (%var%)
+            if (%var%)
+                return (%var%)
         }
     }
 
@@ -104,6 +105,7 @@ class WebGui extends AhkGui {
         this.browser.navigate("about:<meta http-equiv=""X-UA-Compatible"" content=""IE=edge""/>")
         this.browser.silent := true
         this.document := this.browser.document
+        ComObjConnect(this.document, this)
     }
 
     bind(id, event = "onclick", handler = "") {
@@ -170,16 +172,15 @@ class WebGui extends AhkGui {
         this.browser.navigate(url)
     }
 
+    onKeyPress() {
+        static keyCommands := {1: "selectAll", 3: "copy", 22: "paste", 24: "cut"}
+        keyCode := this.document.parentWindow.event.keyCode
+        if (keyCommands.HasKey(keyCode))
+            this.document.execCommand(keyCommands[keyCode])
+    }
+
     onResize(width, height) {
-        try {
-            GuiControl, Move, __mshtml, w%width% h%height%
-            this.document.parentWindow.execScript("
-            (
-                var event = document.createEvent('UIEvents');
-                event.initUIEvent('resize', true, false, window, 0);
-                window.dispatchEvent(event);
-            )")
-        } catch {}
+        GuiControl, Move, __mshtml, w%width% h%height%
     }
 }
 
