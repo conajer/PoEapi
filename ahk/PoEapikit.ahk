@@ -48,7 +48,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
-global version := "1.2.2"
+global version := "1.3.0"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -117,7 +117,8 @@ objdump(obj, prefix = "", depth = 0) {
         base := base.base
     }
 
-    debug("{}{:#x}{}:", prefix, &obj, baseClasses)
+    if (Not prefix)
+        debug("{}{:#x}{}:", prefix, &obj, baseClasses)
     for k, v in obj {
         try {
             debug("{}   {}{}, {}", prefix, IsObject(v) ? "*" : " ", k, IsObject(v) ? v.Count() : v)
@@ -250,38 +251,39 @@ return
             if (GetKeyState("Shift")) {
                 MsgBox, 0, Item Info, %clipboard%
             } else {
-                RegExMatch(Clipboard, "Rarity: [^\n]*\n([^\n\r]+)", matched)
-                Clipboard := matched1
+                RegExMatch(Clipboard, "Rarity: (.+)\r\n(.+)\r\n", matched)
+                Clipboard := matched2
             }
         }
     }
 return
 
 *^f::
-    savedClipboard := Clipboard
-    Clipboard := ""
-    SendInput, ^{c}
-    SendInput, ^{f}
-    Sleep, 100
-    if (Clipboard) {
-        if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n\r]+)", matched)
-            if (ptask.stash.isOpened())
+    if (ptask.stash.isOpened()) {
+        Clipboard := ""
+        SendInput, ^{c}
+        SendInput, ^{f}
+        Sleep, 100
+        if (Clipboard) {
+            if (SubStr(Clipboard, 1, 11) == "Item Class:") {
+                RegExMatch(Clipboard, "Rarity: (.+)\r\n(.+)\r\n", matched)
                 SendInput, "%matched2%"{Enter}
+            }
         }
     }
-    Clipboard := savedClipboard
 return
 
 ^w::
+    Clipboard := ""
     SendInput, ^{c}
     Sleep, 100
     if (Clipboard) {
         if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-            RegExMatch(Clipboard, "Rarity: ([^\n]*)\n([^\n\r]+)", matched)
-            if (matched1 ~= "Magic|Rare")
-                return
-            Run, % "https://pathofexile.fandom.com/wiki/" RegExReplace(matched2, " ", "_")
+            RegExMatch(Clipboard, "Rarity: (.+)\r\n(.+)\r\n(.+)\r\n", matched)
+            name := matched2
+            if (matched1 ~= "Magic|Rare" && Not RegExMatch(Clipboard, "Unidentified"))
+                name := matched3
+            Run, % "https://pathofexile.fandom.com/wiki/" RegExReplace(name, " ", "_")
         }
     }
 return
