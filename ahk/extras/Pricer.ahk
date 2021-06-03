@@ -51,14 +51,13 @@ class Pricer extends WebGui {
             } else {
                 if (!lowConfidenceSparkline && p.sparkline.data.length == 0)
                     return
+
                 pName := p.name
                 switch type {
                 case "Map":
-                    if (Not (p.name ~= "Essence of")) {
-                        if (Not (p.name ~= p.baseType))
-                            this.prices[p.baseType " unique T" p.mapTier] := {"value" : p.chaosValue}
-                        pName .= " T" p.mapTier
-                    }
+                    pName .= " T" p.mapTier
+                case "UniqueMap":
+                    pName .= " T" p.mapTier
                 case "SkillGem":
                     quality := p.hasOwnProperty("gemQuality") ? p.gemQuality : 0
                     if (p.hasOwnProperty("corrupted")) {
@@ -70,23 +69,20 @@ class Pricer extends WebGui {
                             this.prices[pName " " p.gemLevel "/0"] := {"value" : p.chaosValue}
                         pName .= " " p.gemLevel "/" quality
                     }
-                case "Prophecy":
-                    if (p.hasOwnProperty("variant"))
-                        pName .= " " p.variant
                 case "UniqueWeapon":
+                    if (p.hasOwnProperty("links"))
+                        pName .= " " p.links "L"
                 case "UniqueArmour":
                     if (p.hasOwnProperty("links"))
                         pName .= " " p.links "L"
-                case "UniqueJewel":
-                    if (p.hasOwnProperty("variant"))
-                        pName .= " " p.variant
                 case "BaseType":
-                    if (p.hasOwnProperty("variant"))
-                        pName .= " " p.variant
                     if (p.levelRequired >= 82)
                         pName .= " " p.levelRequired
                 }
-                
+
+                if (p.hasOwnProperty("variant"))
+                    pName .= " " p.variant
+
                 this.prices[pName] := {"value" : p.chaosValue}
             }
         } catch {
@@ -148,15 +144,21 @@ class Pricer extends WebGui {
             }
 
             if (item.rarity < 3 && (ilvl := item.itemLevel()) >= 82) {
-                ilvl := (ilvl >= 86) ? 86 : ilvl
                 qNames[1] := item.baseName
-                influence := item.getInfluenceType()
-                if (influence)
-                    qNames[1] .= " " this.influenceTypes[Floor(Log(influence)/Log(2)) + 1]
-
+                ilvl := (ilvl >= 86) ? 86 : ilvl
                 if (ilvl > 82)
                     qNames[2] := qNames[1] " " (ilvl - 1)
                 qNames[1] .= " " ilvl
+
+                if (influence := item.getInfluenceType()) {
+                    influenceNames := ""
+                    loop, 6 {
+                        if (influence & (1 << (A_Index - 1)))
+                            influenceNames .= "/" this.influenceTypes[A_Index]
+                    }
+                    qNames[1] .= " " SubStr(influenceNames, 2)
+                    qNames[2] .= " " SubStr(influenceNames, 2)
+                }
             }
         }
 
