@@ -13,6 +13,9 @@ FieldOffsets entity_offsets = {
     {"id",             0x58},
 };
 
+/* Forward declaration */
+class Item;
+
 class Entity : public PoEObject {
 protected:
 
@@ -91,6 +94,7 @@ public:
     int id;
     bool is_valid = true;
     shared_ptr<Element> label;
+    shared_ptr<Item> item;
     Point pos;
 
     bool is_player = false;
@@ -122,6 +126,7 @@ public:
         }
 
         add_method(L"name", this, (MethodType)&Entity::name, AhkWStringPtr);
+        add_method(L"getItem", this, (MethodType)&Entity::get_item, AhkObject);
         add_method(L"getComponent", this, (MethodType)&Entity::__get_component, AhkObject, ParamList{AhkString});
         add_method(L"getComponents", this, (MethodType)&Entity::get_components, AhkObject);
         add_method(L"__getPos", this, (MethodType)&Entity::__get_pos, AhkObject);
@@ -145,6 +150,8 @@ public:
 
         return type_name;            
     }
+
+    AhkObjRef* get_item();
 
     int life() {
         Life* life = get_component<Life>();
@@ -516,3 +523,15 @@ public:
         return all_stats;
     }
 };
+
+AhkObjRef* Entity::get_item() {
+    if (has_component("WorldItem")) {
+        item = shared_ptr<Item>(new Item(get_component<WorldItem>()->item()));
+        return *item;
+    } else if (has_component("HeistRewardDisplay")) {
+        item = shared_ptr<Item>(new Item(get_component<HeistRewardDisplay>()->item()));
+        return *item;
+    }
+
+    return nullptr;
+}
