@@ -64,6 +64,9 @@ Hotkey, IfWinActive
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
 
+; Patreon only features
+#Include, %A_ScriptDir%\patreon.ahk
+
 OnExit("__Exit")
 
 ; end of auto-execute section

@@ -75,6 +75,12 @@ class Updater extends WebGui {
         count := src.Items().Count
         loop, % count {
             item := src.Items().Item(A_Index - 1)
+            
+            if (item.Name == "patreon.ahk") {
+                if (FileExist(A_ScriptDir "\patreon.ahk"))
+                    continue
+            }
+
             if (item.Name != "Settings.ahk")
                 dest.CopyHere(item, 4|16|1024)
             this.show(, Format("Installing ... {:.f}%", A_Index * 100 / Count))
