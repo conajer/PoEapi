@@ -101,11 +101,14 @@ class WebGui extends AhkGui {
         Gui, Margin, 0, 0
         Gui, Add, ActiveX, -Border w%width% h%height% v__mshtml, Shell.Explorer
 
+        IOleInPlaceActiveObject_Interface:="{00000117-0000-0000-C000-000000000046}"
+        this.oleInPlaceActiveObj := ComObjQuery(__mshtml, IOleInPlaceActiveObject_Interface)
+        this.onMessage(0x100, "__onKeyDown")
+
         this.browser := __mshtml
         this.browser.navigate("about:<meta http-equiv=""X-UA-Compatible"" content=""IE=edge""/>")
         this.browser.silent := true
         this.document := this.browser.document
-        ComObjConnect(this.document, this)
     }
 
     bind(id, event = "onclick", handler = "") {
@@ -126,7 +129,7 @@ class WebGui extends AhkGui {
             }
         } catch {}
 
-        return result == 0
+        return result
     }
 
     bindAll(name, event = "onclick") {
@@ -172,15 +175,19 @@ class WebGui extends AhkGui {
         this.browser.navigate(url)
     }
 
-    onKeyPress() {
-        static keyCommands := {1: "selectAll", 3: "copy", 22: "paste", 24: "cut"}
-        keyCode := this.document.parentWindow.event.keyCode
-        if (keyCommands.HasKey(keyCode))
-            this.document.execCommand(keyCommands[keyCode])
-    }
-
     onResize(width, height) {
         GuiControl, Move, __mshtml, w%width% h%height%
+    }
+
+    __onKeyDown(wParam, lParam, msg, hwnd) {
+        if (DllCall("IsChild", "Int", this.Hwnd, "Int", hwnd)) {
+            VarSetCapacity(pMSG, 7 * A_PtrSize)
+            for i, val in [hwnd, msg, wParam, lParam, A_EventInfo, A_GuiX, A_GuiY]
+                NumPut(val, pMSG, (i-1) * A_PtrSize)
+
+            TranslateAccelerator := NumGet(NumGet(1 * this.oleInPlaceActiveObj) + 5 * A_PtrSize)
+            DllCall(TranslateAccelerator, "Ptr", this.oleInPlaceActiveObj, "Ptr",&pMSG)
+        }
     }
 }
 
