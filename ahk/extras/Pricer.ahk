@@ -79,7 +79,7 @@ class Pricer {
                         pName .= " " p.levelRequired
                 }
 
-                if (p.hasOwnProperty("variant"))
+                if (Not type ~= "Map|SkillGem" && p.hasOwnProperty("variant"))
                     pName .= " " p.variant
 
                 this.prices[pName] := {"value" : p.chaosValue}
