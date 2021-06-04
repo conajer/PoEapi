@@ -4,7 +4,7 @@
 
 global pricer := new Pricer()
 
-class Pricer extends WebGui {
+class Pricer {
 
     url := "https://poe.ninja/api/data/{}overview?league={}&type={}"
 
@@ -40,8 +40,7 @@ class Pricer extends WebGui {
     prices := {}
 
     __new() {
-        base.__new()
-        this.onMessage(WM_AREA_CHANGED, "__onAreaChanged")
+        OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "__onAreaChanged"))
     }
 
     addPrice(type, p) {
