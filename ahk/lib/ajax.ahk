@@ -20,19 +20,17 @@ ajax(url, method = "GET", data = "", contentType = "application/json") {
     return xmlhttp.responseText
 }
 
-class JSON extends WebGui {
+class JSON {
 
     __new() {
-        base.__new()
+        this.document := ComObjCreate("HTMLFile")
         this.document.write("
         (%
         <!DOCTYPE html>
         <html>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
         <head>
             <script>
-                function assign(obj, key, value) {
-                }
-
                 function copy(src, dst) {
                     if (typeof src !== 'object')
                         return src;
@@ -47,8 +45,6 @@ class JSON extends WebGui {
                 }
             </script>
         </head>
-        <body>
-        </body>
         </html>
         )")
 
@@ -61,6 +57,12 @@ class JSON extends WebGui {
     }
 
     stringify(value, prefix = "") {
+        if (Not IsObject(value))
+            return this.document.parentWindow.JSON.stringify(value)
+
+        if (ComObjType(value))
+            return "{}"
+
         if (value.Length() > 0) {
             result .= "[`n"
             for i, v in value {
@@ -69,9 +71,9 @@ class JSON extends WebGui {
                 result .= prefix "  " this.stringify(v, prefix "  ")
             }
             return result "`n" prefix "]"
-        } else if (IsObject(value)) {
-            if (value.Count() == 0)
-                return "[]"
+        } else {
+            if (Not value.Count())
+                return "{}"
 
             result .= "{`n"
             for k, v in value {
@@ -82,8 +84,6 @@ class JSON extends WebGui {
 
             return result "`n" prefix "}"
         }
-
-        return this.document.parentWindow.JSON.stringify(value)
     }
 
     load(filename) {
