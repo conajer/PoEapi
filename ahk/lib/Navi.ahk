@@ -122,7 +122,7 @@ class Hotkeys extends WebGui {
                     <tr><td>Windows + d</td><td>Minimize PoE window</td><tr>
                     <tr><td>Shift + LButton</td><td>Hold Shift and LButton to activate auto clicker</td><tr>
                     <tr><td>Ctrl + Double Click</td><td>Hold Ctrl then double click to activate auto clicker</td><tr>
-                    <tr><td>Ctrl + LButton</td><td>Hold Ctrl and LButton to activate auto clicker</td><tr>
+                    <tr><td>Ctrl + LButton</td><td>Hold Ctrl and LButton to activate auto clicker<br>or send an instant whisper when copied a whisper message</td><tr>
                     <tr><td>Ctrl + c</td><td>Copy the selected item's name</td><tr>
                     <tr><td>Ctrl + d</td><td><b style='color:darkred'>[Patreon only]</b>Check the price of selected item or items in nearby curio displays</td><tr>
                     <tr><td>Ctrl + Shift + d</td><td><b style='color:darkred'>[Patreon only]</b>Check the price of items in current stash tab or inventory</td><tr>

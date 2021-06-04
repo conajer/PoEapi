@@ -145,6 +145,16 @@ AutoPickup:
     ptask.beginPickup()
 return
 
+OnClipboardChange:
+    if (RegExMatch(Clipboard, "^@([^ ]+) (Hi, (I would|I'd) like to buy your .*)", matched)) {
+        if (GetKeyState("Ctrl") && Not GetKeyState("c")) {
+            SendInput, {Ctrl up}
+            ptask.activate()
+            ptask.sendKeys(Clipboard) 
+        }
+    }
+return
+
 AutoClick() {
     global clickerEnabled
 
