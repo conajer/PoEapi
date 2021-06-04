@@ -138,7 +138,7 @@ class Character {
         reserved := lParam >> 16
         life := Round(life * 100 / (maximum - reserved))
 
-        if (ptask.isActive && life < 100) {
+        if (ptask.isActive && ptask.InMap && life < 100) {
             if (this.nearbyMonsters >= MonsterThreshold)
                 SendInput, %DefenseBuffSkillKey%
             
