@@ -186,7 +186,8 @@ class WebGui extends AhkGui {
                 NumPut(val, pMSG, (i-1) * A_PtrSize)
 
             TranslateAccelerator := NumGet(NumGet(1 * this.oleInPlaceActiveObj) + 5 * A_PtrSize)
-            DllCall(TranslateAccelerator, "Ptr", this.oleInPlaceActiveObj, "Ptr",&pMSG)
+            if (Not DllCall(TranslateAccelerator, "Ptr", this.oleInPlaceActiveObj, "Ptr",&pMSG))
+                return false
         }
     }
 }
