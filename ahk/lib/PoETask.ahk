@@ -436,6 +436,13 @@ class PoETask extends AhkObj {
             }
         }
 
+        if (prophesier.isOpened()) {
+            for i, p in prophesier.getProphecies() {
+                p.item := {"price": $(p.name)}
+                this.displayItemPrice(p)
+            }
+        }
+
         loop, {
             if (GetKeyState("Ctrl"))
                 stickyMode := true
