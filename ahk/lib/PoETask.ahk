@@ -100,6 +100,7 @@ class PoETask extends AhkObj {
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "onPlayerChanged"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_USE_SKILL, ObjBindMethod(this, "onUseSkill"))
+        OnMessage(WM_PTASK_EXIT, ObjBindMethod(this, "onExit"))
 
         this.player := new Character()
 
@@ -128,6 +129,12 @@ class PoETask extends AhkObj {
 
     onLoaded() {
         this.reset()
+    }
+
+    onExit() {
+        this.league := ""
+        this.InHideout := false
+        this.InMap := false
     }
 
     onAttached(hwnd) {
