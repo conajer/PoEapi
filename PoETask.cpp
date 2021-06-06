@@ -43,6 +43,8 @@ public:
     std::mutex muxtex;
     bool is_attached = false;
     bool is_active = false;
+    shared_ptr<Element> hovered_element;
+    shared_ptr<Item> hovered_item;
 
     PoETask() : Task(L"PoETask"),
         ignored_entity_exp(L"Doodad|WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
@@ -91,6 +93,8 @@ public:
         add_method(L"getEntities", this, (MethodType)&PoETask::get_entities, AhkObject, ParamList{AhkWString});
         add_method(L"getPlayer", this, (MethodType)&PoETask::get_player, AhkObject);
         add_method(L"getTerrain", this, (MethodType)&PoETask::get_terrain, AhkObject);
+        add_method(L"getHoveredElement", this, (MethodType)&PoETask::get_hovered_element, AhkObject);
+        add_method(L"getHoveredItem", this, (MethodType)&PoETask::get_hovered_item, AhkObject);
         add_method(L"setOffset", this, (MethodType)&PoETask::set_offset, AhkVoid, ParamList{AhkWString, AhkString, AhkInt});
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
@@ -321,6 +325,26 @@ public:
     AhkObjRef* get_terrain() {
         if (is_in_game())
             return *in_game_data->get_terrain();
+        return nullptr;
+    }
+
+    AhkObjRef* get_hovered_element() {
+        Element* e = in_game_state->get_hovered_element();
+        if (e) {
+            hovered_element = shared_ptr<Element>(e);
+            return *hovered_element;
+        }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_hovered_item() {
+        Item* item = in_game_state->get_hovered_item();
+        if (item) {
+            hovered_item = shared_ptr<Item>(item);
+            return *hovered_item;
+        }
+
         return nullptr;
     }
 

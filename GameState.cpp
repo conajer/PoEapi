@@ -96,6 +96,8 @@ std::map<string, int> in_game_state_offsets {
     {"in_game_data", 0x500},
     {"server_data",  0x508},
     {"ui_root",      0x630},
+    {"hovered",      0x698},
+    {"hovered_item", 0x6a8},
     {"time_in_game", 0x6dc},
     {"load_stage2",  0x6f0},
     {"camera",      0x1178},
@@ -169,6 +171,16 @@ public:
             sd.reset(new ServerData(addr));
 
         return sd.get();
+    }
+
+    Element* get_hovered_element() {
+        addrtype addr = read<addrtype>("hovered");
+        return addr ? new Element(addr) : nullptr;
+    }
+
+    Item* get_hovered_item() {
+        addrtype addr = read<addrtype>("hovered_item", 0x388);
+        return addr ? new Item(addr) : nullptr;
     }
 
     unsigned int time_in_game() {
