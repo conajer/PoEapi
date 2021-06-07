@@ -6,12 +6,12 @@ class Item extends Entity {
 
     fullName() {
         qName := this.name
-        if (this.IsIdentified && this.rarity > 0)
+        if (this.IsIdentified && this.rarity > 1)
             qName .= " " this.baseName
         if (this.IsMap)
             qName .= " (T" this.tier ")"
         if (this.IsGem)
-            qName := "Level " this.level " " this.quality "% " qName
+            qName .= " Level " this.level " " this.quality "%" 
 
         return qName
     }
