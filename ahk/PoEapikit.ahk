@@ -250,7 +250,22 @@ return
 ^WheelUp::SendInput {Left}
 
 ~*LAlt::
-    ptask.showPrices()
+    stickyMode := false
+    if (betrayer.isOpened())
+        betrayer.show()
+    else if (Not ptask.getHoveredItem())
+        ptask.showPrices()
+
+    loop, {
+        if (GetKeyState("Ctrl"))
+            stickyMode := true
+        Sleep, 100
+        if (Not GetKeyState("Alt")) {
+            if (Not stickyMode)
+                ptask.c.clear()
+            break
+        }
+    }
 return
 
 ~^c::

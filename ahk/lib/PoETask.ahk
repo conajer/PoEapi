@@ -401,7 +401,6 @@ class PoETask extends AhkObj {
     }
 
     showPrices() {
-        stickyMode := false
         shift := GetKeyState("Shift")
         this.c.clear()
         if (this.stash.isOpened()) {
@@ -436,17 +435,6 @@ class PoETask extends AhkObj {
             for i, p in prophesier.getProphecies() {
                 p.item := {"price": $(p.name)}
                 this.displayItemPrice(p)
-            }
-        }
-
-        loop, {
-            if (GetKeyState("Ctrl"))
-                stickyMode := true
-            Sleep, 100
-            if (Not GetKeyState("Alt")) {
-                if (Not stickyMode)
-                    this.c.clear()
-                break
             }
         }
     }
