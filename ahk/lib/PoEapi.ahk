@@ -119,14 +119,12 @@ class Entity extends PoEObject {
 class Element extends PoEObject {
 
     getChild(params*) {
-        e := this
-        for i, n in params {
-            if (e.getChilds().Count() < n)
-                return
-            e := e.childs[n]
-        }
+        VarSetCapacity(path, (params.Length() + 1) * 4)
+        for i, n in params
+            NumPut(n - 1, path, (i - 1) * 4, "Int")
+        NumPut(-1, path, params.Length() * 4, "Int")
 
-        return e
+        return this.__Call("getChild", &path)
     }
 
     getPos(ByRef x = "", ByRef y = "") {
@@ -481,15 +479,15 @@ class Stash extends Element {
                 key := (activeTabIndex > tabIndex) ? "Left" : "Right"
                 SendInput {%key% %n%}
 
-                loop, 3 {
-                    Sleep, 20
+                loop, 5 {
+                    Sleep, 30
                     if (this.activeTabIndex() == tabIndex)
                         break
                 }
+
+                return true
             }
         }
-
-        return true
     }
 
     __getTabs() {
