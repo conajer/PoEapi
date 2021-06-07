@@ -52,6 +52,12 @@ private:
         return temp_childs;
     }
 
+    AhkObjRef* __get_parent() {
+        if (get_parent())
+            return *parent;
+        return nullptr;
+    }
+
     AhkObjRef* __get_rect() {
         AhkTempObj rect(L"Rect");
         Rect r = get_rect();
@@ -82,6 +88,7 @@ public:
         add_method(L"hasChild", this, (MethodType)&Element::__has_child, AhkBool);
         add_method(L"getChild", this, (MethodType)&Element::__get_child, AhkObject, ParamList{AhkPointer});
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
+        add_method(L"getParent", this, (MethodType)&Element::__get_parent, AhkObject);
         add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
         add_method(L"isHighlighted", this, (MethodType)&Element::is_highlighted, AhkBool);
