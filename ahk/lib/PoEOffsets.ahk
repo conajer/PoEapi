@@ -2,7 +2,7 @@
 ; PoEOffsets.ahk 1/6/2021 10:45 AM
 ;
 
-global PoEOffsets = { "version" : "3.14.1d", "offsets"
+global PoEOffsets = { "version" : "3.14", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         ,     "current"                 : 0x0
                         , "game_states"                 : 0x48
@@ -14,6 +14,8 @@ global PoEOffsets = { "version" : "3.14.1d", "offsets"
                         , "in_game_data"                : 0x30
                         , "server_data"                 : 0x420
                         , "ui_root"                     : 0x548
+                        , "hovered"                     : 0x580
+                        , "hovered_item"                : 0x590
                         , "time_in_game"                : 0x5fc
                         , "load_stage2"                 : 0x610
                         , "camera"                      : 0x1080
