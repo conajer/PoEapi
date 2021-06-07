@@ -99,7 +99,6 @@ class PoETask extends AhkObj {
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "onAreaChanged"))
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "onPlayerChanged"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
-        OnMessage(WM_USE_SKILL, ObjBindMethod(this, "onUseSkill"))
         OnMessage(WM_PTASK_EXIT, ObjBindMethod(this, "onExit"))
 
         this.player := new Character()
@@ -278,24 +277,21 @@ class PoETask extends AhkObj {
     }
 
     select(name) {
-        if (Not WinActive("ahk_class POEWindowClass"))
+        if (Not this.isActive)
             return
 
-        this.selected := false
-        this.target := this.getNearestEntity(name)
-        if (Not this.target)
-            return false
+        entity := this.getNearestEntity(name)
+        if (Not entity)
+            return
 
-        vendor := this.getVendor()
-        loop, 5 {
-            if (this.selected || (this.target.path ~= "NPC" && vendor.isSelected())) {
-                this.target := ""
-                return true
-            }
-
-            this.target.getPos(x, y)
+        loop, 10 {
+            entity.getPos(x, y)
             clipToRect(this.actionArea, x, y)
-            MouseClick(x, y)
+            MouseMove, x, y, 0
+            e := ptask.getHoveredElement()
+            SendInput, {Click}
+            if (e.getText() == entity.name())
+                return true
             Sleep, 500
         }
 
@@ -470,16 +466,6 @@ class PoETask extends AhkObj {
 
     onPlayerChanged(name) {
         syslog(this.player.whois())
-    }
-
-    onUseSkill(skill, target) {
-        skill := StrGet(skill)
-        if (skill == "Interactive") {
-            if (this.target) {
-                if (this.target.address == target)
-                    this.selected := true
-            }
-        }
     }
 
     onAttack() {
