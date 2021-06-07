@@ -95,6 +95,7 @@ class Hotkeys extends WebGui {
                 button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
                 button:focus { outline: solid; outline-width: 1px; outline-color: #0078d7; }
                 button:hover { background-color: #e5f1fb; outline: solid; outline-width: 1px; outline-color: #0078d7; }
+                tr:nth-child(even) { background-color: #f7f7f7; }
                 td:nth-child(1) { color: blue; text-align: right; font-weight: bold; }
                 td:nth-child(2) { color: dimgray; padding: 0 15px; }
             </style>
@@ -103,34 +104,34 @@ class Hotkeys extends WebGui {
             <div>
                 <h2>Hotkeys</h2>
                 <table>
-                    <tr><td>``</td><td>Exit to character selection</td><tr>
-                    <tr><td>a</td><td>Auto pickup</td><tr>
-                    <tr><td>s</td><td>Level up skill gems</td><tr>
-                    <tr><td>F1</td><td>Auto aruas</td><tr>
-                    <tr><td>F2</td><td>Auto portal</td><tr>
-                    <tr><td>F3</td><td>Auto identify/sell</td><tr>
-                    <tr><td>Alt + F3</td><td>Identify all and sell</td><tr>
-                    <tr><td>F4</td><td>Auto stash</td><tr>
-                    <tr><td>F5</td><td>Hideout</td><tr>
-                    <tr><td>Ctrl + F5</td><td>Azurite mine</td><tr>
-                    <tr><td>Alt + F5</td><td>Menagerie</td><tr>
-                    <tr><td>F6</td><td>Dump inventory items</td><tr>
-                    <tr><td>Ctrl + F6</td><td>Dump highlighted or all items from current stash tab</td><tr>
-                    <tr><td>F7</td><td>Sell full rare sets to vendor</td><tr>
-                    <tr><td>F12</td><td>Toggle log window</td><tr>
-                    <tr><td>Left Alt</td><td>Hold down the left Alt key to show price of items</td><tr>
-                    <tr><td>Windows + d</td><td>Minimize PoE window</td><tr>
-                    <tr><td>Shift + LButton</td><td>Hold Shift and LButton to activate auto clicker</td><tr>
-                    <tr><td>Ctrl + Double Click</td><td>Hold Ctrl then double click to activate auto clicker</td><tr>
-                    <tr><td>Ctrl + LButton</td><td>Hold Ctrl and LButton to activate auto clicker<br>or send an instant whisper when copied a whisper message</td><tr>
-                    <tr><td>Ctrl + c</td><td>Copy the selected item's name</td><tr>
-                    <tr><td>Ctrl + d</td><td><b style='color:darkred'>[Patreon only]</b>Check the price of selected item or items in nearby curio displays</td><tr>
-                    <tr><td>Ctrl + Shift + d</td><td><b style='color:darkred'>[Patreon only]</b>Check the price of items in current stash tab or inventory</td><tr>
-                    <tr><td>Ctrl + f</td><td>Highlight items in stash tab</td><tr>
-                    <tr><td>Ctrl + m</td><td>Toggle maphack</td><tr>
-                    <tr><td>Ctrl + r</td><td>Reload script</td><tr>
-                    <tr><td>Ctrl + w</td><td>Open wiki</td><tr>
-                    <tr><td>Ctrl + q</td><td>Quit PoEapikit</td><tr>
+                    <tr><td>``</td><td>Exit to character selection</td></tr>
+                    <tr><td>a</td><td>Pickup nearby items</td></tr>
+                    <tr><td>s</td><td>Level up skill gems</td></tr>
+                    <tr><td>F1</td><td>Auto aruas</td></tr>
+                    <tr><td>F2</td><td>Open portal</td></tr>
+                    <tr><td>F3</td><td>Auto identify and sell</td></tr>
+                    <tr><td>Alt + F3</td><td>Identify all and sell</td></tr>
+                    <tr><td>F4</td><td>Stash items</td></tr>
+                    <tr><td>F5</td><td>Hideout</td></tr>
+                    <tr><td>Ctrl + F5</td><td>Azurite mine</td></tr>
+                    <tr><td>Alt + F5</td><td>Menagerie</td></tr>
+                    <tr><td>F6</td><td>Dump inventory items</td></tr>
+                    <tr><td>Ctrl + F6</td><td>Dump highlighted or all items from stash tab</td></tr>
+                    <tr><td>F7</td><td>Sell full rare sets to vendor</td></tr>
+                    <tr><td>F12</td><td>Toggle log window</td></tr>
+                    <tr><td>Left Alt</td><td>Show price of the items in stash tab, inventory or favours<br><b style='color:darkred'>[patreon only]</b>Show price of the prophecies when view prophecies<br><b style='color:darkred'>[patreon only]</b>Show ratings of the syndicate members</td></tr>
+                    <tr><td>Windows + d</td><td>Minimize PoE window</td></tr>
+                    <tr><td>Shift + LButton</td><td>Hold Shift and LButton to activate auto clicker</td></tr>
+                    <tr><td>Ctrl + Double Click</td><td>Hold Ctrl then double click to activate auto clicker</td></tr>
+                    <tr><td>Ctrl + LButton</td><td>Hold Ctrl and LButton to activate auto clicker<br>Send an instant whisper when copied a whisper message</td></tr>
+                    <tr><td>Ctrl + c</td><td>Copy the selected item's name</td></tr>
+                    <tr><td>Ctrl + d</td><td><b style='color:darkred'>[patreon only]</b>Check the price of selected item or items in nearby curio displays</td></tr>
+                    <tr><td>Ctrl + Shift + d</td><td><b style='color:darkred'>[patreon only]</b>Check the price of items in current stash tab or inventory</td></tr>
+                    <tr><td>Ctrl + f</td><td>Highlight items in stash tab</td></tr>
+                    <tr><td>Ctrl + m</td><td>Toggle maphack</td></tr>
+                    <tr><td>Ctrl + r</td><td>Reload script</td></tr>
+                    <tr><td>Ctrl + w</td><td>Open wiki</td></tr>
+                    <tr><td>Ctrl + q</td><td>Quit PoEapikit</td></tr>
                 </table>
             </div>
             <span>
