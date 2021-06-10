@@ -187,6 +187,12 @@ public:
         return read<unsigned int>("time_in_game");
     }
 
+    void reset() {
+        igu.reset();
+        igd.reset();
+        sd.reset();
+    }
+
     Vector3& transform(Vector3& vec) {
         Point size = read<Point>("width");
         Matrix4x4 mat = read<Matrix4x4>("matrix");

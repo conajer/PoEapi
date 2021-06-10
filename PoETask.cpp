@@ -369,6 +369,7 @@ public:
         labeled_entities.clear();
 
         if (in_game_state) {
+            in_game_state->reset();
             in_game_ui = in_game_state->in_game_ui();
             in_game_data = in_game_state->in_game_data();
             server_data = in_game_state->server_data();
