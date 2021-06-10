@@ -27,7 +27,7 @@ class Element : public PoEObject {
 private:
 
     bool __has_child() {
-        return !get_childs().empty();
+        return child_count();
     }
 
     AhkObjRef* __get_child(int* path) {
@@ -35,12 +35,8 @@ private:
         for (int* p = path; *p >= 0; ++p)
             indices.push_back(*p);
         shared_ptr<Element> e = get_child(indices);
-        if (e) {
-            childs.push_back(e);
-            return *e;
-        }
 
-        return nullptr;
+        return e ? (AhkObjRef*)*e : nullptr;
     }
 
     AhkObjRef* __get_childs() {
@@ -133,11 +129,20 @@ public:
     }
 
     shared_ptr<Element> get_child(int index) {
-        if (child_count() <= index)
+        int n = child_count();
+        if (index >= n)
             return nullptr;
 
+        if (childs.size() < n) {
+            childs.clear();
+            for (int i = 0; i < n; ++i)
+                childs.push_back(shared_ptr<Element>());
+        }
+
         addrtype addr = read<addrtype>("childs", index * 8);
-        return shared_ptr<Element>(new Element(addr));
+        if (!childs[index] || childs[index]->address != addr)
+            childs[index] = shared_ptr<Element>(new Element(addr));
+        return childs[index];
     }
 
     shared_ptr<Element> get_child(std::vector<int> indices) {
