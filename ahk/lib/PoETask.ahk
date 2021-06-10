@@ -288,6 +288,7 @@ class PoETask extends AhkObj {
             entity.getPos(x, y)
             clipToRect(this.actionArea, x, y)
             MouseMove, x, y, 0
+            Sleep, 30
             e := ptask.getHoveredElement()
             SendInput, {Click}
             if (e.getText() == entity.name())
