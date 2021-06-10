@@ -112,8 +112,7 @@ public:
     }
 
     wstring& get_text() {
-        if (text.empty())
-            text = read<wstring>("text");
+        text = read<wstring>("text");
         return text;
    }
 
