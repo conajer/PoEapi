@@ -48,6 +48,11 @@ private:
         return temp_childs;
     }
 
+    AhkObjRef* __find_child(const wchar_t* text) {
+        Element* e = find_child(wstring(text));
+        return e ? (AhkObjRef*)*e : nullptr;
+    }
+
     AhkObjRef* __get_parent() {
         if (get_parent())
             return *parent;
@@ -84,6 +89,7 @@ public:
         add_method(L"hasChild", this, (MethodType)&Element::__has_child, AhkBool);
         add_method(L"getChild", this, (MethodType)&Element::__get_child, AhkObject, ParamList{AhkPointer});
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
+        add_method(L"findChild", this, (MethodType)&Element::__find_child, AhkObject, ParamList{AhkWString});
         add_method(L"getParent", this, (MethodType)&Element::__get_parent, AhkObject);
         add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
@@ -183,6 +189,19 @@ public:
 
     shared_ptr<Element> operator[](int index) {
         return get_child(index);
+    }
+
+    Element* find_child(const wstring& text) {
+        if (text == get_text())
+            return this;
+
+        for (auto& i : get_childs()) {
+            Element* e = i->find_child(text);
+            if (e != nullptr)
+                return e;
+        }
+
+        return nullptr;
     }
 
     bool is_visible() {
