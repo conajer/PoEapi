@@ -66,8 +66,7 @@ public:
     std::unordered_map<wstring, Property, ihash, iequal_to> properties;   // property name is case sensitive,
     std::unordered_map<wstring, Method, ihash, iequal_to> methods;        // as above
 
-    AhkObj();
-    AhkObj(const wstring type_name);
+    AhkObj(const wstring type_name = L"");
     AhkObj(AhkObjRef* obj_ref);
     virtual ~AhkObj();
     virtual void __init();
@@ -94,8 +93,7 @@ public:
 class AhkTempObj : public AhkObj {
 public:
 
-    AhkTempObj();
-    AhkTempObj(const wstring type_name);
+    AhkTempObj(const wstring type_name = L"");
     ~AhkTempObj();
     operator AhkObjRef*();
 };
@@ -129,5 +127,6 @@ DLLEXPORT void ahkpp_delete(AhkObjRef* ahkobj_ref);
 DLLEXPORT void ahkpp_set_var(const wchar_t* name, ...);
 DLLEXPORT void ahkpp_get_var(const wchar_t* name, void* value, AhkType type);
 DLLEXPORT void ahkpp_get_value(void* value, void* val_ptr, AhkType type);
+DLLEXPORT AhkObjRef* ahkpp_get_stubs();
 
 #endif /* AHKPP */
