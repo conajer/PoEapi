@@ -18,10 +18,10 @@ global PoEOffsets = { "version" : "3.14", "offsets"
                         , "hovered_item"                : 0x590
                         , "time_in_game"                : 0x5fc
                         , "load_stage2"                 : 0x610
-                        , "camera"                      : 0x1080
-                        , "width"                       : 0x1088
-                        , "height"                      : 0x108c
-                        , "matrix"                      : 0x1140 }
+                        , "camera"                      : 0x9d0
+                        , "width"                       : 0x9d8
+                        , "height"                      : 0x9dc
+                        , "matrix"                      : 0x7d0 }
                       
       , "IngameData"  : { "world_area"                  : 0x80
                         , "area_level"                  : 0xa0
@@ -64,9 +64,9 @@ global PoEOffsets = { "version" : "3.14", "offsets"
                         , "league"                      : 0x7e60
                         , "latency"                     : 0x7ed8
                         , "party_status"                : 0x8050
-                        , "stash_tabs"                  : 0x7ee8
+                        , "stash_tabs"                  : 0x7ef0
                         , "local_player"                : 0x8188
-                        , "inventory_slots"             : 0x82a0 }
+                        , "inventory_slots"             : 0x82a8 }
                       
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
