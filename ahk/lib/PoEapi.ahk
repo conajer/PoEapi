@@ -6,7 +6,7 @@ if (FileExist("..\poeapi.dll")) {
     FileMove ..\poeapi.dll, poeapi.dll, true
 }
 
-if (Not loadLibrary("poeapi.dll")) {
+if (Not pLib := loadLibrary("poeapi.dll")) {
     errCode := DllCall("GetLastError")
     if (errCode == 0xc1)
         Msgbox, % "You need 64-Bit AutoHotkey to run PoEapikit."
@@ -46,6 +46,9 @@ global WM_PTASK_ATTACHED   := 0x9100
 global WM_PTASK_ACTIVE     := 0x9101
 global WM_PTASK_LOADED     := 0x9102
 global WM_PTASK_EXIT       := 0x9103
+
+; Initialize ahkpp
+ahkpp_init(pLib)
 
 ; Register PoEapi classes
 ahkpp_register_class(PoETask)
@@ -359,7 +362,7 @@ class SpecialStashTab extends StashTab {
         this.__Call("getChilds")
         this.getItems()
         for i, e in this.childs {
-            if (e.getChilds().Count() == 2) {
+            if (e.getChilds().Length() == 2) {
                 left := e.childs[2].getInt(0x390) + 1
                 top := e.childs[2].getInt(0x394) + 1
                 e.index := (left - 1) * this.rows + top
@@ -546,18 +549,40 @@ class Vendor extends Element {
         if (sell.isOpened())
             return true
 
-        if (this.selectNPC()) {
+        if (ptask.areaName == "The Rogue Harbour") {
+            e := ptask.getIngameUI().getChild(26, 9)
+            if (Not e.getChild(1).getText() ~= "Faustus") {
+                SendInput, %CloseAllUIKey%
+                if (Not ptask.select("Faustus"))
+                    return
+            }
+
+            loop, 30 {
+                if (e.getChild(1).getText() ~= "Faustus") {
+                    service := e.getChild(2, 2).findChild(_("Sell Items"))
+                    if (service) {
+                        service.getPos(x, y)
+                        MouseClick(x, y)
+                        break
+                    }
+                }
+                Sleep, 50
+            }
+        } else {
+            if (Not this.selectNPC())
+                return
+
             service := this.selectService(_("Sell Items"))
             if (service) {
                 service.getPos(x, y)
                 MouseClick(x, y)
-
-                loop, 10 {
-                    if (sell.isOpened())
-                        return true
-                    Sleep, 50
-                }
             }
+        }
+
+        loop, 10 {
+            if (sell.isOpened())
+                return true
+            Sleep, 50
         }
 
         return false
