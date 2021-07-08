@@ -137,7 +137,7 @@ protected:
 
 public:
 
-    const char* executable_names[2] = {"PathOfExile_x64.exe", "PathOfExile_x64Steam.exe"};
+    const char* executable_names[2] = {"PathOfExile.exe", "PathOfExile_x64Steam.exe"};
     addrtype address;
     int size_of_image;
     int process_id;
@@ -156,12 +156,12 @@ public:
     }
 
     GameStateController* get_game_state_controller() {
-        char pattern[] = "48 83 ec 50 48 c7 44 24 ?? ?? ?? ?? ?? 48 89 9c 24 ?? ?? ?? ?? 48 8b f9 33 ed 48 39";
+        char pattern[] = "48 8b f1 33 ed 48 39 2d";
         addrtype addr = find_pattern(pattern);
         if (!addr)
             return nullptr;
 
-        addr = read<addrtype>(addr + read<int>(addr + 29) + 33);
+        addr = read<addrtype>(addr + read<int>(addr + 8) + 12);
         if (!addr)
             return nullptr;
         delete game_state_controller;
