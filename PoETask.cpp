@@ -10,6 +10,7 @@
 #include "PoEapi.c"
 #include "Task.cpp"
 #include "PoEPlugin.cpp"
+#include "sqlite3.cpp"
 #include "plugins/AutoFlask.cpp"
 #include "plugins/AutoOpen.cpp"
 #include "plugins/AutoPickup.cpp"
@@ -623,6 +624,7 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"Chat", L"Element", []()->Chat* {return new Chat(0);});
         ahkpp_register(L"Charges", L"Component", []()->Charges* {return new Charges(0);});
         ahkpp_register(L"Flask", L"Component", []()->Flask* {return new Flask(0);});
+        ahkpp_register(L"sqlite3", L"AhkObj", []()->sqlite3* {return new sqlite3();});
         break;
 
     case DLL_THREAD_ATTACH:
