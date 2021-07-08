@@ -139,6 +139,19 @@ template <> std::vector<wstring> read_array(HANDLE handle, addrtype address, int
     return vec;
 }
 
+template <typename T> bool write(HANDLE handle, addrtype address, T* buffer, int n) {
+    DWORD old_protect;
+    
+    int size = n * sizeof(T);
+    if (VirtualProtectEx(handle, (LPVOID)address, size, PAGE_EXECUTE_READWRITE, &old_protect)) {
+        WriteProcessMemory(handle, (LPVOID)address, buffer, size, 0);
+        VirtualProtectEx(handle, (LPVOID)address, size, old_protect, 0);
+        return true;
+    }
+
+    return false;
+}
+
 class PoEMemory {
 protected:
 
@@ -175,16 +188,7 @@ public:
     }
 
     template <typename T> bool write(addrtype address, T* buffer, int n) {
-        DWORD old_protect;
-        
-        int size = n * sizeof(T);
-        if (VirtualProtectEx(process_handle, (LPVOID)address, size, PAGE_EXECUTE_READWRITE, &old_protect)) {
-            WriteProcessMemory(process_handle, (LPVOID)address, buffer, size, 0);
-            VirtualProtectEx(process_handle, (LPVOID)address, size, old_protect, 0);
-            return true;
-        }
-
-        return false;
+        return ::write(process_handle, address, buffer, n);
     }
 };
 
