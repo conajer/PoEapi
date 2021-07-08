@@ -536,15 +536,21 @@ public:
     }
 
     bool toggle_maphack() {
-        const char pattern[] = "66 c7 ?? 78 00 ?? c6";
+        const char pattern[] = "66 C7 46 58 ?? 00";
+
+        HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, false, process_id);
+        if (!handle)
+            return false;
+
         if (addrtype addr = find_pattern(pattern)) {
-            byte flag = !read<byte>(addr + 5);
-            if (write<byte>(addr + 5, &flag, 1)) {
-                log(L"Maphack <b style=\"color:blue\">%S</b>.",
-                    flag ? L"Enabled" : L"Disabled");
+            byte flag = read<byte>(addr + 4) ? 0 : 2;
+            if (::write<byte>(handle, addr + 4, &flag, 1)) {
+                log(L"Maphack <b style=\"color:blue\">%S</b>.", flag ? L"Enabled" : L"Disabled");
+                CloseHandle(handle);
                 return true;
             }
         }
+        CloseHandle(handle);
             
         return false;
     }
