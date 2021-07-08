@@ -48,7 +48,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
-global version := "1.3.2"
+global version := "1.3.3"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -233,6 +233,38 @@ return
         clickerEnabled := true
     SendInput, ^{Click}
     SetTimer, AutoClick, -200
+return
+
+~RButton::
+    loop, 50 {
+        if (item := ptask.getHoveredItem())
+            break
+        SLeep, 10
+    }
+
+    if (item) {
+        price := $(item)
+        if (Not price)
+            return
+
+        loop, 20 {
+            e := ptask.getIngameUI().getChild(135, 1)
+            if (e.getChild(1, 2, 2, 1).isVisible()) {
+                exalted := $("Exalted Orb")
+                if (price >= 2 * exalted)
+                    note := Format("~b/o {:.1f} exalted", price / exalted)
+                else if (price >= 1)
+                    note := Format("~b/o {} chaos", Round(price))
+                else if (item.stackSize() > 1)
+                    note := Format("~b/o {}/{} chaos", 10, Round(10 / price))
+                else
+                    note := Format("~b/o {:.1f} chaos", price)
+                SendInput, %note%
+                break
+            }
+            Sleep, 50
+        }
+    }
 return
 
 #d::
