@@ -26,16 +26,16 @@ global PoEOffsets = { "version" : "3.14", "offsets"
       , "IngameData"  : { "world_area"                  : 0x80
                         , "area_level"                  : 0xa0
                         , "area_hash"                   : 0x104
-                        , "local_player"                : 0x478
-                        , "entity_list"                 : 0x520
+                        , "local_player"                : 0x4f8
+                        , "entity_list"                 : 0x5a0
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x528 }
+                        , "entity_list_count"           : 0x5a8 }
                       
       , "IngameUI"    : { "inventory"                   : 0x530
                         ,     "grid"                    : 0x3a8
                         , "stash"                       : 0x538
                         ,     "tabs"                    : 0x2c0
-                        , "overlay_map"                 : 0x5b8
+                        , "overlay_map"                 : 0x638
                         ,     "large"                   : 0x230
                         ,     "small"                   : 0x238
                         , "chat"                        : 0x410
@@ -44,29 +44,29 @@ global PoEOffsets = { "version" : "3.14", "offsets"
                         , "panel_flags"                 : 0x518
                         , "skills"                      : 0x560
                         , "atlas"                       : 0x568
-                        , "entity_list"                 : 0x5c0
+                        , "entity_list"                 : 0x640
                         ,     "root"                    : 0x2a0
-                        , "vendor"                      : 0x648
-                        , "purchase"                    : 0x668
-                        , "sell"                        : 0x670
-                        , "trade"                       : 0x678
-                        , "favours"                     : 0x7e8
-                        , "gem_level_up"                : 0x990
-                        , "notifications"               : 0x950 }
+                        , "vendor"                      : 0x6c8
+                        , "purchase"                    : 0x6e8
+                        , "sell"                        : 0x6f0
+                        , "trade"                       : 0x6f8
+                        , "favours"                     : 0xa18
+                        , "gem_level_up"                : 0xa10
+                        , "notifications"               : 0x9d0 }
                       
-      , "ServerData"  : { "player_data"                 : 0x7d98
+      , "ServerData"  : { "player_data"                 : 0x7e98
                         ,     "passive_skills"          : 0x160
                         ,     "player_class"            : 0x200
                         ,     "level"                   : 0x204
                         ,     "skill_points_from_quest" : 0x20c
                         ,     "skill_points_left"       : 0x210
                         ,     "ascendancy_skill_points" : 0x214
-                        , "league"                      : 0x7e60
-                        , "latency"                     : 0x7ed8
-                        , "party_status"                : 0x8050
-                        , "stash_tabs"                  : 0x7ef0
-                        , "local_player"                : 0x8188
-                        , "inventory_slots"             : 0x82a8 }
+                        , "league"                      : 0x7f60
+                        , "latency"                     : 0x7fd8
+                        , "party_status"                : 0x8150
+                        , "stash_tabs"                  : 0x7ff0
+                        , "local_player"                : 0x8288
+                        , "inventory_slots"             : 0x83a8 }
                       
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
