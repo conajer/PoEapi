@@ -137,7 +137,7 @@ protected:
 
 public:
 
-    const char* executable_names[3] = {"PathOfExile.exe", "PathOfExileSteam.exe"};
+    const char* executable_names[3] = {"PathOfExile.exe", "PathOfExileSteam.exe", "PathOfExile_KG.exe"};
     addrtype address;
     int size_of_image;
     int process_id;
