@@ -2,7 +2,7 @@
 ; PoEOffsets.ahk 1/6/2021 10:45 AM
 ;
 
-global PoEOffsets = { "version" : "3.14", "offsets"
+global PoEOffsets = { "version" : "3.15", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         ,     "current"                 : 0x0
                         , "game_states"                 : 0x48
@@ -10,79 +10,79 @@ global PoEOffsets = { "version" : "3.14", "offsets"
                       
       , "IngameState" : { "name"                        : 0x10
                         , "load_stage1"                 : 0x40
-                        , "in_game_ui"                  : 0xa0
+                        , "in_game_ui"                  : 0x98
                         , "in_game_data"                : 0x30
-                        , "server_data"                 : 0x420
-                        , "ui_root"                     : 0x548
-                        , "hovered"                     : 0x580
-                        , "hovered_item"                : 0x590
-                        , "time_in_game"                : 0x5fc
-                        , "load_stage2"                 : 0x610
-                        , "camera"                      : 0x9d0
-                        , "width"                       : 0x9d8
-                        , "height"                      : 0x9dc
-                        , "matrix"                      : 0x7d0 }
+                        , "server_data"                 : 0x498
+                        , "ui_root"                     : 0x5c0
+                        , "hovered"                     : 0x5f8
+                        , "hovered_item"                : 0x608
+                        , "time_in_game"                : 0x674
+                        , "load_stage2"                 : 0x688
+                        , "camera"                      : 0x788
+                        , "width"                       : 0x790
+                        , "height"                      : 0x798
+                        , "matrix"                      : 0x848 }
                       
       , "IngameData"  : { "world_area"                  : 0x80
                         , "area_level"                  : 0xa0
                         , "area_hash"                   : 0x104
-                        , "local_player"                : 0x4f8
-                        , "entity_list"                 : 0x5a0
+                        , "local_player"                : 0x500
+                        , "entity_list"                 : 0x5b0
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x5a8 }
+                        , "entity_list_count"           : 0x5b8 }
                       
-      , "IngameUI"    : { "inventory"                   : 0x530
-                        ,     "grid"                    : 0x3a8
-                        , "stash"                       : 0x538
-                        ,     "tabs"                    : 0x2c0
-                        , "overlay_map"                 : 0x638
-                        ,     "large"                   : 0x230
-                        ,     "small"                   : 0x238
-                        , "chat"                        : 0x410
-                        , "lefe_panel"                  : 0x508
-                        , "right_panel"                 : 0x510
-                        , "panel_flags"                 : 0x518
-                        , "skills"                      : 0x560
-                        , "atlas"                       : 0x568
-                        , "entity_list"                 : 0x640
-                        ,     "root"                    : 0x2a0
-                        , "vendor"                      : 0x6c8
-                        , "purchase"                    : 0x6e8
-                        , "sell"                        : 0x6f0
-                        , "trade"                       : 0x6f8
-                        , "favours"                     : 0xa18
-                        , "gem_level_up"                : 0xa10
-                        , "notifications"               : 0x9d0 }
+      , "IngameUI"    : { "inventory"                   : 0x540
+                        ,     "grid"                    : 0x3b0
+                        , "stash"                       : 0x548
+                        ,     "tabs"                    : 0x2c8
+                        , "overlay_map"                 : 0x648
+                        ,     "large"                   : 0x238
+                        ,     "small"                   : 0x240
+                        , "chat"                        : 0x420
+                        , "lefe_panel"                  : 0x518
+                        , "right_panel"                 : 0x520
+                        , "panel_flags"                 : 0x528
+                        , "skills"                      : 0x570
+                        , "atlas"                       : 0x578
+                        , "entity_list"                 : 0x650
+                        ,     "root"                    : 0x2a8
+                        , "vendor"                      : 0x6d8
+                        , "purchase"                    : 0x6f8
+                        , "sell"                        : 0x708
+                        , "trade"                       : 0x710
+                        , "favours"                     : 0xa30
+                        , "gem_level_up"                : 0xa28
+                        , "notifications"               : 0x9e8 }
                       
-      , "ServerData"  : { "player_data"                 : 0x7e98
+      , "ServerData"  : { "player_data"                 : 0x8218
                         ,     "passive_skills"          : 0x160
                         ,     "player_class"            : 0x200
                         ,     "level"                   : 0x204
                         ,     "skill_points_from_quest" : 0x20c
                         ,     "skill_points_left"       : 0x210
                         ,     "ascendancy_skill_points" : 0x214
-                        , "league"                      : 0x7f60
-                        , "latency"                     : 0x7fd8
-                        , "party_status"                : 0x8150
-                        , "stash_tabs"                  : 0x7ff0
-                        , "local_player"                : 0x8288
-                        , "inventory_slots"             : 0x83a8 }
+                        , "league"                      : 0x82e0
+                        , "latency"                     : 0x8358
+                        , "party_status"                : 0x8500
+                        , "stash_tabs"                  : 0x8370
+                        , "local_player"                : 0x8638
+                        , "inventory_slots"             : 0x8758 }
                       
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
                         , "component_list"              : 0x10
                         , "id"                          : 0x60 }
                       
-      , "Element"     : { "self"                        : 0x18
-                        , "childs"                      : 0x38
-                        , "root"                        : 0x88
-                        , "parent"                      : 0x90
-                        , "position"                    : 0x98
-                        , "scale"                       : 0x108
-                        , "is_visible"                  : 0x111
-                        , "size"                        : 0x130
-                        , "highlighted"                 : 0x178
-                        , "text"                        : 0x2e8 }
+      , "Element"     : { "self"                        : 0x20
+                        , "childs"                      : 0x40
+                        , "root"                        : 0x90
+                        , "parent"                      : 0x98
+                        , "position"                    : 0xa0
+                        , "scale"                       : 0x110
+                        , "is_visible"                  : 0x119
+                        , "size"                        : 0x138
+                        , "highlighted"                 : 0x180
+                        , "text"                        : 0x2f0 }
                       
       , "StashTab"    : { "name"                        : 0x8
                         , "inventory_id"                : 0x28
