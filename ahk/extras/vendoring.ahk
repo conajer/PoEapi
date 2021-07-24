@@ -130,7 +130,7 @@ tradeDivinationCards() {
     if (n > 0 && ptask.getVendor().tradeDivinationCards()) {
         Sleep, 100
         ingameUI := ptask.getIngameUI()
-        ingameUI.getChild(62, 5).getPos(x, y)
+        ingameUI.getChild(64, 5).getPos(x, y)
         for i, item in ptask.inventory.getItems() {
             if (item.isDivinationCard && item.stackCount == item.stackSize) {
                 ptask.inventory.move(item)
@@ -231,15 +231,16 @@ dumpStashTabItems() {
 
 unstackCards() {
     ptask.activate()
-    if (Not ptask.stash.open())
-        return
+    if (ptask.stash.open())
+        inventory := ptask.stash.Tab
+    else if (ptask.inventory.open())
+        inventory := ptask.inventory
 
-    tab := ptask.stash.Tab
-    for i, item in tab.getItems() {
+    for i, item in inventory.getItems() {
         if (item.name == _("Stacked Deck")) {
             index := item.index
             loop, % item.stackCount {
-                tab.moveTo(index)
+                inventory.moveTo(index)
                 MouseClick, Right
                 Sleep, 100
 
@@ -248,7 +249,6 @@ unstackCards() {
             }
         }
     }
-    ptask.stashItems()
 }
 
 dumpUselessItems() {
