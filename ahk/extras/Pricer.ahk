@@ -180,6 +180,7 @@ class Pricer {
         }
 
         try {
+            this.prices := {}
             for name, t in this.types {
                 url := Format(this.url, t.catalog, league, t.type)
                 parsed := JSON.__parse(ajax(url))
