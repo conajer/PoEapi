@@ -33,7 +33,7 @@ global PoEOffsets = { "version" : "3.15", "offsets"
                       
       , "IngameUI"    : { "inventory"                   : 0x540
                         ,     "grid"                    : 0x3b0
-                        , "stash"                       : 0x508
+                        , "stash"                       : 0x548
                         ,     "tabs"                    : 0x2c8
                         , "overlay_map"                 : 0x648
                         ,     "large"                   : 0x238
