@@ -154,10 +154,11 @@ class InventoryGrid extends Element {
 
     getChilds() {
         this.__Call("getChilds")
+        this.childs.RemoveAt(1)
         this.getItems()
         for i, e in this.childs {
-            left := e.getInt(0x390) + 1
-            top := e.getInt(0x394) + 1
+            left := e.getInt(0x398) + 1
+            top := e.getInt(0x39c) + 1
             e.index := (left - 1) * this.rows + top
             e.item := this.items[e.index]
             e.isHighlighted := e.isHighlighted()
