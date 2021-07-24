@@ -192,7 +192,7 @@ public:
                 break;
 
             addrtype label = PoEMemory::read<addrtype>(next + 0x18);
-            bool is_visible = PoEMemory::read<byte>(label + 0x111) & 0x8;
+            bool is_visible = PoEMemory::read<byte>(label + 0x119) & 0x8;
             if (!is_visible)
                 continue;
 
