@@ -95,6 +95,7 @@ public:
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
         add_method(L"isHighlighted", this, (MethodType)&Element::is_highlighted, AhkBool);
         add_method(L"isVisible", this, (MethodType)&Element::is_visible, AhkBool);
+        add_method(L"enabled", this, (MethodType)&Element::is_enabled, AhkBool);
     }
 
     void __new() {
@@ -171,7 +172,7 @@ public:
             for (int i = 0; i < childs.size(); ++i) {
                 if (!vec[i])
                     childs[i].reset();
-                else if (vec[i] != childs[i]->address)
+                else if (!childs[i] || vec[i] != childs[i]->address)
                     childs[i] = shared_ptr<Element>(new Element(vec[i]));
             }
         } else {
@@ -204,6 +205,12 @@ public:
         return nullptr;
     }
 
+    bool is_enabled() {
+        if (!get_parent() || parent->is_visible())
+            return read<byte>("is_visible") & 0x20;
+        return false;
+    }
+
     bool is_visible() {
         if (!get_parent() || parent->is_visible())
             return read<byte>("is_visible") & 0x8;
@@ -211,7 +218,7 @@ public:
     }
 
     bool is_highlighted() {
-        return read<byte>("highlighted");
+        return read<byte>("highlighted") && PoEMemory::read<byte>(address + 0x11d);;
     }
 
     float scale() {
