@@ -175,8 +175,10 @@ public:
     }
 
     Skills* get_skills() {
-        if (!skills)
-            skills = unique_ptr<Skills>(new Skills(read<addrtype>("skills")));
+        if (!skills) {
+            shared_ptr<Element> e = get_child(24);
+            skills = unique_ptr<Skills>(new Skills(e->address));
+        }
         return skills.get();
     }
 
