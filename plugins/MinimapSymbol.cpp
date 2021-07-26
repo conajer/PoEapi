@@ -101,7 +101,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.10"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.11"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -332,7 +332,7 @@ public:
                 continue;
 
             Entity* entity = i.second.get();
-            if (entity->is_npc) {
+            if (entity->is_npc && !entity->is_dead()) {
                 if (show_npc)
                     draw_entity(entity, 9, min_size + 2);
             } else if (entity->is_monster) {
