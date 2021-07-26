@@ -179,7 +179,7 @@ public:
     }
 
     Item* get_hovered_item() {
-        addrtype addr = read<addrtype>("hovered_item", 0x388);
+        addrtype addr = read<addrtype>("hovered_item", 0x390);
         return addr ? new Item(addr) : nullptr;
     }
 

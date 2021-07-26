@@ -64,7 +64,7 @@ public:
 
             std::vector<shared_ptr<Item>> new_items;
             for (int i = 1; i < elements.size(); ++i) {
-                addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x388);
+                addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
                 shared_ptr<Item> item;
                 for (auto& e : items) {
                     if (e->address == addr) {
@@ -91,7 +91,7 @@ public:
 
             std::vector<shared_ptr<Item>> new_items;
             for (int i = 2; i < elements.size(); ++i) {
-                addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x388);
+                addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
                 shared_ptr<Item> item;
                 for (auto& e : your_items) {
                     if (e->address == addr) {

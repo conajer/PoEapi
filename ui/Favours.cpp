@@ -13,10 +13,10 @@ private:
             if (!i)
                 continue;
 
-            addrtype addr = i->PoEMemory::read<addrtype>(i->address + 0x388);
+            addrtype addr = i->PoEMemory::read<addrtype>(i->address + 0x390);
             if (addr) {
-                int l = i->PoEMemory::read<int>(i->address + 0x390);
-                int t = i->PoEMemory::read<int>(i->address + 0x394);
+                int l = i->PoEMemory::read<int>(i->address + 0x398);
+                int t = i->PoEMemory::read<int>(i->address + 0x39c);
                 int index = l * 12 + t + 1;
                 items[index] = shared_ptr<Item>(new Item(addr));
                 i->__set(L"item", (AhkObjRef*)*items[index], AhkObject, nullptr);
@@ -50,10 +50,10 @@ public:
     std::map<int, shared_ptr<Item>> get_items() {
         items.clear();
         for (auto e : get_childs()) {
-            addrtype addr = e->PoEMemory::read<addrtype>(e->address + 0x388);
+            addrtype addr = e->PoEMemory::read<addrtype>(e->address + 0x390);
             if (addr) {
-                int l = e->PoEMemory::read<int>(e->address + 0x390);
-                int t = e->PoEMemory::read<int>(e->address + 0x394);
+                int l = e->PoEMemory::read<int>(e->address + 0x398);
+                int t = e->PoEMemory::read<int>(e->address + 0x39c);
                 items[l * 12 + t + 1] = shared_ptr<Item>(new Item(addr));
             }
         }
