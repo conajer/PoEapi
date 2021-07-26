@@ -60,9 +60,7 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
-#Include, %A_ScriptDir%\extras\debug.ahk
 #Include, %A_ScriptDir%\extras\vendoring.ahk
-#Include, %A_ScriptDir%\extras\Minimap.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
@@ -142,13 +140,9 @@ return
 
 ~s::
     ptask.levelupGems()
-    if (ptask.InMap)
-        SendInput, {v}
 return
 
 AutoPickup:
-    if (ptask.InMap && Not ptask.hasBuff("flask_utility_sprint"))
-        SendInput, {5}
     ptask.beginPickup()
 return
 
@@ -372,32 +366,4 @@ ExitApp() {
 
 F12::
     logger.show()
-return
-
-F9::
-    e := ptask.getHoveredElement()
-    objdump(e)
-    e.draw()
-    loop {
-        e := e.getParent()
-        if (Not e.address)
-            break
-        debug(e.address)
-    }
-
-    item := ptask.getHoveredItem()
-    objdump(item)
-    if (item) {
-        debug(1)
-        e := ptask.getIngameUI().getChild(135, 1)
-        if (e.isVisible()) {
-            debug(2)
-        }
-    }
-    ;prophesier.list()
-return
-
-
-F10::
-    ;prophesier.spam("The Unbreathing Queen (I|II|III|IV)", "The Plaguemaw|Deadly Rivalry")
 return
