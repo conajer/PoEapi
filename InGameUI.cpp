@@ -69,7 +69,6 @@ public:
         get_inventory();
         get_stash();
         get_vendor();
-        get_purchase();
         get_sell();
         get_trade();
         get_overlay_map();
@@ -85,7 +84,6 @@ public:
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
               L"stash", (AhkObjRef*)*stash, AhkObject,
               L"vendor", (AhkObjRef*)*vendor, AhkObject,
-              L"purchase", (AhkObjRef*)*purchase, AhkObject,
               L"sell", (AhkObjRef*)*sell, AhkObject,
               L"largeMap", (AhkObjRef*)*large_map, AhkObject,
               L"cornerMap", (AhkObjRef*)*corner_map, AhkObject,
@@ -122,8 +120,17 @@ public:
     }
 
     Purchase* get_purchase() {
-        if (!purchase)
-            purchase = unique_ptr<Purchase>(new Purchase(read<addrtype>("purchase")));
+        map<int, vector<int>> v = {{94, {11}}, {98, {7, 1, 0, 0}}, {99, {9, 1, 0, 0}}};
+
+        for (auto& i : v) {
+            shared_ptr<Element> e = get_child(i.first);
+            if (e->is_visible()) {
+                if (e = e->get_child(i.second))
+                    purchase = unique_ptr<Purchase>(new Purchase(e->address));
+                break;
+            }
+        }
+
         return purchase.get();
     }
 

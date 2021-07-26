@@ -9,7 +9,7 @@ private:
         AhkObj temp_childs;
 
         if (is_visible()) {
-            auto& elements = get_tab()->get_childs();
+            auto& elements = get_childs();
             for (int i = 1; i < elements.size(); ++i) {
                 addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
                 if (addr) {
@@ -38,7 +38,6 @@ private:
 
 public:
 
-    shared_ptr<Element> tab;
     std::map<int, shared_ptr<Item>> items;
 
     Purchase(addrtype address) : Element(address) {
@@ -48,15 +47,10 @@ public:
         
     }
 
-    shared_ptr<Element> get_tab() {
-        tab = shared_ptr<Element>(get_child({7, 1, 0, 0}));
-        return tab;
-    }
-
     std::map<int, shared_ptr<Item>>& get_items() {
         items.clear();
         if (is_visible()) {
-            auto& elements = get_tab()->get_childs();
+            auto& elements = get_childs();
             for (int i = 1; i < elements.size(); ++i) {
                 addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
                 if (addr) {
