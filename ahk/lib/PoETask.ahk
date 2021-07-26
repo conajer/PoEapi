@@ -416,14 +416,6 @@ class PoETask extends AhkObj {
                 this.displayItemPrice(e, shift)
         }
 
-        favours := this.getFavours()
-        if (favours.isOpened()) {
-            for i, e in favours.getChilds() {
-                e.item.price := $(e.item)
-                this.displayItemPrice(e, true)
-            }
-        }
-
         purchase := ptask.getPurchase()
         if (purchase.isOpened()) {
             for i, e in purchase.getChilds() {
