@@ -37,6 +37,8 @@ global CloseAllUIKey := Chr(close_panels)
 global InventoryKey := Chr(open_inventory_panel)
 global DropFlareKey := Chr(use_temporary_skill1)
 global DropDynamiteKey := Chr(use_temporary_skill2)
+global language
+
 
 loadLibrary("libintl-8.dll")
 DllCall("msvcrt\_putenv", "AStr", "LANG=" language)
@@ -78,7 +80,8 @@ _(str) {
 }
 
 $(item) {
-    return pricer.getPrice(item)
+    if (language == "en")
+        return pricer.getPrice(item)
 }
 
 __Exit() {

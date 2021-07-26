@@ -211,7 +211,7 @@ class Pricer {
     }
 
     __onAreaChanged() {
-        if (ptask.league ~= "SSF")
+        if (language != "en" || ptask.league ~= "SSF")
             return
 
         if (ptask.league != this.league) {
