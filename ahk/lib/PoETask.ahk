@@ -284,6 +284,7 @@ class PoETask extends AhkObj {
         if (Not entity)
             return
 
+        vendor := this.getVendor()
         loop, 10 {
             entity.getPos(x, y)
             clipToRect(this.actionArea, x, y)
@@ -291,9 +292,9 @@ class PoETask extends AhkObj {
             Sleep, 30
             e := ptask.getHoveredElement()
             SendInput, {Click}
-            if (e.getText() == entity.name())
-                return true
             Sleep, 500
+            if (vendor.isSelected() || e.getText() == entity.name())
+                return true
         }
 
         return false
