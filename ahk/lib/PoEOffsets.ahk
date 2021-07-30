@@ -50,7 +50,7 @@ global PoEOffsets = { "version" : "3.15", "offsets"
                         , "sell"                        : 0x708
                         , "trade"                       : 0x710
                         , "gem_level_up"                : 0xa28
-                        , "notifications"               : 0x9e8 }
+                        , "notifications"               : 0xa20 }
                       
       , "ServerData"  : { "player_data"                 : 0x8218
                         ,     "passive_skills"          : 0x160
