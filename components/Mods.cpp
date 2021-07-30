@@ -60,7 +60,7 @@ static std::map<string, int> mods_component_offsets {
     {"fractured_stats", 0x220},
     {"item_level",      0x480},
     {"required_level",  0x484},
-    {"is_mirrored",     0x483},
+    {"is_mirrored",     0x489},
     {"is_synthesised",  0x4a1},
 };
 

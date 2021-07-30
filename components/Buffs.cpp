@@ -5,12 +5,12 @@
 #include <unordered_set>
 
 static FieldOffsets buff_offsets {
-    {"internal",        0x0},
+    {"internal",        0x8},
         {"name",        0x0},
         {"description", 0x8},
-    {"duration",       0x10},
-    {"timer",          0x14},
-    {"charges",        0x36},
+    {"duration",       0x18},
+    {"timer",          0x1c},
+    {"charges",        0x3e},
 };
 
 class Buff : public RemoteMemoryObject {
