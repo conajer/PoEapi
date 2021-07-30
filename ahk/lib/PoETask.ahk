@@ -364,8 +364,10 @@ class PoETask extends AhkObj {
         n := gems.getChilds().Count()
         loop, %n% {
             for i, e in gems.getChilds() {
-                if (e.getChild(4).getText() == "Click to level up") {
-                    e.getChild(2).getPos(x, y)
+                e := e.getChild(2)
+                debug(e.getByte(0x11c))
+                if (e.getByte(0x11c) != -1) {
+                    e.getPos(x, y)
                     MouseClick(x, y)
                     m += 1
                     Sleep, 75
