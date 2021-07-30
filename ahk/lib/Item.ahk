@@ -30,7 +30,7 @@ class Item extends Entity {
                     baseType := "Metamorph"
             } else if (RegExMatch(this.path, "Metadata/Items/([^/]*)/([^/]*)", matched)) {
                 baseType := matched1
-                if (matched2 == "HeistCoin")
+                if (matched2 ~= "HeistCoin|VendorCurrency")
                     baseType := "Currency"
                 else if (InStr(matched2, "Prophecy"))
                     baseType := "Prophecy"
