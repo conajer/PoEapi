@@ -115,8 +115,9 @@ public:
     }
 
     Purchase* get_purchase() {
-        map<int, vector<int>> v = {{94, {11}}, {98, {7, 1, 0, 0}}, {99, {9, 1, 0, 0}}};
+        map<int, vector<int>> v = {{94, {11}}, {98, {7, 1, 0, 0}}, {99, {10, 1, 0, 0}}};
 
+        purchase.reset();
         for (auto& i : v) {
             shared_ptr<Element> e = get_child(i.first);
             if (e->is_visible()) {
