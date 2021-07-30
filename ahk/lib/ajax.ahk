@@ -38,7 +38,7 @@ class JSON {
                     let isArray = Array.isArray(src);
                     for (var k in src) {
                         if (src.hasOwnProperty(k))
-                            assign(dst, isArray ? k + 1 : k, src[k]);
+                            assign(dst, isArray ? parseInt(k) + 1 : k, src[k]);
                     }
 
                     return dst;
