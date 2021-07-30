@@ -42,9 +42,7 @@ public:
             last_notification = get_child(index++);
             if (last_notification) {
                 notifications.push_back(last_notification);
-
-                int n = last_notification->child_count();
-                if (n > 2) {
+                if (last_notification->child_count() > 2) {
                     shared_ptr<Element> player = last_notification->get_child(std::vector<int>{0, 0, 1});
                     shared_ptr<Element> notification_text = last_notification->get_child(std::vector<int>{0, 1});
                     if (notification_text)
@@ -55,7 +53,7 @@ public:
                         last_notification->text = notification_text->get_text();
                 }
 
-                return &last_notification->get_text();
+                return &last_notification->text;
             }
         }
 
