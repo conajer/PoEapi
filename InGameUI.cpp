@@ -65,7 +65,6 @@ public:
         get_inventory();
         get_stash();
         get_vendor();
-        get_sell();
         get_trade();
         get_overlay_map();
         get_chat();
@@ -79,7 +78,6 @@ public:
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
               L"stash", (AhkObjRef*)*stash, AhkObject,
               L"vendor", (AhkObjRef*)*vendor, AhkObject,
-              L"sell", (AhkObjRef*)*sell, AhkObject,
               L"largeMap", (AhkObjRef*)*large_map, AhkObject,
               L"cornerMap", (AhkObjRef*)*corner_map, AhkObject,
               L"chat", (AhkObjRef*)*chat, AhkObject,
@@ -131,15 +129,31 @@ public:
     }
 
     Sell* get_sell() {
-        if (!sell)
-            sell = unique_ptr<Sell>(new Sell(read<addrtype>("sell")));
+        map<int, vector<int>> v = {{100, {3}}, {101, {4}}};
+
+        sell.reset();
+        for (auto& i : v) {
+            shared_ptr<Element> e = get_child(i.first);
+            if (e->is_visible()) {
+                bool reverse = e->get_child(1)->is_visible();
+                if (e = e->get_child(i.second)) {
+                    sell = unique_ptr<Sell>(new Sell(e->address, reverse));
+                }
+                break;
+            }
+        }
+
         return sell.get();
     }
 
     Trade* get_trade() {
-        if (!trade)
-            trade = unique_ptr<Trade>(new Trade(read<addrtype>("trade")));
-        return trade.get();
+        shared_ptr<Element> e = get_child({102, 3, 1, 0, 0});
+        if (e) {
+            trade = unique_ptr<Trade>(new Trade(e->address));
+            return trade.get();
+        }
+
+        return nullptr;
     }
 
     OverlayMap* get_overlay_map() {

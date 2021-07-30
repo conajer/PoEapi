@@ -25,88 +25,41 @@ private:
 
 public:
 
-    shared_ptr<Element> sell_panel;
-    std::vector<int> path;
     std::vector<shared_ptr<Item>> items, your_items;
+    int topIndex = 0, bottomIndex = 1;
 
-    Sell(addrtype address) : Element(address) {
-        path.push_back(3);
-        add_method(L"isOpened", (Element*)this, (MethodType)&Sell::is_opened, AhkBool);
-        add_method(L"getSellPanel", this, (MethodType)&Sell::get_sell_panel, AhkVoid);
+    Sell(addrtype address, bool reverse = false) : Element(address) {
+        if (reverse)
+            topIndex = 1, bottomIndex = 0;
+
+        add_method(L"isOpened", (Element*)this, (MethodType)&Element::is_visible, AhkBool);
         add_method(L"getItems", this, (MethodType)&Sell::__get_items, AhkObject);
         add_method(L"getYourItems", this, (MethodType)&Sell::__get_your_items, AhkObject);
-        
-    }
-
-    bool is_opened() {
-        get_sell_panel();
-        return sell_panel ? is_visible() : false;
-    }
-
-    shared_ptr<Element>& get_sell_panel() {
-        if (is_visible()) {
-            if (!sell_panel || !sell_panel->is_valid()) {
-                sell_panel = shared_ptr<Element>(get_child(path));
-                if (sell_panel)
-                    sell_panel->get_childs();
-            }
-        } else {
-            sell_panel.reset();
-        }
-        __set(L"sellPanel", sell_panel ? (AhkObjRef*)*sell_panel : nullptr, AhkObject, nullptr);
-
-        return sell_panel;
     }
 
     std::vector<shared_ptr<Item>>& get_items() {
-        if (is_opened()) {
-            auto elements = sell_panel->childs[1]->get_childs();
-
-            std::vector<shared_ptr<Item>> new_items;
+        items.clear();
+        if (is_visible()) {
+            auto& elements = get_child(topIndex)->get_childs();
             for (int i = 1; i < elements.size(); ++i) {
                 addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
-                shared_ptr<Item> item;
-                for (auto& e : items) {
-                    if (e->address == addr) {
-                        item = e;
-                        break;
-                    }
-                }
-
-                if (!item)
-                    item = shared_ptr<Item>(new Item(addr));
-                new_items.push_back(item);
+                if (addr)
+                    items.push_back(shared_ptr<Item>(new Item(addr)));
             }
-            items = new_items;
-        } else {
-            items.clear();
         }
 
         return items;
     }
 
     std::vector<shared_ptr<Item>>& get_your_items() {
-        if (is_opened()) {
-            auto elements = sell_panel->childs[0]->get_childs();
-
-            std::vector<shared_ptr<Item>> new_items;
+        your_items.clear();
+        if (is_visible()) {
+            auto& elements = get_child(bottomIndex)->get_childs();
             for (int i = 2; i < elements.size(); ++i) {
                 addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
-                shared_ptr<Item> item;
-                for (auto& e : your_items) {
-                    if (e->address == addr) {
-                        item = e;
-                        break;
-                    }
-                }
-
-                if (!item)
-                    item = shared_ptr<Item>(new Item(addr));
-                new_items.push_back(item);
+                if (addr)
+                    your_items.push_back(shared_ptr<Item>(new Item(addr)));
             }
-            your_items = new_items;
-        } else {
-            your_items.clear();
         }
 
         return your_items;
