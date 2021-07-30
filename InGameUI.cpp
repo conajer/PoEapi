@@ -13,7 +13,6 @@
 #include "ui/OverlayMap.cpp"
 #include "ui/Chat.cpp"
 #include "ui/Notifications.cpp"
-#include "ui/Favours.cpp"
 #include "ui/Atlas.cpp"
 #include "ui/Skills.cpp"
 
@@ -37,8 +36,6 @@ std::map<string, int> in_game_ui_offsets {
     {"purchase",        0x668},
     {"sell",            0x670},
     {"trade",           0x678},
-    {"favours",         0x7e8},
-        {"items",       0x2c0},
     {"gem_level_up",    0x8d8},
     {"notifications",   0x920},
 };
@@ -60,7 +57,6 @@ public:
     unique_ptr<OverlayMap> large_map, corner_map;
     unique_ptr<Chat> chat;
     unique_ptr<Notifications> notifications;
-    unique_ptr<Favours> favours;
     unique_ptr<Atlas> atlas;
     unique_ptr<Skills> skills;
     shared_ptr<Entity> nearest_entity;
@@ -74,7 +70,6 @@ public:
         get_overlay_map();
         get_chat();
         get_notifications();
-        get_favours();
         get_atlas();
         get_skills();
     }
@@ -168,11 +163,6 @@ public:
         if (!notifications)
             notifications.reset(new Notifications(read<addrtype>("notifications")));
         return notifications.get();
-    }
-
-    Favours* get_favours() {
-        favours.reset(new Favours(read<addrtype>("favours", "items")));
-        return favours.get();
     }
 
     Atlas* get_atlas() {

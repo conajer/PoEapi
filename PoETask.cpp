@@ -85,7 +85,6 @@ public:
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
         add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
-        add_method(L"getFavours", this, (MethodType)&PoETask::get_favours, AhkObject);
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
         add_method(L"getJobs", this, (MethodType)&PoETask::get_jobs, AhkObject);
         add_method(L"setJob", this, (MethodType)&PoETask::set_job, AhkVoid, ParamList{AhkWString, AhkInt});
@@ -231,13 +230,6 @@ public:
             return (AhkObjRef*)*chat;
        }
 
-        return nullptr;
-    }
-
-    AhkObjRef* get_favours() {
-        Favours* favours = in_game_ui->get_favours();
-        if (favours)
-            return *favours;
         return nullptr;
     }
 
