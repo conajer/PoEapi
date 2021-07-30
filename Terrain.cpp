@@ -8,9 +8,9 @@
 static std::map<string, int> terrain_offsets {
     {"cols",           0x18},
     {"rows",           0x20},
-    {"melee_layer",    0xb0},
-    {"ranged_layer",   0xc8},
-    {"bytes_per_row",  0xe0},
+    {"melee_layer",    0xd8},
+    {"ranged_layer",   0xf0},
+    {"bytes_per_row",  0x108},
 };
 
 class MapData : public AhkObj {
