@@ -30,7 +30,17 @@ class Logger extends WebGui {
         this.logFile := FileOpen(filename, "a", "utf-8")
         this.level := level
         this.logId := 0
-        this.show("Hide x10 y50")
+
+        x := y := 50
+        SysGet, n, MonitorCount
+        if (n > 1) {
+            SysGet, primary, MonitorPrimary
+            m := (primary == 1) ? 2 : 1
+            SysGet, coords , Monitor, %m%
+            x += coordsLeft
+            y += coordsTop
+        }
+        this.show("Hide x" x " y" y)
     }
 
     log(aText, id = "", level = 0) {
