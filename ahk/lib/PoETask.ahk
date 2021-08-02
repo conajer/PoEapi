@@ -365,7 +365,6 @@ class PoETask extends AhkObj {
         loop, %n% {
             for i, e in gems.getChilds() {
                 e := e.getChild(2)
-                debug(e.getByte(0x11c))
                 if (e.getByte(0x11c) != -1) {
                     e.getPos(x, y)
                     MouseClick(x, y)
