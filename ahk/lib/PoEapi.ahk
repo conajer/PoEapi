@@ -545,42 +545,20 @@ class Vendor extends Element {
     }
 
     sell() {
-        sell := ptask.getSell()
-        if (sell.isOpened())
+        if (ptask.getSell().isOpened())
             return true
 
-        if (ptask.areaName == "The Rogue Harbour") {
-            e := ptask.getIngameUI().getChild(26, 9)
-            if (Not e.getChild(1).getText() ~= "Faustus") {
-                SendInput, %CloseAllUIKey%
-                if (Not ptask.select("Faustus"))
-                    return
-            }
+        if (Not this.selectNPC(ptask.areaName == "The Rogue Harbour" ? "Faustus" : ""))
+            return
 
-            loop, 30 {
-                if (e.getChild(1).getText() ~= "Faustus") {
-                    service := e.getChild(2, 2).findChild(_("Sell Items"))
-                    if (service) {
-                        service.getPos(x, y)
-                        MouseClick(x, y)
-                        break
-                    }
-                }
-                Sleep, 50
-            }
-        } else {
-            if (Not this.selectNPC())
-                return
-
-            service := this.selectService(_("Sell Items"))
-            if (service) {
-                service.getPos(x, y)
-                MouseClick(x, y)
-            }
+        service := this.selectService(_("Sell Items"))
+        if (service) {
+            service.getPos(x, y)
+            MouseClick(x, y)
         }
 
         loop, 10 {
-            if (sell.isOpened())
+            if (ptask.getSell().isOpened())
                 return true
             Sleep, 50
         }
@@ -606,7 +584,7 @@ class Vendor extends Element {
 class Sell extends Element {
 
     accept(flag = false) {
-        this.sellPanel.getChild(6).getPos(x, y)
+        this.getChild(6).getPos(x, y)
         MouseMove, x, y, 0
         if (flag)
             MouseClick, Left, x, y
