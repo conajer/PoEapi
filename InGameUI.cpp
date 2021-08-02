@@ -32,9 +32,6 @@ std::map<string, int> in_game_ui_offsets {
     {"atlas",           0x568},
     {"entity_list",     0x5c0},
         {"root",        0x2a0},
-    {"vendor",          0x648},
-    {"purchase",        0x668},
-    {"sell",            0x670},
     {"trade",           0x678},
     {"gem_level_up",    0x8d8},
     {"notifications",   0x920},
@@ -77,7 +74,6 @@ public:
         Element::__new();
         __set(L"inventory", (AhkObjRef*)*inventory, AhkObject,
               L"stash", (AhkObjRef*)*stash, AhkObject,
-              L"vendor", (AhkObjRef*)*vendor, AhkObject,
               L"largeMap", (AhkObjRef*)*large_map, AhkObject,
               L"cornerMap", (AhkObjRef*)*corner_map, AhkObject,
               L"chat", (AhkObjRef*)*chat, AhkObject,
@@ -88,7 +84,7 @@ public:
     }
 
     bool has_active_panel() {
-        return read<short>("panel_flags") || vendor->is_visible() || chat->is_opened()
+        return read<short>("panel_flags") || vendor->is_selected() || chat->is_opened()
                || atlas->is_visible() || skills->is_visible();
     }
 
@@ -107,8 +103,10 @@ public:
     }
 
     Vendor* get_vendor() {
-        if (!vendor)
-            vendor = unique_ptr<Vendor>(new Vendor(read<addrtype>("vendor")));
+        if (!vendor) {
+            shared_ptr<Element> e = get_child(22);
+            vendor = unique_ptr<Vendor>(new Vendor(e->address));
+        }
         return vendor.get();
     }
 
