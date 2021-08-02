@@ -45,9 +45,6 @@ global PoEOffsets = { "version" : "3.15", "offsets"
                         , "atlas"                       : 0x5f8
                         , "entity_list"                 : 0x650
                         ,     "root"                    : 0x2a8
-                        , "vendor"                      : 0x6d8
-                        , "purchase"                    : 0x6f8
-                        , "sell"                        : 0x708
                         , "trade"                       : 0x710
                         , "gem_level_up"                : 0xa28
                         , "notifications"               : 0xa20 }
