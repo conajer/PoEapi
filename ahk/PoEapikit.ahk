@@ -331,6 +331,8 @@ return
                 SendInput, "%matched2%"{Enter}
             }
         }
+    } else {
+        SendInput, ^{f}
     }
 return
 
