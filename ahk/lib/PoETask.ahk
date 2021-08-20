@@ -422,7 +422,7 @@ class PoETask extends AhkObj {
         if (purchase.isOpened()) {
             for i, e in purchase.getChilds() {
                 e.item.price := $(e.item)
-                this.displayItemPrice(e)
+                this.displayItemPrice(e, shift)
             }
         }
 
