@@ -35,6 +35,8 @@ class Flask {
             increased -= 33
         else if (RegExMatch(item.name, "Chemist's", matched))
             reduced += 25
+        else if (RegExMatch(item.name, "Seething", matched))
+            this.duration := 0
 
         this.maxCharges := ChargesInfo.maxCharges
         this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 - reduced) / 100)
@@ -62,16 +64,16 @@ class Flask {
                 return true
             }
         } else if (this.IsLife) {
-            if (Life < 80 || this.savedLife > Life || this.endTime <= A_Tickcount) {
+            if (Life < 80 && (Life < 50 || this.savedLife > Life || this.endTime < A_Tickcount)) {
                 SendInput, % this.key
-                this.endTime := A_Tickcount + 2000
+                this.endTime := A_Tickcount + this.duration
                 this.savedLife := Life
                 return true
             }
         } else {
             if (this.endTime <= A_Tickcount) {
                 SendInput, % this.key
-                this.endTime := A_Tickcount + 4000
+                this.endTime := A_Tickcount + this.duration
                 return true
             }
         }
@@ -242,9 +244,15 @@ class Character {
     }
 
     onAttack() {
+        if (this.nearbyMonsters > 5)
+            SendInput, {r}
+
+        ;if (this.life > 95 && Not ptask.hasBuff("blood_rage"))
+        ;    SendInput, {MButton}
+
         if (this.nearbyMonsters >= MonsterThreshold) {
             for i, aFlask in this.flasks {
-                if (aFlask.IsUtility && Not aFlask.IsQuicksilver)
+                if (aFlask.IsUtility)
                     aFlask.use(0, this.life < LifeThreshold)
             }
         }
