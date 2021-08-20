@@ -160,7 +160,6 @@ tradeFullRareSets() {
         rareSets.add(item)
 
     vendor := ptask.getVendor()
-    sell := ptask.getSell()
     loop {
         rareItems := rareSets.get()
         if (Not rareItems || Not ptask.stash.open())
@@ -173,6 +172,7 @@ tradeFullRareSets() {
         if (Not vendor.sell())
             break
 
+        sell := ptask.getSell()
         for i, item in ptask.inventory.getItems()
             if (item.rarity == 2 && (Not item.isIdentified) && item.itemLevel >= 60)
                 ptask.inventory.move(item)
