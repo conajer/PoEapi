@@ -168,7 +168,8 @@ class Navi extends WebGui {
                 * { font-family: Fontin SmallCaps, Serif; font-size: 18px; }
                 body { background: black; border: 0; margin: 0; padding: 0; }
                 canvas { position: fixed; left: 0; top: 0; right: 0; bottom: 0; z-index: -1; } 
-                
+
+                .nav { position: fixed; right: 0; }
                 .nav table { border-collapse: collapse; }
                 .nav td { margin: 0 10px; padding: 1px 15px; }
 
@@ -178,12 +179,10 @@ class Navi extends WebGui {
                 #kill_counter:hover { background-color: cyan; }
                 .kills { color: crimson; }
                 .total { color: green; }
-                 
                 .exp { color: #0c0c0c; background-color: yellow; }
                 .gained_exp { color: blue; }
-                
                 #menu { color: white; background-color: #0c0c0c; }
-                
+
                 .stats { color: white; background: #1a1411; position: fixed; left: 50%; top: 80px; transform: translate(-50%, 0); width: 1000px; max-height: 600px; overflow: auto; }
                 .stats table { text-align: right; }
                 .stats tr { background: #120e0a; color: #b57741; padding: 5px; transition: .1s ease-in; } 
@@ -191,12 +190,13 @@ class Navi extends WebGui {
                 .stats td { padding: .5rem; }
                 .stats tr:first-child { background: #1a1411; color: #d9aa6f; font-size: 1rem; }
                 .stats tr:hover:not(:first-child) { background: #d9aa6f; color: #120e0a; }
+                .statusbar { display: none; line-height: 1.5em; color: lightyellow; background: #1a1411; padding: 5px 15px; position: fixed; left: 50%; top: 80px; transform: translate(-50%, 0); width: 800px; max-height: 100px; overflow: hidden; }
             </style>
         </head>
         <body>
             <canvas></canvas>
             <div class=nav>
-                <table class=nav align='right'>
+                <table>
                     <tr>
                         <td id='area_time'></td>
                         <td id='kill_counter'>Kills <b class=kills>0</b>/<b class=total>0<b></td>
@@ -207,6 +207,9 @@ class Navi extends WebGui {
             </div>
             <div class='stats' align='center'>
                 <table id='kill_stats'></table>
+            </div>
+
+            <div class='statusbar' align='left'>
             </div>
 
             <script>
@@ -282,6 +285,15 @@ class Navi extends WebGui {
                     ctx.fillText(text, x, y);
                 }
 
+                function setStatus(text) {
+                    document.querySelector('.statusbar').innerHtml = text;
+                    if (text) {
+                        setTimeout(function() {
+                            setStatus('');
+                        }, 3000);
+                    }
+                }
+
                 window.addEventListener('resize', function () {
                     canvas.width = window.innerWidth
                     canvas.height = window.innerHeight
@@ -326,6 +338,9 @@ class Navi extends WebGui {
         }
         this.onMessage(WM_KILL_COUNTER, "onKillCounter")
         this.onMessage(WM_AREA_CHANGED, "onAreaChanged")
+
+        this.statusbar := this.document.querySelector(".statusbar")
+        this.statusTimer := ObjBindMethod(this, "setStatus")
 
         t := ObjBindMethod(this, "updateTime")
         SetTimer, %t%, 1000
@@ -420,6 +435,19 @@ class Navi extends WebGui {
             , this.areaTime.innerHtml := Format("{:02d}:<span class='second'>{:02d}</span>", tt / 60, Mod(tt, 60))
         } catch {
             SetTimer,, Delete
+        }
+    }
+
+    setStatus(text = "") {
+        if (text) {
+            this.statusbar.style.display := "block"
+            this.statusbar.innerHtml .= text "<br>"
+            t := this.statusTimer
+            SetTimer, %t%, -5000
+            this.statusbar.scrollTop := this.statusbar.scrollHeight
+        } else {
+            this.statusbar.innerHtml := ""
+            this.statusbar.style.display := "none"
         }
     }
 
