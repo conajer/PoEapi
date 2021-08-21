@@ -231,7 +231,7 @@ dumpStashTabItems() {
 
 unstackCards() {
     ptask.activate()
-    if (ptask.stash.open())
+    if (ptask.stash.isOpened())
         inventory := ptask.stash.Tab
     else if (ptask.inventory.open())
         inventory := ptask.inventory
