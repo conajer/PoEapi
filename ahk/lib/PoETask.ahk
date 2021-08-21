@@ -434,6 +434,10 @@ class PoETask extends AhkObj {
         }
     }
 
+    setStatus(text, args*) {
+        this.nav.setStatus(Format(text, args*))
+    }
+
     onAreaChanged(areaName, lParam) {
         Critical
         areaName := StrGet(areaName)
