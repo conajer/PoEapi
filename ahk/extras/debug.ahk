@@ -4,6 +4,8 @@
 
 #Include, %A_ScriptDir%\extras\Eval.ahk
 
+global verbose := false
+
 addMenuItem("__debug", _("Console"), "openConsole")
 addMenuItem("__debug", _("IngameUI Inspector"), "openInspector")
 addMenuItem("__debug")
@@ -17,11 +19,14 @@ addMenuItem("__debug", _("List vendor services"), "listVendorServices")
 addMenuItem("__debug")
 addMenuItem("__debug", _("List flasks"), "listFlasks")
 addMenuItem("__debug", _("List flask slot"), "listFlaskSlot")
+addMenuItem("__debug")
+addMenuItem("__debug", _("List buffs"), "listBuffs")
 
-Hotkey, ^d, openConsole
+Hotkey, ^!d, openConsole
 Hotkey, ^i, openInspector
 
 addExtraMenu(_("Debug"), ":__debug")
+OnMessage(WM_POEAPI_LOG, "onLog")
 
 class IngameUIInspector extends AhkGui {
 
@@ -89,11 +94,7 @@ class IngameUIInspector extends AhkGui {
 
     drawElement() {
         itemId := TV_GetSelection()
-        if (itemId == 0)
-            return
-
-        e := this.elements[itemId]
-        e.draw()
+        this.elements[itemId].draw()
     }
 }
 
@@ -157,6 +158,11 @@ class Console extends AhkGui {
         this.doc.parentWindow.scrollTo(0, this.doc.body.scrollHeight)
         GuiControl,, % this.__var("input")
     }
+}
+
+onLog(message) {
+    if (verbose)
+        debug("<b style='color: green'>{}</b>", StrGet(message))
 }
 
 openConsole() {
@@ -257,4 +263,17 @@ listFlaskSlot() {
 
     for i, item in ptask.inventories[12].items
         debug("    {}. {}", item.index, item.name)
+}
+
+listBuffs() {
+    buffs := ptask.getBuffs()
+    if (buffs.Count() == 0) {
+        debug("No buffs.")
+        return
+    }
+
+    debug("Buffs:")
+    for i, b in buffs {
+        debug("    {:2d}. {:4.2f} {:4.2f} {:-4d} {}", i, b.duration, b.timer, b.charges, b.name)
+    }
 }
