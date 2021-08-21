@@ -16,6 +16,7 @@ class Pricer {
              , "Fossils"            : {"catalog" : "item", "type" : "Fossil"}
              , "Incubators"         : {"catalog" : "item", "type" : "Incubator"}
              , "Invitations"        : {"catalog" : "item", "type" : "Invitation"}
+             , "Artifacts  "        : {"catalog" : "item", "type" : "Artifact"}
              , "Maps"               : {"catalog" : "item", "type" : "Map"}
              , "Oils"               : {"catalog" : "item", "type" : "Oil"}
              , "Prophecies"         : {"catalog" : "item", "type" : "Prophecy"}
@@ -46,7 +47,7 @@ class Pricer {
     addPrice(type, p) {
         try {
             if (p.hasOwnProperty("chaosEquivalent")) {
-                this.prices[p.currencyTypeName] := {"value" : p.chaosEquivalent}
+                this.__addPrice(p.currencyTypeName, type, p.chaosEquivalent)
             } else {
                 if (!lowConfidenceSparkline && p.sparkline.data.length == 0)
                     return
@@ -61,11 +62,11 @@ class Pricer {
                     quality := p.hasOwnProperty("gemQuality") ? p.gemQuality : 0
                     if (p.hasOwnProperty("corrupted")) {
                         if (p.gemLevel > 1 && p.gemLevel < 20)
-                            this.prices[pName " " p.gemLevel "/0 corrupted"] := {"value" : p.chaosValue}
+                            this.__addPrice(pName " " p.gemLevel "/0 corrupted", type, p.chaosValue)
                         pName .= " " p.gemLevel "/" quality " corrupted"
                     } else {
                         if (p.gemLevel > 1 && p.gemLevel < 20)
-                            this.prices[pName " " p.gemLevel "/0"] := {"value" : p.chaosValue}
+                            this.__addPrice(pName " " p.gemLevel "/0", type, p.chaosValue)
                         pName .= " " p.gemLevel "/" quality
                     }
                 case "UniqueWeapon":
@@ -82,7 +83,7 @@ class Pricer {
                 if (Not type ~= "Map|SkillGem" && p.hasOwnProperty("variant"))
                     pName .= " " p.variant
 
-                this.prices[pName] := {"value" : p.chaosValue}
+                this.__addPrice(pName, type, p.chaosValue)
             }
         } catch {
         }
@@ -168,7 +169,6 @@ class Pricer {
     }
 
     update(league) {
-        Sleep, 3000
         if (league != this.league) {
             SetTimer,, Delete
             return
@@ -191,7 +191,8 @@ class Pricer {
             SetTimer,, -1000
             return
         }
-        this.prices["Ritual Splinter"] := {"value" : this.prices["Ritual Vessel"].value / 100}
+        this.__addPrice("Chaos Orb", "Currency", 1)
+        this.__addPrice("Ritual Splinter", "Currency", this.prices["Ritual Vessel"].value / 100)
 
         FormatTime, t,, MM/dd/yyyy hh:mm:ss
         this.lastUpdateTime := t
@@ -210,15 +211,20 @@ class Pricer {
         }
     }
 
+    __addPrice(name, type, price) {
+        this.prices[name] := {"value": price}
+        , sql := Format("INSERT INTO prices VALUES (""{}"", ""{}"", {});", name, type, price)
+        , this.db.exec(sql)
+    }
+
     __onAreaChanged() {
         if (language != "en" || ptask.league ~= "SSF")
             return
 
         if (ptask.league != this.league) {
-            this.prices := {"Chaos Orb" : {"value" : 1}}
             this.league := ptask.league
             t := ObjBindMethod(this, "update", this.league)
-            SetTimer, %t%, -1000
+            SetTimer, %t%, -3000
         }
     }
 }
