@@ -65,14 +65,12 @@ protected:
     }
 
     AhkObjRef* get_components() {
-        AhkObj temp_components;
-        for (auto& i : components) {
-            wstring name(i.second->type_name.begin(), i.second->type_name.end());
-            temp_components.__set(name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
-        }
-        __set(L"components", (AhkObjRef*)temp_components, AhkObject, nullptr);
+        AhkObj all_components;
+        for (auto& i : components)
+            all_components.__set(i.second->type_name.c_str(), (AhkObjRef*)*i.second, AhkObject, nullptr);
+        __set(L"components", (AhkObjRef*)all_components, AhkObject, nullptr);
 
-        return temp_components;
+        return all_components;
     }
 
     AhkObjRef* __get_pos() {
@@ -319,6 +317,7 @@ public:
         __set(L"name", name().c_str(), AhkWString,
               L"baseName", base_name().c_str(), AhkWString,
               L"isIdentified", is_identified(), AhkBool,
+              L"ilvl", get_item_level(), AhkInt,
               L"rarity", get_rarity(), AhkInt,
               nullptr);
     }
