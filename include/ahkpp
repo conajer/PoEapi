@@ -88,6 +88,9 @@ public:
     void __get(const wchar_t* key, void* value, AhkType type);
     void __set(const wchar_t* key, ...);            // __set(key, value, type, [key, value, type, ...] 0);
     void* __call(const wchar_t* method_name, ...);  // __call(name, type, arg, [type, arg, ...] 0);
+    void __get(const char* key, void* value, AhkType type);
+    void __set(const char* key, ...);               // __set(key, value, type, [key, value, type, ...] 0);
+    void* __call(const char* method_name, ...);     // __call(name, type, arg, [type, arg, ...] 0);
 };
 
 class AhkTempObj : public AhkObj {

@@ -60,11 +60,10 @@ class AhkObj {
                 }
 
                 return value
-            } else if (this.__methods[key]) {
-                if (this.__methods[key].Count() == 1) {
-                    retType := this.__methods[key][1]
-                    result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", key, retType)
-                    return (retType == "UPtr") ? Object(result) : result
+            } else if (m := this.__methods[key]) {
+                if (m.params.Length() == 0) {
+                    result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", key, m.returnType)
+                    return (m.returnType == "UPtr") ? Object(result) : result
                 }
             }
         }
@@ -87,27 +86,21 @@ class AhkObj {
             }
         }
     }
-    
+
     __Call(name, params*) {
-        if (this.__methods[name]) {
-            T := this.__methods[name]
-            if (params.Count() != T.Count() - 1) {
-                MsgBox, % name ": invalid number of parameters, should be " T.Count() - 1 " parameters."
+        if (m := this.__methods[name]) {
+            if (m.params.Length() != params.Length()) {
+                MsgBox, % this.__Class "." name "(): invalid number of parameters, should be " m.params.Length() " parameters."
                 return
             }
 
-            switch params.Count() {
-            case 0: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1])
-            case 1: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2])
-            case 2: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3])
-            case 3: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4])
-            case 4: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5])
-            case 5: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6])
-            case 6: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7])
-            case 7: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7], params[7], T[8])
-            case 8: result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, T[1], params[1], T[2], params[2], T[3], params[3], T[4], params[4], T[5], params[5], T[6], params[6], T[7], params[7], T[8], params[8], T[9])
-            }
-            return (T[params.Count() + 1] == "UPtr") ? Object(result) : result
+            args := ["Ptr", this.__self, "Str", name]
+            for i, p in m.params
+                args.Push(p, params[A_Index])
+            args.Push(m.returnType)
+            result := DllCall(ahkpp_call, args*)
+
+            return (m.returnType == "UPtr") ? Object(result) : result
         }
     }
 }
