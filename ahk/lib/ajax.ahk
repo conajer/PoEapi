@@ -2,8 +2,6 @@
 ; ajax.ahk, 5/29/2021 5:08 PM
 ;
 
-global JSON := new JSON()
-
 ajax(url, method = "GET", data = "", contentType = "application/json") {
     static xmlhttp := ComObjCreate("MSXML2.XMLHTTP")
 
@@ -12,7 +10,7 @@ ajax(url, method = "GET", data = "", contentType = "application/json") {
         xmlhttp.setRequestHeader("Content-Type", contentType "; charset=UTF-8")
     xmlhttp.send(IsObject(data) ? JSON.stringify(data) : data)
     while (xmlhttp.readyState != 4)
-        Sleep, 50
+        Sleep, 10
 
     responseType := xmlhttp.getResponseHeader("Content-Type")
     if (responseType ~= "html|xml")
@@ -22,7 +20,9 @@ ajax(url, method = "GET", data = "", contentType = "application/json") {
 
 class JSON {
 
-    __new() {
+    static __json := JSON.__init()
+
+    __init() {
         this.document := ComObjCreate("HTMLFile")
         this.document.write("
         (%
@@ -31,7 +31,7 @@ class JSON {
         <meta http-equiv='X-UA-Compatible' content='IE=edge'>
         <head>
             <script>
-                function copy(src, dst) {
+                JSON.copy = function (dst, src) {
                     if (typeof src !== 'object')
                         return src;
 
@@ -49,60 +49,56 @@ class JSON {
         )")
 
         this.document.parentWindow.assign := ObjBindMethod(this, "__assign")
+        return this.document.parentWindow.JSON
     }
 
     parse(text) {
-        parsed := this.document.parentWindow.JSON.parse(text)
-        return this.__copy(parsed)
+        return this.__json.copy({}, this.__parse(text))
     }
 
-    stringify(value, prefix = "") {
-        if (Not IsObject(value))
-            return this.document.parentWindow.JSON.stringify(value)
-
-        if (ComObjType(value))
-            return "{}"
-
-        if (value.Length() > 0) {
-            result .= "[`n"
-            for i, v in value {
-                if (A_Index > 1)
-                    result .= ",`n"
-                result .= prefix "  " this.stringify(v, prefix "  ")
-            }
-            return result "`n" prefix "]"
-        } else {
-            if (Not value.Count())
-                return "{}"
-
-            result .= "{`n"
-            for k, v in value {
-                if (A_Index > 1)
-                    result .= ",`n"
-                result .= prefix "  """ k """: " this.stringify(v, prefix "  ")
-            }
-
-            return result "`n" prefix "}"
-        }
+    stringify(value, space = "") {
+        return this.__stringify(value, space, space ? "`n" : "")
     }
 
     load(filename) {
-        file := FileOpen(filename, "r")
-        text := file.Read()
-        file.Close()
-
+        FileRead, text, %filename%
         return this.parse(text)
     }
 
     __parse(text) {
-        return this.document.parentWindow.JSON.parse(text)
+        return text ? this.__json.parse(text) : ""
+    }
+
+    __stringify(value, space = "", eol = "", padding = "") {
+        if (Not IsObject(value))
+            return this.__json.stringify(value)
+
+        if (ComObjType(value))
+            return "{}"
+
+        margin := padding space
+        if (value.Length() > 0) {
+            result .= "[" eol
+            for i, v in value {
+                if (A_Index > 1)
+                    result .= "," eol
+                result .= margin this.__stringify(v, space, eol, margin)
+            }
+
+            return result eol padding "]"
+        } else {
+            result .= "{" eol
+            for k, v in value {
+                if (A_Index > 1)
+                    result .= "," eol
+                result .= margin """" k """: " this.__stringify(v, space, eol, margin)
+            }
+
+            return result eol padding "}"
+        }
     }
 
     __assign(obj, key, value) {
-        obj[key] := IsObject(value) ? this.__copy(value) : value
-    }
-
-    __copy(src) {
-        return this.document.parentWindow.copy(src, {})
+        obj[key] := IsObject(value) ? this.__json.copy({}, value) : value
     }
 }
