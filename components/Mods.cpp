@@ -22,7 +22,10 @@ public:
 
     Modifier(addrtype address) : RemoteMemoryObject(address, &modifier_offsets) {
         id = PoEMemory::read<wstring>(address, 128);
-        name = PoEMemory::read<wstring>(address + (*offsets)["name"], 32);
+        name = PoEMemory::read<wstring>(address + (*offsets)["name"], 128);
+        size_t pos = name.find(L'{');
+        if (pos != wstring::npos)
+            name = name.substr(pos + 1, name.find(L'}') - pos - 1);
         domain = read<int>("domain");
         gen_type = read<int>("gen_type");
     }
@@ -105,8 +108,13 @@ public:
 
         case 2:
         case 3:
-            for (auto addr : read_array<addrtype>("unique_name", 0x0, 0x10))
-                unique_name += PoEMemory::read<wstring>(addr + 0x30, 32);
+            for (auto addr : read_array<addrtype>("unique_name", 0x0, 0x10)) {
+                wstring s = PoEMemory::read<wstring>(addr + 0x30, 128);
+                size_t pos = s.find(L'{');
+                if (pos != wstring::npos)
+                    s = s.substr(pos + 1, s.find(L'}') - pos - 1);
+                unique_name += s;
+            }
         }
 
         return unique_name;
