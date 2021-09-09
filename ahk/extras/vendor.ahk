@@ -1,18 +1,18 @@
 ;
-; vendoring.ahk, 9/29/2020 10:37 PM
+; vendor.ahk, 9/29/2020 10:37 PM
 ;
 
-addMenuItem("__vendoring", _("Trade quality gems"), "tradeGems")
-addMenuItem("__vendoring", _("Trade divination cards"), "tradeDivinationCards")
-addMenuItem("__vendoring", _("Trade full rare sets"), "tradeFullRareSets")
-addMenuItem("__vendoring")
-addMenuItem("__vendoring", _("Unstack divination cards"), "unstackCards")
-addMenuItem("__vendoring")
-addMenuItem("__vendoring", _("Sort items"), "sortItems")
-addMenuItem("__vendoring", _("Dump useless items (< 1 Chaos)"), "dumpUselessItems")
-addMenuItem("__vendoring")
-addMenuItem("__vendoring", _("Dump inventory items"), "dumpInventoryItems")
-addMenuItem("__vendoring", _("Dump stash tab items"), "dumpStashTabItems")
+addMenuItem("__vendor", _("Trade quality gems"), "tradeGems")
+addMenuItem("__vendor", _("Trade divination cards"), "tradeDivinationCards")
+addMenuItem("__vendor", _("Trade full rare sets"), "tradeFullRareSets")
+addMenuItem("__vendor")
+addMenuItem("__vendor", _("Unstack divination cards"), "unstackCards")
+addMenuItem("__vendor")
+addMenuItem("__vendor", _("Sort items"), "sortItems")
+addMenuItem("__vendor", _("Dump useless items (< 1 Chaos)"), "dumpUselessItems")
+addMenuItem("__vendor")
+addMenuItem("__vendor", _("Dump inventory items"), "dumpInventoryItems")
+addMenuItem("__vendor", _("Dump stash tab items"), "dumpStashTabItems")
 
 Hotkey, IfWinActive, ahk_class POEWindowClass
 Hotkey, F6, dumpInventoryItems
@@ -20,7 +20,7 @@ Hotkey, ^F6, dumpStashTabItems
 Hotkey, F7, tradeFullRareSets
 Hotkey, IfWinActive
 
-addExtraMenu(_("Vendoring"), ":__vendoring")
+addExtraMenu(_("Vendor"), ":__vendor")
 
 class FullRareSets {
 
@@ -151,13 +151,15 @@ tradeFullRareSets() {
     if (Not ptask.stash.open())
         return
 
-    ptask.stash.switchTab(VendorTabFullRareSets)
-    Sleep, 500
-
     rareSets := new FullRareSets()
-    tab := ptask.stash.Tab
-    for i, item in tab.getItems()
-        rareSets.add(item)
+    for i, tab in StrSplit(VendorTabFullRareSets, ",", " ") {
+        ptask.stash.switchTab(tab)
+        Sleep, 200
+        for i, item in ptask.stash.Tab.getItems() {
+            item.tab := tab
+            rareSets.add(item)
+        }
+    }
 
     vendor := ptask.getVendor()
     loop {
@@ -165,8 +167,10 @@ tradeFullRareSets() {
         if (Not rareItems || Not ptask.stash.open())
             break
 
-        for i, item in rareItems
+        for i, item in rareItems {
+            tab := ptask.stash.switchTab(item.tab)
             tab.move(item)
+        }
 
         ptask.inventory.use(ptask.inventory.findItem(_("A Valuable Combination")))
         if (Not vendor.sell())
