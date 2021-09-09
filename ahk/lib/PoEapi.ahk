@@ -149,7 +149,7 @@ class Element extends PoEObject {
         if (r.w < 0 || r.h < 0)
             return
         ptask.c.drawRect(r.l + x, r.t + y, r.w, r.h, bgr)
-        ptask.c.drawText(label, r.l + x, r.t + y, bgr, "white", 0)
+        ptask.c.drawText(label, r.l + x, r.t + y, bgr, "white", 1, 1)
 
         for i, e in this.getChilds() {
             if (e.isVisible()) {

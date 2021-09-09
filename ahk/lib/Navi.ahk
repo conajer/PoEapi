@@ -273,9 +273,10 @@ class Navi extends WebGui {
                     ctx.stroke();
                 }
 
-                ctx.drawText = function (text, x, y, color, backgroud, align) {
+                ctx.drawText = function (text, x, y, color, backgroud, align, baseline) {
                     w = ctx.measureText(text).width;
-                    x = x - w * align / 2
+                    x = x - w * (1 - align) / 2;
+                    y = y + ctx.fontHeight * (baseline + 1) / 2;
                     if (backgroud) {
                         ctx.fillStyle = backgroud;
                         ctx.fillRoundedRect(x - 2.5, y - ctx.fontHeight, w + 5, ctx.fontHeight, 7);
