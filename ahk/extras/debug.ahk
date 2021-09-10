@@ -160,6 +160,42 @@ class Console extends AhkGui {
     }
 }
 
+objdump(obj, prefix = "", depth = 0) {
+    if (Not IsObject(obj)) {
+        debug("Not an object")
+        return
+    }
+
+    baseClasses := ""
+    base := obj.base
+    loop {
+        if (Not base)
+            break
+        baseClasses .= " -> " (ObjRawGet(base, "__Class") ? base.__Class : Format("{:#x}", &base))
+        base := base.base
+    }
+
+    if (Not prefix)
+        debug("<b>{:#x}{}:</b>", &obj, baseClasses)
+    for k, v in obj {
+        try {
+            if (IsObject(v)) {
+                if (IsFunc(v))
+                    debug("    {}<b>{}()</b>", prefix, k)
+                else if (v.Length() > 0)
+                    debug("    {}<b>{}[{}]</b>", prefix, k, v.Length())
+                else
+                    debug("   {}*<b>{}</b>", prefix, k)
+            } else {
+                debug("    {}<b>{}</b>, {}", prefix, k, v)
+            }
+        } catch {}
+
+        if (depth > 0 && IsObject(v))
+            objdump(v, prefix "    ", depth - 1)
+    }
+}
+
 onLog(message) {
     if (verbose)
         debug("<b style='color: green'>{}</b>", StrGet(message))

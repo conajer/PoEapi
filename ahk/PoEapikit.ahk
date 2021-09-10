@@ -105,32 +105,6 @@ loadLibrary(filename) {
     return h
 }
 
-objdump(obj, prefix = "", depth = 0) {
-    if (Not IsObject(obj)) {
-        debug("Not an object")
-        return
-    }
-
-    baseClasses := ""
-    base := obj.base
-    loop {
-        if (Not base)
-            break
-        baseClasses .= " -> " base.__Class
-        base := base.base
-    }
-
-    if (Not prefix)
-        debug("{}{:#x}{}:", prefix, &obj, baseClasses)
-    for k, v in obj {
-        try {
-            debug("{}   {}{}, {}", prefix, IsObject(v) ? "*" : " ", k, IsObject(v) ? v.Count() : v)
-            if (depth > 0 && IsObject(v))
-                objdump(v, prefix "    ", depth - 1)
-        } catch {}
-    }
-}
-
 Attack:
     if (ptask.InMap)
         ptask.onAttack()
