@@ -323,9 +323,8 @@ class Navi extends WebGui {
                 addMenuItem("__main", m.name, m.handler, m.options)
         }
         addMenuItem("__main")
-        addMenuItem("__help", _("About PoEapikit"), ObjBindMethod(this, "about"))
-        addMenuItem("__help", _("Hotkeys..."), ObjBindMethod(this, "hotkeys"))
-        addMenuItem("__main", _("Help"), ":__help")
+        addMenuItem("__main", _("Hotkeys..."), ObjBindMethod(this, "hotkeys"))
+        addMenuItem("__main", _("About PoEapikit..."), ObjBindMethod(this, "about"))
         addMenuItem("__main")
         addMenuItem("__main", _("Quit"), "ExitApp")
 
