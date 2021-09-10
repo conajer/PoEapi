@@ -40,10 +40,16 @@ class About extends WebGui {
                 <span>Version <strong id='version'></strong> 64-Bit</span><br>
                 <span class=deps>PoEapi version <strong id='poeapi_version'></strong></span><br>
                 <span class=deps>AutoHotkey version <strong id=ahk_version></strong></span><br>
-                <a href='#github'>GitHub</a>
-                <a href='#latest_version'>Latest version</a>
-                <a href='#patreon'>Patreon</a>
-                <a href='#donate'>Donate</a>
+                <span>Donate:
+                    <a href='#paypal'>Paypal</a>
+                    <a href='#btc'>BTC</a>
+                    <a href='#eth'>ETH</a>
+                </span><br>
+                <span>Links:
+                    <a href='#github'>GitHub</a>
+                    <a href='#patreon'>Patreon</a>
+                    <a href='#discord'>Discord</a>
+                </span>
             </div>
             <span>
                 <button id='ok'>OK</button>
@@ -68,12 +74,21 @@ class About extends WebGui {
         href := e.srcElement.href
         if (href ~= "#github")
             url := "https://github.com/conajer/PoEapi"
-        else if (href ~= "#latest_version")
-            url := "https://github.com/conajer/PoEapi/releases/latest"
         else if (href ~= "#patreon")
             url := "https://www.patreon.com/conajer"
-        else if (href ~= "#donate")
+        else if (href ~= "#discord")
+            url := "https://discord.gg/2gYnu7Nk4q"
+        else if (href ~= "#paypal")
             url := "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TDU8JSQAXNTU6&currency_code=USD"
+        else if (href ~= "#btc")
+            address := "1NibcggH597Nu9pP8aJ1Zcn7J94L5R1rp9"
+        else if (href ~= "#eth")
+            address := "0x4493e75ef1d7B86f8cf2177abf45A9F16FED2a21"
+
+        if (address) {
+            Clipboard := address
+            Msgbox, 0, Copied, % e.srcElement.innerText ": " address
+        }
         Run, % url
     }
 }
