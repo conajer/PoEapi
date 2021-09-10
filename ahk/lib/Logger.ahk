@@ -72,6 +72,18 @@ class Logger extends WebGui {
             element.innerHtml := Format("<span style=""color:black"">{}</span> {}", t, aText)
     }
 
+    show(options = "", title = "") {
+        if (options || title) {
+            base.show(options, title)
+        } else {
+            hwnd := this.Hwnd
+            WinGet, state, MinMax, ahk_id %hwnd%
+            Gui %hwnd%: +AlwaysOnTop
+            base.show((state == -1) ? "NoActivate" : "NA")
+            Gui %hwnd%: -AlwaysOnTop
+        }
+    }
+
     __onClose(wParam, lParam, msg, hwnd) {
     }
 }
