@@ -153,8 +153,45 @@ class Console extends AhkGui {
         Console.__index := this.__history.Count() + 1
         result := Eval(this.input)
         result := StrJoin(result, "`n")
-        if (result)
-            this.doc.write(Format("<i style=""color:red"">{}`n</i>", result))
+        if (result) {
+            if (IsObject(result)) {
+                baseClasses := ""
+                base := result.base
+                loop {
+                    if (Not base)
+                        break
+                    baseClasses .= " -> " (ObjRawGet(base, "__Class") ? base.__Class : Format("{:#x}", &base))
+                    base := base.base
+                }
+
+                ellipsisMin := 15
+                if (result.Count() > ellipsisMin + 5)
+                    ellipsisMax := result.Count()
+                this.doc.writeln(Format("<i style=""color:blue""><b>{:#x}{}:</b></i>", &obj, baseClasses))
+                for k, v in result {
+                    try {
+                        if (A_Index > ellipsisMin && A_Index < ellipsisMax) {
+                            if (A_Index == ellipsisMin + 1)
+                                this.doc.writeln("<i style=""color:blue"">    ...</i>")
+                            continue
+                        }
+
+                        if (IsObject(v)) {
+                            if (IsFunc(v))
+                                this.doc.writeln(Format("<i style=""color:blue"">    <b>{}()</b></i>", k))
+                            else if (v.Length() > 0)
+                                this.doc.writeln(Format("<i style=""color:blue"">    <b>{}[{}]</b></i>", k, v.Length()))
+                            else
+                                this.doc.writeln(Format("<i style=""color:blue"">   *<b>{}</b></i>", k))
+                        } else {
+                            this.doc.writeln(Format("<i style=""color:blue"">    <b>{}</b>, {}</i>", k, v))
+                        }
+                    } catch {}
+                }
+            } else {
+                this.doc.writeln(Format("<i style=""color:red"">{}</i>", result))
+            }
+        }
         this.doc.parentWindow.scrollTo(0, this.doc.body.scrollHeight)
         GuiControl,, % this.__var("input")
     }
