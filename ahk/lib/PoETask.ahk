@@ -382,30 +382,49 @@ class PoETask extends AhkObj {
             MouseMove, oldX, oldY, 0
     }
 
-    displayItemPrice(e, sum = false) {
+    displayItemPrice(e, sum = false, anchor = 3, align = -1, baseline = -1) {
         price := e.item.price
-        if (sum && e.item.stackCount > 0)
-            price := e.item.stackCount * price
-
         if (e.item && price >= 0.05) {
+            if (sum && e.item.stackCount > 1)
+                price := e.item.stackCount * price
+
             if (price > 1000)
-                p := Format("{:.f}k", price / 1000)
+                price := Format("{:.f}k", price / 1000)
             else if (price < 1)
-                p := Format("{:.g}", price)
+                price := Format("{:.g}", price)
             else
-                p := Format("{:.f}", price)
+                price := Format("{:.f}", price)
 
             r := e.getRect()
-            if (p >= 10)
-                this.c.drawText(p, r.r, r.b, "white", "red", 2)
+            switch (anchor) {
+            case 1: x := r.l, y := r.t
+            case 2: x := r.r, y := r.t
+            case 3: x := r.r, y := r.b
+            case 4: x := r.l, y := r.b
+            default: x := (r.r + r.l) / 2, y := (r.b + r.t) / 2
+            }
+
+            if (price >= 10)
+                this.c.drawText(price, x, y, "white", "red", align, baseline)
             else
-                this.c.drawText(p, r.r, r.b, "#00007f", "gold", 2)
+                this.c.drawText(price, x, y, "#00007f", "gold", align, baseline)
         }
     }
 
-    showPrices() {
+    showPrices(item = "") {
         shift := GetKeyState("Shift")
-        this.c.clear()
+
+         if (item) {
+             e := this.getHoveredElement()
+             r := e.getRect()
+             MouseGetPos, x, y
+             if (Not pointInRect(r, x, y))
+                e := e.getParent()
+             e.item := item
+             this.displayItemPrice(e, shift, 1, 1, 1)
+             return
+         }
+
         if (this.stash.isOpened()) {
             for i, e in this.stash.Tab.getChilds() {
                 if (e.isVisible())

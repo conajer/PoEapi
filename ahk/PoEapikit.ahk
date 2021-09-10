@@ -261,12 +261,21 @@ return
 
 ~*LAlt::
     stickyMode := false
+    ptask.c.clear()
     if (betrayer.isOpened())
         betrayer.show()
-    else if (Not ptask.getHoveredItem())
+    else
         ptask.showPrices()
 
     loop, {
+        if (item := ptask.getHoveredItem()) {
+            if (item.name && item != hoveredItem) {
+                ptask.c.clear()
+                item.price := $(item)
+                ptask.showPrices(hoveredItem := item)
+            }
+        }
+
         if (GetKeyState("Ctrl"))
             stickyMode := true
         Sleep, 100
