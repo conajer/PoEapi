@@ -281,47 +281,32 @@ return
 ~^c::
 ~^+c::
     Sleep, 100
-    if (Clipboard) {
-        if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-            if (GetKeyState("Shift")) {
-                MsgBox, 0, Item Info, %clipboard%
-            } else {
-                RegExMatch(Clipboard, "Rarity: (.+)\r\n(.+)\r\n", matched)
-                Clipboard := matched2
-            }
+    if (item := ptask.getHoveredItem()) {
+        if (GetKeyState("Shift")) {
+            MsgBox, 0, Item Info, %Clipboard%
+            objdump(item)
+        } else {
+            Clipboard := item.name
         }
     }
 return
 
-*^f::
+~^f::
     if (ptask.stash.isOpened()) {
-        Clipboard := ""
-        SendInput, ^{c}
-        SendInput, ^{f}
-        Sleep, 100
-        if (Clipboard) {
-            if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-                RegExMatch(Clipboard, "Rarity: (.+)\r\n(.+)\r\n", matched)
-                SendInput, "%matched2%"{Enter}
-            }
+        if (item := ptask.getHoveredItem()) {
+            name := item.name
+            SendInput, %name%{Enter}
         }
-    } else {
-        SendInput, ^{f}
     }
 return
 
 ^w::
-    Clipboard := ""
-    SendInput, ^{c}
-    Sleep, 100
-    if (Clipboard) {
-        if (SubStr(Clipboard, 1, 11) == "Item Class:") {
-            RegExMatch(Clipboard, "Rarity: (.+)\r\n(.+)\r\n(.+)\r\n", matched)
-            name := matched2
-            if (matched1 ~= "Magic|Rare" && Not RegExMatch(Clipboard, "Unidentified"))
-                name := matched3
-            Run, % "https://pathofexile.fandom.com/wiki/" RegExReplace(name, " ", "_")
-        }
+    if (item := ptask.getHoveredItem()) {
+        if (Not item.isIdentified || item.rarity ~= "1|2")
+            name := item.baseName
+        else
+            name := item.name
+        Run, % "https://pathofexile.fandom.com/wiki/" RegExReplace(name, " ", "_")
     }
 return
 
