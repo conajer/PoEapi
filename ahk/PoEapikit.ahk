@@ -22,24 +22,10 @@ CoordMode, Pixel, Client
 #Include, %A_ScriptDir%\lib\ajax.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
-EnvGet, homepath, USERPROFILE
-FileRead, production_config, %HOMEPATH%\Documents\My Games\Path of Exile\production_Config.ini
-production_config := SubStr(production_config, 1)
-FileAppend, %production_config%, %A_ScriptDir%\production_config.ini
-IniRead, close_panels, %A_ScriptDir%\production_config.ini, ACTION_KEYS, close_panels
-IniRead, open_inventory_panel, %A_ScriptDir%\production_config.ini, ACTION_KEYS, open_inventory_panel
-IniRead, use_temporary_skill1, %A_ScriptDir%\production_config.ini, ACTION_KEYS, use_temporary_skill1
-IniRead, use_temporary_skill2, %A_ScriptDir%\production_config.ini, ACTION_KEYS, use_temporary_skill1
-IniRead, language, %A_ScriptDir%\production_config.ini, LANGUAGE, language, en
-FileDelete, %A_ScriptDir%\production_config.ini
+global CloseAllUIKey, InventoryKey, DropFlareKey, DropDynamiteKey
+global language := "en"
 
-global CloseAllUIKey := Chr(close_panels)
-global InventoryKey := Chr(open_inventory_panel)
-global DropFlareKey := Chr(use_temporary_skill1)
-global DropDynamiteKey := Chr(use_temporary_skill2)
-global language
-
-
+readIni("production_Config.ini")
 loadLibrary("libintl-8.dll")
 DllCall("msvcrt\_putenv", "AStr", "LANG=" language)
 DllCall("libintl-8\bindtextdomain", "AStr", "PoEapikit", "AStr", "./locale")
@@ -74,6 +60,24 @@ OnExit("__Exit")
 
 ; end of auto-execute section
 return
+
+readIni(iniFile) {
+    EnvGet, homepath, USERPROFILE
+    FileRead, production_config, %HOMEPATH%\Documents\My Games\Path of Exile\%iniFile%
+    production_config := SubStr(production_config, 1)
+    FileAppend, %production_config%, %A_ScriptDir%\%iniFile%
+    IniRead, close_panels, %A_ScriptDir%\%iniFile%, ACTION_KEYS, close_panels
+    IniRead, open_inventory_panel, %A_ScriptDir%\%iniFile%, ACTION_KEYS, open_inventory_panel
+    IniRead, use_temporary_skill1, %A_ScriptDir%\%iniFile%, ACTION_KEYS, use_temporary_skill1
+    IniRead, use_temporary_skill2, %A_ScriptDir%\%iniFile%, ACTION_KEYS, use_temporary_skill1
+    IniRead, language, %A_ScriptDir%\%iniFile%, LANGUAGE, language, en
+    FileDelete, %A_ScriptDir%\%iniFile%
+
+    CloseAllUIKey := Chr(close_panels)
+    InventoryKey := Chr(open_inventory_panel)
+    DropFlareKey := Chr(use_temporary_skill1)
+    DropDynamiteKey := Chr(use_temporary_skill2)
+}
 
 _(str) {
     return DllCall("libintl-8\gettext", "AStr", str, "AStr")

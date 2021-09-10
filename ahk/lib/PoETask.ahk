@@ -127,6 +127,8 @@ class PoETask extends AhkObj {
     }
 
     onLoaded() {
+        if (Not this.league)
+            readIni("production_Config.ini")
         this.reset()
     }
 
