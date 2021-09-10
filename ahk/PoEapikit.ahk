@@ -20,6 +20,8 @@ CoordMode, Pixel, Client
 
 #Include, %A_ScriptDir%\lib\PoEapi.ahk
 #Include, %A_ScriptDir%\lib\ajax.ahk
+#Include, %A_ScriptDir%\lib\curl.ahk
+#Include, %A_ScriptDir%\lib\sqlite3.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
 global CloseAllUIKey, InventoryKey, DropFlareKey, DropDynamiteKey
