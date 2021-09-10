@@ -124,6 +124,9 @@ AutoPickup:
 return
 
 OnClipboardChange:
+    if (ptask.isActive)
+        return
+
     if (RegExMatch(Clipboard, "^@([^ ]+) (Hi, (I would|I'd) like to buy your .*)", matched)) {
         if (GetKeyState("Ctrl") && Not GetKeyState("c")) {
             SendInput, {Ctrl up}
