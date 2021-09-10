@@ -225,7 +225,7 @@ return
             return
 
         loop, 20 {
-            e := ptask.getIngameUI().getChild(135, 1)
+            e := ptask.getIngameUI().getChild(141, 1)
             if (e.getChild(1, 2, 2, 1).isVisible()) {
                 exalted := $("Exalted Orb")
                 if (price >= 2 * exalted)
