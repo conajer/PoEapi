@@ -480,7 +480,7 @@ public:
     }
 
     void check_entities() {
-        if (GetForegroundWindow() != hwnd || !is_ready || !is_in_game())
+        if (!is_ready || GetForegroundWindow() != hwnd || !is_in_game())
             return;
 
         in_game_data->get_all_entities(entities, ignored_entity_exp);
@@ -493,7 +493,7 @@ public:
     }
 
     void check_labeled_entities() {
-        if (GetForegroundWindow() != hwnd || !is_ready || !is_in_game())
+        if (!is_ready || GetForegroundWindow() != hwnd || !is_in_game())
             return;
 
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
