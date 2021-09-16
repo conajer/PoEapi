@@ -21,6 +21,8 @@ std::map<string, int> element_offsets {
     {"size",         0x130},
     {"highlighted",  0x178},
     {"text",         0x2e8},
+    {"left",         0x398},
+    {"top",          0x39c},
 };
 
 class Element : public PoEObject {
@@ -100,6 +102,7 @@ public:
 
     void __new() {
         PoEObject::__new();
+        /*
         if (!childs.empty()) {
             AhkObj temp_childs;
             for (auto& i : childs)
@@ -108,6 +111,11 @@ public:
         } else {
             __set(L"childs", nullptr, AhkObject, nullptr);
         }
+        */
+
+        int l = read<int>("left");
+        int t = read<int>("top");
+        __set(L"left", l + 1, AhkInt, L"top", t + 1, AhkInt, nullptr);
     }
 
     bool is_valid() {
