@@ -4,8 +4,6 @@
 
 #Include, %A_ScriptDir%\extras\Eval.ahk
 
-global verbose := false
-
 addMenuItem("__debug", _("Console"), "openConsole")
 addMenuItem("__debug", _("IngameUI Inspector"), "openInspector")
 addMenuItem("__debug")
@@ -26,6 +24,8 @@ Hotkey, ^!d, openConsole
 Hotkey, ^i, openInspector
 
 addExtraMenu(_("Debug"), ":__debug")
+logger.level := 0
+logger.show()
 OnMessage(WM_POEAPI_LOG, "onLog")
 
 class IngameUIInspector extends AhkGui {
@@ -113,6 +113,8 @@ class Console extends AhkGui {
         Gui, Add, Edit, % "-WantReturn w625 HwndinputHwnd v" this.__var("input")
         Gui, Add, Button, % "Default x+10 yp+0 gL1 v" this.__var("execute"), Execute
 
+        Console.__history := StrSplit(db.load("console.history"), "`n")
+        Console.__index := Console.__history.length() + 1
         this.hInput:= inputHwnd
         this.doc := __mshtml.Document
         this.doc.write("<pre style=""font-family:Consolas; font-size:18px; line-height:1.2"">")
@@ -148,8 +150,10 @@ class Console extends AhkGui {
         if (Not Trim(this.input))
             return
 
+        GuiControl,, % this.__var("input")
         this.doc.write(Format("<b>></b> {}`n", this.input))
         this.__history.Push(this.input)
+        this.__history.lenght() > 100 ? this.__history.RemoveAt(1)
         Console.__index := this.__history.Count() + 1
         result := Eval(this.input)
         result := StrJoin(result, "`n")
@@ -193,7 +197,15 @@ class Console extends AhkGui {
             }
         }
         this.doc.parentWindow.scrollTo(0, this.doc.body.scrollHeight)
-        GuiControl,, % this.__var("input")
+    }
+
+    __onClose(wParam, lParam, msg, hwnd) {
+        if (this.Hwnd == hwnd) {
+            for i, stmt in this.__history
+                (A_Index == 1) ? histories := stmt : histories .= "`n" stmt
+            db.store("console.history", histories)
+            base.__onClose()
+        }
     }
 }
 
@@ -234,8 +246,7 @@ objdump(obj, prefix = "", depth = 0) {
 }
 
 onLog(message) {
-    if (verbose)
-        debug("<b style='color: green'>{}</b>", StrGet(message))
+    trace(StrGet(message))
 }
 
 openConsole() {
