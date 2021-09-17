@@ -209,6 +209,91 @@ class Console extends AhkGui {
     }
 }
 
+class Profiler {
+
+    static __count := 0
+    sequencer := []
+    lastProbe := ""
+    nProbes := 0
+    probePoints := {}
+
+    __new(title = "") {
+        ++Profiler.__count
+        this.title := title ? title : "Profiler " Profiler.__count
+    }
+
+    setProbe(name, label = "") {
+        p := this.probePoints[name]
+        if (not p) {
+            this.sequencer.push(name)
+            p := this.probePoints[name] := []
+        }
+        p.push({"label": label, "tval": A_Tickcount, "index": ++this.nProbes})
+        this.lastProbe := p
+    }
+
+    analyze(durations) {
+        n := durations.length()
+        min := max := durations[1].tval
+        total := 0
+        for i, d in durations {
+            d.tval < min ? min := d.tval
+            d.tval > max ? max := d.tval
+            total += d.tval
+        }
+        average := n ? total / n : 0
+
+        for i, d in durations
+            trace("   {}. <b style='color:{};'>{}{}</b> ms", i
+                , d.tval > average ? "red" : "grey"
+                , d.label ? d.label ": " : "", d.tval)
+        debug("<b>total time</b>: {} ms", total)
+        debug("<b>average</b>: {:.2f}, <b>min</b>: {}, <b>max</b>: {}", average, min, max)
+    }
+
+    list(b = "", a = "") {
+        debug("{}:", this.title)
+        if (not b) {
+            for i, name in this.sequencer
+                debug("    {}: {} samples", name, this.probePoints[name].length())
+            t1 := this.probePoints[this.sequencer[1]][1].tval
+            t2 := this.lastProbe[this.lastProbe.length()].tval
+            debug("Total time: {} ms", t2 - t1)
+            return
+        }
+
+        (not a) ? a := this.prev(b)
+        durations := []
+        if (this.probePoints[a].length() == this.probePoints[b].length()) {
+            for i, t in this.probePoints[b]
+                durations.push({"label": t.label, "tval": t.tval - this.probePoints[a][i].tval})
+            debug("Time between <b>'{}'</b> and <b>'{}'</b>:", a, b)
+        } else {
+            for i, t in this.probePoints[b]
+                (i > 1) ? durations.push({"tval": t.tval - this.probePoints[b][i - 1].tval})
+            debug("Time interval of <b>'{}'</b>:", b)
+        }
+
+        this.analyze(durations)
+    }
+
+    prev(name) {
+        for i, n in this.sequencer
+            if (name == n)
+                return this.sequencer[A_Index - 1]
+    }
+
+    next(name) {
+        for i, n in this.sequencer
+            if (name == n)
+                return this.sequencer[A_Index + 1]
+    }
+
+    reset() {
+        this.__init()
+    }
+}
+
 objdump(obj, prefix = "", depth = 0) {
     if (Not IsObject(obj)) {
         debug("Not an object")
