@@ -13,8 +13,7 @@ class sqlite3 extends AhkObj {
     exec(sql, args*) {
         result := this.__Call("exec", Format(sql, args*))
         if (result.errcode)
-            throw, Exception(Format("Sqlite3: {} (error code: {})`n`nSQL statement(s):`n     " sql
-                            , result.errmsg, result.errcode, args*), -1)
+            throw, Exception(Format("Sqlite3: {} ({})", result.errmsg, result.errcode), -1)
         return result.length() > 0 ? result : ""
     }
 
