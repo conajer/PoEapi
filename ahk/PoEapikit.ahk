@@ -14,7 +14,7 @@ If (Not A_IsAdmin) {
     }
 }
 
-SetWorkingDir %A_ScriptDir%
+SetWorkingDir, %A_ScriptDir%
 CoordMode, Mouse, Client
 CoordMode, Pixel, Client
 
@@ -35,7 +35,6 @@ DllCall("libintl-8\textdomain", "AStr", "PoEapikit")
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
-global logger := new Logger("PoEapikit log")
 global ptask := new PoETask()
 
 global version := "1.3.6a"
@@ -50,7 +49,7 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
-#Include, %A_ScriptDir%\extras\vendoring.ahk
+#Include, %A_ScriptDir%\extras\vendor.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
@@ -86,8 +85,7 @@ _(str) {
 }
 
 $(item) {
-    if (language == "en")
-        return pricer.getPrice(item)
+    return pricer.getPrice(item)
 }
 
 __Exit() {
@@ -100,10 +98,7 @@ __Exit() {
 }
 
 loadLibrary(filename) {
-    global __libs
-
-    if (Not __libs)
-        __libs := {}
+    global __libs := {}
 
     h := DllCall("LoadLibrary", "Str", filename, "Ptr")
     __libs[filename] := h
@@ -273,7 +268,7 @@ return
     ptask.c.clear()
     if (betrayer.isOpened())
         betrayer.show()
-    else
+    else if (not ptask.getHoveredItem())
         ptask.showPrices()
 
     loop, {
@@ -302,7 +297,6 @@ return
     if (item := ptask.getHoveredItem()) {
         if (GetKeyState("Shift")) {
             MsgBox, 0, Item Info, %Clipboard%
-            objdump(item)
         } else {
             Clipboard := item.name
         }

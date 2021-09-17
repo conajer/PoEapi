@@ -132,7 +132,7 @@ class Character {
 
     areaChanged(areaName, lParam) {
         areaName := StrGet(areaName)
-        this.inAzuriteMine := (areaName ~= "Azurite Mine")
+        this.inAzuriteMine := (areaName ~= _("Azurite Mine"))
     }
 
     lifeChanged(life, lParam) {
