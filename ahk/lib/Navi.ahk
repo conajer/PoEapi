@@ -214,20 +214,23 @@ class Feedback extends WebGui {
     }
 
     log() {
-        t := Feedback.tLog ? Feedback.tLog : ObjBindMethod(Feedback, "log")
+        if (not t := Feedback.tLog) {
+            t := ObjBindMethod(Feedback, "log")
+            SetTimer, %t%, % 1800 * 1000
+        }
+
         if (ptask.isReady) {
             lastLogTime := db.load("last_log_time")
-            tPeriod -= lastLogTime, seconds
-            if (not lastLogTime || tPeriod >= 3600) {
+            tPeriod -= lastLogTime, Days
+            if (not lastLogTime || tPeriod > 0) {
                 FormatTime, logTime, A_NowUTC, yyMMdd
-                curl.ajax(Format("https://docs.google.com/forms/d/e/{}/formResponse?entry.1300113286={}&entry.512599937={}&entry.1915618276={}"
-                                , "1FAIpQLSe8v9cU4Xq2WBDXxCVVl3CsCItLA32NL7-mK2UWhfjBQXhIBQ", ptask.player.className, logTime, language))
+                url := "https://docs.google.com/forms/d/e"
+                curl.ajax(Format("{}/{}/formResponse?entry.1300113286={}&entry.1468854439={}&entry.512599937={}&entry.1915618276={}"
+                                , url, "1FAIpQLSe8v9cU4Xq2WBDXxCVVl3CsCItLA32NL7-mK2UWhfjBQXhIBQ"
+                                , ptask.player.className, ptask.league, logTime, language))
                 tPeriod := 0
                 db.store("last_log_time", A_NOW)
             }
-            SetTimer, %t%, % -(3600 - tPeriod) * 1000
-        } else {
-            SetTimer, %t%, % -60 * 1000
         }
 
         return t
@@ -236,7 +239,8 @@ class Feedback extends WebGui {
     send() {
         curl.ajax(Format("https://docs.google.com/forms/d/e/{}/formResponse?entry.1794050980={}&entry.80285333={}"
                         , "1FAIpQLSfLcA6KG9gE7JoNOr75x2ZMXsa4SGyPqVVp9M78gsZhhWrB4Q"
-                        , JSON.encodeURI(this.content.value), JSON.encodeURI(this.email.value)))
+                        , JSON.encodeURI(this.content.value)
+                        , JSON.encodeURI(this.email.value)))
         this.close()
     }
 
