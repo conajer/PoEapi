@@ -29,18 +29,45 @@ class sqlite3 extends AhkObj {
             return value
     }
 
-    listTables() {
-        result := this.exec("
+    list(verbose = 0, all = false) {
+        result := this.exec(all ? "
             (
-            SELECT * FROM sqlite_schema
-            WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
-            ORDER BY 1
+                SELECT * FROM sqlite_schema ORDER BY 1;
+            )" : "
+            (
+                SELECT * FROM sqlite_schema
+                WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%'
+                ORDER BY 1;
             )")
 
-        if (result.Length()) {
-            debug("Tables:")
-            for i, t in result
-                debug("    {:2d}. {}", i, t.name)
+        if (result.length()) {
+            tdata := result.length() " tables:`n"
+            for i, t in result {
+                if (verbose) {
+                    columns := ", ("
+                    for j, c in this.exec("PRAGMA table_info({});", t.tbl_name)
+                        (A_Index == 1) ? columns .= c.name : columns .= ", " c.name
+                    columns .= ")"
+                }
+                tdata .= Format("{:d}. {}, {}{}`n", i, t.name, t.type, columns)
+                (verbose > 1) ? tdata .= t.sql "`n"
+            }
+
+            return tdata
         }
+    }
+
+    dump(table, limit = 10) {
+        cols := this.exec("PRAGMA table_info({});", table)
+        for i, c in cols
+            cdata .= c.name "  "
+
+        for n, r in this.exec("SELECT * FROM {} LIMIT {}", table, limit) {
+            for i, c in cols
+                (A_Index == 1) ? cdata .= "`n" r[c.name] : cdata .= ", " r[c.name]
+        }
+        cdata .= Format("`n...`nTotal {} rows.", this.get("SELECT count(*) FROM " table))
+
+        return cdata
     }
 }
