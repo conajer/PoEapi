@@ -23,22 +23,21 @@ CoordMode, Pixel, Client
 #Include, %A_ScriptDir%\lib\ajax.ahk
 #Include, %A_ScriptDir%\lib\curl.ahk
 #Include, %A_ScriptDir%\lib\sqlite3.ahk
+#Include, %A_ScriptDir%\lib\LocalDB.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
 global CloseAllUIKey, InventoryKey, DropFlareKey, DropDynamiteKey
 global language := "en"
 
 readIni("production_Config.ini")
-loadLibrary("libintl-8.dll")
 DllCall("msvcrt\_putenv", "AStr", "LANG=" language)
-DllCall("libintl-8\bindtextdomain", "AStr", "PoEapikit", "AStr", "./locale")
-DllCall("libintl-8\textdomain", "AStr", "PoEapikit")
 DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
+global db := new LocalDB("local.db")
 global ptask := new PoETask()
 
-global version := "1.3.6a"
+global version := "1.4.0"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
