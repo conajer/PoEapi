@@ -35,10 +35,14 @@ class JSON {
                     if (typeof src !== 'object')
                         return src;
 
-                    let isArray = Array.isArray(src);
-                    for (var k in src) {
-                        if (src.hasOwnProperty(k))
-                            assign(dst, isArray ? parseInt(k) + 1 : k, src[k]);
+                    if (Array.isArray(src)) {
+                        for (let i = 0; i < src.length; ++i)
+                            (typeof src[i] === 'object')
+                                ? assign(dst, i + 1, src[i]) : dst[i + 1] = src[i];
+                    } else {
+                        for (let k in src)
+                            (typeof src[k] === 'object')
+                                ? assign(dst, k, src[k]) : dst[k] = src[k];
                     }
 
                     return dst;
@@ -108,5 +112,9 @@ class JSON {
 
     __assign(obj, key, value) {
         obj[key] := IsObject(value) ? this.__json.copy({}, value) : value
+    }
+
+    __copy(obj) {
+        return this.__json.copy({}, obj)
     }
 }
