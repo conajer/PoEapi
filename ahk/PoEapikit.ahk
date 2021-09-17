@@ -14,6 +14,7 @@ If (Not A_IsAdmin) {
     }
 }
 
+SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 CoordMode, Mouse, Client
 CoordMode, Pixel, Client
