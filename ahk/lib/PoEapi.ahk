@@ -363,11 +363,9 @@ class SpecialStashTab extends StashTab {
         this.getItems()
         for i, e in this.childs {
             if (e.getChilds().Length() == 2) {
-                left := e.childs[2].getInt(0x398) + 1
-                top := e.childs[2].getInt(0x39c) + 1
-                e.index := (left - 1) * this.rows + top
-                e.item := this.items[e.index]
-                e.isHighlighted := e.childs[2].isHighlighted()
+                e.index := (e.childs[2].left - 1) * this.rows + e.childs[2].top
+                , e.item := this.items[e.index]
+                , e.isHighlighted := e.childs[2].isHighlighted()
             }
         }
 
