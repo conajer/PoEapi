@@ -27,9 +27,7 @@ class LocalDB extends sqlite3 {
                 SELECT value FROM properties
                 WHERE name='{}' AND (league='All' OR league='{}');
                 )", name, ptask.league)
-        } catch e {
-            throw e
-        }
+        } catch {}
     }
 
     store(name, value, league = "") {
@@ -79,7 +77,7 @@ class LocalDB extends sqlite3 {
         for i, t in dict[language]
             t ? __translations[dict["en"][i]] := t
         
-        debug("Loading translations... {}", __translations.count())
+        trace("Loading translations... {}", __translations.count())
     }
 
     initialze() {
