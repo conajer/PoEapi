@@ -3,8 +3,7 @@
 ;
 
 ajax(url, method = "GET", data = "", contentType = "application/json") {
-    static xmlhttp := ComObjCreate("MSXML2.XMLHTTP")
-
+    xmlhttp := ComObjCreate("MSXML2.XMLHTTP")
     xmlhttp.open(method, url, true)
     if (method == "POST")
         xmlhttp.setRequestHeader("Content-Type", contentType "; charset=UTF-8")
