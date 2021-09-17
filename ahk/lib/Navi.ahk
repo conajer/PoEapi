@@ -286,7 +286,7 @@ class Navi extends WebGui {
                 .statusbar { display: none; line-height: 1.5em; color: lightyellow; background: #1a1411; padding: 5px 15px; position: fixed; left: 50%; top: 80px; transform: translate(-50%, 0); width: 800px; max-height: 100px; overflow: hidden; }
             </style>
         </head>
-        <body>
+        <body oncontextmenu='return false;'>
             <canvas></canvas>
             <div class=nav>
                 <table>
