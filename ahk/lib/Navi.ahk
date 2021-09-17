@@ -167,6 +167,84 @@ class Hotkeys extends WebGui {
     }
 }
 
+class Feedback extends WebGui {
+
+    static tLog := Feedback.log()
+
+    __new() {
+        base.__new("Send feedback",, 700, 400)
+        this.document.write("
+        (%
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                * { font-family: Calibri, Georgia, Serif; line-height: 1.5; }
+                html, body { display: flex; flex-flow: column; height: 100%; background: #f0f0f0; margin: 0; }
+                textarea { flex: 2 1 auto; background-color: white; font-size: 22px; border: 1px solid #adadad; margin: 5px; padding: 5px; }
+                textarea:focus { border-color: #0078d7; }
+                input { border: 1px solid #adadad; }
+                input:focus { border-color: #0078d7; }
+                table { margin: 5px; }
+                span { flex: 0 1 auto; margin: 5px; }
+                button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
+                button:focus { outline: solid; outline-width: 1px; outline-color: #0078d7; }
+                button:hover { background-color: #e5f1fb; outline: solid; outline-width: 1px; outline-color: #0078d7; }
+            </style>
+        </head>
+        <body>
+            <span>Requests or Issues:</span>
+            <textarea id=content></textarea>
+            <span>E-mail (optional) <input type='email' id='email' size=32></input></span>
+            <span>
+                <button id='cancel'>Cancel</button>
+                <button id='send'>Send</button>
+            </span>
+        </body>
+        </html>
+        )")
+        this.document.close()
+        this.content := this.document.getElementById("content")
+        this.email := this.document.getElementById("email")
+        this.content.focus()
+        this.bindAll("button")
+
+        if (ptask.player.name)
+            this.name.value := ptask.player.name
+    }
+
+    log() {
+        t := Feedback.tLog ? Feedback.tLog : ObjBindMethod(Feedback, "log")
+        if (ptask.isReady) {
+            lastLogTime := db.load("last_log_time")
+            tPeriod -= lastLogTime, seconds
+            if (not lastLogTime || tPeriod >= 3600) {
+                FormatTime, logTime, A_NowUTC, yyMMdd
+                curl.ajax(Format("https://docs.google.com/forms/d/e/{}/formResponse?entry.1300113286={}&entry.512599937={}&entry.1915618276={}"
+                                , "1FAIpQLSe8v9cU4Xq2WBDXxCVVl3CsCItLA32NL7-mK2UWhfjBQXhIBQ", ptask.player.className, logTime, language))
+                tPeriod := 0
+                db.store("last_log_time", A_NOW)
+            }
+            SetTimer, %t%, % -(3600 - tPeriod) * 1000
+        } else {
+            SetTimer, %t%, % -60 * 1000
+        }
+
+        return t
+    }
+
+    send() {
+        curl.ajax(Format("https://docs.google.com/forms/d/e/{}/formResponse?entry.1794050980={}&entry.80285333={}"
+                        , "1FAIpQLSfLcA6KG9gE7JoNOr75x2ZMXsa4SGyPqVVp9M78gsZhhWrB4Q"
+                        , JSON.encodeURI(this.content.value), JSON.encodeURI(this.email.value)))
+        this.close()
+    }
+
+    cancel() {
+        this.close()
+    }
+}
+
 class Navi extends WebGui {
 
     __new() {
@@ -338,8 +416,9 @@ class Navi extends WebGui {
                 addMenuItem("__main", m.name, m.handler, m.options)
         }
         addMenuItem("__main")
+        addMenuItem("__main", _("Send feedback..."), ObjBindMethod(this, "sendFeedback"))
         addMenuItem("__main", _("Hotkeys..."), ObjBindMethod(this, "hotkeys"))
-        addMenuItem("__main", _("About PoEapikit..."), ObjBindMethod(this, "about"))
+        addMenuItem("__main", _("About") " PoEapikit...", ObjBindMethod(this, "about"))
         addMenuItem("__main")
         addMenuItem("__main", _("Quit"), "ExitApp")
 
@@ -371,6 +450,10 @@ class Navi extends WebGui {
 
     hotkeys() {
         new Hotkeys().show()
+    }
+
+    sendFeedback() {
+        new Feedback().show()
     }
 
     close() {
