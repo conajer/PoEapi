@@ -8,12 +8,12 @@ class curl extends AhkObj {
     static __stypes := ["* ", "< ", "> ", "{ ", "} ", "{ ", "} "]
 
     __new() {
+        base.__new()
+        this.setRequestHeader("user-agent", "curl/" this.version)
+
         if (Not curl.__options) {
             curl.__options := this.getAllOptions()
         }
-
-        base.__new()
-        this.setRequestHeader("user-agent", "curl/" this.version)
     }
 
     setopt(name, data) {
@@ -21,6 +21,14 @@ class curl extends AhkObj {
         if (opt.type == 4) ; char* to zero terminated buffer
             StrPut(Trim(data), &data, "utf-8")
         return this.__setopt(opt.id, (opt.type < 3) ? data : &data)
+    }
+
+    ajax(url, method = "GET", data = "", contentType = "application/json") {
+        static __curl = ""
+
+        (not __curl) ? __curl := new curl()
+        (method = "POST") ? __curl.post(url, data, contentType) : __curl.get(url)
+        return __curl.responseText
     }
 
     __debug(type, data, size) {
