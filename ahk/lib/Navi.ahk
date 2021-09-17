@@ -409,7 +409,6 @@ class Navi extends WebGui {
         addMenuItem("__main", _("Hideout"), ObjBindMethod(ptask, "sendKeys", "/hideout", 0))
         addMenuItem("__main", _("Sell items"), ObjBindMethod(ptask, "sellItems"))
         addMenuItem("__main", _("Stash"), ObjBindMethod(ptask, "stashItems"))
-        addMenuItem("__main", _("Reload"), "Reload")
         if (extraMenus.Count()) {
             addMenuItem("__main")
             for i, m in extraMenus
@@ -420,6 +419,7 @@ class Navi extends WebGui {
         addMenuItem("__main", _("Hotkeys..."), ObjBindMethod(this, "hotkeys"))
         addMenuItem("__main", _("About") " PoEapikit...", ObjBindMethod(this, "about"))
         addMenuItem("__main")
+        addMenuItem("__main", _("Reload"), "Reload")
         addMenuItem("__main", _("Quit"), "ExitApp")
 
         this.menu := this.document.querySelector("#menu")
