@@ -127,8 +127,16 @@ class PoETask extends AhkObj {
     }
 
     onLoaded() {
-        if (Not this.league)
+        if (Not this.league) {
+            oldLanguage := language
             readIni("production_Config.ini")
+            if (language != oldLanguage) {
+                db.loadTranslations()
+                this.nav.close()
+                this.nav := new Navi()
+                this.c := this.nav.getCanvas()
+            }
+        }
         this.reset()
     }
 
@@ -182,6 +190,7 @@ class PoETask extends AhkObj {
         } else {
             if (Not WinActive("ahk_class AutoHotkeyGUI")) {
                 if (Not WinActive("ahk_id " this.Hwnd)) {
+                    this.c.clear()
                     this.nav.hide()
                     this.hud.hide()
                 }
@@ -415,8 +424,7 @@ class PoETask extends AhkObj {
 
     showPrices(item = "") {
         shift := GetKeyState("Shift")
-
-         if (item) {
+        if (item) {
              e := this.getHoveredElement()
              r := e.getRect()
              MouseGetPos, x, y
@@ -425,7 +433,7 @@ class PoETask extends AhkObj {
              e.item := item
              this.displayItemPrice(e, shift, 1, 1, 1)
              return
-         }
+        }
 
         if (this.stash.isOpened()) {
             for i, e in this.stash.Tab.getChilds() {
