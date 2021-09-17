@@ -31,40 +31,40 @@ public:
         sqlite3_stmt* stmt;
         AhkTempObj result;
 
-        int rc = sqlite3_prepare16_v2(db, sql, -1, &stmt, nullptr);
-        if (rc != SQLITE_OK) {
-            result.__set(L"errcode", rc, AhkInt,
-                         L"errmsg", sqlite3_errstr(rc), AhkString, nullptr);
-            return result;
-        }
+        while (sql && *sql) {
+            int rc = sqlite3_prepare16_v2(db, sql, -1, &stmt, (const void**)&sql);
+            if (rc != SQLITE_OK) {
+                result.__set(L"errcode", rc, AhkInt,
+                             L"errmsg", sqlite3_errstr(rc), AhkString, nullptr);
+                return result;
+            }
 
-        int cols = sqlite3_column_count(stmt);
-        wchar_t** names = (wchar_t**)sqlite3_malloc(cols * sizeof(wchar_t**));
-        for (int i = 0; i < cols; ++i)
-            names[i] = (wchar_t*)sqlite3_column_name16(stmt, i);
+            int cols = sqlite3_column_count(stmt);
+            wchar_t** col_names = (wchar_t**)sqlite3_malloc(cols * sizeof(wchar_t**));
+            for (int i = 0; i < cols; ++i)
+                col_names[i] = (wchar_t*)sqlite3_column_name16(stmt, i);
 
-        while (1) {
-            rc = sqlite3_step(stmt);
-            if (rc == SQLITE_DONE)
-                break;
+            while (1) {
+                rc = sqlite3_step(stmt);
+                if (rc == SQLITE_DONE || rc != SQLITE_ROW)
+                    break;
 
-            if (rc == SQLITE_ROW) {
                 AhkTempObj row;
-                for (int i = 0; i < cols; ++i)
-                    row.__set(names[i], sqlite3_column_text16(stmt, i), AhkWString, nullptr);
+                for (int i = 0; i < cols; ++i) {
+                    const wchar_t *value = (const wchar_t*)sqlite3_column_text16(stmt, i);
+                    if (value && value[0] != L'\0')
+                        row.__set(col_names[i], value, AhkWString, nullptr);
+                }
                 result.__set(L"", (AhkObjRef*)row, AhkObject, nullptr);
-            } else {
-                sqlite3_reset(stmt);
+            }
+            sqlite3_free(col_names);
+            rc = sqlite3_finalize(stmt);
+            if (rc != SQLITE_OK) {
                 result.__set(L"errcode", rc, AhkInt,
                              L"errmsg", sqlite3_errmsg16(db), AhkWString, nullptr);
                 break;
             }
         }
-        sqlite3_free(names);
-        rc = sqlite3_finalize(stmt);
-        if (rc != SQLITE_OK)
-            result.__set(L"errcode", rc, AhkInt,
-                         L"errmsg", sqlite3_errmsg16(db), AhkWString, nullptr);
 
         return result;
     }
