@@ -12,22 +12,21 @@ class sqlite3 extends AhkObj {
 
     exec(sql, args*) {
         result := this.__Call("exec", Format(sql, args*))
-        if (result.Count() > 0)
-            return result
+        if (result.errcode)
+            throw, Exception(Format("Sqlite3: {} (error code: {})`n`nSQL statement(s):`n     " sql
+                            , result.errmsg, result.errcode, args*), -1)
+        return result.length() > 0 ? result : ""
     }
 
     exists(sql, args*) {
-        result := this.exec(Format(sql, args*))
-        if (Not result.errcode && result.Count())
-            return true
+        result := this.exec(sql, args*)
+        return result.length() > 0
     }
 
     get(sql, args*) {
-        result := this.exec(Format(sql, args*))
-        if (Not result.errcode) {
-            for name, value in result[1]
-                return value
-        }
+        result := this.exec(sql, args*)
+        for name, value in result[1]
+            return value
     }
 
     listTables() {
