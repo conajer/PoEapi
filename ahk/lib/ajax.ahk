@@ -65,6 +65,14 @@ class JSON {
         return this.parse(text)
     }
 
+    decodeURI(encodedURI) {
+        return this.document.parentWindow.decodeURI(encodedURI)
+    }
+
+    encodeURI(uri) {
+        return this.document.parentWindow.encodeURI(uri)
+    }
+
     __parse(text) {
         return text ? this.__json.parse(text) : ""
     }
