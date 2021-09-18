@@ -61,9 +61,9 @@ class About extends WebGui {
         this.bindAll("button")
         this.bindAll("a")
 
-        this.document.querySelector("#version").innerText := version
-        this.document.querySelector("#poeapi_version").innerText := poeapiVersion
-        this.document.querySelector("#ahk_version").innerText := A_AhkVersion
+        this._("#version").innerText := version
+        this._("#poeapi_version").innerText := poeapiVersion
+        this._("#ahk_version").innerText := A_AhkVersion
     }
 
     ok() {
@@ -158,8 +158,8 @@ class Hotkeys extends WebGui {
         this.document.close()
         this.bindAll("button")
 
-        this.document.querySelector("#version").innerText := version
-        this.document.querySelector("#poeapi_version").innerText := poeapiVersion
+        this._("#version").innerText := version
+        this._("#poeapi_version").innerText := poeapiVersion
     }
 
     ok() {
@@ -268,15 +268,17 @@ class Navi extends WebGui {
 
                 .nav { position: fixed; right: 0; }
                 .nav table { border-collapse: collapse; }
-                .nav td { margin: 0 10px; padding: 1px 15px; }
+                .nav_bar { display: none; border-collapse: collapse; }
+                .nav_bar td { padding: 0 12px; }
 
-                #area_time { font-family: Arail Narrow; font-weight: bold; color: #0c0c0c; background-color: lightgreen; }
+                #toggle { color: lightgrey; background-color: brown; padding: 0 5px; }
+                #area_time { font-family: Arail Narrow; font-weight: bold; color: #0c0c0c; background-color: lightblue; }
                 .second { font-family: Arail Narrow; color: maroon; }
                 #kill_counter { color: #0c0c0c; background-color: lightcyan; }
                 #kill_counter:hover { background-color: cyan; }
                 .kills { color: crimson; }
                 .total { color: green; }
-                .exp { color: #0c0c0c; background-color: yellow; }
+                #exp { color: #0c0c0c; background-color: yellow; }
                 .gained_exp { color: blue; }
                 #menu { color: white; background-color: #0c0c0c; }
 
@@ -293,14 +295,15 @@ class Navi extends WebGui {
         <body oncontextmenu='return false;'>
             <canvas></canvas>
             <div class=nav>
-                <table>
-                    <tr>
+                <table><tr>
+                    <td id='toggle'>&#187;</td>
+                    <td><table class='nav_bar'><tr>
                         <td id='area_time'></td>
                         <td id='kill_counter'>Kills <b class=kills>0</b>/<b class=total>0<b></td>
-                        <td class=exp>Exp <b class='gained_exp'>+0.000%</b></td>
+                        <td id='exp'>Exp <b class='gained_exp'>+0.000%</b></td>
                         <td id='menu'>&#8801;</td>
-                    </tr>
-                </table>
+                    </tr></table></td>
+                </tr></table>
             </div>
             <div class='stats' align='center'>
                 <table id='kill_stats'></table>
@@ -407,6 +410,7 @@ class Navi extends WebGui {
         this.bind("menu", "onmouseenter")
         this.bind("menu", "onmouseleave")
         this.bind("menu", "onclick", "showMenu")
+        this.bind("toggle",, "toggle")
         this.bind("kill_counter",, "showKillStats")
         this.bind("kill_stats", "onfocusout", "hideKillStats")
 
@@ -426,18 +430,15 @@ class Navi extends WebGui {
         addMenuItem("__main", _("Reload"), "Reload")
         addMenuItem("__main", _("Quit"), "ExitApp")
 
-        this.menu := this.document.querySelector("#menu")
-        this.killStats := this.document.querySelector("#kill_stats")
-        this.areaTime := this.document.querySelector("#area_time")
+        this.menu := this._("#menu")
+        this.killStats := this._("#kill_stats")
+        this.areaTime := this._("#area_time")
         this.kc := ptask.getPlugin("KillCounter")
-        if (Not this.kc.enabled) {
-            this.document.querySelector("#kill_counter").style.display := "none"
-            this.document.querySelector(".exp").style.display := "none"
-        }
+        this.setVisible(db.load("nav.visible"))
         this.onMessage(WM_KILL_COUNTER, "onKillCounter")
         this.onMessage(WM_AREA_CHANGED, "onAreaChanged")
 
-        this.statusbar := this.document.querySelector(".statusbar")
+        this.statusbar := this._(".statusbar")
         this.statusTimer := ObjBindMethod(this, "setStatus")
 
         t := ObjBindMethod(this, "updateTime")
@@ -488,6 +489,17 @@ class Navi extends WebGui {
 
     showMenu() {
         Menu, __main, Show
+    }
+
+    setVisible(flag) {
+        this.visible := flag
+        this._("#toggle").innerHtml := flag ? "&#187;" : "&#171;"
+        this._(".nav_bar").style.display := flag ? "table" : "none"
+        db.store("nav.visible", this.visible, "All")
+    }
+
+    toggle() {
+        this.setVisible(not this.visible)
     }
 
     showKillStats() {
@@ -558,10 +570,7 @@ class Navi extends WebGui {
         this.usedTime := stat ? stat.usedTime : 0
         this.enterTime := A_Tickcount
 
-        if (this.kc.enabled) {
-            exp := this.document.querySelector(".exp")
-            , exp.style.display := ptask.InMap ? "table-cell" : "none"
-        }
+        (this.kc.enabled) ? this._("#exp").style.display := ptask.InMap ? "table-cell" : "none"
     }
 
     onKillCounter(wParam, lParam) {
