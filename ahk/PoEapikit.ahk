@@ -81,7 +81,10 @@ readIni(iniFile) {
 }
 
 _(str) {
-    return DllCall("libintl-8\gettext", "AStr", str, "AStr")
+    if (not __translations.hasKey(str))
+        __translations[str] := (pos := InStr(str, "/"))
+            ? _(SubStr(str, 1, pos - 1)) "/" _(SubStr(str, pos + 1)) : str
+    return __translations[str]
 }
 
 $(item) {
