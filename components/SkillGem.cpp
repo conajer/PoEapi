@@ -19,17 +19,6 @@ public:
     SkillGem(addrtype address) : Component(address, "SkillGem", &skillgem_component_offsets) {
     }
 
-    wstring& name(wstring& base_name) {
-        int type = quality_type();
-        if (type > 0) {
-            if (gem_name.empty())
-                gem_name = gem_types[type] + L" " + base_name;
-            return gem_name;
-        }
-
-        return base_name;
-    }
-
     int level() {
         return read<byte>("level");
     }
