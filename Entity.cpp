@@ -298,6 +298,7 @@ public:
         add_method(L"isRGB", this, (MethodType)&Item::is_rgb, AhkBool);
         add_method(L"itemLevel", this, (MethodType)&Item::get_item_level);
         add_method(L"quality", this, (MethodType)&Item::get_quality);
+        add_method(L"qualityType", this, (MethodType)&Item::get_quality_type);
         add_method(L"sockets", this, (MethodType)&Item::get_sockets);
         add_method(L"links", this, (MethodType)&Item::get_links);
         add_method(L"tier", this, (MethodType)&Item::get_tier);
@@ -330,10 +331,6 @@ public:
             Prophecy* prophecy = get_component<Prophecy>();
             if (prophecy)
                 return prophecy->name();
-        } else if (has_component("SkillGem")) {
-            SkillGem* skill_gem = get_component<SkillGem>();
-            if (skill_gem)
-                return skill_gem->name(base_name());
         }
 
         return base_name();                                 /* normal or unidentified items */
@@ -438,6 +435,11 @@ public:
     int get_quality() {
         Quality* quality = get_component<Quality>();
         return quality ? quality->quality() : 0;
+    }
+
+    int get_quality_type() {
+        SkillGem* gem = get_component<SkillGem>();
+        return gem ? gem->quality_type() : 0;
     }
 
     int get_tier() {
