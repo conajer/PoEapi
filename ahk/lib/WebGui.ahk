@@ -111,6 +111,10 @@ class WebGui extends AhkGui {
         this.document := this.browser.document
     }
 
+    _(selector) {
+        return this.document.querySelector(selector)
+    }
+
     bind(id, event = "onclick", handler = "") {
         try {
             element := this.document.getElementById(id)
