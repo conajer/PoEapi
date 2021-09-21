@@ -239,8 +239,8 @@ class Feedback extends WebGui {
     send() {
         curl.ajax(Format("https://docs.google.com/forms/d/e/{}/formResponse?entry.1794050980={}&entry.80285333={}"
                         , "1FAIpQLSfLcA6KG9gE7JoNOr75x2ZMXsa4SGyPqVVp9M78gsZhhWrB4Q"
-                        , JSON.encodeURI(this.content.value)
-                        , JSON.encodeURI(this.email.value)))
+                        , js.encodeURI(this.content.value)
+                        , js.encodeURI(this.email.value)))
         this.close()
     }
 

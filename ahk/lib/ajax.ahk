@@ -2,6 +2,8 @@
 ; ajax.ahk, 5/29/2021 5:08 PM
 ;
 
+global js := new JScriptHost()
+
 ajax(url, method = "GET", data = "", contentType = "application/json") {
     xmlhttp := ComObjCreate("MSXML2.XMLHTTP")
     xmlhttp.open(method, url, true)
@@ -17,42 +19,68 @@ ajax(url, method = "GET", data = "", contentType = "application/json") {
     return xmlhttp.responseText
 }
 
+class JScriptHost {
+
+    __new() {
+        ObjRawSet(this, "__doc", ComObjCreate("HTMLFile"))
+        this.__doc.write("
+        (
+            <!DOCTYPE html>
+            <html>
+            <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+            <head>
+            </head>
+            </html>
+        )")
+        ObjRawSet(this, "__js", this.__doc.parentWindow)
+
+    }
+
+    __Get(name) {
+        if (not ObjHasKey(this, name))
+            return this.__js[name]
+    }
+
+    __Set(name, value) {
+        if (not ObjHasKey(this, name)) {
+            return this.__js[name] := value
+        }
+    }
+
+    __Call(name, args*) {
+        if (not ObjHasKey(this, name))
+            return this.__js[name].(args*)
+    }
+}
+
 class JSON {
 
     static __json := JSON.__init()
 
     __init() {
-        this.document := ComObjCreate("HTMLFile")
-        this.document.write("
-        (%
-        <!DOCTYPE html>
-        <html>
-        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-        <head>
-            <script>
-                JSON.copy = function (dst, src) {
-                    if (typeof src !== 'object')
-                        return src;
+        this.__js := new JScriptHost()
+        this.__js.eval("
+        (
+            JSON.copy = function (dst, src) {
+                if (typeof src !== 'object')
+                    return src;
 
-                    if (Array.isArray(src)) {
-                        for (let i = 0; i < src.length; ++i)
-                            (typeof src[i] === 'object')
-                                ? assign(dst, i + 1, src[i]) : dst[i + 1] = src[i];
-                    } else {
-                        for (let k in src)
-                            (typeof src[k] === 'object')
-                                ? assign(dst, k, src[k]) : dst[k] = src[k];
+                if (Array.isArray(src)) {
+                    for (let i = 0; i < src.length; ++i)
+                        (typeof src[i] === 'object')
+                            ? assign(dst, i + 1, src[i]) : dst[i + 1] = src[i];
+                } else {
+                    for (let k in src) {
+                        (typeof src[k] === 'object')
+                            ? assign(dst, k, src[k]) : dst[k] = src[k];
                     }
-
-                    return dst;
                 }
-            </script>
-        </head>
-        </html>
-        )")
 
-        this.document.parentWindow.assign := ObjBindMethod(this, "__assign")
-        return this.document.parentWindow.JSON
+                return dst;
+            }
+        )")
+        this.__js.assign := ObjBindMethod(this, "__assign")
+        return this.__js.JSON
     }
 
     parse(text) {
@@ -66,14 +94,6 @@ class JSON {
     load(filename) {
         FileRead, text, %filename%
         return this.parse(text)
-    }
-
-    decodeURI(encodedURI) {
-        return this.document.parentWindow.decodeURI(encodedURI)
-    }
-
-    encodeURI(uri) {
-        return this.document.parentWindow.encodeURI(uri)
     }
 
     __parse(text) {
