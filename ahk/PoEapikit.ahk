@@ -118,7 +118,10 @@ Attack:
 return
 
 QuickDefense:
-    SendInput, %QuickDefenseAction%
+    if (ptask.getChat().isOpened())
+        SendInput, {q}
+    else
+        SendInput, %QuickDefenseAction%
 return
 
 ~s::
