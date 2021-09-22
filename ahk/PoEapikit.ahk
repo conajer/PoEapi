@@ -81,6 +81,8 @@ readIni(iniFile) {
 }
 
 _(str) {
+    if (language == "en")
+        return str
     if (not __translations.hasKey(str))
         __translations[str] := (pos := InStr(str, "/"))
             ? _(SubStr(str, 1, pos - 1)) "/" _(SubStr(str, pos + 1)) : str

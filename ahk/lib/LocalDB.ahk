@@ -38,7 +38,8 @@ class LocalDB extends sqlite3 {
     }
 
     addTranslation(source, target) {
-        (not target || __translations[source] == target) ? return
+        if (language == "en" || not target || __translations[source] == target)
+            return
         __translations[source] := target
         this.exec("INSERT INTO v_trans VALUES (""{}"", ""{}"", '{}');"
                  , source, target, language)
@@ -68,6 +69,9 @@ class LocalDB extends sqlite3 {
                     ON CONFLICT (id, language) DO NOTHING;
             END;
             )", language)
+
+        if (language == "en")
+            return
 
         __translations := {}
         for i, r in this.exec("SELECT * FROM v_trans;")
