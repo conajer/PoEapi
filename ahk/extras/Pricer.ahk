@@ -127,8 +127,11 @@ class Pricer {
             if (not result)
                 return
 
-            if (item.rarity < 3 && item.ilvl >= 82) {   ; for BaseType
+            if (item.rarity < 3) {
                 ilvl := (item.ilvl >= 86) ? 86 : item.ilvl
+                if (ilvl && ilvl < 82)
+                    return
+
                 if (itype := item.getInfluenceType()) {
                     loop, 6 {
                         if (itype & (1 << (A_Index - 1))) {
@@ -140,17 +143,15 @@ class Pricer {
                         }
                     }
                 }
+            }
 
-                for i, r in result {
-                    if (r.links && r.links != item.links)
-                        continue
-                    if (r.variant && r.variant != influences)
-                        continue
-                    if (ilvl >= r.ilvl)
-                        return r.price
-                }
-            } else if (not item.ilvl || item.rarity == 3) {
-                return result[1].price
+            for i, r in result {
+                if (r.links && r.links != item.links)
+                    continue
+                if (r.variant && r.variant != influences)
+                    continue
+                if (ilvl >= r.ilvl)
+                    return r.price
             }
         } else {
             return this.__getPrice(item.name)[1].price
@@ -319,11 +320,13 @@ class Pricer {
                     , cols.quality_type := this.qualityTypes[matched1]
                     , cols.variant := matched1
             case "UniqueWeapon":
-                p.hasOwnProperty("links") ? cols.links := p.links
-                , cols.details := cols.links "L"
+                if (p.hasOwnProperty("links"))
+                    cols.links := p.links
+                    , cols.details := cols.links "L"
             case "UniqueArmour":
-                p.hasOwnProperty("links") ? cols.links := p.links
-                , cols.details := cols.links "L"
+                if (p.hasOwnProperty("links"))
+                    cols.links := p.links
+                    , cols.details := cols.links "L"
             }
 
             p.hasOwnProperty("itemType") ? type := p.itemType : ""
