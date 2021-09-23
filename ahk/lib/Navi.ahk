@@ -134,16 +134,17 @@ class Hotkeys extends WebGui {
                     <tr><td>Ctrl + F6</td><td>Dump highlighted or all items from stash tab</td></tr>
                     <tr><td>F7</td><td>Sell full rare sets to vendor</td></tr>
                     <tr><td>F12</td><td>Toggle log window</td></tr>
-                    <tr><td>Left Alt</td><td>Show price of the items in stash tab, inventory or favours<br><b style='color:darkred'>[patreon only]</b>Show price of the prophecies when view prophecies<br><b style='color:darkred'>[patreon only]</b>Show ratings of the syndicate members</td></tr>
+                    <tr><td>Left Alt</td><td>Show price of the items in stash tab, inventory or favours<br><b style='color:darkred'>[patreon only]</b> Show price of the prophecies when view prophecies<br><b style='color:darkred'>[patreon only]</b> Show ratings of the syndicate members</td></tr>
                     <tr><td>Windows + d</td><td>Minimize PoE window</td></tr>
                     <tr><td>Shift + LButton</td><td>Hold Shift and LButton to activate auto clicker</td></tr>
                     <tr><td>Ctrl + Double Click</td><td>Hold Ctrl then double click to activate auto clicker</td></tr>
                     <tr><td>Ctrl + LButton</td><td>Hold Ctrl and LButton to activate auto clicker<br>Send an instant whisper when copied a whisper message</td></tr>
                     <tr><td>Ctrl + c</td><td>Copy the selected item's name</td></tr>
-                    <tr><td>Ctrl + d</td><td><b style='color:darkred'>[patreon only]</b>Check the price of selected item or items in nearby curio displays</td></tr>
-                    <tr><td>Ctrl + Shift + d</td><td><b style='color:darkred'>[patreon only]</b>Check the price of items in current stash tab or inventory</td></tr>
+                    <tr><td>Ctrl + d</td><td><b style='color:darkred'>[patreon only]</b> Check the price of selected item or items in nearby curio displays</td></tr>
+                    <tr><td>Ctrl + Shift + d</td><td><b style='color:darkred'>[patreon only]</b> Check the price of items in current stash tab or inventory</td></tr>
                     <tr><td>Ctrl + f</td><td>Highlight items in stash tab</td></tr>
                     <tr><td>Ctrl + m</td><td>Toggle maphack</td></tr>
+                    <tr><td>Ctrl + p</td><td><b style='color:darkred'>[patreon only]</b> Spam prophecies</td></tr>
                     <tr><td>Ctrl + r</td><td>Reload script</td></tr>
                     <tr><td>Ctrl + w</td><td>Open wiki</td></tr>
                     <tr><td>Ctrl + q</td><td>Quit PoEapikit</td></tr>
