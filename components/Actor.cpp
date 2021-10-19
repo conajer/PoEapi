@@ -6,8 +6,8 @@
 
 static FieldOffsets actor_skill_offsets {
     {"id",                      0x10},
-    {"GrantedEffectsPerLevel",  0x20},
-        {"active_skill",         0x8},
+    {"GrantedEffectsPerLevel",  0x18},
+        {"active_skill",         0x0},
             {"name",             0x0},
         {"level",               0x10},
         {"required_level",      0x74},
@@ -71,8 +71,8 @@ enum ActionFlags {
 
 static std::map<string, int> actor_component_offsets {
     {"action",       0x1a8},
-        {"skill",    0x150},
-        {"target",   0x168},
+        {"skill",    0xb8},
+        {"target",   0xd0},
     {"action_id",    0x208},
     {"action_count", 0x20a},
     {"vaal_skills",  0x6b0},
@@ -100,8 +100,7 @@ public:
 
     int action_id() {
         int tmp_action_id = read<short>("action_id");
-        if (tmp_action_id & ACTION_USING_SKILL) {
-            addrtype addr = read<addrtype>("action", "skill");
+        if (addrtype addr = read<addrtype>("action", "skill")) {
             if (!skill || addr != skill->address) {
                 auto i = skills.find(addr);
                 if (i == skills.end()) {
