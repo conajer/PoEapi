@@ -501,6 +501,7 @@ class Navi extends WebGui {
 
     toggle() {
         this.setVisible(not this.visible)
+        ptask.activate()
     }
 
     showKillStats() {
@@ -567,11 +568,13 @@ class Navi extends WebGui {
     }
 
     onAreaChanged() {
-        stat := this.kc.getStat()
+        if (this.kc.enabled) {
+            this._("#exp").style.display := ptask.InMap ? "table-cell" : "none"
+            stat := this.kc.getStat()
+        }
         this.usedTime := stat ? stat.usedTime : 0
         this.enterTime := A_Tickcount
 
-        (this.kc.enabled) ? this._("#exp").style.display := ptask.InMap ? "table-cell" : "none"
     }
 
     onKillCounter(wParam, lParam) {
