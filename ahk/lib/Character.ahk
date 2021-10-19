@@ -245,7 +245,7 @@ class Character {
 
     onAttack() {
         if (this.nearbyMonsters > 5)
-            SendInput, {r}
+            SendInput, %DefenseBuffSkillKey%
 
         ;if (this.life > 95 && Not ptask.hasBuff("blood_rage"))
         ;    SendInput, {MButton}
