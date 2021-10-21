@@ -4,8 +4,6 @@
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
-#include <mutex>
-
 #include "PoE.cpp"
 #include "PoEapi.c"
 #include "Task.cpp"
@@ -20,8 +18,8 @@
 #include "plugins/PlayerStatus.cpp"
 #include "plugins/KillCounter.cpp"
 
-static std::map<wstring, std::map<string, int>&> offsets = {
-    {L"GameStates", game_state_controller_offsets},
+static std::map<wstring, std::map<string, int>&> g_offsets = {
+    {L"GameStates", poe_offsets},
     {L"IngameState", in_game_state_offsets},
     {L"IngameData", in_game_data_offsets},
     {L"IngameUI", in_game_ui_offsets},
@@ -41,17 +39,12 @@ public:
     wstring league;
 
     std::map<wstring, shared_ptr<PoEPlugin>> plugins;
-    std::wregex ignored_entity_exp;
-    std::mutex muxtex;
     bool is_attached = false;
     bool is_active = false;
     shared_ptr<Element> hovered_element;
     shared_ptr<Item> hovered_item;
 
-    PoETask() : Task(L"PoETask"),
-        ignored_entity_exp(L"Doodad|WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
-                           "|BlightFoundation|BlightTower|Effects")
-    {
+    PoETask() : Task(L"PoETask") {
         /* add jobs */
         add_job(L"PlayerStatusJob", 99, [&] {this->check_player();});
         add_job(L"EntityJob", 55, [&] {this->check_entities();});
@@ -98,10 +91,8 @@ public:
         add_method(L"getHoveredItem", this, (MethodType)&PoETask::get_hovered_item, AhkObject);
         add_method(L"setOffset", this, (MethodType)&PoETask::set_offset, AhkVoid, ParamList{AhkWString, AhkString, AhkInt});
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
-        add_method(L"toggleHealthBar", this, (MethodType)&PoETask::toggle_health_bar, AhkBool);
         add_method(L"getBuffs", this, (MethodType)&PoETask::get_buffs, AhkObject);
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
-        add_method(L"bindHud", (PoE*)this, (MethodType)&PoE::bind_hud, AhkVoid, ParamList{AhkUInt});
         add_method(L"__logout", (PoE*)this, (MethodType)&PoE::logout, AhkVoid);
     }
 
@@ -110,7 +101,8 @@ public:
     }
 
     void set_job(const wchar_t* name, int period) {
-        jobs[name]->delay = period;
+        if (jobs.find(name) != jobs.end())
+            jobs[name]->delay = period;
     }
 
     void add_plugin(PoEPlugin* plugin, bool enabled = false) {
@@ -193,7 +185,7 @@ public:
         if (is_in_game()) {
             Vendor* vendor = in_game_ui->get_vendor();
             return (AhkObjRef*)*vendor;
-       }
+        }
 
         return nullptr;
     }
@@ -201,8 +193,8 @@ public:
     AhkObjRef* get_purchase() {
         if (is_in_game()) {
             Purchase* purchase = in_game_ui->get_purchase();
-            return (AhkObjRef*)*purchase;
-       }
+            return purchase ? (AhkObjRef*)*purchase : nullptr;
+        }
 
         return nullptr;
     }
@@ -210,8 +202,8 @@ public:
     AhkObjRef* get_sell() {
         if (is_in_game()) {
             Sell* sell = in_game_ui->get_sell();
-            return (AhkObjRef*)*sell;
-       }
+            return sell ? (AhkObjRef*)*sell : nullptr;
+        }
 
         return nullptr;
     }
@@ -220,7 +212,7 @@ public:
         if (is_in_game()) {
             Trade* trade = in_game_ui->get_trade();
             return (AhkObjRef*)*trade;
-       }
+        }
 
         return nullptr;
     }
@@ -229,7 +221,7 @@ public:
         if (is_in_game()) {
             Chat* chat = in_game_ui->get_chat();
             return (AhkObjRef*)*chat;
-       }
+        }
 
         return nullptr;
     }
@@ -242,7 +234,7 @@ public:
                 passive_skills.__set(L"", i, AhkInt, nullptr);
             __set(L"passiveSkills", (AhkObjRef*)passive_skills, AhkObject, nullptr);
             return passive_skills;
-       }
+        }
 
         return nullptr;
     }
@@ -343,14 +335,12 @@ public:
     }
 
     void set_offset(wchar_t* catalog, char* key, int value) {
-        auto i = offsets.find(catalog);
-        if (i != offsets.end())
+        auto i = g_offsets.find(catalog);
+        if (i != g_offsets.end())
             i->second[key] = value;
     }
 
     void reset() {
-        std::unique_lock<std::mutex> lock;
-
         if (is_ready || !PoE::is_in_game())
             return;
         
@@ -395,22 +385,14 @@ public:
         bool in_game_flag = PoE::is_in_game();
         static unsigned int time_in_game = 0;
 
-        if (!is_attached && hwnd) {
+        if (!is_attached && poe_hwnd) {
             is_attached = true;
-            PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)hwnd, (LPARAM)0);
+            PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)poe_hwnd, (LPARAM)0);
         }
 
         if (!in_game_flag) {
             if (is_ready) {
                 is_ready = false;
-
-                // clear hud
-                if (hud) {
-                    hud->begin_draw();
-                    hud->clear();
-                    hud->end_draw();
-                }
-
                 PostThreadMessage(owner_thread_id, WM_PTASK_EXIT, (WPARAM)0, (LPARAM)0);
             }
 
@@ -421,13 +403,6 @@ public:
                 is_ready = false;
                 in_game_data ? in_game_data->force_reset = true : false;
                 Sleep(500);
-
-                // clear hud
-                if (hud) {
-                    hud->begin_draw();
-                    hud->clear();
-                    hud->end_draw();
-                }
 
                 // wait for loading the game instance.
                 while (in_game_state->is_loading()) {
@@ -444,7 +419,7 @@ public:
 
     void check_player() {
         if (!is_in_game() || !is_ready) {
-            if (is_attached && !hwnd) {
+            if (is_attached && !poe_hwnd) {
                 is_attached = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
             }
@@ -453,16 +428,16 @@ public:
         }
 
         HANDLE h = GetForegroundWindow();
-        if (h != hwnd) {
+        if (h != poe_hwnd) {
             if (is_active) {
+                is_active = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
                 Sleep(300);
                 PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
-                is_active = false;
             }
         } else if (!is_active) {
-            PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
             is_active = true;
+            PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
         }
 
         if (in_game_data->area_hash() != area_hash) {
@@ -480,29 +455,35 @@ public:
     }
 
     void check_entities() {
-        if (!is_ready || GetForegroundWindow() != hwnd || !is_in_game())
+        if (!is_ready || GetForegroundWindow() != poe_hwnd)
             return;
 
-        in_game_data->get_all_entities(entities, ignored_entity_exp);
+        in_game_data->get_all_entities(entities);
         for (auto& i : plugins) {
-            if (entities.all.size() > 128)
-                SwitchToThread();
             if (is_ready && i.second->enabled && i.second->player)
                 i.second->on_entity_changed(entities.all, entities.removed, entities.added);
         }
     }
 
     void check_labeled_entities() {
-        if (!is_ready || GetForegroundWindow() != hwnd || !is_in_game())
+        if (!is_ready || GetForegroundWindow() != poe_hwnd)
             return;
 
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
         for (auto& i : plugins) {
-            if (labeled_entities.size() > 128)
-                SwitchToThread();
             if (is_ready && i.second->enabled && i.second->player)
                 i.second->on_labeled_entity_changed(labeled_entities);
         }
+    }
+
+    void render() {
+        clear();
+        if (!is_ready || in_game_ui->has_active_panel())
+            return;
+
+        for (auto& i : plugins)
+            if (i.second->enabled && i.second->player)
+                i.second->render();
     }
 
     void run() {
@@ -520,8 +501,7 @@ public:
     void stop() {
         is_ready = false;
         Task::stop();
-        Sleep(300);
-        hud.reset();
+        Sleep(100);
     }
 
     bool toggle_maphack() {
@@ -532,7 +512,7 @@ public:
             return false;
 
         if (addrtype addr = find_pattern(pattern)) {
-            byte flag = read<byte>(addr + 4) ? 0 : 2;
+            byte flag = PoEMemory::read<byte>(addr + 4) ? 0 : 2;
             if (::write<byte>(handle, addr + 4, &flag, 1)) {
                 log(L"Maphack <b style=\"color:blue\">%S</b>.", flag ? L"Enabled" : L"Disabled");
                 CloseHandle(handle);
@@ -541,21 +521,6 @@ public:
         }
         CloseHandle(handle);
             
-        return false;
-    }
-
-    bool toggle_health_bar() {
-        char pattern[] = "?? ?? 44 8b 82 ?? ?? 00 00 8b 82 ?? ?? 00 00 41 0f af c0";
-        if (addrtype addr = find_pattern(pattern)) {
-            byte flag = read<byte>(addr);
-            flag = (flag == 0x7c) ? 0xeb : 0x7c;
-            if (write<byte>(addr, &flag, 1)) {
-                log(L"Health bar <b style=\"color:blue\">%S</b>.",
-                    (flag == 0xeb) ? L"Enabled" : L"Disabled");
-                return true;
-            }
-        }
-
         return false;
     }
 
