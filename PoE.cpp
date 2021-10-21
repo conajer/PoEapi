@@ -22,7 +22,14 @@ typedef unsigned __int64 addrtype;
 #include "PoEMemory.cpp"
 #include "RemoteMemoryObject.cpp"
 
-class PoE : public PoEMemory, public AhkObj {
+std::map<string, int> poe_offsets {
+    {"active_game_states", 0x20},
+        {"current",         0x0},
+    {"game_states",        0x48},
+        {"root",            0x8},
+};
+
+class PoE : public RemoteMemoryObject, public AhkObj, public Hud {
 protected:
 
     int get_process_by_name(const char* name) {
@@ -50,6 +57,30 @@ protected:
         }
 
         return 0;
+    }
+
+    std::vector<shared_ptr<GameState>> get_all_game_states() {
+        std::vector<shared_ptr<GameState>> game_states;
+        if (!address) {
+            std::queue<addrtype> nods;
+            addrtype addr = read<addrtype>("game_states", "root");
+            nods.push(addr);
+            while (!nods.empty()) {
+                addr = nods.front();
+                nods.pop();
+
+                if (PoEMemory::read<byte>(addr + 0x19) != 0)
+                    continue;
+
+                nods.push(PoEMemory::read<addrtype>(addr));
+                nods.push(PoEMemory::read<addrtype>(addr + 0x10));
+
+                addr = PoEMemory::read<addrtype>(addr + 0x40);
+                game_states.push_back(shared_ptr<GameState>(new GameState(addr)));
+            }
+        }
+
+        return game_states;
     }
 
     HWND get_hwnd() {
@@ -119,14 +150,14 @@ protected:
         byte mask[256];
         int len = parse_pattern(pattern_str, pattern, mask);
 
-        addrtype end_address = address + size_of_image;
+        addrtype end_address = base_address + size_of_image;
         byte* buffer = new byte[size_of_image];
-        
-        if (read(address, buffer, size_of_image)) {
+
+        if (PoEMemory::read(base_address, buffer, size_of_image)) {
             for (int i = 0; i < size_of_image - len; i++) {
                 if (compare(pattern, &buffer[i], mask, len)) {
                     delete[] buffer;
-                    return address + i;
+                    return base_address + i;
                 }
             }
         }
@@ -137,13 +168,12 @@ protected:
 
 public:
 
-    const char* executable_names[3] = {"PathOfExile.exe", "PathOfExileSteam.exe", "PathOfExile_KG.exe"};
-    addrtype address;
+    addrtype base_address;
     int size_of_image;
     int process_id;
     HWND hwnd;
-    GameStateController* game_state_controller;
-    GameState *active_game_state;
+
+    shared_ptr<GameState> active_game_state;
     InGameState* in_game_state;
     InGameUI* in_game_ui;
     InGameData* in_game_data;
@@ -152,30 +182,20 @@ public:
     bool is_ready = false;
     unique_ptr<Canvas> hud;
 
-    PoE() : game_state_controller(0) {
+    PoE() : RemoteMemoryObject(0, &poe_offsets) {
     }
 
-    GameStateController* get_game_state_controller() {
-        char pattern[] = "48 8b f1 33 ed 48 39 2d";
-        addrtype addr = find_pattern(pattern);
-        if (!addr)
-            return nullptr;
-
-        addr = read<addrtype>(addr + read<int>(addr + 8) + 12);
-        if (!addr)
-            return nullptr;
-        delete game_state_controller;
-
-        return new GameStateController(addr);
-    }
-
-    GameState* get_active_game_state() {
-        if (game_state_controller) {
-            GameState *game_state = game_state_controller->get_active_game_state();
-            return game_state;
+    shared_ptr<GameState>& get_active_game_state() {
+        if (addrtype addr = read<addrtype>("active_game_states", "current")) {
+            if (!active_game_state || active_game_state->address != addr) {
+                string state_name = PoEMemory::read<string>(addr + 0x10);
+                active_game_state.reset(read_object<GameState>(state_name, addr));
+            }
+        } else {
+            active_game_state.reset();
         }
 
-        return nullptr;
+        return active_game_state;
     }
 
     void reset() {
@@ -225,10 +245,14 @@ public:
                 address = (addrtype)module_info.lpBaseOfDll;
                 size_of_image = module_info.SizeOfImage;
             }
-            game_state_controller = get_game_state_controller();
-            active_game_state = get_active_game_state();
 
-            return true;
+            if (addrtype addr = find_pattern("48 8b f1 33 ed 48 39 2d")) {
+                address = PoEMemory::read<addrtype>(addr + PoEMemory::read<int>(addr + 8) + 12);
+                CloseHandle(process_handle);
+                process_handle = OpenProcess(PROCESS_VM_READ, false, process_id);
+                bind(poe_hwnd);
+                return true;
+            }
         }
 
         // Reset hwnd
@@ -238,15 +262,11 @@ public:
     }
 
     void list_game_states() {
-        GameState *active_game_state = get_active_game_state();
-
-        if (!active_game_state)
-            return;
-
-        wprintf(L"%llx: GameState Controller\n", game_state_controller->address);
-        for (auto  i : game_state_controller->get_all_game_states()) {
-            printf("    %llx => %c", i.second.address, (*active_game_state == i.second) ? '*' : ' ');
-            wprintf(L"%S\n", i.first.c_str());
+        auto game_states = get_all_game_states();
+        if (!game_states.empty()) {
+            wprintf(L"%llx: Game states\n", read<addrtype>("game_states"));
+            for (auto&  i : game_states)
+                wprintf(L"    %llx => %S\n", i->address, i->name.c_str());
         }
     }
 
