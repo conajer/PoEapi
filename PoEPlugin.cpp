@@ -22,6 +22,7 @@ public:
     }
 
     void __new() {
+        AhkObj::__new();
         __set(L"name", name.c_str(), AhkWString,
               L"version", version.c_str(), AhkString,
               nullptr);

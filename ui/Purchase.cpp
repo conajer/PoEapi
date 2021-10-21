@@ -41,10 +41,13 @@ public:
     std::map<int, shared_ptr<Item>> items;
 
     Purchase(addrtype address) : Element(address) {
+    }
+
+    void __init() {
+        Element::__init();
         add_method(L"isOpened", (Element*)this, (MethodType)&Element::is_visible, AhkBool);
         add_method(L"getChilds", this, (MethodType)&Purchase::__get_childs, AhkObject);
         add_method(L"getItems", this, (MethodType)&Purchase::__get_items, AhkObject);
-        
     }
 
     std::map<int, shared_ptr<Item>>& get_items() {

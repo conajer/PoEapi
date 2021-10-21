@@ -135,6 +135,7 @@ public:
     }
 
     void __new() {
+        AhkObj::__new();
         __set(L"address", address, AhkPointer, nullptr);
     }
 

@@ -28,6 +28,7 @@ public:
     }
 
     void __new() {
+        AhkObj::__new();
         __set(L"width", width, AhkInt,
               L"height", height, AhkInt,
               L"scale", scale, AhkFloat,

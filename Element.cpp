@@ -87,7 +87,10 @@ public:
         if (offsets != &element_offsets) {
             offsets->insert(element_offsets.begin(), element_offsets.end());
         }
+    }
 
+    void __init() {
+        PoEObject::__init();
         add_method(L"hasChild", this, (MethodType)&Element::__has_child, AhkBool);
         add_method(L"getChild", this, (MethodType)&Element::__get_child, AhkObject, ParamList{AhkPointer});
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);

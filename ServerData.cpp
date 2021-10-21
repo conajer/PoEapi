@@ -115,6 +115,7 @@ public:
     }
 
     void __new() {
+        AhkObj::__new();
         __set(L"id", id, AhkInt,
               L"type", type, AhkInt,
               L"subType", sub_type, AhkInt,
@@ -298,6 +299,7 @@ public:
     }
 
     void __new() {
+        AhkObj::__new();
         __set(L"index", index, AhkInt,
               L"name", name.c_str(), AhkWString,
               L"type", type, AhkInt,

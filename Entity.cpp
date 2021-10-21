@@ -122,7 +122,10 @@ public:
             ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
             rarity = props ? props->rarity() : 0;
         }
+    }
 
+    void __init() {
+        PoEObject::__init();
         add_method(L"name", this, (MethodType)&Entity::name, AhkWStringPtr);
         add_method(L"getItem", this, (MethodType)&Entity::get_item, AhkObject);
         add_method(L"getComponent", this, (MethodType)&Entity::__get_component, AhkObject, ParamList{AhkString});
@@ -286,7 +289,10 @@ public:
     Item(addrtype address) : Entity(address) {
         base = get_component<Base>();
         mods = get_component<Mods>();
+    }
 
+    void __init() {
+        Entity::__init();
         add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted, AhkBool);
         add_method(L"isBlighted", this, (MethodType)&Item::is_blighted, AhkBool);
         add_method(L"isCrafted", this, (MethodType)&Item::is_crafted, AhkBool);
