@@ -18,7 +18,7 @@ using namespace std;
 typedef unsigned __int64 addrtype;
 
 #include "ahkpp"
-#include "Canvas.cpp"
+#include "Hud.cpp"
 #include "PoEMemory.cpp"
 #include "RemoteMemoryObject.cpp"
 
@@ -168,10 +168,16 @@ protected:
 
 public:
 
+    const char* executable_names[3] = {
+        "PathOfExile.exe",
+        "PathOfExileSteam.exe",
+        "PathOfExile_KG.exe"
+    };
+
     addrtype base_address;
     int size_of_image;
     int process_id;
-    HWND hwnd;
+    HWND poe_hwnd;
 
     shared_ptr<GameState> active_game_state;
     InGameState* in_game_state;
@@ -180,7 +186,6 @@ public:
     ServerData* server_data;
     LocalPlayer *local_player;
     bool is_ready = false;
-    unique_ptr<Canvas> hud;
 
     PoE() : RemoteMemoryObject(0, &poe_offsets) {
     }
@@ -237,16 +242,17 @@ public:
                 break;
         }
 
+        poe_hwnd = 0;
         process_handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, process_id);
         if (process_handle) {
             HMODULE module;
             DWORD size;
 
-            hwnd = get_hwnd();
+            poe_hwnd = get_hwnd();
             if (EnumProcessModules(process_handle, &module, sizeof(module), &size)) {
                 MODULEINFO module_info;
                 GetModuleInformation(process_handle, module, &module_info, sizeof(MODULEINFO));
-                address = (addrtype)module_info.lpBaseOfDll;
+                base_address = (addrtype)module_info.lpBaseOfDll;
                 size_of_image = module_info.SizeOfImage;
             }
 
@@ -258,9 +264,6 @@ public:
                 return true;
             }
         }
-
-        // Reset hwnd
-        hwnd = 0;
 
         return false;
     }
@@ -289,7 +292,7 @@ public:
     }
     
     void mouse_click(Point pos) {
-        ClientToScreen(hwnd, (LPPOINT)&pos);
+        ClientToScreen(poe_hwnd, (LPPOINT)&pos);
         SetCursorPos (pos.x, pos.y);
         Sleep(30);
 
@@ -298,17 +301,9 @@ public:
     }
 
     void mouse_move(Point pos) {
-        ClientToScreen(hwnd, (LPPOINT)&pos);
+        ClientToScreen(poe_hwnd, (LPPOINT)&pos);
         SetCursorPos (pos.x, pos.y);
         Sleep(30);
-    }
-
-    void bind_hud(HWND hwnd) {
-        if (hwnd && IsWindow(hwnd)) {
-            if (!hud)
-                hud = unique_ptr<Canvas>(new Canvas());
-            hud->bind(hwnd);
-        }
     }
 
     void logout() {
