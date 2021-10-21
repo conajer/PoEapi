@@ -21,6 +21,7 @@ public:
 
     std::map<int, shared_ptr<Entity>> ignored_entities;
     std::map<int, shared_ptr<Item>> dropped_items;
+    std::mutex selected_item_mutex;
     shared_ptr<Entity> selected_item;
     RECT bounds;
     unsigned int range = 50, last_pickup = 0;
@@ -32,7 +33,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.11") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.12") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -132,13 +133,27 @@ public:
         return items;
     }
 
-
     AhkObjRef* get_item(int id) {
         auto i = dropped_items.find(id);
         if (i != dropped_items.end())
             return *i->second;
 
         return nullptr;
+    }
+
+    void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
+        player = local_player;
+        if (!is_picking)
+            return;
+
+        std::lock_guard<std::mutex> guard(selected_item_mutex);
+        if (!selected_item)
+            return;
+
+        int action_id = local_player->actor->action_id();
+        addrtype target_address = local_player->actor->target_address;
+        if ((action_id & 0x82) && target_address == 0)
+            stop_pickup();
     }
 
     void on_labeled_entity_changed(EntityList& entities) {
@@ -153,9 +168,11 @@ public:
             return;
         }
 
-        if (selected_item && entities.find(selected_item->id) != entities.end())
+        if (selected_item && entities.count(selected_item->id))
             return;
 
+        std::lock_guard<std::mutex> guard(selected_item_mutex);
+        selected_item.reset();
         int min_dist = range;
         for (auto& i : entities) {
             if (force_reset) {
@@ -164,10 +181,7 @@ public:
             }
 
             int index = i.second->has_component(entity_types);
-            if (index < 0)
-                continue;
-
-            if (ignored_entities.find(i.second->id) != ignored_entities.end())
+            if (index < 0 || ignored_entities.count(i.second->id))
                 continue;
 
             switch (index) {
@@ -215,7 +229,7 @@ public:
             last_pickup = GetTickCount();
         } else {
             ignored_entities[selected_item->id] = selected_item;
-            selected_item = nullptr;
+            selected_item.reset();
         }
     }
 };
