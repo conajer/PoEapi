@@ -9,7 +9,9 @@
 class MinimapSymbol : public PoEPlugin {
 public:
 
-    std::unordered_set<int> ignored_entities;
+    std::mutex drawn_entities_mutex;
+    std::unordered_map<int, shared_ptr<Entity>> drawn_entities;
+    std::vector<int> ignored_entities;
     Vector3 player_pos;
 
     // overlapped map 
@@ -40,7 +42,7 @@ public:
     float opacity = .8;
 
     ID2D1Bitmap* textures[16] = {};
-    bool use_texture = true;
+    bool texture_enabled = true;
     bool texture_loaded = false;
 
     int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xb57741,    // monster
@@ -58,7 +60,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.11"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.12"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -72,7 +74,7 @@ public:
         add_property(L"showMinions", &show_minions, AhkBool);
         add_property(L"minSize", &min_size, AhkInt);
         add_property(L"opacity", &opacity, AhkFloat);
-        add_property(L"useTexture", &use_texture, AhkBool);
+        add_property(L"textureEnabled", &texture_enabled, AhkBool);
 
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
     }
@@ -81,56 +83,37 @@ public:
         ignored_delve_chests.assign(regex_string);
     }
 
-    void reset() {
-        PoEPlugin::reset();
-        clear();
-    }
-
-    void clear() {
-        if (poe->hud) {
-            poe->hud->begin_draw();
-            poe->hud->clear();
-            poe->hud->end_draw();
-        }
-    }
-
     void load_textures() {
-        if (poe->hud) {
-            ID2D1BitmapRenderTarget* bitmap_render;
-            ID2D1SolidColorBrush* brush;
+        ID2D1BitmapRenderTarget* bitmap_render;
+        ID2D1SolidColorBrush* brush;
 
-            for (int i = 0; i < 11; ++i) {
-                float size = min_size + ((i < 8) ? (i & 0x3) : (1 << (i & 0x3)));
-                if ((i & 0x3) == 0x3)
-                    size += 2;
+        for (int i = 0; i < 11; ++i) {
+            float size = min_size + ((i < 8) ? (i & 0x3) : (1 << (i & 0x3)));
+            if ((i & 0x3) == 0x3)
+                size += 2;
 
-                float x = size, y = size;
-                poe->hud->render->CreateCompatibleRenderTarget(D2D1::SizeF(size * 2, size * 2), &bitmap_render);
-                bitmap_render->BeginDraw();
-                bitmap_render->CreateSolidColorBrush(D2D1::ColorF(0), &brush);
-                if ((i & 0x3) == 0x3) {
-                    brush->SetColor(D2D1::ColorF(0xff0000, opacity));
-                    bitmap_render->DrawEllipse({{x, y}, size, size}, brush, 2);
-                    size -= 2;
-                }
-                brush->SetColor(D2D1::ColorF(entity_colors[i], opacity));
-                bitmap_render->FillEllipse({{x, y}, size, size}, brush);
-                bitmap_render->EndDraw();
-                bitmap_render->GetBitmap(&textures[i]);
-                brush->Release();
-                bitmap_render->Release();
+            float x = size, y = size;
+            poe->rt->CreateCompatibleRenderTarget(D2D1::SizeF(size * 2, size * 2), &bitmap_render);
+            bitmap_render->CreateSolidColorBrush(D2D1::ColorF(0), &brush);
+            bitmap_render->BeginDraw();
+            if ((i & 0x3) == 0x3) {
+                brush->SetColor(D2D1::ColorF(0xff0000, opacity));
+                bitmap_render->DrawEllipse({{x, y}, size, size}, brush, 2);
+                size -= 2;
             }
-
-            texture_loaded = true;
+            brush->SetColor(D2D1::ColorF(entity_colors[i], opacity));
+            bitmap_render->FillEllipse({{x, y}, size, size}, brush);
+            bitmap_render->EndDraw();
+            bitmap_render->GetBitmap(&textures[i]);
+            brush->Release();
+            bitmap_render->Release();
         }
+
+        texture_loaded = true;
     }
 
-    void initialize() {
-        if (use_texture && !texture_loaded)
-            load_textures();
-
-        Render* render = player->get_component<Render>();
-        if (render) {
+    void init_params() {
+        if (Render* render = player->get_render()) {
             player_pos = render->position();
             player_pos.z = 0.0f;
 
@@ -139,14 +122,12 @@ public:
             Rect r = map->get_rect();
             if (r.w > 0 || r.h > 0) {
                 if (!is_clipped) {
-                    poe->hud->end_draw();
-                    poe->hud->begin_draw();
-                    poe->hud->push_rectangle_clip(r.x, r.y, r.x + r.w, r.y + r.h);
+                    poe->push_rectangle_clip(r.x, r.y, r.x + r.w, r.y + r.h);
                     is_clipped = true;
                 }
             } else {
                 if (is_clipped) {
-                    poe->hud->pop_rectangle_clip();
+                    poe->pop_rectangle_clip();
                     is_clipped = false;
                 }
             }
@@ -159,8 +140,7 @@ public:
     }
 
     void draw_entity(Entity* e, int index, int size) {
-        Render* render = e->get_component<Render>();
-        if (render) {
+        if (Render* render = e->get_render()) {
             Vector3 pos = render->position();
             pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
             pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
@@ -169,14 +149,14 @@ public:
 
             int x = pos.x + shift_x;
             int y = pos.y + shift_y;
-            if (use_texture) {
+            if (texture_enabled) {
                 if (e->rarity == 3 && !e->is_npc)
                     size += 2;
-                poe->hud->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
+                poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
             } else {
-                poe->hud->fill_circle(x, y, size, entity_colors[index], opacity);
+                poe->fill_circle(x, y, size, entity_colors[index], opacity);
                 if (e->rarity == 3)
-                    poe->hud->draw_circle(x, y, size + 2, 0xff0000, 2);
+                    poe->draw_circle(x, y, size + 2, 0xff0000, 2);
             }
         }
     }
@@ -189,8 +169,7 @@ public:
         if (!targetable || !targetable->is_targetable())
             return;
 
-        Render* render = e->get_component<Render>();
-        if (render) {
+        if (Render* render = e->get_render()) {
             Vector3 pos = render->position();
             pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
             pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
@@ -207,8 +186,8 @@ public:
 
             pos.x += shift_x;
             pos.y += shift_y;
-            poe->hud->fill_circle(pos.x, pos.y, min_size + 7, 0xffffff, 0.8);
-            poe->hud->fill_circle(pos.x, pos.y, min_size + 4, color, 0.8);
+            poe->fill_circle(pos.x, pos.y, min_size + 7, 0xffffff, 0.8);
+            poe->fill_circle(pos.x, pos.y, min_size + 4, color, 0.8);
         }
     }
 
@@ -217,8 +196,7 @@ public:
         if (!targetable || !targetable->is_targetable())
             return;
 
-        Render* render = e->get_component<Render>();
-        if (render) {
+        if (Render* render = e->get_render()) {
             Vector3 pos = render->position();
             Vector3 bound = render->position();
             pos.z += 2 * bound.z;
@@ -226,36 +204,18 @@ public:
 
             std::wsmatch match;
             if (std::regex_search(e->path, match, heist_regex) && match.size() > 0)
-                poe->hud->draw_text(match[2].str(), pos.x, pos.y, 0xffffff, 0xad1616, 1.0, 1);
+                poe->draw_text(match[2].str(), pos.x, pos.y, 0xffffff, 0xad1616, 1.0, 1);
         }
     }
 
-    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
-        ignored_entities.clear();
-    }
+    void render() {
+        if (!texture_loaded && texture_enabled)
+            load_textures();
 
-    void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
-        if (!poe->hud)
-            return;
-
-        if (poe->in_game_ui->has_active_panel()) {
-            clear();
-            return;
-        }
-
-        poe->hud->begin_draw();
-        poe->hud->clear();
-        monster_packs.clear();
-        initialize();
-        for (auto& i : entities) {
-            if (force_reset) {
-                force_reset = false;
-                poe->hud->clear();
-                poe->hud->end_draw();
-                return;
-            }
-
-            if (ignored_entities.find(i.second->id) != ignored_entities.end())
+        init_params();
+        std::lock_guard<std::mutex> guard(drawn_entities_mutex);
+        for (auto& i : drawn_entities) {
+            if (!i.second)
                 continue;
 
             Entity* entity = i.second.get();
@@ -268,16 +228,16 @@ public:
                         if (show_corpses)
                             draw_entity(entity, 4 + entity->rarity, min_size + entity->rarity);
                         else
-                            ignored_entities.insert(i.second->id);
+                            ignored_entities.push_back(i.first);
                     } else if (entity->is_neutral) {
                         if (show_minions)
                             draw_entity(entity, 8, min_size + 1);
                         else
-                            ignored_entities.insert(i.second->id);
+                            ignored_entities.push_back(i.first);
                     } else if (entity->rarity >= rarity) {
                         draw_entity(entity, entity->rarity, min_size + entity->rarity);
                     } else {
-                        ignored_entities.insert(i.second->id);
+                        ignored_entities.push_back(i.first);
                     }
                 }
             } else if (entity->is_player) {
@@ -289,17 +249,36 @@ public:
                 else if (show_heist_chests && entity->path.find(L"/HeistChest") != wstring::npos)
                     draw_heist_chests(entity);
                 else
-                    ignored_entities.insert(i.second->id);
+                    ignored_entities.push_back(i.first);
             } else {
-                ignored_entities.insert(i.second->id);
+                ignored_entities.push_back(i.first);
             }
         }
 
-        if (show_packs) {
-            draw_monster_packs();
-            monster_packs.clear();
+        for (auto i : ignored_entities)
+            drawn_entities.erase(i);
+
+        if (is_clipped) {
+            poe->pop_rectangle_clip();
+            is_clipped = false;
+        }
+    }
+
+    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
+        drawn_entities.clear();
+    }
+
+    void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
+        std::lock_guard<std::mutex> guard(drawn_entities_mutex);
+        if (drawn_entities.empty()) {
+            for (auto& i : entities)
+                drawn_entities[i.first] = i.second;
         }
 
-        poe->hud->end_draw();
+        for (auto& i : added)
+            drawn_entities[i.first] = i.second;
+
+        for (auto& i : removed)
+            drawn_entities.erase(i.first);
     }
 };
