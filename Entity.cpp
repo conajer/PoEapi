@@ -52,9 +52,8 @@ protected:
             if (owner_address != address)
                 break;
             
-            component_names.insert(component_names.end(), component_name);
-            std::shared_ptr<Component> component_ptr(read_component(component_name, addr));
-            components.insert(std::make_pair(component_name, component_ptr));
+            component_names.push_back(component_name);
+            components[component_name] = shared_ptr<Component>(read_component(component_name, addr));
         }
     }
 
@@ -91,6 +90,7 @@ public:
     wstring path;
     int id;
     bool is_valid = true;
+    Render* render = nullptr;
     shared_ptr<Element> label;
     shared_ptr<Item> item;
     Point pos;
@@ -153,6 +153,12 @@ public:
     }
 
     AhkObjRef* get_item();
+
+    Render* get_render() {
+        if (render == nullptr)
+            render = get_component<Render>();
+        return render;
+    }
 
     int life() {
         Life* life = get_component<Life>();
