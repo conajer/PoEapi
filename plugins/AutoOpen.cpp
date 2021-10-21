@@ -21,7 +21,7 @@ public:
     bool delve_chest_only = true;
     bool door_enabled = true;
 
-    AutoOpen() : PoEPlugin(L"AutoOpen", "0.5"),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.6"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
         default_ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase|Izaro")
     {
@@ -46,9 +46,9 @@ public:
 
         GetClientRect(poe->hwnd, &bounds);
         bounds.left = bounds.right / 2 - 200;
-        bounds.top = bounds.bottom / 2 - 150;
+        bounds.top = bounds.bottom / 2 - 300;
         bounds.right = bounds.left + 400;
-        bounds.bottom = bounds.top + 300;
+        bounds.bottom = bounds.top + 400;
     }
 
     void try_open(Entity* entity) {
@@ -95,6 +95,12 @@ public:
             if (ignored_entities.find(i.second->id) != ignored_entities.end())
                 continue;
 
+            int index = i.second->has_component(entity_types);
+            if (index < 0) {
+                ignored_entities.insert(i.second->id);
+                return;
+            }
+
             int dist = player->dist(*i.second);
             if (dist > 4 * range)
                 continue;
@@ -103,7 +109,6 @@ public:
             if (!targetable || !targetable->is_targetable())
                 continue;
 
-            int index = i.second->has_component(entity_types);
             switch (index) {
             case 0: { // Chest
                 if (dist <= range && chest_enabled) {
@@ -144,9 +149,6 @@ public:
                 if (dist <= 2 * range && std::regex_search(i.second->name(), entity_names))
                     try_open(i.second.get());
                 break;
-
-            default:
-                ignored_entities.insert(i.second->id);
             }
         };
     }

@@ -49,7 +49,7 @@ public:
                 if (rc == SQLITE_DONE || rc != SQLITE_ROW)
                     break;
 
-                AhkTempObj row;
+                AhkObj row;
                 for (int i = 0; i < cols; ++i) {
                     const wchar_t *value = (const wchar_t*)sqlite3_column_text16(stmt, i);
                     if (value && value[0] != L'\0')

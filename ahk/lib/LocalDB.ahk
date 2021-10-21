@@ -70,10 +70,10 @@ class LocalDB extends sqlite3 {
             END;
             )", language)
 
+        __translations := {}
         if (language == "en")
             return
 
-        __translations := {}
         for i, r in this.exec("SELECT * FROM v_trans;")
             __translations[r.source] := r.target
 
