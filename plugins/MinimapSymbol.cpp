@@ -6,47 +6,6 @@
 #include <map>
 #include <math.h>
 
-class MonsterPack {
-public:
-
-    int margin = 5;
-    float max_radius = 500.;
-    int count;
-    int rarity;
-    int l, t, r, b;
-    float cx, cy;
-
-    MonsterPack(Entity* monster, int x, int y) : cx(x), cy(y) {
-        l = x - margin;
-        t = y - margin;
-        r = x + margin;
-        b = y + margin;
-
-        count = 1;
-        rarity = monster->rarity;
-    }
-
-    bool add(Entity* monster, int x, int y) {
-        float dist = sqrtf((x - cx) * (x - cx) + (y - cy) * (y - cy));
-        if (dist > max_radius)
-            return false;
-
-        count++;
-        if (rarity < monster->rarity)
-            rarity = monster->rarity;
-
-        if (x < l) l = x - margin;
-        if (x > r) r = x + margin;
-        if (y < t) t = y - margin;
-        if (y > b) b = y + margin;
-
-        cx = (l + r) / 2;
-        cy = (t + b) / 2;
-
-        return true;
-    }
-};
-
 class MinimapSymbol : public PoEPlugin {
 public:
 
@@ -63,8 +22,6 @@ public:
     bool show_monsters = true;
     bool show_corpses = false;
     int rarity = 0;
-    bool show_packs = false;
-    std::vector<MonsterPack> monster_packs;
 
     // delve chests
     bool show_delve_chests = true;
@@ -108,7 +65,6 @@ public:
         add_property(L"showMonsters", &show_monsters, AhkBool);
         add_property(L"showCorpses", &show_corpses, AhkBool);
         add_property(L"rarity", &rarity, AhkInt);
-        add_property(L"showPacks", &show_packs, AhkBool);
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
         add_property(L"showHeistChests", &show_heist_chests, AhkBool);
         add_property(L"showPlayer", &show_player, AhkBool);
@@ -118,7 +74,6 @@ public:
         add_property(L"opacity", &opacity, AhkFloat);
         add_property(L"useTexture", &use_texture, AhkBool);
 
-        add_method(L"getPacks", this, (MethodType)&MinimapSymbol::get_packs, AhkObject);
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
     }
 
@@ -126,20 +81,6 @@ public:
         ignored_delve_chests.assign(regex_string);
     }
 
-    AhkObjRef* get_packs() {
-        AhkTempObj temp_packs;
-        for (auto& p : monster_packs) {
-            AhkObj pack;
-            pack.__set(L"x", p.cx, AhkInt, L"y", p.cy, AhkInt,
-                L"l", p.l, AhkInt, L"t", p.t, AhkInt, L"r", p.r, AhkInt, L"b", p.b, AhkInt,
-                L"count", p.count, AhkInt, L"rarity", p.rarity, AhkInt,
-                nullptr);
-            temp_packs.__set(L"", (AhkObjRef*)pack, AhkObject, nullptr);
-        }
-
-        return temp_packs;
-    }
-    
     void reset() {
         PoEPlugin::reset();
         clear();
@@ -237,21 +178,7 @@ public:
                 if (e->rarity == 3)
                     poe->hud->draw_circle(x, y, size + 2, 0xff0000, 2);
             }
-
-            if (show_packs && (e->is_monster && !e->is_neutral)) {
-                Point p = poe->get_pos(e);
-                for (auto& pack : monster_packs) {
-                    if (pack.add(e, p.x, p.y))
-                        return;
-                }
-                monster_packs.push_back(MonsterPack(e, p.x, p.y));
-            }
         }
-    }
-
-    void draw_monster_packs() {
-        for (auto pack : monster_packs)
-            poe->hud->draw_rect(pack.l, pack.t, pack.r, pack.b, 0xff00, 1);
     }
 
     void draw_delve_chests(Entity* e) {
