@@ -33,6 +33,9 @@ public:
         player = nullptr;
     }
 
+    virtual void render() {
+    }
+
     virtual void on_load(PoE& poe, int owner_thread_id) {
         this->poe = &poe;
         this->thread_id = owner_thread_id;
