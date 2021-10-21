@@ -215,12 +215,16 @@ public:
     }
 
     bool is_in_game() {
-        if (!IsWindowVisible(hwnd) && !open_target_process())
-            return false;   // Path of Exile is not running!
+        if (!IsWindowVisible(poe_hwnd) || !get_active_game_state()) {
+            open_target_process();
+            return false;
+        }
 
-        GameState* game_state = get_active_game_state();
-        if (game_state && game_state->is(L"InGameState")) {
-            in_game_state = (InGameState*)game_state;
+        if (in_game_state && in_game_state->address == active_game_state->address)
+            return true;
+
+        if (active_game_state->is(L"InGameState")) {
+            in_game_state = (InGameState*)active_game_state.get();
             return true;
         }
 
