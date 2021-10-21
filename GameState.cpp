@@ -2,7 +2,13 @@
 * GameState.cpp, 8/8/2020 12:04 PM
 */
 
-#include <queue> 
+struct Matrix4x4 {
+    float M[4][4];
+
+    float* operator[] (int index) {
+        return M[index];
+    }
+};
 
 static std::map<string, int> game_state_offsets {
     {"name", 0x10},
@@ -21,71 +27,6 @@ public:
 
     bool is(wstring name) {
         return !name.compare(this->name);
-    }
-};
-
-std::map<string, int> game_state_controller_offsets {
-    {"active_game_states", 0x20},
-        {"current",         0x0},
-    {"game_states",        0x48},
-        {"root",            0x8},
-};
-
-class GameStateController : public PoEObject {
-public:
-
-    std::map<wstring, GameState> all_game_states;
-    shared_ptr<GameState> active_game_state;
-
-    GameStateController(addrtype address)
-        : PoEObject(address, &game_state_controller_offsets),
-          active_game_state(nullptr)
-    {
-    }
-
-    GameState* get_active_game_state() {
-        if (addrtype addr = read<addrtype>("active_game_states", "current")) {
-            if (!active_game_state || active_game_state->address != addr) {
-                string state_name = PoEMemory::read<string>(addr + 0x10);
-                active_game_state.reset(read_object<GameState>(state_name, addr));
-            }
-        } else {
-            active_game_state.reset();
-        }
-
-        return active_game_state.get();
-    }
-
-    std::map<wstring, GameState>& get_all_game_states() {
-        all_game_states.clear();
-
-        std::queue<addrtype> nods;
-        addrtype addr = read<addrtype>("game_states", "root");
-        nods.push(addr);
-        while (!nods.empty()) {
-            addr = nods.front();
-            nods.pop();
-
-            if (PoEMemory::read<byte>(addr + 0x19) != 0)
-                continue;
-
-            nods.push(PoEMemory::read<addrtype>(addr));
-            nods.push(PoEMemory::read<addrtype>(addr + 0x10));
-
-            wstring state_name = PoEMemory::read<wstring>(addr + 0x20, 32);
-            addr = PoEMemory::read<addrtype>(addr + 0x40);
-            all_game_states.insert(std::make_pair(state_name, addr));
-        }
-
-        return all_game_states;
-    }
-};
-
-struct Matrix4x4 {
-    float M[4][4];
-
-    float* operator[] (int index) {
-        return M[index];
     }
 };
 
@@ -194,8 +135,16 @@ public:
     }
 
     Vector3& transform(Vector3& vec) {
-        Point size = read<Point>("width");
-        Matrix4x4 mat = read<Matrix4x4>("matrix");
+        static Matrix4x4 mat;
+        static Point size;
+        static unsigned expiration_time;
+
+        if (GetTickCount() > expiration_time) {
+            mat = read<Matrix4x4>("matrix");
+            size = read<Point>("width");
+            expiration_time = GetTickCount() + 30;
+        }
+
         float x = vec.x * mat[0][0] + vec.y * mat[1][0] + vec.z * mat[2][0] + mat[3][0];
         float y = vec.x * mat[0][1] + vec.y * mat[1][1] + vec.z * mat[2][1] + mat[3][1];
         float z = vec.x * mat[0][2] + vec.y * mat[1][2] + vec.z * mat[2][2] + mat[3][2];
