@@ -220,9 +220,9 @@ public:
     }
 
     bool is_in_game() {
-        if (!IsWindowVisible(poe_hwnd) || !get_active_game_state()) {
-            open_target_process();
-            return false;
+        if (!get_active_game_state()) {
+            if (!open_target_process() || !get_active_game_state())
+                return false;
         }
 
         if (in_game_state && in_game_state->address == active_game_state->address)
