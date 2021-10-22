@@ -5,7 +5,6 @@
 #Include, %A_ScriptDir%\lib\PoEOffsets.ahk
 #Include, %A_ScriptDir%\lib\WebGui.ahk
 #Include, %A_ScriptDir%\lib\Navi.ahk
-#Include, %A_ScriptDir%\lib\Hud.ahk
 #include, %A_ScriptDir%\lib\Logger.ahk
 #Include, %A_ScriptDir%\lib\Character.ahk
 
@@ -150,7 +149,6 @@ class PoETask extends AhkObj {
         if (Not hwnd) {
             ; PoE window closed.
             this.nav.close()
-            this.hud.close()
             return
         }
 
@@ -170,7 +168,6 @@ class PoETask extends AhkObj {
 
         this.nav := new Navi()
         this.c := this.nav.getCanvas()
-        this.hud := new Hud()
         this.reset()
     }
 
@@ -186,16 +183,13 @@ class PoETask extends AhkObj {
             this.isActive := true
 
             this.nav.show()
-            this.hud.show()
         } else {
             if (Not WinActive("ahk_class AutoHotkeyGUI")) {
                 if (Not WinActive("ahk_id " this.Hwnd)) {
                     this.c.clear()
                     this.nav.hide()
-                    this.hud.hide()
                 }
             }
-            this.hud.clear()
             this.isActive := false
         }
     }
