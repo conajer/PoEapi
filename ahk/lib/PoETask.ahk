@@ -272,13 +272,7 @@ class PoETask extends AhkObj {
     }
 
     beginPickup() {
-        ap := this.getPlugin("AutoPickup")
-        ap.stopPickup()
-        ap.beginPickup()
-    }
-
-    stopPickup() {
-        this.getPlugin("AutoPickup").stopPickup()
+        this.plugins["AutoPickup"].beginPickup()
     }
 
     select(name) {
