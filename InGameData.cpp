@@ -41,16 +41,56 @@ std::map<string, int> in_game_data_offsets {
 class InGameData : public RemoteMemoryObject {
 protected:
 
-    std::unordered_set<addrtype> temp_set;
-    std::unordered_set<addrtype> ignored_entity_set;
-    std::queue<addrtype> nodes;
+    std::unordered_map<int, shared_ptr<Entity>> entity_list;
+    std::unordered_map<int, bool> entity_list_snapshot;
+    std::unordered_map<addrtype, addrtype> entity_list_index;
 
-    int get_entity_id(addrtype address) {
-        return PoEMemory::read<int>(address + 0x60);
-    }
+    std::wregex ignored_entity_exp;
+    std::unordered_set<addrtype> ignored_entities;
+
+    const __int64 mask = 0xffffff0000000000;
 
     wstring get_entity_path(addrtype address) {
         return PoEMemory::read<wstring>(PoEMemory::read<addrtype>(address + 0x8) + 0x8);
+    }
+
+    void foreach(int entity_id, addrtype entity_address) {
+        if (ignored_entities.count(entity_id))
+            return;
+
+        if (entity_list_snapshot.count(entity_id)) {
+            entity_list_snapshot[entity_id] = true;
+            return;
+        }
+
+        wstring path = get_entity_path(entity_address);
+        if (path[0] != L'M' || std::regex_search(path, ignored_entity_exp)) {
+            ignored_entities.insert(entity_id);
+            return;
+        }
+
+        std::shared_ptr<Entity> entity(new Entity(entity_address));
+        entity_list[entity_id] = entity;
+    }
+
+    void traverse_entity_list(addrtype root, addrtype node) {
+        if (force_reset)
+            return;
+
+        addrtype buffer[8];
+        if (PoEMemory::read<addrtype>(node, buffer, 8)) {
+            int entity_id = buffer[4];
+            addrtype entity_address = buffer[5];
+
+            if (entity_id > 0)
+                entity_list_index[node] = entity_address;
+
+            for (int i : (int[]){0, 2}) {
+                if ((buffer[i] == root) || (buffer[i] & mask) ^ (node & mask))
+                    continue;
+                traverse_entity_list(root, buffer[i]);
+            }
+        }
     }
 
 public:
@@ -60,12 +100,11 @@ public:
     shared_ptr<Terrain> terrain;
     bool force_reset = false;
 
-    InGameData(addrtype address) : RemoteMemoryObject(address, &in_game_data_offsets)
+    InGameData(addrtype address) :
+        RemoteMemoryObject(address, &in_game_data_offsets),
+        ignored_entity_exp(L"WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
+                           "|BlightFoundation|BlightTower|Effects")
     {
-    }
-
-    ~InGameData() {
-        nodes = {};
     }
 
     int area_hash() {
@@ -98,64 +137,45 @@ public:
         return terrain.get();
     }
 
-    int get_all_entities(EntitySet& entities, std::wregex& ignored_exp) {
+    int get_all_entities(EntitySet& entities) {
         entities.removed.clear();
         entities.removed.swap(entities.all);
         entities.added.clear();
 
-        addrtype addr = read<addrtype>("entity_list", "root");
-        temp_set.insert(addr);
-        nodes.push(addr);
-        while (!nodes.empty()) {
-            addrtype node = nodes.front();
-            nodes.pop();
+        // take a snapshot of the entity list
+        for (auto i : entity_list)
+            entity_list_snapshot[i.first] = false;
 
-            if (force_reset) {
-                force_reset = false;
-                break;
-            }
+        addrtype root = read<addrtype>("entity_list");
+        addrtype node = read<addrtype>("entity_list", "root");
+        entity_list_index.clear();
+        traverse_entity_list(root, node);
 
-            for (int offset : (int[]){0x0, 0x10}) {
-                addr = PoEMemory::read<addrtype>(node + offset);
-                if (temp_set.count(addr) == 0 && temp_set.size() < 2048) {
-                    nodes.push(addr);
-                    temp_set.insert(addr);
-                }
-            }
+        // parse entity list
+        for (auto i : entity_list_index)
+            foreach(i.first, i.second);
 
-            addrtype entity_address = PoEMemory::read<addrtype>(node + 0x28);
-            if ((__int64)entity_address & 0x7                   /* not 64-bit aligned */
-                || entity_address < (addrtype)0x10000000        /* invalid address */
-                || entity_address > (addrtype)0x7F0000000000)
-                continue;
-
-            int entity_id = get_entity_id(entity_address);
-            if (ignored_entity_set.count(entity_id))
-                continue;
-
-            auto i = entities.removed.find(entity_id);
-            if (i != entities.removed.end()) {
-                entities.all.insert(*i);
-                entities.removed.erase(i);
-                continue;
-            }
-
-            wstring path = get_entity_path(entity_address);
-            if (path[0] != L'M' || std::regex_search(path, ignored_exp)) {
-                ignored_entity_set.insert(entity_id);
-                continue;
-            }
-
-            std::shared_ptr<Entity> entity(new Entity(entity_address));
-            entities.all.insert(std::make_pair(entity_id, entity));
-            entities.added.insert(std::make_pair(entity_id, entity));
-
-            // Limit the maximum entities found.
-            if (entities.added.size() > 2048)
-                break;
+        // removed non-existent entities
+        for (auto i : entity_list_snapshot) {
+            if (!i.second)  // invalid entity
+                entity_list.erase(i.first);
         }
-        temp_set.clear();
+        entity_list_snapshot.clear();
 
-        return read<int>("entity_list_count");
+        // update entities
+        for (auto& i : entity_list) {
+            if (force_reset)
+                break;
+
+            if (entities.removed.count(i.first)) {
+                entities.all.insert(i);
+                entities.removed.erase(i.first);
+            } else {
+                entities.all.insert(i);
+                entities.added.insert(i);
+            }
+        }
+
+        return entities.all.size();
     }
 };
