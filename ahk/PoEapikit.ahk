@@ -37,7 +37,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global db := new LocalDB("local.db")
 global ptask := new PoETask()
 
-global version := "1.5.1a"
+global version := "1.5.2"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -113,7 +113,7 @@ loadLibrary(filename) {
 
 Attack:
     if (ptask.InMap)
-        ptask.onAttack()
+        ptask.player.onAttack()
     sleep, 300
 return
 
@@ -172,11 +172,6 @@ AutoClick() {
     clickerEnabled := false
 }
 
-~LButton::
-    if (GetKeyState("LButton", "P"))
-        ptask.stopPickup()
-return
-
 `::
     ptask.logout()
 return
@@ -225,20 +220,24 @@ return
 return
 
 ~RButton::
+    if (ptask.InMap)
+        return
+
     loop, 50 {
         if (item := ptask.getHoveredItem())
             break
         SLeep, 10
     }
 
-    if (item) {
+    if (item.rarity == 0 || item.rarity == 3) {
         price := $(item)
         if (Not price)
             return
 
-        loop, 20 {
+        loop, 10 {
             e := ptask.getIngameUI().getChild(141, 1)
-            if (e.getChild(1, 2, 2, 1).isVisible()) {
+            tag := e.getChild(1, 2, 2, 1)
+            if (tag.isVisible() && not tag.getText()) {
                 exalted := $("Exalted Orb")
                 if (price >= 2 * exalted)
                     note := Format("~b/o {:.1f} exalted", price / exalted)
@@ -256,6 +255,9 @@ return
     }
 return
 
+^WheelDown::SendInput {Right}
+^WheelUp::SendInput {Left}
+
 #d::
     WinMinimize, A
 return
@@ -267,9 +269,6 @@ return
 +-::_
 -::NumpadSub
 +::NumpadAdd
-
-^WheelDown::SendInput {Right}
-^WheelUp::SendInput {Left}
 
 ~*LAlt::
     stickyMode := false
