@@ -61,7 +61,7 @@ protected:
 
     std::vector<shared_ptr<GameState>> get_all_game_states() {
         std::vector<shared_ptr<GameState>> game_states;
-        if (!address) {
+        if (address) {
             std::queue<addrtype> nods;
             addrtype addr = read<addrtype>("game_states", "root");
             nods.push(addr);
