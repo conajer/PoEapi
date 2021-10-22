@@ -471,9 +471,4 @@ class PoETask extends AhkObj {
     onPlayerChanged(name) {
         syslog(this.player.whois())
     }
-
-    onAttack() {
-        this.stopPickup()
-        this.player.onAttack()
-    }
 }
