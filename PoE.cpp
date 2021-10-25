@@ -25,8 +25,7 @@ typedef unsigned __int64 addrtype;
 std::map<string, int> poe_offsets {
     {"active_game_states", 0x20},
         {"current",         0x0},
-    {"game_states",        0x48},
-        {"root",            0x8},
+    {"all_game_states",    0x50},
 };
 
 class PoE : public RemoteMemoryObject, public AhkObj, public Hud {
@@ -59,28 +58,22 @@ protected:
         return 0;
     }
 
-    std::vector<shared_ptr<GameState>> get_all_game_states() {
-        std::vector<shared_ptr<GameState>> game_states;
-        if (address) {
-            std::queue<addrtype> nods;
-            addrtype addr = read<addrtype>("game_states", "root");
-            nods.push(addr);
-            while (!nods.empty()) {
-                addr = nods.front();
-                nods.pop();
+    std::map<addrtype, int>& get_all_game_states() {
+        addrtype head_node, next, state_ptr;
+        int size;
 
-                if (PoEMemory::read<byte>(addr + 0x19) != 0)
-                    continue;
-
-                nods.push(PoEMemory::read<addrtype>(addr));
-                nods.push(PoEMemory::read<addrtype>(addr + 0x10));
-
-                addr = PoEMemory::read<addrtype>(addr + 0x40);
-                game_states.push_back(shared_ptr<GameState>(new GameState(addr)));
-            }
+        all_game_states.clear();
+        head_node = read<addrtype>("all_game_states");
+        size = read<int>("size");
+        next = PoEMemory::read<addrtype>(head_node + 0x0);
+        for (int i = 0; i < size; ++i) {
+            int state_id = PoEMemory::read<byte>(next + 0x10);
+            addrtype state_ptr = PoEMemory::read<addrtype>(next + 0x18);
+            next = PoEMemory::read<addrtype>(next + 0x0);
+            all_game_states[state_ptr] = state_id;
         }
 
-        return game_states;
+        return all_game_states;
     }
 
     HWND get_hwnd() {
@@ -179,6 +172,7 @@ public:
     int process_id;
     HWND poe_hwnd;
 
+    std::map<addrtype, int> all_game_states;
     shared_ptr<GameState> active_game_state;
     InGameState* in_game_state;
     InGameUI* in_game_ui;
@@ -193,8 +187,10 @@ public:
     shared_ptr<GameState>& get_active_game_state() {
         if (addrtype addr = read<addrtype>("active_game_states", "current")) {
             if (!active_game_state || active_game_state->address != addr) {
-                string state_name = PoEMemory::read<string>(addr + 0x10);
-                active_game_state.reset(read_object<GameState>(state_name, addr));
+                if (all_game_states[addr] == 0x4)   // InGameState
+                    active_game_state.reset(new InGameState(0x4, addr)); 
+                else
+                    active_game_state.reset(new GameState(all_game_states[addr], addr)); 
             }
         } else {
             active_game_state.reset();
@@ -228,7 +224,7 @@ public:
         if (in_game_state && in_game_state->address == active_game_state->address)
             return true;
 
-        if (active_game_state->is(L"InGameState")) {
+        if (active_game_state->id == 0x4) {
             in_game_state = (InGameState*)active_game_state.get();
             return true;
         }
@@ -260,6 +256,7 @@ public:
                 address = PoEMemory::read<addrtype>(addr + PoEMemory::read<int>(addr + 8) + 12);
                 CloseHandle(process_handle);
                 process_handle = OpenProcess(PROCESS_VM_READ, false, process_id);
+                get_all_game_states();
                 bind(poe_hwnd);
                 return true;
             }
@@ -269,11 +266,10 @@ public:
     }
 
     void list_game_states() {
-        auto game_states = get_all_game_states();
-        if (!game_states.empty()) {
-            wprintf(L"%llx: Game states\n", read<addrtype>("game_states"));
-            for (auto&  i : game_states)
-                wprintf(L"    %llx => %S\n", i->address, i->name.c_str());
+        if (!all_game_states.empty()) {
+            wprintf(L"%llx: All game states\n", read<addrtype>("all_game_states"));
+            for (auto&  i : all_game_states)
+                wprintf(L"    %llx => %2d\n", i.first, i.second);
         }
     }
 

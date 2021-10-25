@@ -166,7 +166,6 @@ void *PoEObject::buffer;
 #define NEW_ENTRY(T) {#T, [](addrtype address) { return new T(address);}}
 
 Factory<RemoteMemoryObject> RemoteMemoryObject::factory = {
-    NEW_ENTRY(InGameState),
     NEW_ENTRY(Actor),
     NEW_ENTRY(Base),
     NEW_ENTRY(Buffs),

@@ -58,8 +58,10 @@ public:
     float width, height;
     float center_x, center_y;
 
-    InGameState(addrtype address) : GameState(address, &in_game_state_offsets)
+    InGameState(int id, addrtype address) : GameState(id, address, &in_game_state_offsets)
     {
+        name = L"InGameState";
+
         width = read<int>("width");
         height = read<int>("height");
         center_x = width / 2;
@@ -113,7 +115,7 @@ public:
     }
 
     ServerData* server_data() {
-        addrtype addr = read<addrtype>("server_data");
+        addrtype addr = read<addrtype>("in_game_data", "server_data");
         if (!sd || sd->address != addr)
             sd.reset(new ServerData(addr));
 
