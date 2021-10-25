@@ -419,7 +419,7 @@ public:
             tab->to_print();
     }
 
-    void list_inventorie(int id = 0) {
+    void list_inventories(int id = 0) {
         printf("%llx: Inventorys\n", read<addrtype>("inventory_slots"));
         printf("    Address      Id Rows Cols Items\n");
         printf("    ----------- --- ---- ---- -----\n");
