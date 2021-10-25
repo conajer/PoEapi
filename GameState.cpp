@@ -64,6 +64,12 @@ public:
         height = read<int>("height");
         center_x = width / 2;
         center_y = height / 2;
+
+        Element ui_root(read<addrtype>("ui_root"));
+        float root_scale = ui_root.scale();
+        float aspect_ratio =  width / 1.6f / height;
+        g_scale_x = width / 2560.0f / aspect_ratio / root_scale;
+        g_scale_y = height / 1600.0f / root_scale;
     }
 
     bool is_loading() {

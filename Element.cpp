@@ -10,6 +10,8 @@ struct Rect {
     int x, y, w, h;
 };
 
+float g_scale_x = 1.0f, g_scale_y = 1.0f;
+
 std::map<string, int> element_offsets {
     {"self",          0x18},
     {"childs",        0x38},
@@ -255,12 +257,12 @@ public:
     Rect get_rect() {
         Vec2 pos = position();
         Vec2 size = read<Vec2>("size");
-        float s = scale();
+        float local_scale = scale();
 
-        int x = pos.x * s;
-        int y = pos.y * s;
-        int w = size.x * s;
-        int h = size.y * s;
+        int x = pos.x * local_scale * g_scale_x;
+        int y = pos.y * local_scale * g_scale_y;
+        int w = size.x * local_scale * g_scale_x;
+        int h = size.y * local_scale * g_scale_y;
 
         return {x, y, w, h};
     }
@@ -268,10 +270,10 @@ public:
     Point get_pos() {
         Vec2 pos = position();
         Vec2 size = read<Vec2>("size");
-        float s = scale();
+        float local_scale = scale();
 
-        int x = (pos.x + size.x / 2) * s;
-        int y = (pos.y + size.y / 2) * s;
+        int x = (pos.x + size.x / 2) * local_scale * g_scale_x;
+        int y = (pos.y + size.y / 2) * local_scale * g_scale_y;
 
         return {x, y};
     }
