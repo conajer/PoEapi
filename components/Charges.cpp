@@ -7,7 +7,7 @@
 static std::map<string, int> charges_component_offsets {
     {"base",                0x10},
         {"max_charges",     0x10},
-        {"charges_per_use", 0x14},
+        {"charges_per_use", 0x18},
     {"charges",             0x18},
 };
 

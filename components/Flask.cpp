@@ -6,7 +6,7 @@
 
 static std::map<string, int> flask_component_offsets {
     {"internal",            0x28},
-        {"base",            0x18},
+        {"base",            0x30},
             {"life_per_use", 0x4},
             {"mana_per_use", 0xc},
             {"duration",    0x14},
@@ -20,15 +20,15 @@ public:
     }
 
     int life() {
-        return PoEMemory::read<int>(address + 0x28, {0x18, 0x4});
+        return PoEMemory::read<int>(address + 0x28, {0x30, 0x4});
     }
 
     int mana() {
-        return PoEMemory::read<int>(address + 0x28, {0x18, 0xc});
+        return PoEMemory::read<int>(address + 0x28, {0x30, 0xc});
     }
 
     int duration() {
-        return PoEMemory::read<int>(address + 0x28, {0x18, 0x14});
+        return PoEMemory::read<int>(address + 0x28, {0x30, 0x14});
     }
 
     void to_print() {
