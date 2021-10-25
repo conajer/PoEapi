@@ -122,7 +122,7 @@ public:
     }
 
     AhkObjRef* get_nearest_entity(const wchar_t* text) {
-        if (is_in_game()) {
+        if (is_ready) {
             shared_ptr<Entity>& entity = in_game_ui->get_nearest_entity(*local_player, text);
             if (entity)
                 return (AhkObjRef*)*entity;
@@ -143,7 +143,7 @@ public:
     }
 
     AhkObjRef* get_inventory() {
-        if (is_in_game()) {
+        if (is_ready) {
            Inventory* inventory = in_game_ui->get_inventory();
             __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
             return inventory->obj_ref;
@@ -154,7 +154,7 @@ public:
     }
 
     AhkObjRef* get_inventory_slots() {
-        if (is_in_game()) {
+        if (is_ready) {
             AhkObj inventory_slots;
             for (auto& i : server_data->get_inventory_slots()) {
                 InventorySlot* slot = i.second.get();
@@ -170,7 +170,7 @@ public:
     }
 
     AhkObjRef* get_stash() {
-        if (is_in_game()) {
+        if (is_ready) {
             Stash* stash = in_game_ui->get_stash();
             stash->__set(L"tabs", nullptr, AhkObject, nullptr);
             __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
@@ -182,7 +182,7 @@ public:
     }
 
     AhkObjRef* get_vendor() {
-        if (is_in_game()) {
+        if (is_ready) {
             Vendor* vendor = in_game_ui->get_vendor();
             return (AhkObjRef*)*vendor;
         }
@@ -191,7 +191,7 @@ public:
     }
 
     AhkObjRef* get_purchase() {
-        if (is_in_game()) {
+        if (is_ready) {
             Purchase* purchase = in_game_ui->get_purchase();
             return purchase ? (AhkObjRef*)*purchase : nullptr;
         }
@@ -200,7 +200,7 @@ public:
     }
 
     AhkObjRef* get_sell() {
-        if (is_in_game()) {
+        if (is_ready) {
             Sell* sell = in_game_ui->get_sell();
             return sell ? (AhkObjRef*)*sell : nullptr;
         }
@@ -209,7 +209,7 @@ public:
     }
 
     AhkObjRef* get_trade() {
-        if (is_in_game()) {
+        if (is_ready) {
             Trade* trade = in_game_ui->get_trade();
             return (AhkObjRef*)*trade;
         }
@@ -218,7 +218,7 @@ public:
     }
 
     AhkObjRef* get_chat() {
-        if (is_in_game()) {
+        if (is_ready) {
             Chat* chat = in_game_ui->get_chat();
             return (AhkObjRef*)*chat;
         }
@@ -227,7 +227,7 @@ public:
     }
 
     AhkObjRef* get_passive_skills() {
-        if (is_in_game()) {
+        if (is_ready) {
             AhkObj passive_skills;
             
             for (auto i : server_data->get_passive_skills())
@@ -240,7 +240,7 @@ public:
     }
 
     AhkObjRef* get_stash_tabs() {
-        if (is_in_game()) {
+        if (is_ready) {
             AhkObj stash_tabs;
             for (auto& i : server_data->get_stash_tabs()) {
                 if (i->folder_id == -1) {
@@ -309,7 +309,7 @@ public:
     }
 
     AhkObjRef* get_terrain() {
-        if (is_in_game())
+        if (is_ready)
             return *in_game_data->get_terrain();
         return nullptr;
     }
@@ -365,19 +365,18 @@ public:
             if (world_area->name().empty() || !local_player)
                 return;
 
+            is_ready = true;
+            is_active = false;
             league  = in_game_state->server_data()->league();
             __set(L"league", league.c_str(), AhkWString,
                   L"areaName", in_game_data->world_area()->name().c_str(), AhkWString,
                   L"areaLevel", in_game_data->world_area()->level(), AhkInt,
                   nullptr);
+
             get_inventory_slots();
             get_stash_tabs();
             get_stash();
             get_inventory();
-
-            Sleep(500);
-            is_active = false;
-            is_ready = true;
         }
     }
 
@@ -505,7 +504,7 @@ public:
     }
 
     bool toggle_maphack() {
-        const char pattern[] = "66 C7 46 58 ?? 00";
+        const char pattern[] = "66 C7 46 58 ?? 00 C6";
 
         HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, false, process_id);
         if (!handle)
