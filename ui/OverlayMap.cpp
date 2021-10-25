@@ -5,9 +5,9 @@
 #include <math.h>
 
 static std::map<string, int> overlay_map_offsets {
-    {"shift_x",    0x298},
-    {"shift_y",    0x29c},
-    {"zoom",       0x2dc},
+    {"shift_x",    0x2d8},
+    {"shift_y",    0x2dc},
+    {"zoom",       0x31c},
 };
 
 class OverlayMap : public Element {

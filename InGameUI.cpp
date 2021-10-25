@@ -104,14 +104,14 @@ public:
 
     Vendor* get_vendor() {
         if (!vendor) {
-            shared_ptr<Element> e = get_child(22);
+            shared_ptr<Element> e = get_child(23);
             vendor = unique_ptr<Vendor>(new Vendor(e->address));
         }
         return vendor.get();
     }
 
     Purchase* get_purchase() {
-        map<int, vector<int>> v = {{94, {11}}, {98, {7, 1, 0, 0}}, {99, {9, 1, 0, 0}}};
+        map<int, vector<int>> v = {{96, {11}}, {100, {6, 1, 0, 0}}, {101, {8, 1, 0, 0}}};
 
         purchase.reset();
         for (auto& i : v) {
@@ -127,7 +127,7 @@ public:
     }
 
     Sell* get_sell() {
-        map<int, vector<int>> v = {{100, {3}}, {101, {4}}};
+        map<int, vector<int>> v = {{102, {3}}, {103, {4}}};
 
         sell.reset();
         for (auto& i : v) {
@@ -145,7 +145,7 @@ public:
     }
 
     Trade* get_trade() {
-        shared_ptr<Element> e = get_child({102, 3, 1, 0, 0});
+        shared_ptr<Element> e = get_child({104, 3, 1, 0, 0});
         if (e) {
             trade = unique_ptr<Trade>(new Trade(e->address));
             return trade.get();
@@ -186,7 +186,7 @@ public:
 
     Skills* get_skills() {
         if (!skills) {
-            shared_ptr<Element> e = get_child(24);
+            shared_ptr<Element> e = get_child(25);
             skills = unique_ptr<Skills>(new Skills(e->address));
         }
         return skills.get();
@@ -203,12 +203,12 @@ public:
             if (!next || next == root)
                 break;
 
-            addrtype label = PoEMemory::read<addrtype>(next + 0x18);
-            bool is_visible = PoEMemory::read<byte>(label + 0x119) & 0x8;
+            addrtype label = PoEMemory::read<addrtype>(next + 0x10);
+            bool is_visible = PoEMemory::read<byte>(label + 0x161) & 0x8;
             if (!is_visible)
                 continue;
 
-            addrtype entity_address = PoEMemory::read<addrtype>(next + 0x10);
+            addrtype entity_address = PoEMemory::read<addrtype>(next + 0x18);
             int entity_id = PoEMemory::read<int>(entity_address + 0x60);
             auto i = removed.find(entity_id);
             if (i != removed.end()) {
