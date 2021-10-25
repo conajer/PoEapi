@@ -18,11 +18,11 @@ class GameState : public RemoteMemoryObject {
 public:
 
     wstring name;
+    int id;
 
-    GameState(addrtype address, FieldOffsets* offsets = &game_state_offsets)
-        : RemoteMemoryObject(address, offsets)
+    GameState(int id, addrtype address, FieldOffsets* offsets = &game_state_offsets)
+        : id(id), RemoteMemoryObject(address, offsets)
     {
-        name = read<wstring>("name");
     }
 
     bool is(wstring name) {
