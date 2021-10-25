@@ -6,11 +6,19 @@
 #include <unordered_map>
 #include <math.h>
 
+struct ComponentNameIndex {
+    addrtype name_ptr;
+    int index;
+    int __padding_0;
+};
+
 FieldOffsets entity_offsets = {
-    {"internal",        0x8},
-        {"path",        0x8},
-    {"component_list", 0x10},
-    {"id",             0x60},
+    {"internal",              0x8},
+        {"path",              0x8},
+        {"component_lookup", 0x30},
+        {"size",             0x48},
+    {"component_list",       0x10},
+    {"id",                   0x60},
 };
 
 /* Forward declaration */
@@ -30,30 +38,30 @@ protected:
     }
 
     void get_all_components() {
-        addrtype component_list = read<addrtype>("component_list");
-        addrtype component_lookup = PoEMemory::read<addrtype>(address + 0x8, {0x30, 0x30});
-        addrtype component_entry = component_lookup;
-        string component_name;
+        std::vector<addrtype> component_list;
+        addrtype component_lookup;
 
-        while (1) {
-            component_entry = PoEMemory::read<addrtype>(component_entry);
-            if (!component_entry || component_entry == component_lookup)
-                break;
+        component_list = read_array<addrtype>("component_list", 0x0, 0x8);
+        component_lookup = read<addrtype>("internal", "component_lookup");
+        addrtype entry_ptr = PoEMemory::read<addrtype>(component_lookup + 0x30);
+        int have_more_components = PoEMemory::read<int>(component_lookup + 0x48);
+        while (have_more_components) {
+            byte flags[8];
+            ComponentNameIndex name_indices[8];
+            char name[32];
 
-            // Component name
-            component_name = PoEMemory::read<string>(component_entry + 0x10, 32);
-
-            // Component address
-            int offset = PoEMemory::read<int>(component_entry + 0x18);
-            addrtype addr = PoEMemory::read<addrtype>(component_list + offset * 8);
-            addrtype owner_address = PoEMemory::read<addrtype>(addr + 0x8);
-
-            // Invalid component
-            if (owner_address != address)
-                break;
-            
-            component_names.push_back(component_name);
-            components[component_name] = shared_ptr<Component>(read_component(component_name, addr));
+            PoEMemory::read<byte>(entry_ptr, flags, 8);
+            PoEMemory::read<ComponentNameIndex>(entry_ptr + 0x8, name_indices, 8);
+            for (int i = 0; i < 8; ++i) {
+                if (flags[i] != 0xff) {
+                    PoEMemory::read<char>(name_indices[i].name_ptr, name, 32);
+                    component_names.push_back(name);
+                    components[name] = shared_ptr<Component>(
+                        read_component(name, component_list[name_indices[i].index]));
+                    have_more_components--;
+                }
+            }
+            entry_ptr += 0x8 + 0x80;
         }
     }
 
