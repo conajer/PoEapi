@@ -204,7 +204,7 @@ class Inventory extends InventoryGrid {
 
         this.use(item)
         if (closeInventory)
-            SendInput {f}
+            SendInput, %InventoryKey%
 
         if (Not ptask.player.isMoving()) {
             Sleep, 100
