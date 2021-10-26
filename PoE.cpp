@@ -185,14 +185,18 @@ public:
     }
 
     shared_ptr<GameState>& get_active_game_state() {
+        static shared_ptr<GameState> saved_game_state;
+
         if (addrtype addr = read<addrtype>("active_game_states", "current")) {
             if (!active_game_state || active_game_state->address != addr) {
+                saved_game_state = active_game_state;
                 if (all_game_states[addr] == 0x4)   // InGameState
                     active_game_state.reset(new InGameState(0x4, addr)); 
                 else
                     active_game_state.reset(new GameState(all_game_states[addr], addr)); 
             }
         } else {
+            saved_game_state = active_game_state;
             active_game_state.reset();
         }
 
