@@ -18,6 +18,27 @@
 #include "plugins/PlayerStatus.cpp"
 #include "plugins/KillCounter.cpp"
 
+struct FileIndex {
+    __int64 __padding_0;
+    addrtype node_ptr;
+    int capacity;
+    int __padding_1[3];
+    int size;
+    int __padding_2;
+};
+
+struct FileNode {
+    __int64 __padding_0;
+    addrtype name;
+    __int64 __padding_1;
+    int size;
+    int __padding_2;
+    int capacity;
+    int __padding_3[5];
+    int area_index;
+
+};
+
 static std::map<wstring, std::map<string, int>&> g_offsets = {
     {L"GameStates", poe_offsets},
     {L"IngameState", in_game_state_offsets},
@@ -66,6 +87,7 @@ public:
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", this, (MethodType)&PoETask::stop);
         add_method(L"reset", this, (MethodType)&PoETask::reset);
+        add_method(L"getLoadedFiles", this, (MethodType)&PoETask::get_loaded_files, AhkObject, ParamList{AhkInt, AhkWString});
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
@@ -111,6 +133,45 @@ public:
         plugin->on_load(*this, owner_thread_id);
 
         log(L"added plugin %S %s", plugin->name.c_str(), plugin->version.c_str());
+    }
+
+    AhkObjRef* get_loaded_files(int area_index, const wchar_t* filter) {
+        const char pattern[] = "48 8b 08 48 8d 3d ?? ?? ?? ?? 41";
+        addrtype root_ptr;
+        FileIndex indices[16];
+
+        root_ptr = find_pattern(pattern);
+        if (!root_ptr)
+            return nullptr;
+
+        AhkTempObj loaded_files;
+        root_ptr += PoEMemory::read<int>(root_ptr + 0x6) + 0xa;
+        PoEMemory::read<FileIndex>(root_ptr, indices, 16);
+        for (auto&  i : indices) {
+            for (int j = 0; j < (i.capacity + 1) / 8; ++j) {
+                FileNode node;
+                byte flags[8];
+                
+                addrtype entry_ptr = i.node_ptr + j * 0xc8;
+                PoEMemory::read<byte>(entry_ptr, flags, 8);
+                for (int k = 0; k < 8; ++k) {
+                    if (flags[k] == 0xff)
+                        continue;
+
+                    addrtype file_ptr = PoEMemory::read<addrtype>(entry_ptr + 0x8 + k * 0x18 + 0x8);
+                    PoEMemory::read<FileNode>(file_ptr, &node, 1);
+                    if (node.area_index == area_index) {
+                        wchar_t filename[256];
+                        PoEMemory::read<wchar_t>(node.name, filename, 256);
+                        if (filter && wcsstr(filename, filter) == nullptr)
+                            continue;
+                        loaded_files.__set(L"", filename, AhkWString, nullptr);
+                    }
+                }
+            }
+        }
+
+        return loaded_files;
     }
 
     int get_party_status() {
@@ -365,8 +426,8 @@ public:
             if (world_area->name().empty() || !local_player)
                 return;
 
-            is_ready = true;
             is_active = false;
+            is_ready = true;
             league  = in_game_state->server_data()->league();
             __set(L"league", league.c_str(), AhkWString,
                   L"areaName", in_game_data->world_area()->name().c_str(), AhkWString,
@@ -382,7 +443,6 @@ public:
 
     bool is_in_game() {
         bool in_game_flag = PoE::is_in_game();
-        static unsigned int time_in_game = 0;
 
         if (!is_attached && poe_hwnd) {
             is_attached = true;
