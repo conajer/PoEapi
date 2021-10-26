@@ -37,7 +37,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global db := new LocalDB("local.db")
 global ptask := new PoETask()
 
-global version := "1.6.0"
+global version := "1.6.1"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
