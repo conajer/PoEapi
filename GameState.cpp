@@ -74,30 +74,6 @@ public:
         g_scale_y = height / 1600.0f / root_scale;
     }
 
-    bool is_loading() {
-        int stage1 = read<short>("load_stage1");
-        if (load_stage || stage1) {
-            addrtype stage2 = read<addrtype>("load_stage2");
-            switch (load_stage) {
-                case 1:
-                    if (stage2 == 0 || !stage1) {
-                        Sleep(500);
-                        load_stage = 2;
-                    }
-                    break;
-                case 2:
-                    if (stage2 != 0)
-                        load_stage = 0;
-                    break;
-
-                default:
-                    load_stage = 1;
-            }
-        }
-
-        return load_stage;
-    }
-
     InGameUI* in_game_ui() {
         addrtype addr = read<addrtype>("in_game_ui");
         if (!igu || igu->address != addr)
@@ -128,7 +104,7 @@ public:
     }
 
     Item* get_hovered_item() {
-        addrtype addr = read<addrtype>("hovered_item", 0x390);
+        addrtype addr = read<addrtype>("hovered_item", 0x428);
         return addr ? new Item(addr) : nullptr;
     }
 

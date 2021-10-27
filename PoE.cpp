@@ -174,37 +174,42 @@ public:
 
     std::map<addrtype, int> all_game_states;
     shared_ptr<GameState> active_game_state;
-    InGameState* in_game_state;
+    shared_ptr<InGameState> in_game_state;
     InGameUI* in_game_ui;
     InGameData* in_game_data;
     ServerData* server_data;
     LocalPlayer *local_player;
+    bool in_game_flag = false;
+    volatile bool is_loading = false;
     bool is_ready = false;
 
     PoE() : RemoteMemoryObject(0, &poe_offsets) {
     }
 
-    shared_ptr<GameState>& get_active_game_state() {
-        static shared_ptr<GameState> saved_game_state;
-
-        if (addrtype addr = read<addrtype>("active_game_states", "current")) {
-            if (!active_game_state || active_game_state->address != addr) {
-                saved_game_state = active_game_state;
-                if (all_game_states[addr] == 0x4)   // InGameState
-                    active_game_state.reset(new InGameState(0x4, addr)); 
-                else
-                    active_game_state.reset(new GameState(all_game_states[addr], addr)); 
-            }
-        } else {
-            saved_game_state = active_game_state;
-            active_game_state.reset();
+    void check_game_state() {
+        std::vector<addrtype> state_ptrs;
+        
+        state_ptrs = read_array<addrtype>("active_game_states", 0x0, 0x10);
+        if (state_ptrs.empty()) {
+            in_game_flag = false;
+            open_target_process();
+            return;
         }
 
-        return active_game_state;
+        if (all_game_states[state_ptrs[0]] == 0x4) {    // InGameState
+            if (!in_game_state || in_game_state->address != state_ptrs[0])
+                in_game_state.reset(new InGameState(0x4, state_ptrs[0]));
+            in_game_flag = true;
+            is_loading = state_ptrs.size() > 1;
+        } else {
+            in_game_flag = false;
+            is_loading = false;
+        }
     }
 
     void reset() {
-        if (is_in_game()) {
+        check_game_state();
+        if (in_game_flag) {
             in_game_ui = in_game_state->in_game_ui();
             in_game_data = in_game_state->in_game_data();
             server_data = in_game_state->server_data();
@@ -217,23 +222,6 @@ public:
 
             is_ready = true;
         }
-    }
-
-    bool is_in_game() {
-        if (!get_active_game_state()) {
-            if (!open_target_process() || !get_active_game_state())
-                return false;
-        }
-
-        if (in_game_state && in_game_state->address == active_game_state->address)
-            return true;
-
-        if (active_game_state->id == 0x4) {
-            in_game_state = (InGameState*)active_game_state.get();
-            return true;
-        }
-
-        return false;
     }
 
     bool open_target_process() {

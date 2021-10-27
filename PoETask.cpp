@@ -402,7 +402,7 @@ public:
     }
 
     void reset() {
-        if (is_ready || !PoE::is_in_game())
+        if (is_ready)
             return;
         
         // reset plugins.
@@ -413,6 +413,7 @@ public:
         entities.all.clear();
         labeled_entities.clear();
 
+        check_game_state();
         if (in_game_state) {
             in_game_state->reset();
             in_game_ui = in_game_state->in_game_ui();
@@ -442,8 +443,7 @@ public:
     }
 
     bool is_in_game() {
-        bool in_game_flag = PoE::is_in_game();
-
+        check_game_state();
         if (!is_attached && poe_hwnd) {
             is_attached = true;
             PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)poe_hwnd, (LPARAM)0);
@@ -458,15 +458,13 @@ public:
             // increase the delay of timers when PoE isn't in game state.
             Sleep(1000);
         } else {
-            if (in_game_state->is_loading()) {
+            if (is_loading) {
                 is_ready = false;
                 in_game_data ? in_game_data->force_reset = true : false;
-                Sleep(500);
 
                 // wait for loading the game instance.
-                while (in_game_state->is_loading()) {
-                    if (!PoE::is_in_game())
-                        return false;
+                while (is_loading) {
+                    check_game_state();
                     Sleep(50);
                 }
                 PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
@@ -510,7 +508,7 @@ public:
 
         for (auto& i : plugins)
             if (i.second->enabled)
-                i.second->on_player(local_player, in_game_state);
+                i.second->on_player(local_player, in_game_state.get());
     }
 
     void check_entities() {
