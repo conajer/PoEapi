@@ -37,7 +37,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global db := new LocalDB("local.db")
 global ptask := new PoETask()
 
-global version := "1.6.1"
+global version := "1.6.2"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -219,6 +219,7 @@ return
     SetTimer, AutoClick, -200
 return
 
+/*
 ~RButton::
     if (ptask.InMap)
         return
@@ -235,7 +236,7 @@ return
             return
 
         loop, 10 {
-            e := ptask.getIngameUI().getChild(141, 1)
+            e := ptask.getIngameUI().getChild(142, 1)
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible() && not tag.getText()) {
                 exalted := $("Exalted Orb")
@@ -254,6 +255,7 @@ return
         }
     }
 return
+*/
 
 ^WheelDown::SendInput {Right}
 ^WheelUp::SendInput {Left}
