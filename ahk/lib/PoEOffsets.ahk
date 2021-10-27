@@ -4,18 +4,15 @@
 
 global PoEOffsets = { "version" : "3.16", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
-                        ,     "current"                 : 0x0
                         , "all_game_states"             : 0x50
                         , "size"                        : 0x58 }
                       
-      , "IngameState" : { "load_stage1"                 : 0x28
-                        , "in_game_ui"                  : 0x100
+      , "IngameState" : { "in_game_ui"                  : 0x100
                         , "in_game_data"                : 0x18
                         ,     "server_data"             : 0x580
                         , "ui_root"                     : 0x4f8
                         , "hovered"                     : 0x530
                         , "hovered_item"                : 0x540
-                        , "load_stage2"                 : 0x768
                         , "camera"                      : 0x870
                         , "width"                       : 0x878
                         , "height"                      : 0x87c
