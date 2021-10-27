@@ -82,12 +82,9 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         , "is_affinity"                 : 0x3e
                         , "affinities"                  : 0x3f }
                       
-      , "Inventory"   : { "id"                          : 0x0
-                        , "internal"                    : 0x8
-                        ,     "type"                    : 0x0
-                        ,     "sub_type"                : 0x4
-                        ,     "is_requested"            : 0x4
-                        ,     "cols"                    : 0xc
-                        ,     "rows"                    : 0x10
-                        ,     "cells"                   : 0x30
-                        ,     "count"                   : 0x50 } } }
+      , "Inventory"   : { "type"                    : 0x8
+                        , "sub_type"                : 0xc
+                        , "cols"                    : 0x14
+                        , "rows"                    : 0x18
+                        , "cells"                   : 0x38
+                        , "count"                   : 0x58 } } }
