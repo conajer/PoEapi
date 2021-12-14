@@ -450,7 +450,7 @@ public:
 
     void end_draw() {
         DX::ThrowIfFailed(rt->EndDraw());
-        DX::ThrowIfFailed(swap_chain->Present(1, 0));
+        DX::ThrowIfFailed(swap_chain->Present(2, 0));
         DX::ThrowIfFailed(dcomp_device->Commit());
     }
 };
