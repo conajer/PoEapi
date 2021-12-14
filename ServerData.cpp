@@ -43,15 +43,12 @@ public:
 };
 
 std::map<string, int> inventory_offsets {
-    {"id",               0x0},
-    {"internal",         0x8},
-        {"type",         0x0},
-        {"sub_type",     0x4},
-        {"is_requested", 0x4},
-        {"cols",         0xc},
-        {"rows",        0x10},
-        {"cells",       0x30},
-        {"count",       0x50},
+    {"type",         0x8},
+    {"sub_type",     0xc},
+    {"cols",        0x14},
+    {"rows",        0x18},
+    {"cells",       0x38},
+    {"count",       0x58},
 };
 
 class InventorySlot : public RemoteMemoryObject, public AhkObj {
@@ -97,10 +94,8 @@ public:
     std::unordered_map<int, shared_ptr<InventoryCell>> cells;
     int id, type, sub_type, cols, rows;
 
-    InventorySlot(addrtype address) : RemoteMemoryObject(address, &inventory_offsets) {
-        id = read<byte>("id");
-        this->address = read<addrtype>("internal");
-
+    InventorySlot(int id, addrtype address) : RemoteMemoryObject(address, &inventory_offsets) {
+        this->id = id;
         type = read<byte>("type");
         sub_type = read<byte>("sub_type");
         cols = read<byte>("cols");
@@ -402,7 +397,9 @@ public:
 
     std::map<int, shared_ptr<InventorySlot>>& get_inventory_slots() {
         for (auto addr : read_array<addrtype>("inventory_slots", 0x20)) {
-            shared_ptr<InventorySlot> slot(new InventorySlot(addr));
+            int slot_id = PoEMemory::read<int>(addr);
+            addrtype slot_ptr = PoEMemory::read<addrtype>(addr + 0x8, {0x10, 0x10});
+            shared_ptr<InventorySlot> slot(new InventorySlot(slot_id, slot_ptr));
             auto i = inventory_slots.find(slot->id);
             if (i == inventory_slots.end() || i->second->address != slot->address)
                 inventory_slots[slot->id] = shared_ptr<InventorySlot>(slot);
