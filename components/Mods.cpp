@@ -56,15 +56,16 @@ static std::map<string, int> mods_component_offsets {
     {"implicit_mods",    0xb8},
     {"explicit_mods",    0xd0},
     {"enchant_mods",     0xe8},
-    {"implicit_stats",  0x1c0},
-    {"enchant_stats",   0x1d8},
-    {"explicit_stats",  0x1f0},
-    {"crafted_stats",   0x208},
-    {"fractured_stats", 0x220},
+    {"implicit_stats",  0x1d8},
+    {"enchant_stats",   0x218},
+    {"explicit_stats",  0x298},
+    {"crafted_stats",   0x2d8},
+    {"fractured_stats", 0x318},
     {"item_level",      0x7c8},
-    {"required_level",  0x4d0},
-    {"is_mirrored",     0x7d5},
-    {"is_synthesised",  0x7ed},
+    {"required_level",  0x7cc},
+    {"is_mirrored",     0x7e5},
+    {"is_split",        0x7e6},
+    {"is_synthesised",  0x7e9},
 };
 
 class Mods : public Component {
@@ -136,9 +137,9 @@ public:
         if (!explicit_mods.empty())
             return;
 
-        implicit_mods = read_array<Modifier>("implicit_mods", 0x18, 0x28);
-        enchant_mods = read_array<Modifier>("enchant_mods", 0x18, 0x28);
-        explicit_mods = read_array<Modifier>("explicit_mods", 0x18, 0x28);
+        implicit_mods = read_array<Modifier>("implicit_mods", 0x28, 0x38);
+        enchant_mods = read_array<Modifier>("enchant_mods", 0x28, 0x38);
+        explicit_mods = read_array<Modifier>("explicit_mods", 0x28, 0x38);
     }
 
     void get_stats() {
