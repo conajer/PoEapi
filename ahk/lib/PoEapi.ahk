@@ -401,7 +401,7 @@ class FolderTab extends SpecialStashTab {
 
     getTab() {
         this.__Call("getChilds")
-        tabIndex := this.childs[2].getInt(0x9a8)
+        tabIndex := this.childs[2].getInt(0x9e8)
         __tab := ptask.stashTabs[this.index].tabs[tabIndex + 1]
         if (Not __tab.getId())
             return
