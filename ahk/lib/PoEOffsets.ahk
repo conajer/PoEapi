@@ -41,7 +41,7 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         , "entity_list"                 : 0x6b8
                         ,     "root"                    : 0x2a8
                         , "gem_level_up"                : 0xa80
-                        , "notifications"               : 0xa68 }
+                        , "notifications"               : 0xa98 }
                       
       , "ServerData"  : { "player_data"                 : 0x8660
                         ,     "passive_skills"          : 0x160
