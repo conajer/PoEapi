@@ -11,11 +11,11 @@ private:
         if (is_visible()) {
             auto& elements = get_childs();
             for (int i = 1; i < elements.size(); ++i) {
-                addrtype addr = read<addrtype>("item");
+                addrtype addr = elements[i]->read<addrtype>("item");
                 if (addr) {
                     int l = elements[i]->read<int>("left");
-                    int t = elements[i]->read<int>("right");
-                    int index = l * 12 + t + 1;
+                    int t = elements[i]->read<int>("top");
+                    int index = l * 11 + t + 1;
                     items[index] = shared_ptr<Item>(new Item(addr));
                     elements[i]->__set(L"item", (AhkObjRef*)*items[index], AhkObject, nullptr);
                 }
@@ -55,10 +55,10 @@ public:
         if (is_visible()) {
             auto& elements = get_childs();
             for (int i = 1; i < elements.size(); ++i) {
-                addrtype addr = read<addrtype>("item");
+                addrtype addr = elements[i]->read<addrtype>("item");
                 if (addr) {
                     int l = elements[i]->read<int>("left");
-                    int t = elements[i]->read<int>("right");
+                    int t = elements[i]->read<int>("top");
                     items[l * 11 + t + 1] = shared_ptr<Item>(new Item(addr));
                 }
             }
