@@ -54,6 +54,7 @@ static std::map<wstring, std::map<string, int>&> g_offsets = {
 class PoETask : public PoE, public Task {
 public:
     
+    std::mutex entities_mutex;
     EntitySet entities;
     EntityList labeled_entities, labeled_removed;
     int area_hash;
@@ -515,6 +516,7 @@ public:
         if (!is_ready || GetForegroundWindow() != poe_hwnd)
             return;
 
+        std::unique_lock<std::mutex> lock(entities_mutex);
         in_game_data->get_all_entities(entities);
         for (auto& i : plugins) {
             if (is_ready && i.second->enabled && i.second->player)
@@ -534,7 +536,10 @@ public:
     }
 
     void render() {
+        // clear overlay canvas.
         clear();
+
+        std::unique_lock<std::mutex> lock(entities_mutex);
         if (!is_ready || in_game_ui->has_active_panel())
             return;
 
