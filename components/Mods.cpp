@@ -50,22 +50,23 @@ public:
 /* Mods component offsets */
 
 static std::map<string, int> mods_component_offsets {
-    {"unique_name",      0x30},
-    {"is_identified",    0xa8},
-    {"rarity",           0xac},
-    {"implicit_mods",    0xb8},
-    {"explicit_mods",    0xd0},
-    {"enchant_mods",     0xe8},
-    {"implicit_stats",  0x1d8},
-    {"enchant_stats",   0x218},
-    {"explicit_stats",  0x298},
-    {"crafted_stats",   0x2d8},
-    {"fractured_stats", 0x318},
-    {"item_level",      0x7c8},
-    {"required_level",  0x7cc},
-    {"is_mirrored",     0x7e5},
-    {"is_split",        0x7e6},
-    {"is_synthesised",  0x7e9},
+    {"unique_name",          0x30},
+    {"is_identified",        0xa8},
+    {"rarity",               0xac},
+    {"implicit_mods",        0xb8},
+    {"explicit_mods",        0xd0},
+    {"enchant_mods",         0xe8},
+    {"stats",               0x1d8},
+        {"implicit_stats",    0x8},
+        {"enchant_stats",    0x48},
+        {"explicit_stats",   0xc8},
+        {"crafted_stats",   0x108},
+        {"fractured_stats", 0x148},
+    {"item_level",          0x208},
+    {"required_level",      0x20c},
+    {"is_mirrored",         0x225},
+    {"is_split",            0x226},
+    {"is_synthesised",      0x229},
 };
 
 class Mods : public Component {
@@ -146,11 +147,11 @@ public:
         if (!explicit_stats.empty())
             return;
 
-        implicit_stats = read_array<wstring>("implicit_stats", 0x20);
-        enchant_stats = read_array<wstring>("enchant_stats", 0x20);
-        explicit_stats = read_array<wstring>("explicit_stats", 0x20);
-        crafted_stats = read_array<wstring>("crafted_stats", 0x20);
-        fractured_stats = read_array<wstring>("fractured_stats", 0x20);
+        implicit_stats = read_array<wstring>("stats", "implicit_stats", 0x20);
+        enchant_stats = read_array<wstring>("stats", "enchant_stats", 0x20);
+        explicit_stats = read_array<wstring>("stats", "explicit_stats", 0x20);
+        crafted_stats = read_array<wstring>("stats", "crafted_stats", 0x20);
+        fractured_stats = read_array<wstring>("stats", "fractured_stats", 0x20);
     }
 
     void to_print() {

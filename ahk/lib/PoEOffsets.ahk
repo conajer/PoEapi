@@ -51,7 +51,7 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         ,     "skill_points_left"       : 0x210
                         ,     "ascendancy_skill_points" : 0x214
                         , "league"                      : 0x87a8
-                        , "party_status"                : 0x8580
+                        , "party_status"                : 0x8a08
                         , "stash_tabs"                  : 0x8838
                         , "inventory_slots"             : 0x8c68 }
                       
@@ -68,7 +68,7 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         , "scale"                       : 0x100
                         , "is_visible"                  : 0x161
                         , "size"                        : 0x180
-                        , "highlighted"                 : 0x1c8
+                        , "highlighted"                 : 0x1c0
                         , "text"                        : 0x3a0
                         , "left"                        : 0x430
                         , "top"                         : 0x434 }
