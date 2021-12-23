@@ -89,6 +89,26 @@ public:
         return std::vector<T>();
     }
 
+    template<typename T> std::vector<T> read_array(const string& sub_name, const string& field_name, int element_size) {
+        if (offsets->find(sub_name) != offsets->end()) {
+            addrtype addr = PoEMemory::read<addrtype>(address + (*offsets)[sub_name]);
+            if (addr && offsets->find(field_name) != offsets->end())
+                return PoEMemory::read_array<T>(addr + (*offsets)[field_name], element_size);
+        }
+
+        return std::vector<T>();
+    }
+
+    template<typename T> std::vector<T> read_array(const string& sub_name, const string& field_name, int offset, int element_size) {
+        if (offsets->find(sub_name) != offsets->end()) {
+            addrtype addr = PoEMemory::read<addrtype>(address + (*offsets)[sub_name]);
+            if (addr && offsets->find(field_name) != offsets->end())
+                return PoEMemory::read_array<T>(addr + (*offsets)[field_name], offset, element_size);
+        }
+
+        return std::vector<T>();
+    }
+
     template <typename T> T* read_object(const string& name, addrtype address) {
         auto i = factory.find(name);
         if (i != factory.end())
