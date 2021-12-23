@@ -37,7 +37,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global db := new LocalDB("local.db")
 global ptask := new PoETask()
 
-global version := "1.6.3"
+global version := "1.6.3a"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -49,6 +49,7 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
+#Include, %A_ScriptDir%\extras\debug.ahk
 #Include, %A_ScriptDir%\extras\vendor.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
@@ -219,8 +220,7 @@ return
     SetTimer, AutoClick, -200
 return
 
-/*
-~RButton::
+~^RButton::
     if (ptask.InMap)
         return
 
@@ -255,7 +255,6 @@ return
         }
     }
 return
-*/
 
 ^WheelDown::SendInput {Right}
 ^WheelUp::SendInput {Left}
@@ -351,4 +350,32 @@ ExitApp() {
 
 F12::
     logger.show()
+return
+
+F9::
+    debug("Dump the highlighted items:")
+    tab := ptask.stash.Tab
+    for i, e in tab.getChilds() {
+        if (e.isHighlighted)
+            debug("  * {}. {:s}", i, e.item.name)
+        else
+            debug("    {}. {:s}", i, e.item.name)
+    }
+return
+
+F10::
+    loop, {
+        if (Not ptask.inventory.freeCells())
+            return
+
+        prophesier.spam()
+        ptask.sellItems()
+        Sleep, 100
+        ptask.getSell().accept(true)
+        Sleep, 300
+    }
+return
+
+^F10::
+    prophesier.spam("The Unbreathing Queen (I|II|III|IV)", _("The Plaguemaw") "|" _("Deadly Rivalry"))
 return
