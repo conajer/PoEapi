@@ -199,6 +199,9 @@ tradeFullRareSets() {
 
 dumpInventoryItems() {
     ptask.activate()
+    if (Not ptask.inventory.isOpened())
+        return
+
     for i, item in ptask.inventory.getItems() {
         ptask.inventory.move(item)
     }
@@ -206,7 +209,7 @@ dumpInventoryItems() {
 
 dumpStashTabItems() {
     ptask.activate()
-    if (Not ptask.stash.open())
+    if (Not ptask.stash.isOpened())
         return
 
     tab := ptask.stash.Tab
