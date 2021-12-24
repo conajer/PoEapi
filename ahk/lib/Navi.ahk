@@ -124,8 +124,8 @@ class Hotkeys extends WebGui {
                     <tr><td>s</td><td>Level up skill gems</td></tr>
                     <tr><td>F1</td><td>Auto aruas</td></tr>
                     <tr><td>F2</td><td>Open portal</td></tr>
-                    <tr><td>F3</td><td>Auto identify and sell</td></tr>
-                    <tr><td>Alt + F3</td><td>Identify all and sell</td></tr>
+                    <tr><td>F3</td><td>Auto identify and sell items</td></tr>
+                    <tr><td>Alt + F3</td><td>Identify all and sell items</td></tr>
                     <tr><td>F4</td><td>Stash items</td></tr>
                     <tr><td>F5</td><td>Hideout</td></tr>
                     <tr><td>Ctrl + F5</td><td>Azurite mine</td></tr>
@@ -133,7 +133,7 @@ class Hotkeys extends WebGui {
                     <tr><td>F6</td><td>Dump inventory items</td></tr>
                     <tr><td>Ctrl + F6</td><td>Dump highlighted or all items from stash tab</td></tr>
                     <tr><td>F7</td><td>Sell full rare sets to vendor</td></tr>
-                    <tr><td>F12</td><td>Toggle log window</td></tr>
+                    <tr><td>F12</td><td>Show log window</td></tr>
                     <tr><td>Left Alt</td><td>Show price of the items in stash tab, inventory or favours<br><b style='color:darkred'>[patreon only]</b> Show price of the prophecies when view prophecies<br><b style='color:darkred'>[patreon only]</b> Show ratings of the syndicate members</td></tr>
                     <tr><td>Windows + d</td><td>Minimize PoE window</td></tr>
                     <tr><td>Shift + LButton</td><td>Hold Shift and LButton to activate auto clicker</td></tr>
