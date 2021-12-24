@@ -44,6 +44,7 @@ protected:
     std::unordered_map<int, shared_ptr<Entity>> entity_list;
     std::unordered_map<int, bool> entity_list_snapshot;
     std::unordered_map<addrtype, addrtype> entity_list_index;
+    std::unordered_set<addrtype> entity_list_nodes;
 
     std::wregex ignored_entity_exp;
     std::unordered_set<addrtype> ignored_entities;
@@ -74,16 +75,17 @@ protected:
     }
 
     void traverse_entity_list(addrtype root, addrtype node) {
-        if (force_reset)
+        if (force_reset || entity_list_nodes.count(node))
             return;
 
         addrtype buffer[8];
+        entity_list_nodes.insert(node);
         if (PoEMemory::read<addrtype>(node, buffer, 8)) {
             int entity_id = buffer[4];
             addrtype entity_address = buffer[5];
 
             if (entity_id > 0)
-                entity_list_index[node] = entity_address;
+                entity_list_index[entity_id] = entity_address;
 
             for (int i : (int[]){0, 2}) {
                 if ((buffer[i] == root) || (buffer[i] & mask) ^ (node & mask))
@@ -148,6 +150,7 @@ public:
 
         addrtype root = read<addrtype>("entity_list");
         addrtype node = read<addrtype>("entity_list", "root");
+        entity_list_nodes.clear();
         entity_list_index.clear();
         traverse_entity_list(root, node);
 
