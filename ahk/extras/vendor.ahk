@@ -213,31 +213,22 @@ dumpStashTabItems() {
         return
 
     tab := ptask.stash.Tab
-    loop, 2 {
-        for i, e in tab.getChilds() {
-            if (e.item && (dumpAllItems || e.isHighlighted)) {
-                e.getPos(x, y)
-                MouseMove, x, y, 0
-                Sleep, 30
+    if (Not items := tab.getHighlightedItems())
+        items := tab.getItems()
 
-                m := 1
-                if (e.item.stackCount > 0)
-                    m += e.item.stackCount // e.item.stackSize
+    for i, aItem in items {
+        tab.moveTo(aItem.index)
+        n := 1
+        if (aItem.stackCount > 0)
+            n += aItem.stackCount // aItem.stackSize
 
-                loop, % m {
-                    if (ptask.inventory.freeCells() == 0)
-                        return
+        loop, % n {
+            if (ptask.inventory.freeCells() == 0)
+                return
 
-                    SendInput, ^{Click}
-                    n += 1
-                    Sleep, 50
-                }
-            }
+            SendInput, ^{Click}
+            Sleep, 100
         }
-
-        if (n > 0)
-            break
-        dumpAllItems := true
     }
 }
 
@@ -300,7 +291,7 @@ sortItems() {
     items := tab.getItems()
     loop, % tab.rows * tab.cols {
         aItem := items[A_Index]
-        if (Not aItem.price || aItem.width > 1 || aItem.height > 1)
+        if (aItem.width > 1 || aItem.height > 1)
             items.Delete(A_Index)
     }
 
@@ -324,24 +315,24 @@ sortItems() {
 
             if (vals[A_Index + offset] > vals[selected]
                 || (vals[A_Index + offset] == vals[selected]
-                    && items[A_Index + offset].Name <= items[selected].Name)) {
+                    && items[A_Index + offset].baseName <= items[selected].baseName)) {
                 selected := A_Index + offset
             }
         }
 
-        if (A_Index == selected || items[selected].Name == items[A_Index].Name) {
+        if (A_Index == selected || items[selected].baseName == items[A_Index].baseName) {
             if (Not items[A_Index]) {
                 if (itemPicked) {
                     tab.moveTo(A_Index)
                     SendInput, {Click}
-                    ;debug("    Placed " A_Index ", " itemPicked.Name)
+                    ;debug("    Placed " A_Index ", " itemPicked.baseName)
                 }
                 break
             }
 
             if (Not itemPicked
                 || valPicked < vals[A_Index]
-                || (valPicked == vals[A_Index] && itemPicked.Name >= items[A_Index].Name))
+                || (valPicked == vals[A_Index] && itemPicked.baseName >= items[A_Index].baseName))
                 continue
         }
 
@@ -349,14 +340,14 @@ sortItems() {
             tab.moveTo(selected)
             SendInput, {Click}
             Sleep, 30
-            ;debug("    Picked up " selected ", " items[selected].Name)
+            ;debug("    Picked up " selected ", " items[selected].baseName)
             vals[selected] := ""
             items[selected] := ""
-        } else if (valPicked < vals[selected] || (valPicked == vals[selected] && itemPicked.Name > items[selected].Name)) {
+        } else if (valPicked < vals[selected] || (valPicked == vals[selected] && itemPicked.baseName > items[selected].baseName)) {
             tab.moveTo(selected)
             SendInput, {Click}
             Sleep, 30
-            ;debug("    Swaped with " selected ", " items[selected].Name)
+            ;debug("    Swaped with " selected ", " items[selected].baseName)
             vals[selected] := valPicked
             items[selected] := itemPicked
         }
@@ -365,9 +356,9 @@ sortItems() {
         SendInput, {Click}
         Sleep, 50
         ;if (items[A_Index])
-        ;    debug("    Replaced " A_Index ", " items[A_Index].Name)
+        ;    debug("    Replaced " A_Index ", " items[A_Index].baseName)
         ;else
-        ;    debug("    Placed " A_Index ", " itemPicked.Name)
+        ;    debug("    Placed " A_Index ", " itemPicked.baseName)
         valPicked := vals[A_Index]
         itemPicked := items[A_Index]
     }
