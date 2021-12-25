@@ -354,18 +354,28 @@ class StashTab extends InventoryGrid {
 
         return dumped
     }
+
+    getHighlightedItems() {
+        items := []
+        for i, e in this.getChilds() {
+            if (e.isHighlighted)
+                items[e.index] := e.item
+        }
+
+        return items.Length() > 0 ? items : ""
+    }
 }
 
 class SpecialStashTab extends StashTab {
 
     getChilds() {
-        this.__Call("getChilds")
         this.getItems()
-        for i, e in this.childs {
+        for i, e in this.__Call("getChilds") {
             if (e.getChilds().Length() == 2) {
                 e.index := (e.childs[2].left - 1) * this.rows + e.childs[2].top
                 , e.item := this.items[e.index]
                 , e.isHighlighted := e.childs[2].isHighlighted()
+                , this.childs[e.index] := e
             }
         }
 
@@ -396,7 +406,7 @@ class FolderTab extends SpecialStashTab {
     }
 
     getRectByIndex(index) {
-        tab := this.getTab().getRectByIndex(index)
+        return this.getTab().getRectByIndex(index)
     }
 
     getTab() {
@@ -454,16 +464,16 @@ class Stash extends Element {
     }
 
     getTab(tabName) {
-        if (Not this.tabs.hasKey(tabName))
+        if (Not this.tabs.hasKey(tabName) && this.hasTab(tabName))
             this.__getTabs()
         return this.tabs[tabName]
     }
 
     switchTab(tabName) {
-        if (Not this.isOpened())
+        if (Not this.isOpened() || Not tabName)
             return
 
-        if (Not this.tabs.hasKey(tabName))
+        if (Not this.tabs.hasKey(tabName) && this.hasTab(tabName))
             this.__getTabs()
 
         activeTabIndex := this.activeTabIndex() + 1
