@@ -24,8 +24,7 @@ std::map<string, int> element_offsets {
     {"highlighted",  0x178},
     {"text",         0x2e8},
     {"item",         0x428},
-    {"left",         0x430},
-    {"top",          0x434},
+    {"item_pos",     0x430},
 };
 
 class Element : public PoEObject {
@@ -108,20 +107,10 @@ public:
 
     void __new() {
         PoEObject::__new();
-        /*
-        if (!childs.empty()) {
-            AhkObj temp_childs;
-            for (auto& i : childs)
-                temp_childs.__set(L"", (i ? (AhkObjRef*)*i : nullptr), AhkObject, nullptr);
-            __set(L"childs", (AhkObjRef*)temp_childs, AhkObject, nullptr);
-        } else {
-            __set(L"childs", nullptr, AhkObject, nullptr);
+        if (PoEMemory::read<byte>(address + 0x11d)) {
+            Point pos = read<Point>("item_pos");
+            __set(L"left", pos.x + 1, AhkInt, L"top", pos.y + 1, AhkInt, nullptr);
         }
-        */
-
-        int l = read<int>("left");
-        int t = read<int>("top");
-        __set(L"left", l + 1, AhkInt, L"top", t + 1, AhkInt, nullptr);
     }
 
     bool is_valid() {
@@ -232,7 +221,7 @@ public:
     }
 
     bool is_highlighted() {
-        return read<byte>("highlighted") && PoEMemory::read<byte>(address + 0x11d);;
+        return read<byte>("highlighted") && PoEMemory::read<byte>(address + 0x11d);
     }
 
     float scale() {
