@@ -219,15 +219,20 @@ dumpStashTabItems() {
     for i, aItem in items {
         tab.moveTo(aItem.index)
         n := 1
-        if (aItem.stackCount > 0)
+        if (aItem.stackCount > 1)
             n += aItem.stackCount // aItem.stackSize
 
-        loop, % n {
-            if (ptask.inventory.freeCells() == 0)
-                return
+        if (n > 1) {
+            loop, % n {
+                if (ptask.inventory.freeCells() == 0)
+                    return
 
+                SendInput, ^{Click}
+                Sleep, 100
+            }
+        } else {
             SendInput, ^{Click}
-            Sleep, 100
+            Sleep, 30
         }
     }
 }
@@ -284,7 +289,7 @@ sortItems() {
         return
 
     tab := ptask.stash.Tab
-    if (__tab.type > 2 && __tab.type != 7)
+    if (tab.type > 2 && tab.type != 7)
         return
     
     vals := []
