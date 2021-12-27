@@ -357,8 +357,13 @@ public:
     }
 
     wstring& base_name() {
-         if (has_component("CapturedMonster"))
+         if (has_component("CapturedMonster")) {
             return get_component<CapturedMonster>()->name();
+        } else if (has_component("Prophecy")) {
+            Prophecy* prophecy = get_component<Prophecy>();
+            if (prophecy)
+                return prophecy->name();
+        }
 
         return base ? base->name() : type_name;
     }
