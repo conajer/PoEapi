@@ -26,7 +26,7 @@ class Hud : public DXGICanvas {
         RegisterClassEx(&wcx);
 
         HWND hwnd = CreateWindowEx(
-            WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT,
+            WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
             "HudWinClass",
             "Hud",
             WS_POPUP,
