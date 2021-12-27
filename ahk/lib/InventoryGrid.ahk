@@ -159,7 +159,6 @@ class InventoryGrid extends Element {
         for i, e in this.childs {
             e.index := (e.left - 1) * this.rows + e.top
             , e.item := this.items[e.index]
-            , e.isHighlighted := e.isHighlighted()
         }
 
         return this.childs
