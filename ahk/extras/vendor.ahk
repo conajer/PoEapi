@@ -285,12 +285,15 @@ dumpUselessItems() {
 
 sortItems() {
     ptask.activate()
-    if (Not ptask.stash.open())
+    if (ptask.stash.isOpened()) {
+        tab := ptask.stash.Tab
+        if (tab.type > 2 && tab.type != 7)
+            return
+    } else if (ptask.inventory.isOpened()) {
+        tab := ptask.inventory
+    } else {
         return
-
-    tab := ptask.stash.Tab
-    if (tab.type > 2 && tab.type != 7)
-        return
+    }
     
     vals := []
     items := tab.getItems()
