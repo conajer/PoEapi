@@ -222,6 +222,9 @@ dumpStashTabItems() {
         if (aItem.stackCount > 1)
             n += aItem.stackCount // aItem.stackSize
 
+        if (ptask.inventory.freeCells() == 0)
+            return
+
         if (n > 1) {
             loop, % n {
                 if (ptask.inventory.freeCells() == 0)
