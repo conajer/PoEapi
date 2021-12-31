@@ -157,7 +157,7 @@ class InventoryGrid extends Element {
         this.childs.RemoveAt(1)
         this.getItems()
         for i, e in this.childs {
-            e.index := (e.left - 1) * this.rows + e.top
+            e.index := e.getIndex(this.rows)
             , e.item := this.items[e.index]
         }
 
