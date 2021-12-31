@@ -238,6 +238,9 @@ class Inventory extends InventoryGrid {
     }
 
     use(item, targetItem = "", n = 1) {
+        if (Not item)
+            return
+
         if (Not IsObject(item)) {
             item := this.findItem(item)
             if (Not item)
@@ -372,7 +375,7 @@ class SpecialStashTab extends StashTab {
         this.getItems()
         for i, e in this.__Call("getChilds") {
             if (e.getChilds().Length() == 2) {
-                e.index := (e.childs[2].left - 1) * this.rows + e.childs[2].top
+                e.index := e.childs[2].getIndex(this.rows)
                 , e.item := this.items[e.index]
                 , e.isHighlighted := e.childs[2].isHighlighted()
                 , this.childs[e.index] := e
@@ -464,7 +467,9 @@ class Stash extends Element {
     }
 
     getTab(tabName) {
-        if (Not this.tabs.hasKey(tabName) && this.hasTab(tabName))
+        if (Not this.hasTab(tabName))
+            return
+        if (Not this.tabs.hasKey(tabName))
             this.__getTabs()
         return this.tabs[tabName]
     }
@@ -592,7 +597,9 @@ class Sell extends Element {
     accept(flag = false) {
         this.getChild(6).getPos(x, y)
         MouseMove, x, y, 0
-        if (flag)
+        if (flag) {
+            Sleep, 50
             MouseClick, Left, x, y
+        }
     }
 }
