@@ -13,9 +13,7 @@ private:
             for (int i = 1; i < elements.size(); ++i) {
                 addrtype addr = elements[i]->read<addrtype>("item");
                 if (addr) {
-                    int l = elements[i]->read<int>("left");
-                    int t = elements[i]->read<int>("top");
-                    int index = l * 11 + t + 1;
+                    int index = elements[i]->get_index(11);
                     items[index] = shared_ptr<Item>(new Item(addr));
                     elements[i]->__set(L"item", (AhkObjRef*)*items[index], AhkObject, nullptr);
                 }
@@ -57,9 +55,8 @@ public:
             for (int i = 1; i < elements.size(); ++i) {
                 addrtype addr = elements[i]->read<addrtype>("item");
                 if (addr) {
-                    int l = elements[i]->read<int>("left");
-                    int t = elements[i]->read<int>("top");
-                    items[l * 11 + t + 1] = shared_ptr<Item>(new Item(addr));
+                    int index = elements[i]->get_index(11);
+                    items[index] = shared_ptr<Item>(new Item(addr));
                 }
             }
         }
