@@ -97,20 +97,13 @@ public:
         add_method(L"getChild", this, (MethodType)&Element::__get_child, AhkObject, ParamList{AhkPointer});
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
         add_method(L"findChild", this, (MethodType)&Element::__find_child, AhkObject, ParamList{AhkWString});
+        add_method(L"getIndex", this, (MethodType)&Element::get_index, AhkInt, ParamList{AhkInt});
         add_method(L"getParent", this, (MethodType)&Element::__get_parent, AhkObject);
         add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
         add_method(L"isHighlighted", this, (MethodType)&Element::is_highlighted, AhkBool);
         add_method(L"isVisible", this, (MethodType)&Element::is_visible, AhkBool);
         add_method(L"enabled", this, (MethodType)&Element::is_enabled, AhkBool);
-    }
-
-    void __new() {
-        PoEObject::__new();
-        if (PoEMemory::read<byte>(address + 0x11d)) {
-            Point pos = read<Point>("item_pos");
-            __set(L"left", pos.x + 1, AhkInt, L"top", pos.y + 1, AhkInt, nullptr);
-        }
     }
 
     bool is_valid() {
@@ -242,6 +235,11 @@ public:
 
     Vec2 size() {
         return read<Vec2>("size");
+    }
+
+    int get_index(int rows) {
+        Point pos = read<Point>("item_pos");
+        return pos.x * rows + pos.y + 1;
     }
 
     Rect get_rect() {
