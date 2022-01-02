@@ -30,6 +30,10 @@ public:
     }
 
     bool is_neutral() {
+        return read<byte>("is_neutral") & 0x1;
+    }
+
+    bool is_minion() {
         return read<byte>("is_neutral") == 0x81;
     }
 
