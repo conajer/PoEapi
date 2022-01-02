@@ -108,6 +108,7 @@ public:
 
     /* Monster related fields */
     bool is_monster = false;
+    bool is_minion = false;
     bool is_neutral = false;
     int rarity = 0;
 
@@ -126,7 +127,10 @@ public:
 
         if (is_monster) {
             Positioned *positioned = get_component<Positioned>();
-            is_neutral = positioned ? positioned->is_neutral() : false;
+            if (positioned) {
+                is_minion = positioned->is_minion();
+                is_neutral = positioned->is_neutral();
+            }
             ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
             rarity = props ? props->rarity() : 0;
         }
