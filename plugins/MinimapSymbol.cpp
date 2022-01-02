@@ -60,7 +60,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.12"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.13"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -230,7 +230,7 @@ public:
                         else
                             ignored_entities.push_back(i.first);
                     } else if (entity->is_neutral) {
-                        if (show_minions)
+                        if (show_minions && entity->is_minion)
                             draw_entity(entity, 8, min_size + 1);
                         else
                             ignored_entities.push_back(i.first);
