@@ -60,7 +60,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.13"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.14"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -266,6 +266,7 @@ public:
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
         drawn_entities.clear();
+        ignored_entities.clear();
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
