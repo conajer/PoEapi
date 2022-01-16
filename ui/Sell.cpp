@@ -42,7 +42,7 @@ public:
         if (is_visible()) {
             auto& elements = get_child(topIndex)->get_childs();
             for (int i = 1; i < elements.size(); ++i) {
-                addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
+                addrtype addr = elements[i]->read<addrtype>("item");
                 if (addr)
                     items.push_back(shared_ptr<Item>(new Item(addr)));
             }
@@ -56,7 +56,7 @@ public:
         if (is_visible()) {
             auto& elements = get_child(bottomIndex)->get_childs();
             for (int i = 2; i < elements.size(); ++i) {
-                addrtype addr = PoEMemory::read<addrtype>(elements[i]->address + 0x390);
+                addrtype addr = elements[i]->read<addrtype>("item");
                 if (addr)
                     your_items.push_back(shared_ptr<Item>(new Item(addr)));
             }
