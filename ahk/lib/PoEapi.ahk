@@ -105,7 +105,7 @@ class PoEObject extends AhkObj {
     readString(offset, len = 0) {
         len := len > 0 ? len : this.getInt(offset + 0x10)
         address := this.getPtr(offset)
-        dataPtr := this.__read(this.address + offset, (len + 1) * 2)
+        dataPtr := this.__read(address, (len + 1) * 2)
         return StrGet(dataPtr + 0)
     }
 }
