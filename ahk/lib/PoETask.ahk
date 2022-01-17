@@ -50,7 +50,7 @@ clipToRect(r, ByRef x, ByRef y) {
 
 MouseClick(x, y, button = "Left") {
     MouseMove, x, y, 0
-    Sleep, 20
+    Sleep, 50
     MouseClick, %button%, x, y
 }
 
@@ -146,8 +146,9 @@ class PoETask extends AhkObj {
     }
 
     onAttached(hwnd) {
+        Critical
         if (Not hwnd) {
-            ; PoE window closed.
+            ; PoE is closed.
             this.nav.close()
             return
         }
@@ -168,7 +169,6 @@ class PoETask extends AhkObj {
 
         this.nav := new Navi()
         this.c := this.nav.getCanvas()
-        this.reset()
     }
 
     onActive(hwnd) {
@@ -181,7 +181,6 @@ class PoETask extends AhkObj {
             this.height := h
             this.actionArea := new Rect(210, 90, w - 450, h - 260)
             this.isActive := true
-
             this.nav.show()
         } else {
             if (Not WinActive("ahk_class AutoHotkeyGUI")) {
@@ -327,10 +326,10 @@ class PoETask extends AhkObj {
 
         for i, aItem in this.inventory.getItems() {
             if (aItem.rarity == 0) {
-                if (aItem.baseName ~= "(Divine|Eternal) Life") {
+                if (aItem.baseName ~= "(Divine|Eternal) (Life|Mana)") {
                     trans := this.inventory.findItem("Orb of Transmutation")
                     aItem := this.inventory.use(trans, aItem)
-                } else if (aItem.baseName ~= "Two-Toned|Stygain|Convoking|Bone") {
+                } else if (aItem.baseName ~= "Two-Toned|Stygain|Convoking|Bone Helmet") {
                     alchemy := this.inventory.findItem("Orb of Alchemy")
                     aItem := this.inventory.use(alchemy, aItem)
                 }
@@ -362,9 +361,8 @@ class PoETask extends AhkObj {
         gems := this.getIngameUI().getChild(5, 2, 1)
         loop, % gems.getChilds().length() {
             for i, e in gems.getChilds() {
-                e := e.getChild(2)
-                if (e.isVisible()) {
-                    e.getPos(x, y)
+                if (e.enabled() && e.getChild(2).isVisible()) {
+                    e.getChild(2).getPos(x, y)
                     MouseClick(x, y)
                     Sleep, 100
                     leveledGems += 1
