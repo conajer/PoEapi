@@ -275,11 +275,11 @@ class Navi extends WebGui {
                 #toggle { color: lightgrey; background-color: brown; padding: 0 5px; }
                 #area_time { font-family: Arail Narrow; font-weight: bold; color: #0c0c0c; background-color: lightblue; }
                 .second { font-family: Arail Narrow; color: maroon; }
-                #kill_counter { color: #0c0c0c; background-color: lightcyan; }
+                #kill_counter { color: #0c0c0c; background-color: lightcyan; display: none; }
                 #kill_counter:hover { background-color: cyan; }
                 .kills { color: crimson; }
                 .total { color: green; }
-                #exp { color: #0c0c0c; background-color: yellow; }
+                #exp { color: #0c0c0c; background-color: yellow; display: none; }
                 .gained_exp { color: blue; }
                 #menu { color: white; background-color: #0c0c0c; }
 
@@ -299,7 +299,7 @@ class Navi extends WebGui {
                 <table><tr>
                     <td id='toggle'>&#187;</td>
                     <td><table class='nav_bar'><tr>
-                        <td id='area_time'></td>
+                        <td id='area_time'>--:--</td>
                         <td id='kill_counter'>Kills <b class=kills>0</b>/<b class=total>0<b></td>
                         <td id='exp'>Exp <b class='gained_exp'>+0.000%</b></td>
                         <td id='menu'>&#8801;</td>
@@ -442,6 +442,8 @@ class Navi extends WebGui {
         this.statusbar := this._(".statusbar")
         this.statusTimer := ObjBindMethod(this, "setStatus")
 
+        this.usedTime := 0
+        this.enterTime := A_Tickcount
         t := ObjBindMethod(this, "updateTime")
         SetTimer, %t%, 1000
     }
@@ -569,12 +571,15 @@ class Navi extends WebGui {
 
     onAreaChanged() {
         if (this.kc.enabled) {
+            this._("#kill_counter").style.display := ptask.InMap ? "table-cell" : "none"
             this._("#exp").style.display := ptask.InMap ? "table-cell" : "none"
             stat := this.kc.getStat()
+        } else {
+            this._("#kill_counter").style.display := "none"
+            this._("#exp").style.display := "none"
         }
         this.usedTime := stat ? stat.usedTime : 0
         this.enterTime := A_Tickcount
-
     }
 
     onKillCounter(wParam, lParam) {
