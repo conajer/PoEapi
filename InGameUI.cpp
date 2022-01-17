@@ -84,8 +84,11 @@ public:
     }
 
     bool has_active_panel() {
-        return read<short>("panel_flags") || vendor->is_selected() || chat->is_opened()
-               || atlas->is_visible() || skills->is_visible();
+        return read<short>("panel_flags")
+                || atlas->is_visible()
+                || chat->is_opened()
+                || skills->is_visible()
+                || vendor->is_selected();
     }
 
     Inventory* get_inventory() {
