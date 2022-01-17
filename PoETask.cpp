@@ -54,6 +54,7 @@ static std::map<wstring, std::map<string, int>&> g_offsets = {
 class PoETask : public PoE, public Task {
 public:
     
+    std::mutex task_mutex;
     std::mutex entities_mutex;
     EntitySet entities;
     EntityList labeled_entities, labeled_removed;
@@ -68,8 +69,9 @@ public:
 
     PoETask() : Task(L"PoETask") {
         /* add jobs */
+        add_job(L"GameStateJob", 333, [&] {this->check_game();});
         add_job(L"PlayerStatusJob", 99, [&] {this->check_player();});
-        add_job(L"EntityJob", 55, [&] {this->check_entities();});
+        add_job(L"EntityJob", 133, [&] {this->check_entities();});
         add_job(L"LabeledEntityJob", 66, [&] {this->check_labeled_entities();});
 
         /* add plugins */
@@ -194,10 +196,9 @@ public:
     }
 
     AhkObjRef* get_ingame_ui() {
-        if (is_in_game()) {
+        if (is_ready) {
             __set(L"ingameUI", (AhkObjRef*)*in_game_ui, AhkObject, nullptr);
-
-            return in_game_ui->obj_ref;
+            return *in_game_ui;
         }
         __set(L"ingameUI", nullptr, AhkObject, nullptr);
 
@@ -330,7 +331,6 @@ public:
             job.__set(L"name", i.second->name.c_str(), AhkWString,
                       L"id", i.second->id, AhkUInt,
                       L"delay", i.second->delay, AhkInt,
-                      L"resolution", i.second->resolution, AhkUInt,
                       nullptr);
             temp_jobs.__set(i.first.c_str(), (AhkObjRef*)job, AhkObject, nullptr);
         }
@@ -403,9 +403,8 @@ public:
     }
 
     void reset() {
-        if (is_ready)
-            return;
-        
+        std::unique_lock<std::mutex> lock(task_mutex);
+
         // reset plugins.
         for (auto& i : plugins)
             i.second->reset();
@@ -414,8 +413,8 @@ public:
         entities.all.clear();
         labeled_entities.clear();
 
-        check_game_state();
-        if (in_game_state) {
+        is_ready = false;
+        if (in_game_flag && !is_loading) {
             in_game_state->reset();
             in_game_ui = in_game_state->in_game_ui();
             in_game_data = in_game_state->in_game_data();
@@ -428,7 +427,6 @@ public:
             if (world_area->name().empty() || !local_player)
                 return;
 
-            is_active = false;
             is_ready = true;
             league  = in_game_state->server_data()->league();
             __set(L"league", league.c_str(), AhkWString,
@@ -443,50 +441,27 @@ public:
         }
     }
 
-    bool is_in_game() {
+    void check_game() {
         check_game_state();
-        if (!is_attached && poe_hwnd) {
-            is_attached = true;
-            PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)poe_hwnd, (LPARAM)0);
-        }
-
-        if (!in_game_flag) {
-            if (is_ready) {
-                is_ready = false;
-                PostThreadMessage(owner_thread_id, WM_PTASK_EXIT, (WPARAM)0, (LPARAM)0);
-            }
-
-            // increase the delay of timers when PoE isn't in game state.
-            Sleep(1000);
-        } else {
-            if (is_loading) {
-                is_ready = false;
-                in_game_data ? in_game_data->force_reset = true : false;
-
-                // wait for loading the game instance.
-                while (is_loading) {
-                    check_game_state();
-                    Sleep(50);
-                }
-                PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
-            }
-        }
-
-        return in_game_flag;
-    }
-
-    void check_player() {
-        if (!is_in_game() || !is_ready) {
-            if (is_attached && !poe_hwnd) {
+        if (!window) {
+            if (is_attached) {
                 is_attached = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
             }
             area_hash = 0;
+
+            // PoE is not running, wait for a while.
+            Sleep(1000);
             return;
         }
 
+        if (!is_attached) {
+            is_attached = true;
+            PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)window, (LPARAM)0);
+        }
+
         HANDLE h = GetForegroundWindow();
-        if (h != poe_hwnd) {
+        if (h != window) {
             if (is_active) {
                 is_active = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
@@ -497,6 +472,33 @@ public:
             is_active = true;
             PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
         }
+
+        if (!in_game_flag) {
+            if (is_ready) {
+                in_game_data->force_reset = true;
+                is_ready = false;
+                PostThreadMessage(owner_thread_id, WM_PTASK_EXIT, (WPARAM)0, (LPARAM)0);
+            }
+        } else {
+            if (is_loading) {
+                is_ready = false;
+
+                // wait for loading the game instance.
+                while (is_loading) {
+                    check_game_state();
+                    Sleep(500);
+                }
+            } 
+
+            if (!is_ready)
+                PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
+        }
+    }
+
+    void check_player() {
+        std::unique_lock<std::mutex> lock(task_mutex);
+        if (!is_ready)
+            return;
 
         if (in_game_data->area_hash() != area_hash) {
             area_hash = in_game_data->area_hash();
@@ -513,19 +515,23 @@ public:
     }
 
     void check_entities() {
-        if (!is_ready || GetForegroundWindow() != poe_hwnd)
+        std::unique_lock<std::mutex> lock(task_mutex);
+        if (!is_ready || !is_active)
             return;
 
-        std::unique_lock<std::mutex> lock(entities_mutex);
-        in_game_data->get_all_entities(entities);
-        for (auto& i : plugins) {
-            if (is_ready && i.second->enabled && i.second->player)
-                i.second->on_entity_changed(entities.all, entities.removed, entities.added);
+        {
+            std::unique_lock<std::mutex> lock(entities_mutex);
+            in_game_data->get_all_entities(entities);
+            for (auto& i : plugins) {
+                if (is_ready && i.second->enabled && i.second->player)
+                    i.second->on_entity_changed(entities.all, entities.removed, entities.added);
+            }
         }
     }
 
     void check_labeled_entities() {
-        if (!is_ready || GetForegroundWindow() != poe_hwnd)
+        std::unique_lock<std::mutex> lock(task_mutex);
+        if (!is_ready || !is_active)
             return;
 
         in_game_ui->get_all_entities(labeled_entities, labeled_removed);
@@ -561,9 +567,7 @@ public:
     }
 
     void stop() {
-        is_ready = false;
         Task::stop();
-        Sleep(100);
     }
 
     bool toggle_maphack() {
