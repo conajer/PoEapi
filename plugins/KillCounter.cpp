@@ -175,11 +175,6 @@ public:
 
         nearby_monsters.clear();
         for (auto& i : entities) {
-            if (force_reset) {
-                force_reset = false;
-                return;
-            }
-
             Entity* entity = i.second.get();
             if (entity->is_monster) {
                 if (!entity->is_neutral) {

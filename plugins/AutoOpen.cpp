@@ -44,7 +44,7 @@ public:
     void reset() {
         PoEPlugin::reset();
 
-        GetClientRect(poe->hwnd, &bounds);
+        GetClientRect(poe->window, &bounds);
         bounds.left = bounds.right / 2 - 200;
         bounds.top = bounds.bottom / 2 - 300;
         bounds.right = bounds.left + 400;
@@ -87,11 +87,6 @@ public:
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& add) {
         for (auto& i : entities) {
-            if (force_reset) {
-                force_reset = false;
-                return;
-            }
-
             if (ignored_entities.find(i.second->id) != ignored_entities.end())
                 continue;
 
