@@ -114,9 +114,9 @@ class InventoryGrid extends Element {
         r := this.getRectByIndex(aItem.index)
         MouseMove, (r.l + r.r) / 2, (r.t + r.b) / 2, 0
         Sleep, 30
-        SendInput {Ctrl down}
-        Click
-        SendInput {Ctrl up}
+        SendInput ^{Click}
+        Sleep, 30
+        SendInput ^{Click}
     }
 
     highlight(aItem) {
