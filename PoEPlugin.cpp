@@ -9,7 +9,6 @@ public:
     string version;
     PoE* poe;
     DWORD thread_id;
-    bool force_reset = false;
     bool enabled = false;
     buffer<wchar_t> log_buffer;
 
@@ -29,7 +28,6 @@ public:
     }
 
     virtual void reset() {
-        force_reset = true;
         player = nullptr;
     }
 
