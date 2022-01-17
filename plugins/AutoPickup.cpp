@@ -23,6 +23,7 @@ public:
     std::map<int, shared_ptr<Item>> dropped_items;
     std::mutex selected_item_mutex;
     shared_ptr<Entity> selected_item;
+    bool is_chest = false;
     RECT bounds;
     unsigned int range = 50, last_pickup = 0;
     bool ignore_chests = false;
@@ -33,7 +34,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.12") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.13") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -74,7 +75,7 @@ public:
         is_picking = true;
         last_pickup = GetTickCount();
 
-        GetClientRect(poe->hwnd, &bounds);
+        GetClientRect(poe->window, &bounds);
         bounds.left += 200;
         bounds.top += 150;
         bounds.right -= 200;
@@ -143,21 +144,19 @@ public:
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
         player = local_player;
-        if (!is_picking)
+        if (!is_picking || GetTickCount() - last_pickup < 100)
             return;
 
         std::lock_guard<std::mutex> guard(selected_item_mutex);
-        if (!selected_item)
-            return;
-
         int action_id = local_player->actor->action_id();
-        addrtype target_address = local_player->actor->target_address;
-        if ((action_id & 0x82) && target_address == 0)
-            stop_pickup();
+        if (action_id & 0x82) {
+            if (!selected_item || local_player->actor->target_address == 0) {
+                stop_pickup();
+            }
+        }
     }
 
     void on_labeled_entity_changed(EntityList& entities) {
-        shared_ptr<Entity> nearest_item;
         if (!is_picking && !event_enabled)
             return;
 
@@ -173,13 +172,9 @@ public:
 
         std::lock_guard<std::mutex> guard(selected_item_mutex);
         selected_item.reset();
+        shared_ptr<Entity> nearest_item;
         int min_dist = range;
         for (auto& i : entities) {
-            if (force_reset) {
-                force_reset = false;
-                return;
-            }
-
             int index = i.second->has_component(entity_types);
             if (index < 0 || ignored_entities.count(i.second->id))
                 continue;
@@ -215,21 +210,27 @@ public:
             int dist = player->dist(*i.second);
             if (dist < min_dist) {
                 nearest_item = i.second;
+                is_chest = (index == 0) ? true : false;
                 min_dist = dist;
             }
         }
 
-        if (!is_picking || !nearest_item)
+        if (!is_picking)
             return;
 
-        selected_item = nearest_item;
-        Point pos = selected_item->label->get_pos();
+        if (!nearest_item) {
+            if (!is_chest)
+                stop_pickup();
+            return;
+        }
+
+        Point pos = nearest_item->label->get_pos();
         if (PtInRect(&bounds, {pos.x, pos.y})) {
             poe->mouse_click(pos);
+            selected_item = nearest_item;
             last_pickup = GetTickCount();
         } else {
-            ignored_entities[selected_item->id] = selected_item;
-            selected_item.reset();
+            ignored_entities[nearest_item->id] = nearest_item;
         }
     }
 };
