@@ -37,7 +37,7 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         , "lefe_panel"                  : 0x580
                         , "right_panel"                 : 0x588
                         , "panel_flags"                 : 0x590
-                        , "atlas"                       : 0x660
+                        , "atlas"                       : 0x658
                         , "entity_list"                 : 0x6b8
                         ,     "root"                    : 0x2a8
                         , "gem_level_up"                : 0xa80
@@ -67,6 +67,7 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         , "position"                    : 0xe8
                         , "scale"                       : 0x100
                         , "is_visible"                  : 0x161
+                        , "is_enabled"                  : 0x165
                         , "size"                        : 0x180
                         , "highlighted"                 : 0x1c0
                         , "text"                        : 0x3a0 }
