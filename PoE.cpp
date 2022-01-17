@@ -170,7 +170,7 @@ public:
     addrtype base_address;
     int size_of_image;
     int process_id;
-    HWND poe_hwnd;
+    HWND window;
 
     std::map<addrtype, int> all_game_states;
     shared_ptr<GameState> active_game_state;
@@ -199,11 +199,11 @@ public:
         if (all_game_states[state_ptrs[0]] == 0x4) {    // InGameState
             if (!in_game_state || in_game_state->address != state_ptrs[0])
                 in_game_state.reset(new InGameState(0x4, state_ptrs[0]));
-            in_game_flag = true;
             is_loading = state_ptrs.size() > 1;
+            in_game_flag = true;
         } else {
-            in_game_flag = false;
             is_loading = false;
+            in_game_flag = false;
         }
     }
 
@@ -230,13 +230,13 @@ public:
                 break;
         }
 
-        poe_hwnd = 0;
+        window = 0;
         process_handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, process_id);
         if (process_handle) {
             HMODULE module;
             DWORD size;
 
-            poe_hwnd = get_hwnd();
+            window = get_hwnd();
             if (EnumProcessModules(process_handle, &module, sizeof(module), &size)) {
                 MODULEINFO module_info;
                 GetModuleInformation(process_handle, module, &module_info, sizeof(MODULEINFO));
@@ -249,7 +249,7 @@ public:
                 CloseHandle(process_handle);
                 process_handle = OpenProcess(PROCESS_VM_READ, false, process_id);
                 get_all_game_states();
-                bind(poe_hwnd);
+                bind(window);
                 return true;
             }
         }
@@ -280,7 +280,7 @@ public:
     }
     
     void mouse_click(Point pos) {
-        ClientToScreen(poe_hwnd, (LPPOINT)&pos);
+        ClientToScreen(window, (LPPOINT)&pos);
         SetCursorPos (pos.x, pos.y);
         Sleep(30);
 
@@ -289,7 +289,7 @@ public:
     }
 
     void mouse_move(Point pos) {
-        ClientToScreen(poe_hwnd, (LPPOINT)&pos);
+        ClientToScreen(window, (LPPOINT)&pos);
         SetCursorPos (pos.x, pos.y);
         Sleep(30);
     }
