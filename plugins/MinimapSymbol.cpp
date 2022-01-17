@@ -45,7 +45,7 @@ public:
     bool texture_enabled = true;
     bool texture_loaded = false;
 
-    int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe76, 0xb57741,    // monster
+    int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe16, 0xb57741,    // monster
                              0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // corpse
                              0x00fe00,                                  // minion
                              0xe0ffff,                                  // NPC
@@ -60,7 +60,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.14"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.15"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -153,6 +153,11 @@ public:
                 if (e->rarity == 3 && !e->is_npc)
                     size += 2;
                 poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
+                if (e->rarity == 2) {
+                    poe->draw_circle(x, y, size + 2, 0xffff00, 2);
+                    if (e->name().find(L"Undying Evangelist") != wstring::npos)
+                        poe->draw_circle(x, y, size + 5, 0xffff00, 2);
+                }
             } else {
                 poe->fill_circle(x, y, size, entity_colors[index], opacity);
                 if (e->rarity == 3)
@@ -219,8 +224,8 @@ public:
                 continue;
 
             Entity* entity = i.second.get();
-            if (entity->is_npc && !entity->is_dead()) {
-                if (show_npc)
+            if (entity->is_npc) {
+                if (!entity->is_monster && show_npc)
                     draw_entity(entity, 9, min_size + 2);
             } else if (entity->is_monster) {
                 if (show_monsters) {
