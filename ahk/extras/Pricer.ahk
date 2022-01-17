@@ -27,6 +27,7 @@ class Pricer {
              ; Atlas
              , "Maps"               : {"catalog" : "item", "type" : "Map"}
              , "Blighted Maps"      : {"catalog" : "item", "type" : "BlightedMap"}
+             , "Blight-ravaged Maps": {"catalog" : "item", "type" : "BlightRavagedMap"}
              , "Unique Maps"        : {"catalog" : "item", "type" : "UniqueMap"}
              , "Delirium Orbs"      : {"catalog" : "item", "type" : "DeliriumOrb"}
              , "Invitations"        : {"catalog" : "item", "type" : "Invitation"}
@@ -232,7 +233,8 @@ class Pricer {
         lastUpdateTime := db.load("pricer.last_update_time")
         tPeriod -= lastUpdateTime, seconds
         tBegin := A_Tickcount
-        if (not lastUpdateTime || (tPeriod > this.updatePeriod / 1000) || lang != this.lang) {
+        total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
+        if (total < 256 || not lastUpdateTime || (tPeriod > this.updatePeriod / 1000) || lang != this.lang) {
             JSON.eval("
             (
                 function parse(type, json, cb) {
