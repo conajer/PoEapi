@@ -105,7 +105,7 @@ public:
     InGameData(addrtype address) :
         RemoteMemoryObject(address, &in_game_data_offsets),
         ignored_entity_exp(L"WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
-                           "|BlightFoundation|BlightTower|Effects")
+                           "|BlightFoundation|BlightTower|DoodadDaemons|Projectiles|Effects")
     {
     }
 
