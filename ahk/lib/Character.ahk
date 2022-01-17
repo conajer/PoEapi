@@ -5,12 +5,15 @@
 class Flask {
 
     __new(item) {
-        if (RegExMatch(item.path, "Life|Hybrid")) {
+        if (RegExMatch(item.path, "Life")) {
             this.IsLife := true
             this.type := "<b style=""color:red"">L</b>"
         } else if (RegExMatch(item.path, "Mana")) {
             this.IsMana := true
             this.type := "<b style=""color:blue"">M</b>"
+        } else if (RegExMatch(item.path, "Hybrid")) {
+            this.IsLife := this.IsMana := true
+            this.type := "<b style=""color:magenta"">H</b>"
         } else {
             this.IsUtility := true
             this.type := "<b>U</b>"
@@ -35,6 +38,8 @@ class Flask {
             increased -= 33
         else if (RegExMatch(item.name, "Chemist's", matched))
             reduced += 25
+        else if (RegExMatch(item.name, "Dying Sun", matched))
+            increased -= 50
         else if (RegExMatch(item.name, "Seething", matched))
             this.duration := 0
 
@@ -101,7 +106,7 @@ class Character {
     }
 
     whois() {
-        return Format(_("{} is a level {} {} in the {} league")
+        return Format(_("{1} is a level {2} {3} in the {4} league")
                      , this.name, this.level, this.className, ptask.League)
     }
 
@@ -141,11 +146,13 @@ class Character {
         life := Round(life * 100 / (maximum - reserved))
 
         if (ptask.isActive && ptask.InMap && life < 100) {
-            if (this.nearbyMonsters >= MonsterThreshold)
+            if (this.nearbyMonsters > MonsterThreshold)
                 SendInput, %DefenseBuffSkillKey%
             
-            if (AutoDropFlare && ptask.hasBuff("delve_degen_buff") > MaxDarknessStacks)
+            if (AutoDropFlare && ptask.hasBuff("delve_degen_buff") > MaxDarknessStacks) {
                 SendInput, %DropFlareKey%
+                Sleep, 100
+            }
         }
 
         if (life < LifeThreshold && A_TickCount > this.lifeFlaskTime + 1000) {
@@ -200,10 +207,6 @@ class Character {
     monsterChanged(numOfMonsters, charges) {
         this.nearbyMonsters := numOfMonsters
         this.expectCharges := charges
-        for i, aFlask in this.flasks {
-            if (charges >= aFlask.chargesPerUse && aFlask.IsUtility)
-                aFlask.use(0, this.life < LifeThreshold)
-        }
         rdebug("#MONSTERS", "<b>{}</b> " _("monsters") ", <b>{}</b> " _("charges"), numOfMonsters, charges)
     }
 
@@ -241,6 +244,7 @@ class Character {
     }
 
     onUseSkill(skill, target) {
+        ;debug("{}, {:x}", StrGet(skill), target)
     }
 
     onAttack() {
