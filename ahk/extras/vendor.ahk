@@ -65,6 +65,7 @@ class FullRareSets {
 
                 if (Not item) {
                     debug("!!! {} <b style=""color=red"">{}</b>.", _("Need more"), type)
+                    MsgBox, % Format("{} ""{}"".", _("Need more"), type)
                     return
                 }
 
@@ -252,6 +253,7 @@ unstackCards() {
             index := item.index
             loop, % item.stackCount {
                 inventory.moveTo(index)
+                Sleep, 50
                 MouseClick, Right
                 Sleep, 100
 
