@@ -78,8 +78,8 @@ class AhkObj {
             return DllCall(ahkpp_set, "Ptr", this.__self, "Str", key, valType, value)
         } else if (this.__methods["set" key]) {
             name := "set" key
-            if (this.__methods[name].Count() == 2) {
-                valType := this.__methods[name][1]
+            if (this.__methods[name].params.Length() == 1) {
+                valType := this.__methods[name].params[1]
                 DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, valType, value)
 
                 return value
