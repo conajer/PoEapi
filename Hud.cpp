@@ -14,7 +14,6 @@ class Hud : public DXGICanvas {
 
     std::mutex thread_mutex;
     DWORD thread_id;
-    bool is_visible = false;
 
     void render_thread_proc() {
         WNDCLASSEX wcx = {};
@@ -36,15 +35,11 @@ class Hud : public DXGICanvas {
             GetModuleHandle(NULL),
             nullptr);
 
-        MARGINS margins = {-1};
-        SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 255, LWA_COLORKEY | LWA_ALPHA);
-        DwmExtendFrameIntoClientArea(hwnd, &margins);
-        DXGICanvas::bind(hwnd);
-
         MSG msg = {};
         RECT rect = {};
     
         std::lock_guard<std::mutex> guard(thread_mutex);
+        DXGICanvas::bind(hwnd);
         thread_id = GetCurrentThreadId();
         while (msg.message != WM_QUIT) {
             if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -75,6 +70,7 @@ class Hud : public DXGICanvas {
 public:
 
     HWND target_window = 0;
+    bool is_visible = false;
 
     Hud() {
         std::thread render_thread(&Hud::render_thread_proc, std::ref(*this));
@@ -83,7 +79,7 @@ public:
 
     ~Hud() {
         PostThreadMessage(thread_id, WM_QUIT, 0, 0);
-        thread_mutex.lock();
+        std::lock_guard<std::mutex> guard(thread_mutex);
     }
 
     void bind(HWND hwnd) {
