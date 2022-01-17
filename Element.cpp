@@ -20,6 +20,7 @@ std::map<string, int> element_offsets {
     {"position",      0x98},
     {"scale",        0x108},
     {"is_visible",   0x111},
+    {"is_enabled",   0x115},
     {"size",         0x130},
     {"highlighted",  0x178},
     {"text",         0x2e8},
@@ -203,7 +204,7 @@ public:
 
     bool is_enabled() {
         if (!get_parent() || parent->is_visible())
-            return read<byte>("is_visible") & 0x20;
+            return read<byte>("is_enabled");
         return false;
     }
 
