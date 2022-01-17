@@ -97,7 +97,11 @@ class JSON {
     }
 
     __parse(text) {
-        return text ? this.__json.parse(text) : ""
+        try {
+            return text ? this.__json.parse(text) : ""
+        } catch {
+            return ""
+        }
     }
 
     __stringify(value, space = "", eol = "", padding = "") {
