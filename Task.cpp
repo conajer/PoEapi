@@ -51,69 +51,68 @@ public:
 };
 
 class Job {
+private:
+
+    HANDLE join_event;
+    HANDLE stop_event;
+    bool stopped = true;
+
+    void run() {
+        ResetEvent(join_event);
+        id = GetCurrentThreadId();
+        stopped = false;
+        ResetEvent(stop_event);
+        while (!stopped) {
+            func();
+            WaitForSingleObject(stop_event, delay);
+        }
+        SetEvent(join_event);
+    }
+
 public:
 
     wstring name;
-    UINT id = 0;
+    UINT id;
     UINT delay;
-    UINT resolution;
     std::function<void()> func;
 
     Job(wstring name, UINT delay, std::function<void()> func)
         : name(name), delay(delay), func(func)
     {
+        join_event = CreateEvent(nullptr, true, false, nullptr);
+        stop_event = CreateEvent(nullptr, true, false, nullptr);
+    }
+
+    ~Job() {
+        stop();
+    }
+
+    void start() {
+        if (!stopped)
+            return;
+
+        std::thread t(&Job::run, std::ref(*this));
+        t.detach();
+    }
+
+    void join() {
+        if (!stopped)
+            WaitForSingleObject(join_event, INFINITE);
+    }
+
+    void stop() {
+        stopped = true;
+        SetEvent(stop_event);
     }
 };
 
 class Task {
-private:
-
-    static std::unordered_map<UINT, shared_ptr<Job>> all_jobs;
-
-    static void dispatcher_proc(UINT job_id) {
-        all_jobs[job_id]->func();
-    }
-
 protected:
 
     std::map<wstring, shared_ptr<Job>> jobs;
     int owner_thread_id;
-    HANDLE stopped_event;
+    HANDLE stop_event;
     buffer<wchar_t> log_buffer;
-
-    int start_job(shared_ptr<Job>& job) {
-        if (job->delay <= 0)
-            return 0;
-
-        TIMECAPS tc;
-        timeGetDevCaps(&tc, sizeof(TIMECAPS));
-        UINT resolution = std::min(std::max(tc.wPeriodMin, job->delay / 3), tc.wPeriodMax);
-        timeBeginPeriod(resolution);
-        int job_id = timeSetEvent(job->delay, resolution, (LPTIMECALLBACK)dispatcher_proc, 0, TIME_PERIODIC);
-
-        if (job_id) {
-            job->id = job_id;
-            job->resolution = resolution;
-            all_jobs[job_id] = job;
-
-            log(L"new job %S@%x, delay %d ms", job->name.c_str(), job_id, job->delay);
-        }
-
-        return job_id;
-    }
-
-    void stop_job(shared_ptr<Job>& job) {
-        auto i = jobs.find(job->name);
-        if (i != jobs.end()) {
-            timeKillEvent(job->id);
-            timeEndPeriod(job->resolution);
-
-            /* remove from global task id list */
-            all_jobs.erase(job->id);
-            
-            log(L"job %S@%x stopped", job->name, job->id);
-        }
-    }
 
 public:
 
@@ -121,6 +120,7 @@ public:
 
     Task(wstring name) : name(name), log_buffer(128) {
         owner_thread_id = GetCurrentThreadId();
+        stop_event = CreateEvent(nullptr, true, false, nullptr);
     }
 
     virtual ~Task() {
@@ -137,14 +137,21 @@ public:
 
     virtual void run() {
         if (!jobs.empty()) {
-            for (auto& i : jobs)
-                start_job(i.second);
+            for (auto& i : jobs) {
+                shared_ptr<Job>& job = i.second;
+                if (job->delay > 0) {
+                    job->start();
+                    Sleep(0);
+                    log(L"new job %S@%x, delay %d ms", job->name.c_str(), job->id, job->delay);
+                }
+            }
+
             join(); /* wait for the jobs finish */
         }
     }
 
     virtual bool start() {
-        stopped_event = CreateEvent(0, true, false, 0);
+        ResetEvent(stop_event);
         std::thread t(&Task::run, std::ref(*this));
         t.detach();
 
@@ -152,15 +159,18 @@ public:
     }
 
     void join(int milliseconds = INFINITE) {
-        WaitForSingleObject(stopped_event, milliseconds);
+        WaitForSingleObject(stop_event, milliseconds);
     }
 
     void stop() {
-        for (auto i = jobs.begin(); i != jobs.end();) {
-            stop_job(i->second);
-            i = jobs.erase(i);
+        for (auto& i : jobs) {
+            shared_ptr<Job>& job = i.second;
+            job->stop();
+
+            log(L"job %S@%x stopped", job->name.c_str(), job->id);
         }
-        SetEvent(stopped_event);
+        jobs.clear();
+        SetEvent(stop_event);
     }
 
     void log(const wchar_t* format, ...) {
@@ -176,5 +186,3 @@ public:
         std::wcout << (const wchar_t*)log_buffer << std::endl;
     }
 };
-
-std::unordered_map<UINT, shared_ptr<Job>> Task::all_jobs;
