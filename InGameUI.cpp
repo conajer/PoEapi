@@ -32,6 +32,7 @@ std::map<string, int> in_game_ui_offsets {
     {"atlas",           0x568},
     {"entity_list",     0x5c0},
         {"root",        0x2a0},
+        {"count",       0x2a8},
     {"trade",           0x678},
     {"gem_level_up",    0x8d8},
     {"notifications",   0x920},
@@ -199,11 +200,12 @@ public:
         entities.swap(removed);
         entities.clear();
         addrtype root = read<addrtype>("entity_list", "root");
+        int count = read<addrtype>("entity_list", "count");
         addrtype next = root;
 
         while (1) {
             next = PoEMemory::read<addrtype>(next);
-            if (!next || next == root)
+            if (!next || next == root || entities.size() > count)
                 break;
 
             addrtype label = PoEMemory::read<addrtype>(next + 0x10);
@@ -222,7 +224,7 @@ public:
 
             std::shared_ptr<Entity> entity(new Entity(entity_address));
             entity->label = shared_ptr<Element>(new Element(label));
-            entities.insert(std::make_pair(entity_id, entity));
+            entities[entity_id] = entity;
         }
 
         return entities.size();
