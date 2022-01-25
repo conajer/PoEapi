@@ -84,57 +84,64 @@ template <> wstring read<wstring>(HANDLE handle, addrtype address) {
 }
 
 template <typename T> std::vector<T> read_array(HANDLE handle, addrtype address, int element_size) {
-    addrtype begin = read<addrtype>(handle, address);
-    addrtype end = read<addrtype>(handle, address + 0x8);
-
     std::vector<T> vec;
-    for (address = begin; address < end; address += element_size) {
-        vec.push_back(T(address));
-        if (vec.size() > 2048)
-            break;
+    addrtype ptrs[2];
+    if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
+        int size = ptrs[1] - ptrs[0];
+        if (size > 0 && size / element_size < 1024) {
+            for (address = ptrs[0]; address < ptrs[1]; address += element_size)
+                vec.push_back(T(address));
+        }
     }
 
     return vec;
 }
 
 template <> std::vector<wstring> read_array(HANDLE handle, addrtype address, int element_size) {
-    addrtype begin = read<addrtype>(handle, address);
-    addrtype end = read<addrtype>(handle, address + 0x8);
-
     std::vector<wstring> vec;
-    for (address = begin; address < end; address += element_size) {
-        vec.push_back(read<wstring>(handle, address));
-        if (vec.size() > 2048)
-            break;
+    addrtype ptrs[2];
+    if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
+        int size = ptrs[1] - ptrs[0];
+        if (size > 0 && size / element_size < 1024) {
+            for (address = ptrs[0]; address < ptrs[1]; address += element_size)
+                vec.push_back(read<wstring>(handle, address));
+        }
     }
 
     return vec;
 }
 
 template <typename T> std::vector<T> read_array(HANDLE handle, addrtype address, int offset, int element_size) {
-    addrtype begin = read<addrtype>(handle, address);
-    addrtype end = read<addrtype>(handle, address + 0x8);
-
     std::vector<T> vec;
-    for (address = begin; address < end; address += element_size) {
-        vec.push_back(T(read<addrtype>(handle, address + offset)));
-        if (vec.size() > 2048)
-            break;
+    addrtype ptrs[2];
+    if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
+        int size = ptrs[1] - ptrs[0];
+        if (size > 0 && size / element_size < 1024) {
+            byte buffer[size];
+            if (ReadProcessMemory(handle, (LPVOID)ptrs[0], buffer, size, 0)) {
+                for (int i = 0; i < size; i += element_size)
+                    vec.push_back(T(*(addrtype *)&buffer[i + offset]));
+            }
+        }
     }
 
     return vec;
 }
 
 template <> std::vector<wstring> read_array(HANDLE handle, addrtype address, int offset, int element_size) {
-    addrtype begin = read<addrtype>(handle, address);
-    addrtype end = read<addrtype>(handle, address + 0x8);
-
     std::vector<wstring> vec;
-    for (address = begin; address < end; address += element_size) {
-        vec.push_back(read<wstring>(handle, read<addrtype>(handle, address + offset)));
-        if (vec.size() > 2048)
-            break;
+    addrtype ptrs[2];
+    if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
+        int size = ptrs[1] - ptrs[0];
+        if (size > 0 && size / element_size < 1024) {
+            byte buffer[size];
+            if (ReadProcessMemory(handle, (LPVOID)ptrs[0], buffer, size, 0)) {
+                for (int i = 0; i < size; i += element_size)
+                    vec.push_back(read<wstring>(handle, *(addrtype *)&buffer[i + offset]));
+            }
+        }
     }
+
 
     return vec;
 }
