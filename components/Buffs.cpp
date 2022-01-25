@@ -57,6 +57,7 @@ public:
 static FieldOffsets buffs_component_offsets {
     {"buffs",     0x158},
 };
+
 class Buffs : public Component {
 public:
 
@@ -69,7 +70,7 @@ public:
     }
 
     std::map<wstring, Buff>& get_buffs() {
-        if (GetTickCount() - last_checking > 1000 || buffs.empty()) {
+        if (GetTickCount() - last_checking > 300 || buffs.empty()) {
             buffs.clear();
             for (auto& buff : read_array<Buff>("buffs", 0x0, 8))
                 buffs.insert(std::make_pair(buff.name(), buff));
