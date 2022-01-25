@@ -78,12 +78,16 @@ public:
     }
 
     ~Hud() {
-        PostThreadMessage(thread_id, WM_QUIT, 0, 0);
-        std::lock_guard<std::mutex> guard(thread_mutex);
+        stop();
     }
 
     void bind(HWND hwnd) {
         target_window = hwnd;
+    }
+
+    void stop() {
+        PostThreadMessage(thread_id, WM_QUIT, 0, 0);
+        std::lock_guard<std::mutex> guard(thread_mutex);
     }
 
     virtual void render() {
