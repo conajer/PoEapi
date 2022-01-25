@@ -61,17 +61,6 @@ public:
     InGameState(int id, addrtype address) : GameState(id, address, &in_game_state_offsets)
     {
         name = L"InGameState";
-
-        width = read<int>("width");
-        height = read<int>("height");
-        center_x = width / 2;
-        center_y = height / 2;
-
-        Element ui_root(read<addrtype>("ui_root"));
-        float root_scale = ui_root.scale();
-        float aspect_ratio =  width / 1.6f / height;
-        g_scale_x = width / 2560.0f / aspect_ratio / root_scale;
-        g_scale_y = height / 1600.0f / root_scale;
     }
 
     InGameUI* in_game_ui() {
@@ -116,6 +105,17 @@ public:
         igu.reset();
         igd.reset();
         sd.reset();
+
+        width = read<int>("width");
+        height = read<int>("height");
+        center_x = width / 2;
+        center_y = height / 2;
+
+        Element ui_root(read<addrtype>("ui_root"));
+        float root_scale = ui_root.scale();
+        float aspect_ratio =  width / 1.6f / height;
+        g_scale_x = width / 2560.0f / aspect_ratio / root_scale;
+        g_scale_y = height / 1600.0f / root_scale;
     }
 
     Vector3& transform(Vector3& vec) {
