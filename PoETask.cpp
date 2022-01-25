@@ -117,6 +117,7 @@ public:
         add_method(L"setOffset", this, (MethodType)&PoETask::set_offset, AhkVoid, ParamList{AhkWString, AhkString, AhkInt});
         add_method(L"toggleMaphack", this, (MethodType)&PoETask::toggle_maphack, AhkBool);
         add_method(L"getBuffs", this, (MethodType)&PoETask::get_buffs, AhkObject);
+        add_method(L"getBuff", this, (MethodType)&PoETask::get_buff, AhkObject, ParamList{AhkWString});
         add_method(L"hasBuff", this, (MethodType)&PoETask::has_buff, AhkInt, ParamList{AhkWString});
         add_method(L"__logout", (PoE*)this, (MethodType)&PoE::logout, AhkVoid);
     }
@@ -441,17 +442,13 @@ public:
         }
     }
 
-    void check_game() {
-        check_game_state();
+    void check_window_state() {
         if (!window) {
             if (is_attached) {
                 is_attached = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)0, (LPARAM)0);
             }
             area_hash = 0;
-
-            // PoE is not running, wait for a while.
-            Sleep(1000);
             return;
         }
 
@@ -460,18 +457,25 @@ public:
             PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)window, (LPARAM)0);
         }
 
-        HANDLE h = GetForegroundWindow();
-        if (h != window) {
+        HANDLE active_window = GetForegroundWindow();
+        if (active_window != window) {
             if (is_active) {
                 is_active = false;
-                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
+                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)active_window, (LPARAM)0);
                 Sleep(300);
-                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
+                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)active_window, (LPARAM)0);
             }
-        } else if (!is_active) {
-            is_active = true;
-            PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)h, (LPARAM)0);
+        } else {
+            if (!is_active) {
+                is_active = true;
+                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)active_window, (LPARAM)0);
+            }
         }
+    }
+
+    void check_game() {
+        check_window_state();
+        check_game_state();
 
         if (!in_game_flag) {
             if (is_ready) {
@@ -488,7 +492,7 @@ public:
                     check_game_state();
                     Sleep(500);
                 }
-            } 
+            }
 
             if (!is_ready)
                 PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
@@ -549,6 +553,13 @@ public:
         if (!is_ready || in_game_ui->has_active_panel())
             return;
 
+        // update the entity data.
+        for (auto& i : entities.all) {
+            if (i.second->is_movable)
+                i.second->get_position();
+        }
+        local_player->get_position();
+
         for (auto& i : plugins)
             if (i.second->enabled && i.second->player)
                 i.second->render();
@@ -567,6 +578,7 @@ public:
     }
 
     void stop() {
+        Hud::stop();
         Task::stop();
     }
 
@@ -613,7 +625,26 @@ public:
         return nullptr;
     }
 
-    int has_buff(wchar_t* name) {
+    AhkObjRef* get_buff(const wchar_t* name) {
+        if (local_player) {
+            auto& buffs = local_player->get_component<Buffs>()->get_buffs();
+            auto i = buffs.find(name);
+            if (i != buffs.end()) {
+                AhkTempObj buff;
+                buff.__set(L"name", name, AhkWString,
+                           L"description", i->second.description().c_str(), AhkWString,
+                           L"duration", i->second.duration(), AhkFloat,
+                           L"timer", i->second.timer(), AhkFloat,
+                           L"charges", i->second.charges(), AhkInt,
+                           nullptr);
+                return buff;
+            }
+        }
+
+        return nullptr;
+    }
+
+    int has_buff(const wchar_t* name) {
         if (local_player) {
             Buffs* buffs = local_player->get_component<Buffs>();
             return buffs->has_buff(name);
