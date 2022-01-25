@@ -32,7 +32,7 @@ public:
     int maximum_area_count = 99;
     bool event_enabled;
 
-    KillCounter() : PoEPlugin(L"KillCounter", "0.10"), current_area(nullptr) {
+    KillCounter() : PoEPlugin(L"KillCounter", "0.11"), current_area(nullptr) {
         add_property(L"radius", &nearby_radius, AhkInt);
         add_property(L"monsters", &num_of_monsters, AhkInt);
         add_property(L"minions", &num_of_minions, AhkInt);
@@ -164,9 +164,7 @@ public:
         for (auto& i : removed) {
             shared_ptr<Entity>& entity = i.second;
             if (entity->is_monster) {
-                if (current_area->killed.find(i.first) == current_area->killed.end()
-                    && nearby_monsters.find(i.first) != nearby_monsters.end())
-                {
+                if (nearby_monsters.count(i.first) && !current_area->killed.count(i.first)) {
                     current_area->killed.insert(i.first);
                     current_area->kills[entity->rarity]++;
                 }
@@ -187,9 +185,7 @@ public:
                         continue;
 
                     if (life == 0) {
-                        if (current_area->total.find(i.first) != current_area->total.end()
-                            && current_area->killed.find(i.first) == current_area->killed.end())
-                        {
+                        if (current_area->total.count(i.first) && !current_area->killed.count(i.first)) {
                             current_area->killed.insert(i.first);
                             current_area->kills[entity->rarity]++;
                         }
@@ -199,15 +195,12 @@ public:
                     if (entity->path.find(L"AfflictionVolatile") != wstring::npos)
                         continue;
 
-                    if (current_area->total.find(i.first) == current_area->total.end()) {
+                    if (current_area->total.count(i.first) == 0) {
                         if (event_enabled && entity->rarity > 1) {     // rare and unique monsters
-                            Render* render = entity->get_component<Render>();
-                            if (render) {
-                                Vector3 pos = render->position();
-                                poe->in_game_state->transform(pos);
-                                PostThreadMessage(thread_id, WM_NEW_MONSTER, (WPARAM)entity->name().c_str(),
-                                                  (LPARAM)entity->id);
-                            }
+                            Vector3 pos = entity->pos;
+                            poe->in_game_state->transform(pos);
+                            PostThreadMessage(thread_id, WM_NEW_MONSTER, (WPARAM)entity->name().c_str(),
+                                              (LPARAM)entity->id);
                         }
                         current_area->total.insert(i.first);
                     }

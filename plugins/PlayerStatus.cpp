@@ -35,7 +35,7 @@ public:
         int maximum, reserved;
         int maximum_hp = 0;
 
-        int current_life = local_player->life->life(&maximum, &reserved);
+        int current_life = local_player->health->life(&maximum, &reserved);
         maximum_hp += maximum - reserved;
         if (current_life != life || current_life < (maximum - reserved)) {
             life = current_life;
@@ -48,7 +48,7 @@ public:
                 is_dead = (current_life == 0);
         }
 
-        int current_mana = local_player->life->mana(&maximum, &reserved);
+        int current_mana = local_player->health->mana(&maximum, &reserved);
         if (current_mana != mana) {
             mana = current_mana;
             PostThreadMessage(thread_id,
@@ -57,7 +57,7 @@ public:
                               (LPARAM)(maximum | (reserved << 16)));
         }
 
-        int current_es = local_player->life->energy_shield(&maximum);
+        int current_es = local_player->health->energy_shield(&maximum);
         maximum_hp += maximum;
         if (current_es != es) {
             es = current_es;

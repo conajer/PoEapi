@@ -60,7 +60,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.15"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.16"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -113,56 +113,52 @@ public:
     }
 
     void init_params() {
-        if (Render* render = player->get_render()) {
-            player_pos = render->position();
-            player_pos.z = 0.0f;
-
-            Vector3 pos = player_pos;
-            OverlayMap* map = poe->in_game_ui->get_overlay_map();
-            Rect r = map->get_rect();
-            if (r.w > 0 || r.h > 0) {
-                if (!is_clipped) {
-                    poe->push_rectangle_clip(r.x, r.y, r.x + r.w, r.y + r.h);
-                    is_clipped = true;
-                }
-            } else {
-                if (is_clipped) {
-                    poe->pop_rectangle_clip();
-                    is_clipped = false;
-                }
+        OverlayMap* minimap = poe->in_game_ui->get_overlay_map();
+        Rect r = minimap->get_rect();
+        if (r.w > 0 || r.h > 0) {
+            if (!is_clipped) {
+                poe->push_rectangle_clip(r.x, r.y, r.x + r.w, r.y + r.h);
+                is_clipped = true;
             }
-            poe->in_game_state->transform(pos);
-            Point p = map->get_pos();
-            shift_x = p.x - pos.x + map->shift_x();
-            shift_y = p.y - pos.y + map->shift_y();
-            scale = 1. / factor * map->zoom();
+        } else {
+            if (is_clipped) {
+                poe->pop_rectangle_clip();
+                is_clipped = false;
+            }
         }
+
+        Vector3 player_pos = player->pos;
+        player_pos.z = 0.0f;
+        poe->in_game_state->transform(player_pos);
+
+        Point pos = minimap->get_pos();
+        shift_x = pos.x - player_pos.x + minimap->shift_x();
+        shift_y = pos.y - player_pos.y + minimap->shift_y();
+        scale = 1. / factor * minimap->zoom();
     }
 
     void draw_entity(Entity* e, int index, int size) {
-        if (Render* render = e->get_render()) {
-            Vector3 pos = render->position();
-            pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
-            pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
-            pos.z = pos.z * scale;
-            poe->in_game_state->transform(pos);
+        Vector3 pos = e->pos;
+        pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+        pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+        pos.z = pos.z * scale;
+        poe->in_game_state->transform(pos);
 
-            int x = pos.x + shift_x;
-            int y = pos.y + shift_y;
-            if (texture_enabled) {
-                if (e->rarity == 3 && !e->is_npc)
-                    size += 2;
-                poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
-                if (e->rarity == 2) {
-                    poe->draw_circle(x, y, size + 2, 0xffff00, 2);
-                    if (e->name().find(L"Undying Evangelist") != wstring::npos)
-                        poe->draw_circle(x, y, size + 5, 0xffff00, 2);
-                }
-            } else {
-                poe->fill_circle(x, y, size, entity_colors[index], opacity);
-                if (e->rarity == 3)
-                    poe->draw_circle(x, y, size + 2, 0xff0000, 2);
+        int x = pos.x + shift_x;
+        int y = pos.y + shift_y;
+        if (texture_enabled) {
+            if (e->rarity == 3 && !e->is_npc)
+                size += 2;
+            poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
+            if (e->rarity == 2) {
+                poe->draw_circle(x, y, size + 2, 0xffff00, 2);
+                if (e->name().find(L"Undying Evangelist") != wstring::npos)
+                    poe->draw_circle(x, y, size + 5, 0xffff00, 2);
             }
+        } else {
+            poe->fill_circle(x, y, size, entity_colors[index], opacity);
+            if (e->rarity == 3)
+                poe->draw_circle(x, y, size + 2, 0xff0000, 2);
         }
     }
 
@@ -174,26 +170,24 @@ public:
         if (!targetable || !targetable->is_targetable())
             return;
 
-        if (Render* render = e->get_render()) {
-            Vector3 pos = render->position();
-            pos.x = player_pos.x + (pos.x - player_pos.x) * scale;
-            pos.y = player_pos.y + (pos.y - player_pos.y) * scale;
-            pos.z = 0.0f;
-            poe->in_game_state->transform(pos);
+        Vector3 pos = e->pos;
+        pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+        pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+        pos.z = 0.0f;
+        poe->in_game_state->transform(pos);
 
-            int color = 0x7f7f7f;
-            for (auto& i : chest_colors) {
-                if (e->path.find(i.first) != string::npos) {
-                    color = i.second;
-                    break;
-                }
+        int color = 0x7f7f7f;
+        for (auto& i : chest_colors) {
+            if (e->path.find(i.first) != string::npos) {
+                color = i.second;
+                break;
             }
-
-            pos.x += shift_x;
-            pos.y += shift_y;
-            poe->fill_circle(pos.x, pos.y, min_size + 7, 0xffffff, 0.8);
-            poe->fill_circle(pos.x, pos.y, min_size + 4, color, 0.8);
         }
+
+        int x = pos.x + shift_x;
+        int y = pos.y + shift_y;
+        poe->fill_circle(x, y, min_size + 7, 0xffffff, 0.8);
+        poe->fill_circle(x, y, min_size + 4, color, 0.8);
     }
 
     void draw_heist_chests(Entity* e) {
@@ -201,16 +195,12 @@ public:
         if (!targetable || !targetable->is_targetable())
             return;
 
-        if (Render* render = e->get_render()) {
-            Vector3 pos = render->position();
-            Vector3 bound = render->position();
-            pos.z += 2 * bound.z;
-            poe->in_game_state->transform(pos);
+        Vector3 pos = e->pos;
+        poe->in_game_state->transform(pos);
 
-            std::wsmatch match;
-            if (std::regex_search(e->path, match, heist_regex) && match.size() > 0)
-                poe->draw_text(match[2].str(), pos.x, pos.y, 0xffffff, 0xad1616, 1.0, 1);
-        }
+        std::wsmatch match;
+        if (std::regex_search(e->path, match, heist_regex) && match.size() > 0)
+            poe->draw_text(match[2].str(), pos.x, pos.y, 0xffffff, 0xad1616, 1.0, 1);
     }
 
     void render() {
@@ -225,7 +215,7 @@ public:
 
             Entity* entity = i.second.get();
             if (entity->is_npc) {
-                if (!entity->is_monster && show_npc)
+                if (show_npc)
                     draw_entity(entity, 9, min_size + 2);
             } else if (entity->is_monster) {
                 if (show_monsters) {
