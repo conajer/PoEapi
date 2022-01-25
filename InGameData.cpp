@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Parallel.cpp"
 #include "Terrain.cpp"
 
 using EntityList = std::unordered_map<int, shared_ptr<Entity>>;
@@ -38,7 +39,7 @@ std::map<string, int> in_game_data_offsets {
     {"terrain",           0x750},
 };
 
-class InGameData : public RemoteMemoryObject {
+class InGameData : public RemoteMemoryObject, Parallel<addrtype> {
 protected:
 
     std::unordered_map<int, shared_ptr<Entity>> entity_list;
@@ -49,49 +50,106 @@ protected:
     std::wregex ignored_entity_exp;
     std::unordered_set<addrtype> ignored_entities;
 
-    const __int64 mask = 0xffffff0000000000;
+    std::mutex entity_list_mutex;
+    std::mutex ignored_entities_mutex;
 
-    wstring get_entity_path(addrtype address) {
-        return PoEMemory::read<wstring>(PoEMemory::read<addrtype>(address + 0x8) + 0x8);
-    }
+    const __int64 mask = 0xffffff0000000000;
+    addrtype root;
+    int count;
+    int new_entities;
 
     void foreach(int entity_id, addrtype entity_address) {
-        if (ignored_entities.count(entity_id))
-            return;
+        {
+            std::unique_lock<std::mutex> lock(ignored_entities_mutex);
+            if (ignored_entities.count(entity_id))
+                return;
+        }
 
         if (entity_list_snapshot.count(entity_id)) {
             entity_list_snapshot[entity_id] = true;
             return;
         }
 
-        wstring path = get_entity_path(entity_address);
+        addrtype entity_internal = PoEMemory::read<addrtype>(entity_address + 0x8);
+        if (!entity_internal)
+            return;
+
+        wstring path = PoEMemory::read<wstring>(entity_internal + 0x8);
         if (path[0] != L'M' || std::regex_search(path, ignored_entity_exp)) {
+            std::unique_lock<std::mutex> lock(ignored_entities_mutex);
             ignored_entities.insert(entity_id);
             return;
         }
 
-        std::shared_ptr<Entity> entity(new Entity(entity_address));
-        entity_list[entity_id] = entity;
+        if (new_entities++ <= 32) {
+            std::shared_ptr<Entity> entity(new Entity(entity_address, path.c_str()));
+            std::unique_lock<std::mutex> lock(entity_list_mutex);
+            entity_list[entity_id] = entity;
+        }
     }
 
-    void traverse_entity_list(addrtype root, addrtype node) {
-        if (force_reset || entity_list_nodes.count(node))
+    void foreach(addrtype& node) {
+        traverse_entity_list(node);
+    }
+
+    void traverse_entity_list(addrtype node) {
+        if (force_reset || ((node ^ root) & mask))
             return;
 
-        addrtype buffer[8];
-        entity_list_nodes.insert(node);
-        if (PoEMemory::read<addrtype>(node, buffer, 8)) {
-            int entity_id = buffer[4];
-            addrtype entity_address = buffer[5];
+        {
+            std::unique_lock<std::mutex> lock(entity_list_mutex);
+            if (entity_list_nodes.size() > count || entity_list_nodes.count(node))
+                return;
+            entity_list_nodes.insert(node);
+        }
 
+        addrtype buffer[8];
+        if (!PoEMemory::read<addrtype>(node, buffer, 8))
+            return;
+
+        addrtype entity_address = buffer[5];
+        if ((entity_address ^ root) & mask)
+            return;
+
+        if (buffer[0] != root)
+            Parallel::add_task(buffer[0]);
+        if (buffer[2] != root)
+            Parallel::add_task(buffer[2]);
+
+        int entity_id = buffer[4];
+        if (entity_id > 0)
+            foreach(entity_id, entity_address);
+    }
+
+    void traverse_entity_list2(addrtype root, addrtype node, int count) {
+        std::queue<addrtype> q_nodes;
+        q_nodes.push(node);
+        while (!q_nodes.empty()) {
+            node = q_nodes.front();
+            q_nodes.pop();
+            if (force_reset || ((node ^ root) & mask) || entity_list_nodes.count(node))
+                continue;
+
+            entity_list_nodes.insert(node);
+            if (entity_list_nodes.size() > count)
+                break;
+
+            addrtype buffer[8];
+            if (!PoEMemory::read<addrtype>(node, buffer, 8))
+                break;
+
+            addrtype entity_address = buffer[5];
+            if ((entity_address ^ root) & mask)
+                return;
+
+            int entity_id = buffer[4];
             if (entity_id > 0)
                 entity_list_index[entity_id] = entity_address;
 
-            for (int i : (int[]){0, 2}) {
-                if ((buffer[i] == root) || (buffer[i] & mask) ^ (node & mask))
-                    continue;
-                traverse_entity_list(root, buffer[i]);
-            }
+            if (buffer[0] != root)
+                q_nodes.push(buffer[0]);
+            if (buffer[2] != root)
+                q_nodes.push(buffer[2]);
         }
     }
 
@@ -107,6 +165,7 @@ public:
         ignored_entity_exp(L"WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
                            "|BlightFoundation|BlightTower|DoodadDaemons|Projectiles|Effects")
     {
+        Parallel::start();
     }
 
     int area_hash() {
@@ -144,23 +203,25 @@ public:
         entities.removed.swap(entities.all);
         entities.added.clear();
 
+        root = read<addrtype>("entity_list");
+        count = read<addrtype>("entity_list_count");
+        if ((root ^ address) & mask)
+            return 0;
+
         // take a snapshot of the entity list
         for (auto i : entity_list)
             entity_list_snapshot[i.first] = false;
-
-        addrtype root = read<addrtype>("entity_list");
-        addrtype node = read<addrtype>("entity_list", "root");
         entity_list_nodes.clear();
         entity_list_index.clear();
-        traverse_entity_list(root, node);
 
-        // parse entity list
-        for (auto i : entity_list_index)
-            foreach(i.first, i.second);
+        addrtype node = read<addrtype>("entity_list", "root");
+        new_entities = 0;
+        Parallel::add_task(node);
+        Parallel::wait();
 
-        // removed non-existent entities
+        // remove non-existent entities
         for (auto i : entity_list_snapshot) {
-            if (!i.second)  // invalid entity
+            if (!i.second)
                 entity_list.erase(i.first);
         }
         entity_list_snapshot.clear();
@@ -170,13 +231,11 @@ public:
             if (force_reset)
                 break;
 
-            if (entities.removed.count(i.first)) {
-                entities.all.insert(i);
+            entities.all.insert(i);
+            if (entities.removed.count(i.first))
                 entities.removed.erase(i.first);
-            } else {
-                entities.all.insert(i);
+            else
                 entities.added.insert(i);
-            }
         }
 
         return entities.all.size();
