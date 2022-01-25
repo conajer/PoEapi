@@ -7,16 +7,16 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         , "all_game_states"             : 0x50
                         , "size"                        : 0x58 }
                       
-      , "IngameState" : { "in_game_ui"                  : 0x100
+      , "IngameState" : { "in_game_ui"                  : 0x78
                         , "in_game_data"                : 0x18
                         ,     "server_data"             : 0x580
-                        , "ui_root"                     : 0x4f8
-                        , "hovered"                     : 0x530
-                        , "hovered_item"                : 0x540
-                        , "camera"                      : 0x870
-                        , "width"                       : 0x878
-                        , "height"                      : 0x87c
-                        , "matrix"                      : 0x930 }
+                        , "ui_root"                     : 0x4f0
+                        , "hovered"                     : 0x528
+                        , "hovered_item"                : 0x538
+                        , "camera"                      : 0x868
+                        , "width"                       : 0x870
+                        , "height"                      : 0x874
+                        , "matrix"                      : 0x928 }
                       
       , "IngameData"  : { "world_area"                  : 0x80
                         , "area_level"                  : 0xa0
@@ -40,6 +40,7 @@ global PoEOffsets = { "version" : "3.16", "offsets"
                         , "atlas"                       : 0x658
                         , "entity_list"                 : 0x6b8
                         ,     "root"                    : 0x2a8
+                        ,     "count"                   : 0x2b0
                         , "gem_level_up"                : 0xa80
                         , "notifications"               : 0xa98 }
                       
