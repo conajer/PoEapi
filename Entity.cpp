@@ -6,17 +6,19 @@
 #include <unordered_map>
 #include <math.h>
 
-struct ComponentNameIndex {
-    addrtype name_ptr;
-    int index;
-    int __padding_0;
+struct ComponentLookupTable {
+    byte flags[8];
+    struct {
+        addrtype name_ptr;
+        int index;
+        int __padding_0;
+    } components[8];
 };
 
 FieldOffsets entity_offsets = {
     {"internal",              0x8},
         {"path",              0x8},
         {"component_lookup", 0x30},
-        {"size",             0x48},
     {"component_list",       0x10},
     {"id",                   0x60},
 };
@@ -37,27 +39,29 @@ protected:
         return component;
     }
 
-    void get_all_components() {
+    void get_all_components(addrtype component_lookup) {
         std::vector<addrtype> component_list;
-        addrtype component_lookup;
 
         component_list = read_array<addrtype>("component_list", 0x0, 0x8);
-        component_lookup = read<addrtype>("internal", "component_lookup");
+        if (component_list.size() > 16)
+            return;
+
         addrtype entry_ptr = PoEMemory::read<addrtype>(component_lookup + 0x30);
         int have_more_components = PoEMemory::read<int>(component_lookup + 0x48);
+        if (have_more_components > 16)
+            return;
+
         while (have_more_components) {
-            byte flags[8];
-            ComponentNameIndex name_indices[8];
+            ComponentLookupTable lookup_table;
             char name[32];
 
-            PoEMemory::read<byte>(entry_ptr, flags, 8);
-            PoEMemory::read<ComponentNameIndex>(entry_ptr + 0x8, name_indices, 8);
+            PoEMemory::read<ComponentLookupTable>(entry_ptr, &lookup_table, 1);
             for (int i = 0; i < 8; ++i) {
-                if (flags[i] != 0xff) {
-                    PoEMemory::read<char>(name_indices[i].name_ptr, name, 32);
+                if (lookup_table.flags[i] != 0xff) {
+                    PoEMemory::read<char>(lookup_table.components[i].name_ptr, name, 32);
                     component_names.push_back(name);
                     components[name] = shared_ptr<Component>(
-                        read_component(name, component_list[name_indices[i].index]));
+                        read_component(name, component_list[lookup_table.components[i].index]));
                     have_more_components--;
                 }
             }
@@ -97,14 +101,17 @@ public:
     wstring type_name;
     wstring path;
     int id;
-    bool is_valid = true;
-    Render* render = nullptr;
+    Life *health;
+    Positioned* positioned;
+    Render* render;
     shared_ptr<Element> label;
     shared_ptr<Item> item;
-    Point pos;
+    Vector3 pos;
+    Point grid_pos;
 
     bool is_player = false;
     bool is_npc = false;
+    bool is_movable = true;
 
     /* Monster related fields */
     bool is_monster = false;
@@ -112,25 +119,45 @@ public:
     bool is_neutral = false;
     int rarity = 0;
 
-    Entity(addrtype address) : PoEObject(address, &entity_offsets) {
-        path = read<wstring>("internal", "path");
-        if (path[0] != L'M') {
-            this->is_valid = false;
+    Entity(addrtype address, const wchar_t* metadata = L"")
+        : PoEObject(address, &entity_offsets), path(metadata)
+    {
+        addrtype hdata[16];
+        PoEMemory::read<addrtype>(address, hdata, 16);
+        if (!hdata[1] || !hdata[2])
             return;
-        }
-        id = read<int>("id");
 
-        get_all_components();
-        is_player = has_component("Player");
-        is_npc = has_component("NPC");
-        is_monster = has_component("Monster");
+        addrtype internal[8];
+        PoEMemory::read<addrtype>(hdata[1], internal, 8);
+
+        if (path.empty()) {
+            int len = (internal[3] & 0xff) + 1;
+            wchar_t path_string[len];
+            PoEMemory::read<wchar_t>(internal[1], path_string, len);
+            if (path_string[0] != L'M')
+                return;
+
+            path = path_string;
+        }
+        id = hdata[12];
+        get_all_components(internal[6]);
+        health = get_component<Life>();
+        positioned = get_component<Positioned>();
+        render = get_component<Render>();
+        get_position();
+
+        if (has_component("Player"))
+            is_player = true;
+        else if (has_component("Monster"))
+            is_monster = true;
+        else if (has_component("NPC"))
+            is_npc = true;
+        else
+            is_movable = false;
 
         if (is_monster) {
-            Positioned *positioned = get_component<Positioned>();
-            if (positioned) {
-                is_minion = positioned->is_minion();
-                is_neutral = positioned->is_neutral();
-            }
+            is_minion = positioned->is_minion();
+            is_neutral = positioned->is_neutral();
             ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
             rarity = props ? props->rarity() : 0;
         }
@@ -164,22 +191,28 @@ public:
         return type_name;            
     }
 
+    // implemented after Item class.
     AhkObjRef* get_item();
 
-    Render* get_render() {
-        if (render == nullptr)
-            render = get_component<Render>();
-        return render;
-    }
-
     int life() {
-        Life* life = get_component<Life>();
-        return life ? life->life() : -1;
+        return health ? health->life() : -1;
     }
 
     bool is_dead() {
-        Life* life = get_component<Life>();
-        return life && life->life() == 0;
+        if (health)
+            return health->life() == 0;
+        return false;
+    }
+
+    bool is_valid() {
+        return read<byte>("is_valid");
+    }
+
+    void get_position() {
+        if (render)
+            pos = render->position();
+        if (positioned)
+            grid_pos = positioned->grid_position();
     }
 
     bool has_component(const string& name) {
@@ -241,18 +274,13 @@ public:
 
     wstring player_name;
     wstring player_class;
-    Life* life;
     Player* player;
-    Positioned* positioned;
     Actor* actor;
 
     LocalPlayer(addrtype address) : Entity(address) {
         player = get_component<Player>();
-        life = get_component<Life>();
-        positioned = get_component<Positioned>();;
-        actor = get_component<Actor>();;
-
         player_name = player->name();
+        actor = get_component<Actor>();
         player_class = get_component<PlayerClass>()->name();
 
         add_method(L"getExp", this, (MethodType)&LocalPlayer::get_exp, AhkUInt);
@@ -276,13 +304,11 @@ public:
     }
 
     int dist(Entity& entity) {
-        if (!positioned || !entity.has_component("Positioned"))
+        if (!entity.has_component("Positioned"))
             return -1;
 
-        Point pos1 = positioned->grid_position();
-        Point pos2 = entity.get_component<Positioned>()->grid_position();
-        int dx = pos1.x - pos2.x;
-        int dy = pos1.y - pos2.y;
+        int dx = grid_pos.x - entity.grid_pos.x;
+        int dy = grid_pos.y - entity.grid_pos.y;
 
         return sqrt(dx * dx + dy * dy);
     }
