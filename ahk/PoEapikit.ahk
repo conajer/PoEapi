@@ -37,7 +37,7 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 global db := new LocalDB("local.db")
 global ptask := new PoETask()
 
-global version := "1.6.5"
+global version := "1.6.6"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -49,7 +49,6 @@ Hotkey, $%QuickDefenseKey%, QuickDefense
 Hotkey, ~%AutoPickupKey%, AutoPickup
 Hotkey, IfWinActive
 
-#Include, %A_ScriptDir%\extras\debug.ahk
 #Include, %A_ScriptDir%\extras\vendor.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
