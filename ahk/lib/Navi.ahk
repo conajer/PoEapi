@@ -316,6 +316,7 @@ class Navi extends WebGui {
             <script>
                 var canvas = document.querySelector('canvas');
                 var ctx = canvas.getContext('2d', {alpha:false});
+                var usedTime = 0, enterTime = 0;
 
                 function setkills(kills, total, gainedExp) {
                     document.querySelector('.kills').innerText = kills;
@@ -388,13 +389,20 @@ class Navi extends WebGui {
                 }
 
                 function setStatus(text) {
-                    document.querySelector('.statusbar').innerHtml = text;
+                    document.querySelector('.statusbar').innerHTML = text;
                     if (text) {
                         setTimeout(function() {
                             setStatus('');
                         }, 3000);
                     }
                 }
+
+                setInterval(function() {
+                    tt = usedTime + enterTime++;
+                    document.querySelector('#area_time').innerHTML =
+                        String('0' + parseInt(tt / 60)).slice(-2) + ':<span class=second>' +
+                        String('0' + (tt % 60)).slice(-2) + '</span>';
+                }, 1000);
 
                 window.addEventListener('resize', function () {
                     canvas.width = window.innerWidth
@@ -444,8 +452,6 @@ class Navi extends WebGui {
 
         this.usedTime := 0
         this.enterTime := A_Tickcount
-        t := ObjBindMethod(this, "updateTime")
-        SetTimer, %t%, 1000
     }
 
     getCanvas() {
@@ -578,8 +584,8 @@ class Navi extends WebGui {
             this._("#kill_counter").style.display := "none"
             this._("#exp").style.display := "none"
         }
-        this.usedTime := stat ? stat.usedTime : 0
-        this.enterTime := A_Tickcount
+        this.window.usedTime := stat ? stat.usedTime : 0
+        this.window.enterTime := 0
     }
 
     onKillCounter(wParam, lParam) {
