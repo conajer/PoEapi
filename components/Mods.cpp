@@ -3,43 +3,66 @@
 */
 
 static std::map<string, int> modifier_offsets {
-    {"id",         0x0},
-    {"type",      0x14},
-    {"req_level", 0x1c},
-    {"stats",     0x28},
-    {"domain",    0x60},
-    {"name",      0x64},
-    {"gen_type",  0x6c},
-    {"group",     0x70},
-    {"stat_vals", 0x78},
+    {"value",          0x0},
+    {"internal",      0x28},
+        {"id",         0x0},
+        {"type",       0xc},
+        {"req_level", 0x1c},
+        {"stats",     0x20},
+        {"domain",    0x60},
+        {"name",      0x64},
+        {"gen_type",  0x6c},
+        {"group",     0x70},
+        {"stat_vals", 0x78},
 };
 
-class Modifier : RemoteMemoryObject {
+class Modifier : public RemoteMemoryObject, public AhkObj {
 public:
 
     wstring id, name;
     int domain, gen_type;
 
     Modifier(addrtype address) : RemoteMemoryObject(address, &modifier_offsets) {
-        id = PoEMemory::read<wstring>(address, 128);
-        name = PoEMemory::read<wstring>(address + (*offsets)["name"], 128);
+        id = PoEMemory::read<wstring>(read<addrtype>("internal"), 128);
+        name = PoEMemory::read<wstring>(read<addrtype>("internal") + (*offsets)["name"], 128);
         size_t pos = name.find(L'{');
         if (pos != wstring::npos)
             name = name.substr(pos + 1, name.find(L'}') - pos - 1);
-        domain = read<int>("domain");
-        gen_type = read<int>("gen_type");
+        domain = read<int>("internal", "domain");
+        gen_type = read<int>("internal", "gen_type");
+    }
+
+    void __init() {
+        add_method(L"type", this, (MethodType)&Modifier::type, AhkWStringPtr);
+        add_method(L"requireLevel", this, (MethodType)&Modifier::req_level, AhkInt);
+        add_method(L"group", this, (MethodType)&Modifier::group, AhkWStringPtr);
+
+        AhkObj val;
+        for (int i : value())
+            val.__set(L"", i, AhkInt, nullptr);
+
+        __set(L"id", id.c_str(), AhkWString,
+              L"name", name.c_str(), AhkWString,
+              L"domain", domain, AhkInt,
+              L"genType", gen_type, AhkInt,
+              L"value", (AhkObjRef*)val, AhkObject,
+              nullptr);
     }
 
     wstring type() {
-        return PoEMemory::read<wstring>(address  + (*offsets)["type"], 128);
+        return PoEMemory::read<wstring>(read<addrtype>("internal")  + (*offsets)["type"], 128);
     }
 
     int req_level() {
-        return read<byte>("req_level");
+        return read<byte>("internal", "req_level");
     }
 
     wstring group() {
-        return PoEMemory::read<wstring>(address  + (*offsets)["group"], 128);
+        return PoEMemory::read<wstring>(read<addrtype>("internal")  + (*offsets)["group"], 128);
+    }
+
+    std::vector<int> value() {
+        return read_array<int>("value", 0, 4);
     }
 
     void to_print() {
@@ -138,9 +161,9 @@ public:
         if (!explicit_mods.empty())
             return;
 
-        implicit_mods = read_array<Modifier>("implicit_mods", 0x28, 0x38);
-        enchant_mods = read_array<Modifier>("enchant_mods", 0x28, 0x38);
-        explicit_mods = read_array<Modifier>("explicit_mods", 0x28, 0x38);
+        implicit_mods = read_array<Modifier>("implicit_mods", 0x38);
+        enchant_mods = read_array<Modifier>("enchant_mods", 0x38);
+        explicit_mods = read_array<Modifier>("explicit_mods", 0x38);
     }
 
     void get_stats() {
