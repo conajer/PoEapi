@@ -30,6 +30,8 @@ public:
 
 std::map<string, int> in_game_data_offsets {
     {"world_area",         0x68},
+    {"area_data",          0x70},
+        {"area_index",     0x38},
     {"area_level",         0x80},
     {"area_hash",          0xe4},
     {"local_player",      0x408},
@@ -166,6 +168,10 @@ public:
                            "|BlightFoundation|BlightTower|DoodadDaemons|Projectiles|Effects")
     {
         Parallel::start();
+    }
+
+    int area_index() {
+        return read<int>("area_data", "area_index");
     }
 
     int area_hash() {
