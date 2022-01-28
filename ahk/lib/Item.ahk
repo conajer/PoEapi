@@ -4,7 +4,7 @@
 
 class Item extends Entity {
 
-    fullName() {
+    qualifiedName() {
         qName := this.name
         if (this.IsIdentified && this.rarity > 1)
             qName .= " " this.baseName
