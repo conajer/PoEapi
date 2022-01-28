@@ -16,14 +16,14 @@ class AreaTemplate : public RemoteMemoryObject {
 public:
 
     wstring area_name;
+    wstring template_id;
 
     AreaTemplate(addrtype address) : RemoteMemoryObject(address, &area_template_offsets) {
+        area_name = PoEMemory::read<wstring>(address + 0x8, 32);
+        template_id = PoEMemory::read<wstring>(address, 32);
     }
 
     wstring& name() {
-        if (area_name.empty())
-            area_name = PoEMemory::read<wstring>(address + 0x8, 32);
-
         return area_name;
     }
 
@@ -32,12 +32,16 @@ public:
     }
 
     bool is_hideout() {
-        return (name().find(L"Hideout") != wstring::npos
-                && name().find(L"Syndicate Hideout") == wstring::npos);
+        return (area_name.find(L"Hideout") != wstring::npos
+                && area_name.find(L"Syndicate Hideout") == wstring::npos);
+    }
+
+    bool is_map() {
+        return !is_hideout() && !is_town();
     }
 
     bool is_town() {
-        return read<byte>("is_town");
+        return read<byte>("is_town") || !template_id.compare(L"HeistHub");
     }
 
     bool has_waypoint() {
