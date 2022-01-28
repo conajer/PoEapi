@@ -149,6 +149,9 @@ public:
         if (!root_ptr)
             return nullptr;
 
+        if (area_index == 0)
+            area_index = in_game_data->area_index();
+
         AhkTempObj loaded_files;
         root_ptr += PoEMemory::read<int>(root_ptr + 0x6) + 0xa;
         PoEMemory::read<FileIndex>(root_ptr, indices, 16);
