@@ -535,11 +535,11 @@ public:
         if (mods) {
             mods->get_mods();
             for (auto& i : mods->enchant_mods)
-                temp_mods.__set(L"", i.id.c_str(), AhkWString, nullptr);
+                temp_mods.__set(L"", (AhkObjRef*)i, AhkObject, nullptr);
             for (auto& i : mods->implicit_mods)
-                temp_mods.__set(L"", i.id.c_str(), AhkWString, nullptr);
+                temp_mods.__set(L"", (AhkObjRef*)i, AhkObject, nullptr);
             for (auto& i : mods->explicit_mods)
-                temp_mods.__set(L"", i.id.c_str(), AhkWString, nullptr);
+                temp_mods.__set(L"", (AhkObjRef*)i, AhkObject, nullptr);
         }
         
         return temp_mods;
