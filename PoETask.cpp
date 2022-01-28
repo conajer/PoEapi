@@ -60,6 +60,7 @@ public:
     EntityList labeled_entities, labeled_removed;
     int area_hash;
     wstring league;
+    bool in_map = false;
 
     std::map<wstring, shared_ptr<PoEPlugin>> plugins;
     bool is_attached = false;
@@ -430,9 +431,11 @@ public:
 
             is_ready = true;
             league  = in_game_state->server_data()->league();
+            AreaTemplate* current_area = in_game_data->world_area();
+            in_map = current_area->is_map();
             __set(L"league", league.c_str(), AhkWString,
-                  L"areaName", in_game_data->world_area()->name().c_str(), AhkWString,
-                  L"areaLevel", in_game_data->world_area()->level(), AhkInt,
+                  L"areaName", current_area->name().c_str(), AhkWString,
+                  L"areaLevel", current_area->level(), AhkInt,
                   nullptr);
 
             get_inventory_slots();
@@ -473,9 +476,35 @@ public:
         }
     }
 
+    void check_stash_and_inventory() {
+        static bool inventory_opened = false;
+        static bool stash_opened = false;
+        static int stash_tab_index = 0;
+
+        if (!in_game_flag || is_loading) {
+            stash_opened = false;
+            stash_tab_index = 0;
+            inventory_opened = false;
+        } else if (is_ready) {
+            if (in_game_ui->inventory && in_game_ui->inventory->is_visible() ^ inventory_opened) {
+                inventory_opened = !inventory_opened;
+                PostThreadMessage(owner_thread_id, WM_INVENTORY_CHANGED, (WPARAM)inventory_opened, (LPARAM)0);
+            }
+
+            if (in_game_ui->stash && in_game_ui->stash->is_visible() ^ stash_opened ||
+                in_game_ui->stash->active_tab_index() != stash_tab_index)
+            {
+                stash_opened = !stash_opened;
+                stash_tab_index = in_game_ui->stash->active_tab_index();
+                PostThreadMessage(owner_thread_id, WM_STASH_CHANGED, (WPARAM)stash_opened, (LPARAM)stash_tab_index + 1);
+            }
+        }
+    }
+
     void check_game() {
         check_window_state();
         check_game_state();
+        check_stash_and_inventory();
 
         if (!in_game_flag) {
             if (is_ready) {
@@ -483,6 +512,7 @@ public:
                 is_ready = false;
                 PostThreadMessage(owner_thread_id, WM_PTASK_EXIT, (WPARAM)0, (LPARAM)0);
             }
+            Sleep(500);
         } else {
             if (is_loading) {
                 is_ready = false;
