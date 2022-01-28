@@ -60,15 +60,17 @@ public:
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
-        get_inventory();
-        get_stash();
-        get_vendor();
-        get_trade();
-        get_overlay_map();
-        get_chat();
-        get_notifications();
-        get_atlas();
-        get_skills();
+        if (is_valid()) {
+            get_inventory();
+            get_stash();
+            get_vendor();
+            get_trade();
+            get_overlay_map();
+            get_chat();
+            get_notifications();
+            get_atlas();
+            get_skills();
+        }
     }
 
     void __new() {
