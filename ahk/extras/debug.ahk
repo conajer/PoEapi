@@ -171,7 +171,7 @@ class Console extends AhkGui {
                 ellipsisMin := 15
                 if (result.Count() > ellipsisMin + 5)
                     ellipsisMax := result.Count()
-                this.doc.writeln(Format("<i style=""color:blue""><b>{:#x}{}:</b></i>", &obj, baseClasses))
+                this.doc.writeln(Format("<i style=""color:blue""><b>{:#x}{}:</b></i>", &result, baseClasses))
                 for k, v in result {
                     try {
                         if (A_Index > ellipsisMin && A_Index < ellipsisMax) {
