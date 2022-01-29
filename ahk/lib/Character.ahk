@@ -148,10 +148,13 @@ class Character {
         if (ptask.isActive && ptask.InMap && life < 100) {
             if (this.nearbyMonsters > MonsterThreshold)
                 SendInput, %DefenseBuffSkillKey%
-            
-            if (AutoDropFlare && ptask.hasBuff("delve_degen_buff") > MaxDarknessStacks) {
-                SendInput, %DropFlareKey%
-                Sleep, 100
+
+            if (AutoDropFlare) {
+                darkness := ptask.hasBuff("delve_degen_buff")
+                if ((darkness > MaxDarknessStacks) || (life < 80 && darkness > 0)) {
+                    SendInput, %DropFlareKey%
+                    Sleep, 100
+                }
             }
         }
 
