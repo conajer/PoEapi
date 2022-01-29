@@ -306,20 +306,15 @@ class PoETask extends AhkObj {
 
         for i, aItem in this.inventory.getItems() {
             if (Not aItem.isIdentified && (identifyAll || Not IdentifyExceptions.check(aItem))) {
-                if (Not shift) {
+                if (Not GetKeyState("Shift")) {
                     SendInput {Shift down}
-                    if (Not this.inventory.identify(aItem)) {
-                        SendInput {Shift up}
-                        return
-                    }
-                    shift := true
-                } else {
-                    this.inventory.identify(aItem, shift)
+                    this.inventory.use(_("Scroll of Wisdom"))
                 }
+                this.inventory.identify(aItem)
             }
         }
 
-        if (shift) {
+        if (GetKeyState("Shift")) {
             Sleep, 200
             SendInput {Shift up}
         }
@@ -327,11 +322,9 @@ class PoETask extends AhkObj {
         for i, aItem in this.inventory.getItems() {
             if (aItem.rarity == 0) {
                 if (aItem.baseName ~= "(Divine|Eternal) (Life|Mana)") {
-                    trans := this.inventory.findItem("Orb of Transmutation")
-                    aItem := this.inventory.use(trans, aItem)
+                    this.inventory.use("Orb of Transmutation", aItem)
                 } else if (aItem.baseName ~= "Two-Toned|Stygain|Convoking|Bone Helmet") {
-                    alchemy := this.inventory.findItem("Orb of Alchemy")
-                    aItem := this.inventory.use(alchemy, aItem)
+                    this.inventory.use("Orb of Alchemy", aItem)
                 }
             }
 
