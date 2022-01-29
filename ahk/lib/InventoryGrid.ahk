@@ -150,7 +150,7 @@ class InventoryGrid extends Element {
 
     highlight(aItem) {
         r := this.getRectByIndex(aItem.Index)
-        ptask.c.drawRect(r.l, r.t, r.w, r.h, 0x77B4E7)
+        ptask.c.drawRect(r.l + .5, r.t + 1.5, r.w - .5, r.h - .5, "#f7e478")
     }
 
     drawItems() {
@@ -159,14 +159,17 @@ class InventoryGrid extends Element {
     }
 
     getRectByIndex(index) {
-        l := (index - 1) // this.rows + 1
+        aItem := this.items[index]
+        , l := (index - 1) // this.rows + 1
         , t := Mod(index - 1, this.rows) + 1
         , w := this.rect.w / this.cols
         , h := this.rect.h / this.rows
         , x := this.rect.l + w * (l - 1)
         , y := this.rect.t + h * (t - 1)
+        , w := w * (aItem ? aItem.width : 1)
+        , h := h * (aItem ? aItem.height : 1)
 
-        return new Rect(x, y, w + 1, h + 1)
+        return new Rect(x, y, w, h)
     }
 
     getLayout() {
