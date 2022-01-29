@@ -221,50 +221,8 @@ class Inventory extends InventoryGrid {
             SendInput {LButton down}
     }
 
-    identify(item, shift = false) {
-        if (Not shift) {
-            wisdom := this.findItem(_("Scroll of Wisdom"))
-            if (Not wisdom)
-                return false
-
-            this.moveTo(wisdom.index)
-            MouseClick, Right
-        }
-
-        if (item) {
-            this.moveTo(item.index)
-            MouseClick, Left
-        }
-
-        return true
-    }
-
-    use(item, targetItem = "", n = 1) {
-        if (Not item)
-            return
-
-        if (Not IsObject(item)) {
-            item := this.findItem(item)
-            if (Not item)
-                return
-        }
-
-        if (n > 1)
-            SendInput {Shift down}
-
-        this.moveTo(item.index)
-        Click, Right
-
-        if (targetItem) {
-            this.moveTo(targetItem.index)
-            loop, % n {
-                Click, Left
-                Sleep, 100
-            }
-            SendInput {Shift up}
-
-            return this.getItemByIndex(targetItem.index)
-        }
+    identify(item) {
+        return this.use(_("Scroll of Wisdom"), item)
     }
 
     drop() {
@@ -301,7 +259,7 @@ class StashTab extends InventoryGrid {
             if (n && dumped >= n)
                 break
 
-            if (Not ptask.inventory.freeCells())
+            if (Not this.isVisible() || Not ptask.inventory.freeCells())
                 break
 
             if (aItem.name ~= "i)"regex) {
@@ -482,8 +440,9 @@ class Stash extends Element {
 
         activeTabIndex := this.activeTabIndex() + 1
         if (ptask.stashTabs[activeTabIndex].name != tabName) {
-            tabIndex := this.tabs[tabName].index
-            if (Not tabIndex) {
+            if (this.tabs.hasKey(tabName)) {
+                tabIndex := this.tabs[tabName].index
+            } else {
                 for i, tab in ptask.getStashTabs() {
                     if (tab.name == tabName) {
                         tabIndex := tab.index + 1
