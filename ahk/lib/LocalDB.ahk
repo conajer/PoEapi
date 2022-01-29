@@ -6,7 +6,7 @@ global __translations := {}
 
 class LocalDB extends sqlite3 {
 
-    static version := "1.0"
+    static version := "1.1"
 
     __new(filename) {
         base.__new(filename)
@@ -49,7 +49,7 @@ class LocalDB extends sqlite3 {
         this.exec("
             (
             DROP VIEW IF EXISTS v_trans;
-            CREATE VIEW IF NOT EXISTS v_trans AS
+            CREATE VIEW v_trans AS
                 SELECT
                     literals.text AS source,
                     translations.text AS target,
@@ -96,16 +96,25 @@ class LocalDB extends sqlite3 {
                 PRIMARY KEY (name, league));
 
             DROP TABLE IF EXISTS literals;
-            CREATE TABLE IF NOT EXISTS literals (
+            CREATE TABLE literals (
                 id INTEGER PRIMARY KEY,
                 text TEXT UNIQUE);
 
             DROP TABLE IF EXISTS translations;
-            CREATE TABLE IF NOT EXISTS translations (
+            CREATE TABLE translations (
                 id INTEGER,
                 text TEXT,
                 language TEXT,
                 PRIMARY KEY (id, language));
+
+            DROP TABLE IF EXISTS hotkeys;
+            CREATE TABLE hotkeys (
+                id INTEGER PRIMARY KEY,
+                enabled INTEGER,
+                prefix TEXT,
+                name TEXT,
+                label TEXT,
+                description TEXT);
             )")
         rdebug("#LocalDB", "Initializing database (version {})... Done!", this.version)
     }
