@@ -26,6 +26,36 @@ CoordMode, Pixel, Client
 #Include, %A_ScriptDir%\lib\LocalDB.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
+; Hotkeys (^ for Ctrl, ! for Alt, + for Shift, # for window key)
+;
+;                           Enabled Prefix Key Name     Label              Description
+;                           ------- ------ -----------  -----------------  --------------------------------------
+global defaultHotkeys := [ [ true,  "",    "``",        "ExitGame",        "Exit to character selection"]
+                         , [ true,  "~",   "a",         "AutoPickup",      "Pickup nearby items"]
+                         , [ true,  "$",   "q",         "QuickDefense",    "Quick defence actions"]
+                         , [ true,  "~",   "s",         "LevelupGems",     "Level up skill gems"]
+                         , [ true,  "~",   "w",         "Attack",          "Main attack skill"]
+                         , [ false, "~",   "RButton",   "Attack",          "Secondary attack skill"]
+                         , [ true,  "",    "#d",        "MinimizeWindow",  "Minimize PoE window"]
+                         , [ true,  "",    "F1",        "AutoAuras",       "Auto aruas (ALT+F1 for performance stats)"]
+                         , [ true,  "",    "F2",        "OpenPortal",      "Open portal"]
+                         , [ true,  "*",   "F3",        "SellItems",       "Auto identify and sell items"]
+                         , [ true,  "",    "F4",        "StashItems",      "Stash items"]
+                         , [ true,  "",    "F5",        "Hideout",         "Enter hideout"]
+                         , [ true,  "",    "^F5",       "Delve",           "Enter mine encampment"]
+                         , [ true,  "",    "!F5",       "Menagerie",       "Enter menagerie"]
+                         , [ true,  "",    "F12",       "ShowLog",         "Show log window"]
+                         , [ true,  "~*",  "LAlt",      "ShowPrices",      "Show price of the item(s) in stash tab, inventory, etc."]
+                         , [ true,  "",    "^LButton",  "AutoCtrlClick",   "Hold to activate auto CTRL clicker"]
+                         , [ true,  "~",   "+LButton",  "AutoShiftClick",  "Hold to activate auto SHIFT clicker"]
+                         , [ true,  "~",   "^RButton",  "AutoFillPrice",   "Auto fill the price tag of the selected item"]
+                         , [ true,  "~*",  "^c",        "CopyItemName",    "Copy the selected item's name"]
+                         , [ true,  "~",   "^f",        "HighlightItems",  "Highlight items in stash tab"]
+                         , [ true,  "",    "^m",        "ToggleMaphack",   "Toggle maphack"]
+                         , [ true,  "",    "^w",        "OpenWiki",        "Open wiki"]
+                         , [ true,  "",    "^r",        "Reload",          "Reload script"]
+                         , [ true,  "",    "^q",        "ExitApp",         "Quit PoEapikit"] ]
+
 global CloseAllUIKey, InventoryKey, DropFlareKey, DropDynamiteKey
 global language := "en"
 
@@ -36,8 +66,9 @@ DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_versio
 
 global db := new LocalDB("local.db")
 global ptask := new PoETask()
+loadHotkeys()
 
-global version := "1.6.6"
+global version := "1.7.0"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -111,20 +142,50 @@ loadLibrary(filename) {
     return h
 }
 
+loadHotkeys() {
+    hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
+    if (Not hotkeyOptions) {
+        for i, hotkey in defaultHotkeys
+            db.exec("INSERT INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");", i, hotkey*)
+        hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
+    }
+
+    Hotkey, IfWinActive, ahk_class POEWindowClass
+    for i, hotkey in hotkeyOptions {
+        if (hotkey.enabled)
+            Hotkey, % hotkey.prefix . hotkey.name, % hotkey.label, On
+    }
+
+    return hotkeyOptions
+}
+
+saveHotkeys(hotkeyOptions) {
+    oldHotkeys := db.exec("SELECT * FROM hotkeys;")
+    Hotkey, IfWinActive, ahk_class POEWindowClass
+    for i, hotkey in hotkeyOptions {
+        if (oldHotkeys[i].enabled)
+            Hotkey, % oldHotkeys[i].prefix . oldHotkeys[i].name, Off
+        db.exec("INSERT OR REPLACE INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");"
+                , i, hotkey.enabled, hotkey.prefix, hotkey.name, hotkey.label, hotkey.description)
+    }
+
+    ; reload the hotkeys
+    loadHotkeys()
+}
+
 Attack:
     if (ptask.InMap)
         ptask.player.onAttack()
-    sleep, 300
 return
 
 QuickDefense:
-    if (ptask.getChat().isOpened())
-        SendInput, {q}
-    else
+    if (ptask.InMap && Not ptask.getChat().isOpened())
         SendInput, %QuickDefenseAction%
+    else
+        SendInput, % SubStr(A_ThisHotkey, 0)
 return
 
-~s::
+LevelupGems:
     ptask.levelupGems()
 return
 
@@ -136,7 +197,7 @@ OnClipboardChange:
     if (ptask.isActive)
         return
 
-    if (RegExMatch(Clipboard, "^@([^ ]+) (Hi, (I would|I'd) like to buy your .*)", matched)) {
+    if (RegExMatch(Clipboard, "^@([^ ]+) (Hi, (I would|I'd) like to buy your .*)")) {
         if (GetKeyState("Ctrl") && Not GetKeyState("c")) {
             SendInput, {Ctrl up}
             ptask.activate()
@@ -172,54 +233,50 @@ AutoClick() {
     clickerEnabled := false
 }
 
-`::
+ExitGame:
     ptask.logout()
 return
 
-F1::
+AutoAuras:
     SendInput, %AruasKey%
 return
 
-F2::
+OpenPortal:
     ptask.inventory.openPortal()
 return
 
-F3::
-    ptask.sellItems()
+SellItems:
+    ptask.sellItems(GetKeyState("Alt"))
 return
 
-!F3::
-    ptask.sellItems(true)
-return
-
-F4::
+StashItems:
     ptask.stashItems()
 return
 
-F5::
+Hideout:
     ptask.sendKeys("/hideout")
 return
 
-^F5::
+Delve:
     ptask.sendKeys("/delve")
 return
 
-!F5::
+Menagerie:
     ptask.sendKeys("/menagerie")
 return
 
-~+LButton::
-    SetTimer, AutoClick, -200
-return
-
-^LButton::
+AutoCtrlClick:
     If (A_PriorHotKey = A_ThisHotKey and A_TimeSincePriorHotkey < 200)
         clickerEnabled := true
     SendInput, ^{Click}
     SetTimer, AutoClick, -200
 return
 
-~^RButton::
+AutoShiftClick:
+    SetTimer, AutoClick, -200
+return
+
+AutoFillPrice:
     if (ptask.InMap)
         return
 
@@ -258,19 +315,19 @@ return
 ^WheelDown::SendInput {Right}
 ^WheelUp::SendInput {Left}
 
-#d::
-    WinMinimize, A
-return
-
-^m::
-    ptask.toggleMaphack()
-return
-
 +-::_
 -::NumpadSub
 +::NumpadAdd
 
-~*LAlt::
+MinimizeWindow:
+    WinMinimize, A
+return
+
+ToggleMaphack:
+    ptask.toggleMaphack()
+return
+
+ShowPrices:
     stickyMode := false
     ptask.c.clear()
     if (betrayer.isOpened())
@@ -298,8 +355,7 @@ return
     }
 return
 
-~^c::
-~^+c::
+CopyItemName:
     Sleep, 100
     if (item := ptask.getHoveredItem()) {
         if (GetKeyState("Shift")) {
@@ -310,39 +366,36 @@ return
     }
 return
 
-~^f::
-    if (ptask.stash.isOpened()) {
-        if (item := ptask.getHoveredItem()) {
-            name := item.name
-            SendInput, %name%{Enter}
-        }
+HighlightItems:
+    name := (item := ptask.getHoveredItem()) ? item.name : ""
+    if (ptask.stash.isOpened())
+        SendInput, %name%{Enter}
+
+    ptask.c.clear()
+    if (name && ptask.inventory.isOpened()) {
+        for i, item in ptask.inventory.findItems(name)
+            ptask.inventory.highlight(item)
     }
 return
 
-^w::
+OpenWiki:
     if (item := ptask.getHoveredItem()) {
         if (Not item.isIdentified || item.rarity ~= "1|2")
             name := item.baseName
         else
             name := item.name
-        Run, % "https://pathofexile.fandom.com/wiki/" RegExReplace(name, " ", "_")
+        Run, % "https://www.poewiki.net/wiki/" RegExReplace(name, " ", "_")
     }
 return
 
-^t::
-    MouseGetPos tempX, tempY
-    PixelGetColor, bgr, tempX, tempY
-    MsgBox, % "Width:" ptask.Width " Hieght:" ptask.Height "`nX=" tempX " Y=" tempY "`nColor=" bgr
+ShowLog:
+    logger.show()
 return
 
-#IfWinActive
-
-^r::
 Reload() {
     Reload
 }
 
-^q::
 ExitApp() {
     ExitApp
 }
