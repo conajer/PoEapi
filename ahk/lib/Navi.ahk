@@ -180,14 +180,14 @@ class Feedback extends WebGui {
         <html>
         <head>
             <style>
-                * { font-family: Calibri, Georgia, Serif; line-height: 1.5; }
+                * { font-family: Georgia, Serif; line-height: 1.5; }
                 html, body { display: flex; flex-flow: column; height: 100%; background: #f0f0f0; margin: 0; }
-                textarea { flex: 2 1 auto; background-color: white; font-size: 22px; border: 1px solid #adadad; margin: 5px; padding: 5px; }
+                textarea { flex: 2 1 auto; background-color: white; font-size: 16px; border: 1px solid #adadad; margin: 5px; padding: 5px; }
                 textarea:focus { border-color: #0078d7; }
-                input { border: 1px solid #adadad; }
+                input { border: 1px solid #adadad; padding: 0 5px 5px; }
                 input:focus { border-color: #0078d7; }
                 table { margin: 5px; }
-                span { flex: 0 1 auto; margin: 5px; }
+                span { flex: 0 1 auto; font-size: 16px; margin: 5px; }
                 button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
                 button:focus { outline: solid; outline-width: 1px; outline-color: #0078d7; }
                 button:hover { background-color: #e5f1fb; outline: solid; outline-width: 1px; outline-color: #0078d7; }
@@ -196,7 +196,7 @@ class Feedback extends WebGui {
         <body>
             <span>Requests or Issues:</span>
             <textarea id=content></textarea>
-            <span>E-mail (optional) <input type='email' id='email' size=32></input></span>
+            <span>E-mail (optional): <input type='email' id='email' size=32></input></span>
             <span>
                 <button id='cancel'>Cancel</button>
                 <button id='send'>Send</button>
