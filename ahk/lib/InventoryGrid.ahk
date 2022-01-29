@@ -28,6 +28,32 @@ class InventoryGrid extends Element {
         }
     }
 
+    use(ByRef aItem, ByRef target = "") {
+        if (aItem && Not IsObject(aItem)) {
+            if (Not aItem := this.findItem(aItem))
+                return false
+        }
+
+        if (Not GetKeyState("Shift") || Not target) {
+            if (Not aItem || Not IsObject(aItem))
+                return false
+
+            this.moveTo(aItem.index)
+            Click, Right
+        }
+
+        if (target) {
+            this.moveTo(target.index)
+            Click, Left
+            Sleep, 100
+            
+            aItem := this.getItemByIndex(aItem.index)
+            target := this.getItemByIndex(target.index)
+        }
+
+        return true
+    }
+
     dump(regex = "", n = 0) {
         dumped := 0
         for i, aItem in this.getItems() {
