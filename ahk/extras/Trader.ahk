@@ -170,6 +170,22 @@ class TradeSession extends AhkGui {
         ptask.sendKeys("/whois " this.player)
     }
 
+    __getCurrencyTabName() {
+        if (Not this.currencyTabName) {
+            if (Not CurrencyTabName)
+                for i, tab in ptask.getStashTabs() {
+                    if (tab.type == 3) {
+                        this.currencyTabName := tab.name
+                        break
+                    }
+                }
+            else
+                this.currencyTabName := CurrencyTabName
+        }
+
+        return this.currencyTabName
+    }
+
     __updateTimer() {
         if (this.isClosed) {
             SetTimer,, Delete
@@ -549,15 +565,6 @@ class OutgoingTradeSession extends TradeSession {
         ptask.activate()
         if (Not ptask.stash.open())
             return false
-
-        if (Not this.currencyTabName) {
-            for i, tab in ptask.getStashTabs() {
-                if (tab.type == 3) {
-                    this.currencyTabName := tab.Name
-                    break
-                }
-            }
-        }
 
         ptask.stash.switchTab(this.currencyTabName)
         Sleep, 100
