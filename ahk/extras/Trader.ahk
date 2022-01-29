@@ -563,14 +563,22 @@ class OutgoingTradeSession extends TradeSession {
         Sleep, 100
         tab := ptask.stash.Tab
         item := tab.findItem(this.item2.name)
-        if (item.stackCount() >= this.item2.count) {
-            MouseGetPos, x, y
-            tab.dump(this.item2.name, this.item2.count)
-            MouseMove, x, y, 0
-            return true
+        if (item.stackCount() < this.item2.count) {
+            adebug("#" this.__guiId, "   ! No enough <b>{}</b> ({} in stock)", this.item2.name, item.stackCount())
+            return false
         }
 
-        return false
+        MouseGetPos, x, y
+        n := tab.dump(this.item2.name, Floor(this.item2.count))
+        if (n < this.item2.count) {
+            m := $(this.item2.name) * (this.item2.count - n)
+            if (m > 0)
+                m := tab.dump(_("Chaos Orb"), Ceil(m))
+        }
+        MouseMove, x, y, 0
+        adebug("#" this.__guiId, "    Withdrew <b>{} {}{}</b>", n, this.item2.name, (m > 0 ? " + " m " " _("Chaos Orb") : ""))
+
+        return true
     }
 
     close() {
