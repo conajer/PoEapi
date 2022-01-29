@@ -376,25 +376,21 @@ class SpecialStashTab extends StashTab {
 
     getChilds() {
         this.getItems()
+        childs := []
         for i, e in this.__Call("getChilds") {
             if (e.getChilds().Length() == 2) {
                 e.index := e.childs[2].getIndex(this.rows)
                 , e.item := this.items[e.index]
                 , e.isHighlighted := e.childs[2].isHighlighted()
-                , this.childs[e.index] := e
+                , childs[e.index] := e
             }
         }
+        this.childs := childs
 
         return this.childs
     }
 
     getRectByIndex(index) {
-        index := Round((index - 1) / this.rows + 1)
-
-        ; Currency tab
-        if (this.type == 3)
-            index := (index > 28) ? index - 1 : index
-
         return this.getChilds()[index].getRect()
     }
 }
