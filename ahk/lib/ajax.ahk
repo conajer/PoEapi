@@ -113,19 +113,35 @@ class JSON {
 
         margin := padding space
         if (value.Length() > 0) {
-            result .= "[" eol
+            nested := false
+            result .= "["
             for i, v in value {
-                if (A_Index > 1)
-                    result .= "," eol
-                result .= margin this.__stringify(v, space, eol, margin)
+                if (IsObject(v)) {
+                    nested := true
+                    _eol := eol
+                    if (A_Index > 1)
+                        result .= eol ? "," eol : ", "
+                    else
+                        result .= eol
+                    
+                    result .= margin this.__stringify(v, space, eol, margin)
+                } else {
+                    if (A_Index > 1)
+                        result .= _eol ? "," eol margin : ", "
+                    _eol := ""
+                    result .= this.__stringify(v, space, eol, margin)
+                }
             }
 
-            return result eol padding "]"
+            if (nested)
+                return result eol padding "]"
+            else
+                return result "]"
         } else {
             result .= "{" eol
             for k, v in value {
                 if (A_Index > 1)
-                    result .= "," eol
+                    result .= eol ? "," eol : ", "
                 result .= margin """" k """: " this.__stringify(v, space, eol, margin)
             }
 
