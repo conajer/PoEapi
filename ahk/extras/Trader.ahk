@@ -62,18 +62,10 @@ class TradeItem {
 
 class TradeSession extends AhkGui {
 
-    __new(player, item1, item2, position = "") {
+    __new(player, item1, item2) {
         this.player := player
         this.item1 := new TradeItem(item1)
         this.item2 := new TradeItem(item2)
-
-        if (RegExMatch(position, "stash tab (.*); position: left ([0-9]+), top ([0-9]+)", matched)) {
-            this.left := matched2
-            this.top := matched3
-
-            RegExMatch(matched1, "\\""(.*)\\""|""(.*)""", matched)
-            this.tabName := matched1 ? matched1 : matched2
-        }
 
         this.__guiId := Format("__ts_{:x}", &this)
         tmpId := this.__guiId
@@ -211,6 +203,47 @@ class TradeSession extends AhkGui {
     }
 }
 
+class TradeBroker {
+
+    whisperFormat := "O)(?P<type>From|To) (?P<guild>\<.+\> |)(?P<player>[^ :]+)"
+    tradeRequestFormat := "O)Hi, (I would|I'd) like to buy your (?P<item1>.+) (listed for|for my) (?P<item2>.+) in (?P<league>[^ ]+)\s?(\(stash tab (?P<tabName>.+); position: left (?P<left>[0-9]+), top (?P<top>[0-9]+)\))?(?P<postscript>.*)"
+    whisperFrom := "From"
+
+    translate(whisper, message, ByRef player, ByRef aTrade) {
+        if (Not RegExMatch(whisper, this.whisperFormat, matched))
+            return false
+
+        whisperType := matched["type"]
+        player := matched["player"]
+        if (RegExMatch(message, this.tradeRequestFormat, matched)) {
+            if (matched["League"] != _(ptask.league))
+                return
+
+            if (whisperType == this.whisperFrom) {
+                aTrade := new IncomingTradeSession(player, matched["item2"], matched["item1"], matched["postscript"])
+                if (matched["tabName"]) {
+                    aTrade.left := matched["left"]
+                    aTrade.top := matched["top"]
+                    aTrade.tabName := StrReplace(matched["tabName"], """")
+                }
+            } else {
+                if (player == ptask.player.name)
+                    return
+                aTrade := new OutgoingTradeSession(player, matched["item1"], matched["item2"], matched["postscript"])
+            }
+
+            return true
+        }
+    }
+}
+
+class TradeBroker_ru extends TradeBroker {
+
+    whisperFormat := "O)(?P<type>От кого|Кому) (?P<guild>\<.+\> |)(?P<player>[^ :]+)"
+    tradeRequestFormat := "O)Здравствуйте, хочу купить у вас (?P<item1>.+) за (?P<item2>.+) в лиге (?P<league>[^ ]+)\s?(\(секция (?P<tabName>.+); позиция: (?P<left>[0-9]+) столбец, (?P<top>[0-9]+) ряд\))?(?P<postscript>.*)"
+    whisperFrom := "От кого"
+}
+
 class Trader {
 
     tsActive := {}      ; Active trade sessions
@@ -218,10 +251,17 @@ class Trader {
     tsQueue := []       ; Trade session queue
     tsHistory := []     ; Trade history
     tsCount := 0        ; Total trade session count
+    tradeBrokers := []  ; registered trade brokers
 
     __new() {
         OnMessage(0x02, ObjBindMethod(this, "onClose"))
         OnMessage(WM_NEW_MESSAGE, ObjBindMethod(this, "onMessage"))
+        this.addBroker(new TradeBroker())
+        this.addBroker(new TradeBroker_ru())
+    }
+
+    addBroker(broker) {
+        this.tradeBrokers.Push(broker)
     }
 
     beginTrade(aTrade) {
@@ -303,39 +343,22 @@ class Trader {
         }
     }
 
-    onMessage(message, lParam) {
-        message := StrGet(message)
-
-        if (RegExMatch(message, "^(@[^ ]*) (\<.*\> |)([^ :]+): (.*)", matched)) {
-            domain := matched1
-            guild := matched2
-            player := matched3
-            message := matched4
-
-            if (RegExMatch(message, "Hi, I'd like to buy your (.*) for my (.*) in ([a-zA-Z]*)", matched)
-                || RegExMatch(message, "Hi, I would like to buy your (.*) listed for (.*) in (.*) \((.*)\)(.*)", matched)
-                || RegExMatch(message, "Hi, I would like to buy your (.*) ()in (.*) \((.*)\)(.*)", matched)) {
-                if (ptask.league != matched3)
-                    return
-
-                if (domain == "@From") {
-                    aTrade := new IncomingTradeSession(player, matched2, matched1, matched4, matched5)
-                    aTrade.priority := 0
-                } else {
-                    ;if (player == ptask.player.name)
-                     ;   return
-
-                    aTrade := new OutgoingTradeSession(player, matched1, matched2, matched5)
-                    aTrade.priority := 1
+    onMessage(wParam, lParam) {
+        message := StrGet(wParam)
+        if (RegExMatch(message, "^@([^:]+): (.*)", matched)) {
+            for i, broker in this.tradeBrokers {
+                if (broker.translate(matched1, matched2, player, aTrade)) {
+                    if (aTrade) {
+                        aTrade.messages.Push(message)
+                        aTrade.timestamp := A_Tickcount
+                        this.queue(aTrade)
+                    }
+                    break
                 }
-
-                aTrade.message := message
-                aTrade.timestamp := A_Tickcount
-                this.queue(aTrade)
-            } else {
-                this.tsActive[player].messages.Push(message)
             }
-        } else if (RegExMatch(message, "This player has DND mode enabled.")) {
+
+            if (Not aTrade && this.tsActive[player])
+                this.tsActive[player].messages.Push(message)
         } else if (RegExMatch(message, _("You have left the party."), matched)) {
             if (this.tsCurrent.player == matched1)
                 this.tsCurrent.isJoined := false
@@ -373,8 +396,8 @@ class Trader {
 }
 
 class IncomingTradeSession extends TradeSession {
-    
-    __new(player, item1, item2, position = "", comment = "") {
+
+    __new(player, item1, item2, postscript = "") {
         global
 
         base.__new(player, item1, item2, position)
