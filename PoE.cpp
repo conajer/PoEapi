@@ -7,6 +7,7 @@
 #include <iphlpapi.h>
 #include <windows.h>
 #include <psapi.h>
+#include <tlhelp32.h>
 
 #include <iostream>
 #include <map>
@@ -32,30 +33,23 @@ class PoE : public RemoteMemoryObject, public AhkObj, public Hud {
 protected:
 
     int get_process_by_name(const char* name) {
-        DWORD processes[1024], size;
+        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        PROCESSENTRY32 process = {};
+        process.dwSize = sizeof(process);
+        DWORD pid = 0;
 
-        if (!EnumProcesses(processes, sizeof(processes), &size))
-            return 0;
-
-        for (int i = 0; i < size / sizeof(DWORD); i++) {
-            char module_name[MAX_PATH] = "";
-
-            HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, processes[i]);
-            if (handle) {
-                HMODULE module;
-                DWORD size;
-
-                if (EnumProcessModules(handle, &module, sizeof(module), &size)) {
-                    GetModuleBaseName(handle, module, module_name, MAX_PATH);
-                    CloseHandle(handle);
-
-                    if (!strcasecmp(module_name, name))
-                        return processes[i];
+        // walkthrough all processes.
+        if (Process32First(snapshot, &process)) {
+            do {
+                if (string(process.szExeFile) == string(name)) {
+                    pid = process.th32ProcessID;
+                    break;
                 }
-            }
+            } while (Process32Next(snapshot, &process));
         }
+        CloseHandle(snapshot);
 
-        return 0;
+        return pid;
     }
 
     std::map<addrtype, int>& get_all_game_states() {
@@ -189,6 +183,9 @@ public:
     void check_game_state() {
         std::vector<addrtype> state_ptrs;
         
+        if (!process_handle && !open_target_process())
+            return;
+
         state_ptrs = read_array<addrtype>("active_game_states", 0x0, 0x10);
         if (state_ptrs.empty()) {
             in_game_flag = false;
@@ -230,7 +227,7 @@ public:
                 break;
         }
 
-        window = 0;
+        window = (HWND)0;
         process_handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, process_id);
         if (process_handle) {
             HMODULE module;
