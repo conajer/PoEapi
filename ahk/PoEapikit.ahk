@@ -360,7 +360,7 @@ return
 
 HighlightItems:
     name := (item := ptask.getHoveredItem()) ? item.name : ""
-    if (ptask.stash.isOpened())
+    if (name && ptask.stash.isOpened())
         SendInput, %name%{Enter}
 
     ptask.c.clear()
