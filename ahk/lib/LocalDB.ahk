@@ -3,6 +3,15 @@
 ;
 
 global __translations := {}
+global __apiEndpoints := { "en": "https://www.pathofexile.com/api/trade/data"
+                         , "zh-CN": "https://poe.game.qq.com/api/trade/data"
+                         , "fr": "https://fr.pathofexile.com/api/trade/data"
+                         , "ru": "https://ru.pathofexile.com/api/trade/data"
+                         , "de": "https://de.pathofexile.com/api/trade/data"
+                         , "es": "https://es.pathofexile.com/api/trade/data"
+                         , "th": "https://th.pathofexile.com/api/trade/data"
+                         , "pt-BR": "https://br.pathofexile.com/api/trade/data"
+                         , "ko-KR": "https://poe.game.daum.net/api/trade/data" }
 
 class LocalDB extends sqlite3 {
 
@@ -80,7 +89,19 @@ class LocalDB extends sqlite3 {
         dict := JSON.load("lib\translations.json")
         for i, t in dict[language]
             t ? __translations[dict["en"][i]] := t
-        
+
+        ; load static item names from PoE website
+        staticItemNames := {}
+        for i, result in JSON.parse(ajax(__apiEndpoints[language] "/static")).result {
+            for j, entry in result.entries
+                staticItemNames[entry.id] := entry
+        }
+
+        for i, result in JSON.parse(ajax(__apiEndpoints["en"] "/static")).result {
+            for j, entry in result.entries
+                this.addTranslation(entry.text, staticItemNames[entry.id].text)
+        }
+
         trace("Loading translations... {}", __translations.count())
     }
 
