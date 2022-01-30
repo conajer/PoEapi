@@ -82,7 +82,8 @@ class InventoryGrid extends Element {
                 continue
 
             index := aItem.Index + 1
-            if (aItem.rarity <= rarity && RegExMatch(aItem.qualifiedName(), "i)" regex))
+            if (aItem.rarity <= rarity && (InStr(aItem.qualifiedName(), regex)
+                || RegExMatch(aItem.qualifiedName(), "i)" regex)))
                 return aItem
         }
     }
@@ -94,7 +95,8 @@ class InventoryGrid extends Element {
                 continue
 
             index := aItem.Index + 1
-            if (aItem.rarity <= rarity && RegExMatch(aItem.qualifiedName(), "i)" regex))
+            if (aItem.rarity <= rarity && (InStr(aItem.qualifiedName(), regex)
+                || RegExMatch(aItem.qualifiedName(), "i)" regex)))
                 result.Push(aItem)
         }
 
