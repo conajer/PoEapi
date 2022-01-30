@@ -68,17 +68,9 @@ global db := new LocalDB("local.db")
 global ptask := new PoETask()
 loadHotkeys()
 
-global version := "1.7.0"
+global version := "1.7.1"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
-
-Hotkey, IfWinActive, ahk_class POEWindowClass
-Hotkey, ~%AttackSkillKey%, Attack
-if (SecondaryAttackSkillKey)
-    Hotkey, ~%SecondaryAttackSkillKey%, Attack
-Hotkey, $%QuickDefenseKey%, QuickDefense
-Hotkey, ~%AutoPickupKey%, AutoPickup
-Hotkey, IfWinActive
 
 #Include, %A_ScriptDir%\extras\vendor.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
