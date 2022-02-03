@@ -65,8 +65,8 @@ DllCall("AddFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
 DllCall("poeapi\poeapi_get_version", "int*", major_version, "int*", minor_version, "int*", patchlevel)
 
 global db := new LocalDB("local.db")
-global ptask := new PoETask()
 loadHotkeys()
+global ptask := new PoETask()
 
 global version := "1.7.1"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
@@ -156,8 +156,16 @@ loadHotkeys() {
 
     Hotkey, IfWinActive, ahk_class POEWindowClass
     for i, hotkey in hotkeyOptions {
-        if (hotkey.enabled)
-            Hotkey, % hotkey.prefix . hotkey.name, % hotkey.label, On
+        try {
+            if (hotkey.enabled)
+                Hotkey, % hotkey.prefix . hotkey.name, % hotkey.label, On
+        } catch e {
+            hotkey.enabled := false
+            db.exec("INSERT OR REPLACE INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");"
+                    , i, hotkey.enabled, hotkey.prefix, hotkey.name, hotkey.label, hotkey.description)
+            MsgBox, % "Hotkey error: " e.message
+            return
+        }
     }
 
     return hotkeyOptions
@@ -174,7 +182,7 @@ saveHotkeys(hotkeyOptions) {
     }
 
     ; reload the hotkeys
-    loadHotkeys()
+    return loadHotkeys()
 }
 
 Attack:

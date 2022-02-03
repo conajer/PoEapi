@@ -166,8 +166,9 @@ class Hotkeys extends WebGui {
             hotkey.name := this._("#hotkey_" i "_keyname").value
             hotkey.enabled := this._("#hotkey_" i "_enabled").checked
         }
-        saveHotkeys(this.hotkeyOptions)
-        this.close()
+
+        if (saveHotkeys(this.hotkeyOptions))
+            this.close()
     }
 
     cancel() {
@@ -516,7 +517,6 @@ class Navi extends WebGui {
 
     toggle() {
         this.setVisible(not this.visible)
-        ptask.activate()
     }
 
     showKillStats() {
