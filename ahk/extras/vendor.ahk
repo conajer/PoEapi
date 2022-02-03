@@ -258,10 +258,13 @@ unstackCards() {
         if (item.name == _("Stacked Deck")) {
             index := item.index
             loop, % item.stackCount {
+                if (Not ptask.inventory.freeCells())
+                    return
+
                 inventory.moveTo(index)
                 Sleep, 50
                 MouseClick, Right
-                Sleep, 200
+                Sleep, 100
 
                 if (Not ptask.inventory.drop())
                     return
