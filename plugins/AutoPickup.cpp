@@ -34,7 +34,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.13") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.14") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -95,31 +95,31 @@ public:
         if (item.get_links() == 6)
             return true;
 
-        if (strict_level < 3) {
-            int rarity = item.get_rarity();
-            int ilvl = item.get_item_level();
-            switch (strict_level) {
-                case 0:
-                    if (rarity == 2 && (ilvl >= 60 && ilvl < 75)
-                        && !item.is_identified() && item.get_size() <= 6)
-                        return true;
+        int rarity = item.get_rarity();
+        int ilvl = item.get_item_level();
+        switch (strict_level) {
+        case 0:
+            if (rarity == 2 && (ilvl >= 60 && ilvl < 75)
+                && !item.is_identified() && item.get_size() <= 6)
+                return true;
 
-                case 1:
-                    if (rarity == 3 || item.get_sockets() == 6 || item.is_rgb())
-                        return true;
-                    if (item.has_component("SkillGem"))
-                        return (item.get_quality() >= 5);
-                    if (std::regex_search(item.base_name(), generic_item_filter))
-                        return true;
+        case 1:
+            if (rarity == 3 || item.get_sockets() == 6 || item.is_rgb())
+                return true;
+            if (item.has_component("SkillGem"))
+                return (item.get_quality() >= 5);
 
-                case 2:
-                    if (ilvl >= 82 && item.get_influence_type())
-                        return true;
-                    if (item.is_synthesised())
-                        return true;
-                    if (rarity == 2 && std::regex_search(item.path, rare_item_filter))
-                        return true;
-            }
+        case 2:
+            if (ilvl >= 82 && item.get_influence_type())
+                return true;
+            if (item.is_synthesised())
+                return true;
+        
+        default:
+            if (rarity == 1 && std::regex_search(item.base_name(), generic_item_filter))
+                return true;
+            if (rarity == 2 && std::regex_search(item.path, rare_item_filter))
+                return true;
         }
 
         return false;
