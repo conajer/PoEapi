@@ -45,8 +45,8 @@ public:
     bool texture_enabled = true;
     bool texture_loaded = false;
 
-    int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe16, 0xb57741,    // monster
-                             0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x57280e,    // corpse
+    int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe16, 0xf28930,    // monster
+                             0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x794498,    // corpse
                              0x00fe00,                                  // minion
                              0xe0ffff,                                  // NPC
                              0xfe00fe};                                 // player
@@ -60,7 +60,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.16"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.17"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -89,18 +89,10 @@ public:
 
         for (int i = 0; i < 11; ++i) {
             float size = min_size + ((i < 8) ? (i & 0x3) : (1 << (i & 0x3)));
-            if ((i & 0x3) == 0x3)
-                size += 2;
-
             float x = size, y = size;
             poe->rt->CreateCompatibleRenderTarget(D2D1::SizeF(size * 2, size * 2), &bitmap_render);
             bitmap_render->CreateSolidColorBrush(D2D1::ColorF(0), &brush);
             bitmap_render->BeginDraw();
-            if ((i & 0x3) == 0x3) {
-                brush->SetColor(D2D1::ColorF(0xff0000, opacity));
-                bitmap_render->DrawEllipse({{x, y}, size, size}, brush, 2);
-                size -= 2;
-            }
             brush->SetColor(D2D1::ColorF(entity_colors[i], opacity));
             bitmap_render->FillEllipse({{x, y}, size, size}, brush);
             bitmap_render->EndDraw();
@@ -147,18 +139,13 @@ public:
         int x = pos.x + shift_x;
         int y = pos.y + shift_y;
         if (texture_enabled) {
-            if (e->rarity == 3 && !e->is_npc)
-                size += 2;
             poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
-            if (e->rarity == 2) {
-                poe->draw_circle(x, y, size + 2, 0xffff00, 2);
-                if (e->name().find(L"Undying Evangelist") != wstring::npos)
-                    poe->draw_circle(x, y, size + 5, 0xffff00, 2);
-            }
+            if (e->rarity >= 2)
+                poe->draw_circle(x, y, size + 2, entity_colors[index], 2);
         } else {
             poe->fill_circle(x, y, size, entity_colors[index], opacity);
-            if (e->rarity == 3)
-                poe->draw_circle(x, y, size + 2, 0xff0000, 2);
+            if (e->rarity >= 2)
+                poe->draw_circle(x, y, size + 2, entity_colors[index], 2);
         }
     }
 
