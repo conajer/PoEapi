@@ -97,6 +97,7 @@ class PoETask extends AhkObj {
         OnMessage(WM_PTASK_ACTIVE, ObjBindMethod(this, "onActive"))
         OnMessage(WM_AREA_CHANGED, ObjBindMethod(this, "onAreaChanged"))
         OnMessage(WM_PLAYER_CHANGED, ObjBindMethod(this, "onPlayerChanged"))
+        OnMessage(WM_STASH_CHANGED, ObjBindMethod(this, "onStashChanged"))
         OnMessage(WM_PICKUP, ObjBindMethod(this, "onPickup"))
         OnMessage(WM_PTASK_EXIT, ObjBindMethod(this, "onExit"))
 
@@ -457,5 +458,13 @@ class PoETask extends AhkObj {
 
     onPlayerChanged(name) {
         syslog(this.player.whois())
+    }
+
+    onStashChanged(isOpened, tabIndex) {
+        if (isOpened) {
+            this.stash.Tab.getChilds()
+        } else {
+            this.c.clear()
+        }
     }
 }
