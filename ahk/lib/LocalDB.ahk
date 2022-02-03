@@ -15,7 +15,7 @@ global __apiEndpoints := { "en": "https://www.pathofexile.com/api/trade/data"
 
 class LocalDB extends sqlite3 {
 
-    static version := "1.1"
+    static version := "1.0"
 
     __new(filename) {
         base.__new(filename)
@@ -127,15 +127,6 @@ class LocalDB extends sqlite3 {
                 text TEXT,
                 language TEXT,
                 PRIMARY KEY (id, language));
-
-            DROP TABLE IF EXISTS hotkeys;
-            CREATE TABLE hotkeys (
-                id INTEGER PRIMARY KEY,
-                enabled INTEGER,
-                prefix TEXT,
-                name TEXT,
-                label TEXT,
-                description TEXT);
             )")
         rdebug("#LocalDB", "Initializing database (version {})... Done!", this.version)
     }

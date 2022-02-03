@@ -137,6 +137,18 @@ loadLibrary(filename) {
 loadHotkeys() {
     hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
     if (Not hotkeyOptions) {
+        db.exec("
+        (
+            DROP TABLE IF EXISTS hotkeys;
+            CREATE TABLE hotkeys (
+                id INTEGER PRIMARY KEY,
+                enabled INTEGER,
+                prefix TEXT,
+                name TEXT,
+                label TEXT,
+                description TEXT);
+        )")
+
         for i, hotkey in defaultHotkeys
             db.exec("INSERT INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");", i, hotkey*)
         hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
