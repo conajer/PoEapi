@@ -209,8 +209,8 @@ OnClipboardChange:
     if (ptask.isActive)
         return
 
-    if (RegExMatch(Clipboard, "^@([^ ]+) (Hi, (I would|I'd) like to buy your .*)")) {
-        if (GetKeyState("Ctrl") && Not GetKeyState("c")) {
+    if (GetKeyState("Ctrl") && Not GetKeyState("c")) {
+        if (__trader.checkMessage(Clipboard)) {
             SendInput, {Ctrl up}
             ptask.activate()
             ptask.sendKeys("^{v}") 
