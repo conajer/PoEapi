@@ -480,27 +480,47 @@ public:
         }
     }
 
+    enum {
+        INVENTORY,
+        STASH,
+        SELL,
+        PURCHASE,
+        TRADE
+    };
+
     void check_stash_and_inventory() {
-        static bool inventory_opened = false;
-        static bool stash_opened = false;
+        static bool screen_flags[5];
         static int stash_tab_index = 0;
 
         if (!in_game_flag || is_loading) {
-            stash_opened = false;
+            for (int i = 0; i < 5; ++i)
+                screen_flags[i] = 0;
             stash_tab_index = 0;
-            inventory_opened = false;
         } else if (is_ready) {
-            if (in_game_ui->inventory && in_game_ui->inventory->is_visible() ^ inventory_opened) {
-                inventory_opened = !inventory_opened;
-                PostThreadMessage(owner_thread_id, WM_INVENTORY_CHANGED, (WPARAM)inventory_opened, (LPARAM)0);
+            // inventory
+            if (in_game_ui->inventory && in_game_ui->inventory->is_visible() ^ screen_flags[INVENTORY]) {
+                screen_flags[INVENTORY] = !screen_flags[INVENTORY];
+                if (screen_flags[INVENTORY])
+                    PostThreadMessage(owner_thread_id, WM_INVENTORY_OPENED, (WPARAM)0, (LPARAM)0);
             }
 
-            if (in_game_ui->stash && in_game_ui->stash->is_visible() ^ stash_opened ||
-                in_game_ui->stash->active_tab_index() != stash_tab_index)
-            {
-                stash_opened = !stash_opened;
-                stash_tab_index = in_game_ui->stash->active_tab_index();
-                PostThreadMessage(owner_thread_id, WM_STASH_CHANGED, (WPARAM)stash_opened, (LPARAM)stash_tab_index + 1);
+            // stash
+            if (in_game_ui->stash) {
+                bool stash_opened = in_game_ui->stash->is_visible();
+                int tab_index = stash_opened ? in_game_ui->stash->active_tab_index() : -1;
+
+                if ((stash_opened ^ screen_flags[STASH]) || (stash_opened && tab_index != stash_tab_index)) {
+                    screen_flags[STASH] = stash_opened;
+                    stash_tab_index = tab_index;
+                    PostThreadMessage(owner_thread_id, WM_STASH_CHANGED, (WPARAM)screen_flags[STASH], (LPARAM)stash_tab_index + 1);
+                }
+            }
+
+            // trade
+            if (in_game_ui->childs[104] && (in_game_ui->childs[104]->is_visible() ^ screen_flags[TRADE])) {
+                screen_flags[TRADE] = !screen_flags[TRADE];
+                if (screen_flags[TRADE])
+                    PostThreadMessage(owner_thread_id, WM_TRADE, (WPARAM)screen_flags[TRADE], (LPARAM)0);
             }
         }
     }
