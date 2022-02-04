@@ -234,6 +234,11 @@ public:
             DWORD size;
 
             window = get_hwnd();
+            if (!window) {
+                process_handle = (HANDLE)0;
+                return false;
+            }
+
             if (EnumProcessModules(process_handle, &module, sizeof(module), &size)) {
                 MODULEINFO module_info;
                 GetModuleInformation(process_handle, module, &module_info, sizeof(MODULEINFO));
