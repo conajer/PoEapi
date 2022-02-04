@@ -342,8 +342,10 @@ return
 ShowPrices:
     stickyMode := false
     ptask.c.clear()
-    if (betrayer.isOpened())
-        betrayer.show()
+    if (Betrayer.isOpened())
+        Betrayer.show()
+    else if (Temple.isOpened())
+        Temple.show()
     else if (not ptask.getHoveredItem())
         ptask.showPrices()
 
