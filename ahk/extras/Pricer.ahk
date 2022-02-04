@@ -234,7 +234,7 @@ class Pricer {
         tPeriod -= lastUpdateTime, seconds
         tBegin := A_Tickcount
         total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
-        if (total < 256 || not lastUpdateTime || (tPeriod > this.updatePeriod / 1000) || lang != this.lang) {
+        if (total < 256 || not lastUpdateTime || (tPeriod >= this.updatePeriod / 1000) || lang != this.lang) {
             JSON.eval("
             (
                 function parse(type, json, cb) {
