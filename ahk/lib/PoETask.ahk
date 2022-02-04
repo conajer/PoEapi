@@ -174,6 +174,14 @@ class PoETask extends AhkObj {
         VendorRules.base := Rules
         VendorExceptions.base := Rules
         StashRules.base := Rules
+
+        this.statGroups := {}
+        for itemType, filters in JSON.load("lib/stat-filters.json") {
+            stats := new StatGroup()
+            for i, filter in filters
+                stats.add(new StatFilter(filter[1], filter[2], filter[3]))
+            this.statGroups[itemType] := stats
+        }
     }
 
     onLoaded() {
