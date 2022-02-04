@@ -144,6 +144,7 @@ public:
         const char pattern[] = "48 8b 08 48 8d 3d ?? ?? ?? ?? 41";
         addrtype root_ptr;
         FileIndex indices[16];
+        wregex regex_filter;
 
         root_ptr = find_pattern(pattern);
         if (!root_ptr)
@@ -153,6 +154,7 @@ public:
             area_index = in_game_data->area_index();
 
         AhkTempObj loaded_files;
+        regex_filter.assign(filter);
         root_ptr += PoEMemory::read<int>(root_ptr + 0x6) + 0xa;
         PoEMemory::read<FileIndex>(root_ptr, indices, 16);
         for (auto&  i : indices) {
@@ -171,9 +173,8 @@ public:
                     if (node.area_index == area_index) {
                         wchar_t filename[256];
                         PoEMemory::read<wchar_t>(node.name, filename, 256);
-                        if (filter && wcsstr(filename, filter) == nullptr)
-                            continue;
-                        loaded_files.__set(L"", filename, AhkWString, nullptr);
+                        if (std::regex_search(filename, regex_filter))
+                            loaded_files.__set(L"", filename, AhkWString, nullptr);
                     }
                 }
             }
