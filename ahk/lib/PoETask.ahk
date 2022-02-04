@@ -88,6 +88,56 @@ class Rules {
     }
 }
 
+class StatFilter {
+
+    __new(stat, min = "", max = "") {
+        stat := RegExReplace(stat, "\+", "\+")
+        stat := RegExReplace(stat, "#", "([0-9.]+)")
+        this.stat := stat
+        this.min := min
+        this.max := max
+    }
+
+    match(stat) {
+        if (RegExMatch(stat, "iO)" this.stat, matched)) {
+            if (this.min || this.max) {
+                value := (matched.Count() == 1) ? matched[1] : (matched[1] + matched[2]) / 2
+                if (value < this.min || (this.max && value > this.max))
+                    return false
+            }
+
+            debug("    " stat)
+            return true
+        }
+    }
+}
+
+class StatGroup {
+
+    filters := []
+
+    add(filter) {
+        this.filters.Push(filter)
+    }
+
+    check(item, min = 1, max = "") {
+        debug("Checking '{}'...", item.name)
+        if (item) {
+            matched := 0
+            for i, stat in item.getStats() {
+                for k, filter in this.filters
+                    if (filter.match(stat))
+                        matched++
+            }
+
+            if (matched >= min && (Not max || matched <= max))
+                return true
+        }
+
+        return false
+    }
+}
+
 class PoETask extends AhkObj {
 
     __new() {
@@ -299,6 +349,13 @@ class PoETask extends AhkObj {
         return false
     }
 
+    checkStats(item) {
+        for itemType, stats in this.statGroups {
+            if ((item.baseType ~= itemType) || (item.subType ~= itemType))
+                return stats.check(item, item.isJewel ? 2 : 3)
+        }
+    }
+
     sellItems(identifyAll = false) {
         this.activate()
         vendor := this.getVendor()
@@ -329,8 +386,11 @@ class PoETask extends AhkObj {
                 }
             }
 
-            if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem))
-                this.inventory.move(aItem)
+            if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem)) {
+                ptask.inventory.moveTo(aItem.index)
+                if (aItem.rarity != 2 || Not this.checkStats(aItem))
+                    this.inventory.move(aItem)
+            }
         }
         this.getSell().accept()
     }
