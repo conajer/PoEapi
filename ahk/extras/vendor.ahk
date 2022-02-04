@@ -113,11 +113,6 @@ tradeDivinationCards() {
         }
     }
 
-    for i, item in ptask.inventory.getItems() {
-        if (item.isDivinationCard && item.stackCount == item.stackSize)
-            n += 1
-    }
-
     if (Not tab || n > 0) {
         if (Not ptask.stash.open())
             return
@@ -129,11 +124,14 @@ tradeDivinationCards() {
             if (item.name == "Stack Deck")
                 continue
 
-            if (item.isDivinationCard && item.stackCount == item.stackSize) {
+            if (item.isDivinationCard && item.stackCount == item.stackSize)
                 tab.move(item)
-                n += 1
-            }
         }
+    }
+
+    for i, item in ptask.inventory.getItems() {
+        if (item.isDivinationCard && item.stackCount == item.stackSize)
+            n += 1
     }
 
     if (n > 0 && ptask.getVendor().tradeDivinationCards()) {
