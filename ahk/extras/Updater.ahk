@@ -18,7 +18,7 @@ class Updater extends WebGui {
             <style>
                 * { font-family: Georgia, Serif; line-height: 1.5; }
                 html, body { display: flex; flex-flow: column; height: 100%; background: #f0f0f0; margin: 0; }
-                div { flex: 2 1 auto; background-color: white; font-size: 18px; border: 1px solid; margin: 5px 5px; padding: 0px 15px; }
+                div { flex: 2 1 auto; background-color: white; font-size: 18px; border: 1px solid; margin: 5px 5px; padding: 0px 15px; overflow: auto; }
                 span { flex: 0 1 auto; margin: 0px 5px 5px; }
                 button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
                 button:focus { outline: solid; outline-width: 1px; outline-color: #0078d7; }
