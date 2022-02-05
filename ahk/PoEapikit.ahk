@@ -68,7 +68,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.7.2"
+global version := "1.7.2a"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -135,23 +135,27 @@ loadLibrary(filename) {
 }
 
 loadHotkeys() {
-    hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
-    if (Not hotkeyOptions) {
-        db.exec("
-        (
-            DROP TABLE IF EXISTS hotkeys;
-            CREATE TABLE hotkeys (
-                id INTEGER PRIMARY KEY,
-                enabled INTEGER,
-                prefix TEXT,
-                name TEXT,
-                label TEXT,
-                description TEXT);
-        )")
-
-        for i, hotkey in defaultHotkeys
-            db.exec("INSERT INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");", i, hotkey*)
+    try {
         hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
+    } catch {
+    } finally  {
+        if (Not hotkeyOptions) {
+            db.exec("
+            (
+                DROP TABLE IF EXISTS hotkeys;
+                CREATE TABLE hotkeys (
+                    id INTEGER PRIMARY KEY,
+                    enabled INTEGER,
+                    prefix TEXT,
+                    name TEXT,
+                    label TEXT,
+                    description TEXT);
+            )")
+
+            for i, hotkey in defaultHotkeys
+                db.exec("INSERT INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");", i, hotkey*)
+            hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
+        }
     }
 
     Hotkey, IfWinActive, ahk_class POEWindowClass
