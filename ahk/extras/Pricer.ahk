@@ -280,61 +280,63 @@ class Pricer {
     }
 
     __addPrice(type, dict, p) {
-        if (p.hasOwnProperty("currencyTypeName")) {
-            dict.hasKey(p.currencyTypeName)
-                ? db.addTranslation(p.currencyTypeName, dict[p.currencyTypeName])
-            p.hasOwnProperty("receive")
-                ? this.addPrice(p.currencyTypeName, "", type, {"price": p.receive.value})
-                : this.addPrice(p.currencyTypeName, "", type, {"price": p.chaosEquivalent})
-        } else {
-            if (p.sparkline.data.length == 0 || (p.itemClass != 6 && InStr(p.detailsId, "-relic")))
-                return
+        try {
+            if (p.hasOwnProperty("currencyTypeName")) {
+                dict.hasKey(p.currencyTypeName)
+                    ? db.addTranslation(p.currencyTypeName, dict[p.currencyTypeName])
+                p.hasOwnProperty("receive")
+                    ? this.addPrice(p.currencyTypeName, "", type, {"price": p.receive.value})
+                    : this.addPrice(p.currencyTypeName, "", type, {"price": p.chaosEquivalent})
+            } else {
+                if (p.sparkline.data.length == 0 || (p.itemClass != 6 && InStr(p.detailsId, "-relic")))
+                    return
 
-            dict.hasKey(p.name) ? db.addTranslation(p.name, dict[p.name]) : ""
-            , cols := {"price": p.chaosValue}
-            , InStr(type, "Unique") ? cols.is_unique := true : 0
-            , p.hasOwnProperty("variant") ? cols.variant := p.variant : ""
-            switch (type) {
-            case "BaseType":
-                cols.ilvl := p.levelRequired
-                , cols.details := "ilvl " cols.ilvl
-            case "Map":
-                cols.map_tier := p.mapTier
-                , cols.details := "T" cols.map_tier
-            case "BlightedMap":
-                type := "Map"
-                , p.name := RegExReplace(p.name, "Blighted ")
-                , cols.map_tier := p.mapTier
-                , cols.is_blighted := true
-                , cols.details := "T" cols.map_tier
-            case "UniqueMap":
-                type := "Map"
-                , cols.map_tier := p.mapTier
-                , this.addPrice(p.baseType, p.baseType, type, cols)
-            case "SkillGem":
-                type := "Gem"
-                , cols.gem_level := p.gemLevel
-                , cols.quality := p.hasOwnProperty("gemQuality") ? p.gemQuality : 0
-                , cols.details := "Level " cols.gem_level " " cols.quality "%"
-                , cols.is_corrupted := p.hasOwnProperty("corrupted") ? true : false
-                if (RegExMatch(p.name, "(Anomalous|Divergent|Phantasmal) (.*)", matched))
-                    p.name := matched2
-                    , cols.quality_type := this.qualityTypes[matched1]
-                    , cols.variant := matched1
-            case "UniqueWeapon":
-                if (p.hasOwnProperty("links"))
-                    cols.links := p.links
-                    , cols.details := cols.links "L"
-            case "UniqueArmour":
-                if (p.hasOwnProperty("links"))
-                    cols.links := p.links
-                    , cols.details := cols.links "L"
+                dict.hasKey(p.name) ? db.addTranslation(p.name, dict[p.name]) : ""
+                , cols := {"price": p.chaosValue}
+                , InStr(type, "Unique") ? cols.is_unique := true : 0
+                , p.hasOwnProperty("variant") ? cols.variant := p.variant : ""
+                switch (type) {
+                case "BaseType":
+                    cols.ilvl := p.levelRequired
+                    , cols.details := "ilvl " cols.ilvl
+                case "Map":
+                    cols.map_tier := p.mapTier
+                    , cols.details := "T" cols.map_tier
+                case "BlightedMap":
+                    type := "Map"
+                    , p.name := RegExReplace(p.name, "Blighted ")
+                    , cols.map_tier := p.mapTier
+                    , cols.is_blighted := true
+                    , cols.details := "T" cols.map_tier
+                case "UniqueMap":
+                    type := "Map"
+                    , cols.map_tier := p.mapTier
+                    , this.addPrice(p.baseType, p.baseType, type, cols)
+                case "SkillGem":
+                    type := "Gem"
+                    , cols.gem_level := p.gemLevel
+                    , cols.quality := p.hasOwnProperty("gemQuality") ? p.gemQuality : 0
+                    , cols.details := "Level " cols.gem_level " " cols.quality "%"
+                    , cols.is_corrupted := p.hasOwnProperty("corrupted") ? true : false
+                    if (RegExMatch(p.name, "(Anomalous|Divergent|Phantasmal) (.*)", matched))
+                        p.name := matched2
+                        , cols.quality_type := this.qualityTypes[matched1]
+                        , cols.variant := matched1
+                case "UniqueWeapon":
+                    if (p.hasOwnProperty("links"))
+                        cols.links := p.links
+                        , cols.details := cols.links "L"
+                case "UniqueArmour":
+                    if (p.hasOwnProperty("links"))
+                        cols.links := p.links
+                        , cols.details := cols.links "L"
+                }
+
+                p.hasOwnProperty("itemType") ? type := p.itemType : ""
+                , p.hasOwnProperty("baseType") ? baseType := p.baseType : ""
+                , this.addPrice(p.name, baseType, type, cols)
             }
-
-            p.hasOwnProperty("itemType") ? type := p.itemType : ""
-            , p.hasOwnProperty("baseType") ? baseType := p.baseType : ""
-            , this.addPrice(p.name, baseType, type, cols)
-        }
+        } catch {}
     }
 
     __getPrice(name, orderBy = "") {
