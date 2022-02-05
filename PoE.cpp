@@ -25,7 +25,6 @@ typedef unsigned __int64 addrtype;
 
 std::map<string, int> poe_offsets {
     {"active_game_states", 0x20},
-        {"current",         0x0},
     {"all_game_states",    0x50},
 };
 
@@ -53,18 +52,15 @@ protected:
     }
 
     std::map<addrtype, int>& get_all_game_states() {
-        addrtype head_node, next, state_ptr;
-        int size;
+        addrtype base_address, state_ptr;
+        int size = 12;
 
         all_game_states.clear();
-        head_node = read<addrtype>("all_game_states");
-        size = read<int>("size");
-        next = PoEMemory::read<addrtype>(head_node + 0x0);
-        for (int i = 0; i < size; ++i) {
-            int state_id = PoEMemory::read<byte>(next + 0x10);
-            addrtype state_ptr = PoEMemory::read<addrtype>(next + 0x18);
-            next = PoEMemory::read<addrtype>(next + 0x0);
-            all_game_states[state_ptr] = state_id;
+        base_address = address + (*offsets)["all_game_states"];
+        for (int id = 0; id < size; ++id) {
+            addrtype state_ptr = PoEMemory::read<addrtype>(base_address);
+            base_address += 0x10;
+            all_game_states[state_ptr] = id;
         }
 
         return all_game_states;

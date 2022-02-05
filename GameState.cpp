@@ -87,14 +87,20 @@ public:
         return sd.get();
     }
 
-    Element* get_hovered_element() {
+    shared_ptr<Element> get_hovered_element() {
         addrtype addr = read<addrtype>("hovered");
-        return addr ? new Element(addr) : nullptr;
+        if (addr)
+            return shared_ptr<Element>(new Element(addr));
+        return nullptr;
     }
 
-    Item* get_hovered_item() {
-        addrtype addr = read<addrtype>("hovered_item", 0x428);
-        return addr ? new Item(addr) : nullptr;
+    shared_ptr<Item> get_hovered_item() {
+        addrtype addr = read<addrtype>("hovered_item");
+        if (addr) {
+            Element e(addr);
+            return shared_ptr<Item>(new Item(e.read<addrtype>("item")));
+        }
+        return nullptr;
     }
 
     unsigned int time_in_game() {
@@ -106,8 +112,8 @@ public:
         igd.reset();
         sd.reset();
 
-        width = read<int>("width");
-        height = read<int>("height");
+        width = read<int>("camera", "width");
+        height = read<int>("camera", "height");
         center_x = width / 2;
         center_y = height / 2;
 
@@ -124,8 +130,8 @@ public:
         static unsigned expiration_time;
 
         if (GetTickCount() > expiration_time) {
-            mat = read<Matrix4x4>("matrix");
-            size = read<Point>("width");
+            mat = read<Matrix4x4>("camera", "matrix");
+            size = read<Point>("camera", "width");
             expiration_time = GetTickCount() + 30;
         }
 

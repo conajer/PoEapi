@@ -383,23 +383,13 @@ public:
     }
 
     AhkObjRef* get_hovered_element() {
-        Element* e = in_game_state->get_hovered_element();
-        if (e) {
-            hovered_element = shared_ptr<Element>(e);
-            return *hovered_element;
-        }
-
-        return nullptr;
+        hovered_element = in_game_state->get_hovered_element();
+        return hovered_element ? (AhkObjRef*)*hovered_element : nullptr;
     }
 
     AhkObjRef* get_hovered_item() {
-        Item* item = in_game_state->get_hovered_item();
-        if (item) {
-            hovered_item = shared_ptr<Item>(item);
-            return *hovered_item;
-        }
-
-        return nullptr;
+        hovered_item = in_game_state->get_hovered_item();
+        return hovered_item ? (AhkObjRef*)*hovered_item : nullptr;
     }
 
     void set_offset(wchar_t* catalog, char* key, int value) {
@@ -517,7 +507,7 @@ public:
             }
 
             // trade
-            if (in_game_ui->childs[104] && (in_game_ui->childs[104]->is_visible() ^ screen_flags[TRADE])) {
+            if (in_game_ui->childs[106] && (in_game_ui->childs[106]->is_visible() ^ screen_flags[TRADE])) {
                 screen_flags[TRADE] = !screen_flags[TRADE];
                 if (screen_flags[TRADE])
                     PostThreadMessage(owner_thread_id, WM_TRADE, (WPARAM)screen_flags[TRADE], (LPARAM)0);

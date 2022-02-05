@@ -60,7 +60,7 @@ public:
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
-        if (is_valid()) {
+        if (address && is_valid()) {
             get_inventory();
             get_stash();
             get_vendor();
@@ -117,7 +117,7 @@ public:
     }
 
     Purchase* get_purchase() {
-        map<int, vector<int>> v = {{96, {11}}, {100, {6, 1, 0, 0}}, {101, {8, 1, 0, 0}}};
+        map<int, vector<int>> v = {{97, {11}}, {102, {6, 1, 0, 0}}, {103, {8, 1, 0, 0}}};
 
         purchase.reset();
         for (auto& i : v) {
@@ -133,7 +133,7 @@ public:
     }
 
     Sell* get_sell() {
-        map<int, vector<int>> v = {{102, {3}}, {103, {4}}};
+        map<int, vector<int>> v = {{104, {3}}, {105, {4}}};
 
         sell.reset();
         for (auto& i : v) {
@@ -151,7 +151,7 @@ public:
     }
 
     Trade* get_trade() {
-        shared_ptr<Element> e = get_child({104, 3, 1, 0, 0});
+        shared_ptr<Element> e = get_child({106, 3, 1, 0, 0});
         if (e) {
             trade = unique_ptr<Trade>(new Trade(e->address));
             return trade.get();
