@@ -91,6 +91,7 @@ class Rules {
 class StatFilter {
 
     __new(stat, min = "", max = "") {
+        stat := RegExReplace(stat, "\(", "(?:")
         stat := RegExReplace(stat, "\+", "\+")
         stat := RegExReplace(stat, "#", "([0-9.]+)")
         this.stat := stat
