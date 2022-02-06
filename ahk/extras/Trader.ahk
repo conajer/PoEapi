@@ -582,9 +582,6 @@ class OutgoingTradeSession extends TradeSession {
             return false
 
         ptask.stash.switchTab(this.currencyTabName)
-        ; TODO: fix currency tab
-        return
-
         Sleep, 100
         tab := ptask.stash.Tab
         item := tab.findItem(_(this.item2.name))
