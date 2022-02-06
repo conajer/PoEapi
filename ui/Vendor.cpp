@@ -10,8 +10,10 @@ static std::map<string, int> npc_menu_offsets {
 };
 
 static std::map<string, int> npc_menu2_offsets {
-    {"service",  0x2b8},
-        {"list", 0x460},
+    {"service1", 0x298},
+       {"list1", 0x408},
+    {"service2", 0x2b8},
+       {"list2", 0x460},
     {"name",     0x2d0},
 };
 
@@ -27,8 +29,21 @@ public:
     }
 
     void get_services(std::map<wstring, shared_ptr<Element>>& services) {
-	    Element service_list(read<addrtype>("service", "list"));
-        for (auto& i : service_list.get_childs()) {
+	    Element service_list1(read<addrtype>("service1", "list1"));
+        for (auto& i : service_list1.get_childs()) {
+            if (i->child_count() == 0)
+                continue;
+
+            auto service = i->get_child(0);
+            if (service->child_count() > 0)
+                continue;
+            
+            wstring& service_name = service->get_text();
+            services[service_name] = service;
+        }
+
+	    Element service_list2(read<addrtype>("service2", "list2"));
+        for (auto& i : service_list2.get_childs()) {
             if (i->child_count() == 0)
                 continue;
 
