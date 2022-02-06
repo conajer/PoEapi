@@ -16,7 +16,7 @@ public:
 
     bool has_next() {
         int n = child_count();
-        if (n == 0) {
+        if (n == 0 || n > 9) {
             index = 0;
             last_notification.reset();
             notifications.clear();
