@@ -535,9 +535,13 @@ class Vendor extends Element {
 
     selectService(name) {
         loop, 50 {
-            if (this.isSelected()) {
-                if (this.getServices().Count())
-                    return this.services[name]
+            if (this.isSelected() && this.getServices().Count()) {
+                if (Not this.services.hasKey(name))
+                    break
+
+                this.services[name].getPos(x, y)
+                MouseClick(x, y)
+                return true
             }
             Sleep, 50
         }
@@ -552,33 +556,22 @@ class Vendor extends Element {
         if (Not this.selectNPC(ptask.areaName == "The Rogue Harbour" ? "Faustus" : ""))
             return
 
-        service := this.selectService(_("Sell Items"))
-        if (service) {
-            service.getPos(x, y)
-            MouseClick(x, y)
-        }
-
-        loop, 10 {
-            if (ptask.getSell().isOpened())
-                return true
-            Sleep, 50
+        if (this.selectService(_("Sell Items"))) {
+            loop, 10 {
+                if (ptask.getSell().isOpened())
+                    return true
+                Sleep, 50
+            }
         }
 
         return false
     }
 
     tradeDivinationCards() {
-        if (this.selectNPC(_("Navali"))) {
-            service := this.selectService(_("Trade Divination Cards"))
-            if (service) {
-                service.getPos(x, y)
-                MouseClick(x, y)
-                Sleep, 50
-                return true
-            }
+        if (this.selectNPC(_("Lilly Roth"))) {
+            return this.selectService(_("Trade Divination Cards"))
         }
 
-        return false
     }
 }
 
