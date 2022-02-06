@@ -352,7 +352,10 @@ class Pricer {
         }
 
         total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
-        rdebug("#PRICER", "<b style='background-color:gold;color:black'>Total {} item prices loaded.</b>", total)
+        if (total > 0)
+            rdebug("#PRICER", "<b style='background-color:gold;color:black'>Total {} item prices loaded.</b>", total)
+
+        return total
     }
 
     __onAreaChanged() {
@@ -360,9 +363,9 @@ class Pricer {
             return
 
         if (ptask.league != this.league || language != this.lang) {
-            this.__load()
+            total := this.__load()
             t := ObjBindMethod(this, "update", ptask.league)
-            SetTimer, %t%, -60000
+            SetTimer, %t%, % (total > 0) ? -60000 : 1000
         }
     }
 }
