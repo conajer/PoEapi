@@ -193,40 +193,9 @@ class Pricer {
     }
 
     update(league) {
-        if (league != ptask.league) {
+        if (not ptask.isReady || league != ptask.league) {
             SetTimer,, Delete
             return
-        }
-
-        if (not ptask.isReady) {
-            SetTimer,, -60000
-            return
-        }
-
-        this.league := ptask.league
-        if (not this.__items || language != this.lang) {
-            this.__items := {}
-            this.lang := language
-
-            db.exec("
-                (
-                DROP VIEW IF EXISTS v_item_prices;
-                CREATE VIEW v_item_prices AS
-                    SELECT translations.text AS name, items.base_type, item_prices.*
-                    FROM item_prices
-                        INNER JOIN items USING (id)
-                        INNER JOIN translations
-                            ON translations.id=items.literal_id AND translations.language='{1}'
-                    WHERE league='{2}'
-                UNION
-                    SELECT v_items.name, v_items.base_type, item_prices.*
-                    FROM item_prices INNER JOIN v_items USING (id)
-                    WHERE league='{2}';
-                )"
-                , this.lang, this.league)
-
-            for i, r in db.exec("SELECT id, name FROM v_items;")
-                this.__items[r.name] := this.__items[_(r.name)] := r.id
         }
 
         lang := db.load("pricer.language")
@@ -272,11 +241,12 @@ class Pricer {
                 SetTimer,, -60000
                 return
             }
+
+            total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
+            rdebug("#PRICER", "<b style='background-color:gold;color:black'>Total {} item prices loaded (in {} ms).</b>", total, A_Tickcount - tBegin)
         }
 
         SetTimer,, % this.updatePeriod
-        total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
-        rdebug("#PRICER", "<b style='background-color:gold;color:black'>Total {} item prices loaded (in {} ms).</b>", total, A_Tickcount - tBegin)
     }
 
     __addPrice(type, dict, p) {
@@ -351,13 +321,48 @@ class Pricer {
         return result
     }
 
+    __load() {
+        if (not ptask.isReady)
+            return
+
+        this.league := ptask.league
+        if (not this.__items || language != this.lang) {
+            this.__items := {}
+            this.lang := language
+
+            db.exec("
+                (
+                DROP VIEW IF EXISTS v_item_prices;
+                CREATE VIEW v_item_prices AS
+                    SELECT translations.text AS name, items.base_type, item_prices.*
+                    FROM item_prices
+                        INNER JOIN items USING (id)
+                        INNER JOIN translations
+                            ON translations.id=items.literal_id AND translations.language='{1}'
+                    WHERE league='{2}'
+                UNION
+                    SELECT v_items.name, v_items.base_type, item_prices.*
+                    FROM item_prices INNER JOIN v_items USING (id)
+                    WHERE league='{2}';
+                )"
+                , this.lang, this.league)
+
+            for i, r in db.exec("SELECT id, name FROM v_items;")
+                this.__items[r.name] := this.__items[_(r.name)] := r.id
+        }
+
+        total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
+        rdebug("#PRICER", "<b style='background-color:gold;color:black'>Total {} item prices loaded.</b>", total)
+    }
+
     __onAreaChanged() {
         if (ptask.league ~= "SSF")
             return
 
         if (ptask.league != this.league || language != this.lang) {
+            this.__load()
             t := ObjBindMethod(this, "update", ptask.league)
-            SetTimer, %t%, -1000
+            SetTimer, %t%, -60000
         }
     }
 }
