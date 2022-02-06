@@ -398,6 +398,34 @@ class FolderTab extends SpecialStashTab {
     }
 }
 
+class CurrencyTab extends SpecialStashTab {
+
+    getChilds() {
+        this.getItems()
+        childs := []
+        for i, e in this.__Call("getChilds") {
+            if (e.getChilds().Length() == 2) {
+                e.index := e.childs[2].getIndex(this.rows)
+                , e.item := this.items[e.index]
+                , e.isHighlighted := e.childs[2].isHighlighted()
+                , childs[e.index] := e
+            } else {
+                for j, e in e.getChilds() {
+                    if (e.getChilds().Length() == 2) {
+                        e.index := e.childs[2].getIndex(this.rows)
+                        , e.item := this.items[e.index]
+                        , e.isHighlighted := e.childs[2].isHighlighted()
+                        , childs[e.index] := e
+                    }
+                }
+            }
+        }
+        this.childs := childs
+
+        return this.childs
+    }
+}
+
 class Stash extends Element {
 
     Tab {
@@ -472,7 +500,10 @@ class Stash extends Element {
             if (Not __tab.getId() && __tab.type != 16)
                 continue
 
-            if (__tab.type > 2 && __tab.type != 7) {
+            if (__tab.type == 3) {
+                tab := tab.getChild(1)
+                tab.base := CurrencyTab
+            } else if (__tab.type > 2 && __tab.type != 7) {
                 tab := tab.getChild(1)
                 tab.base := (__tab.type == 16) ? FolderTab : SpecialStashTab
             } else {
