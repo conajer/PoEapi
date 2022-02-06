@@ -451,7 +451,7 @@ class Navi extends WebGui {
         this.killStats := this._("#kill_stats")
         this.areaTime := this._("#area_time")
         this.kc := ptask.getPlugin("KillCounter")
-        this.setVisible(db.load("nav.visible"))
+        this.setVisible((db.load("nav.visible") != 0) ? true : false)
         this.onMessage(WM_KILL_COUNTER, "onKillCounter")
         this.onMessage(WM_AREA_CHANGED, "onAreaChanged")
 
