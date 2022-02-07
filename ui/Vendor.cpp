@@ -22,9 +22,9 @@ public:
     NpcMenu(addrtype address, FieldOffsets* offsets = &npc_menu_offsets) : Element(address, offsets) {
     }
 
-    void get_name(wstring& name) {
+    wstring get_name() {
         Element element(read<addrtype>("name"));
-        name = element.get_text();
+        return element.get_text();
     }
 
     void get_services(std::map<wstring, shared_ptr<Element>>& services) {
@@ -84,13 +84,13 @@ public:
 
     wstring vendor_name;
     std::map<wstring, shared_ptr<Element>> services;
-    shared_ptr<NpcMenu> menus[2];
+    shared_ptr<NpcMenu> npc_menus[2];
 
     Vendor(addrtype address) : Element(address) {
         if (shared_ptr<Element> e = get_child(7))
-            menus[0] = shared_ptr<NpcMenu>(new NpcMenu(e->address));
+            npc_menus[0] = shared_ptr<NpcMenu>(new NpcMenu(e->address));
         if (shared_ptr<Element> e = get_child(8))
-            menus[1] = shared_ptr<NpcMenu>(new NpcMenu2(e->address));
+            npc_menus[1] = shared_ptr<NpcMenu>(new NpcMenu2(e->address));
 
         add_method(L"name", this, (MethodType)&Vendor::name, AhkWStringPtr);
         add_method(L"isSelected", (Element*)this, (MethodType)&Vendor::is_selected, AhkBool);
@@ -98,8 +98,8 @@ public:
     }
 
     bool is_selected() {
-        for (auto& m : menus) {
-            if (m && m->is_visible())
+        for (auto& menu : npc_menus) {
+            if (menu && menu->is_visible())
                 return true;
         }
         return false;
@@ -107,9 +107,9 @@ public:
 
     wstring& name() {
         vendor_name = L"";
-        for (auto& m : menus) {
-            if (m && m->is_visible())
-                m->get_name(vendor_name);
+        for (auto& menu : npc_menus) {
+            if (menu && menu->is_visible())
+                vendor_name = menu->get_name();
         }
 
         return vendor_name;
@@ -117,9 +117,9 @@ public:
 
     std::map<wstring, shared_ptr<Element>>& get_services() {
         services.clear();
-        for (auto& m : menus) {
-            if (m && m->is_visible())
-                m->get_services(services);
+        for (auto& menu : npc_menus) {
+            if (menu && menu->is_visible())
+                menu->get_services(services);
         }
 
         return services;
