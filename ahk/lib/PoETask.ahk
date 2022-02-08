@@ -107,7 +107,6 @@ class StatFilter {
                     return false
             }
 
-            debug("    " stat)
             return true
         }
     }
@@ -122,7 +121,6 @@ class StatGroup {
     }
 
     check(item, min = 1, max = "") {
-        debug("Checking '{}'...", item.name)
         if (item) {
             matched := 0
             for i, stat in item.getStats() {
