@@ -34,7 +34,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.14") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.15") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -116,7 +116,7 @@ public:
                 return true;
         
         default:
-            if (rarity == 1 && std::regex_search(item.base_name(), generic_item_filter))
+            if (std::regex_search(item.base_name(), generic_item_filter))
                 return true;
             if (rarity == 2 && std::regex_search(item.path, rare_item_filter))
                 return true;
@@ -144,12 +144,12 @@ public:
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
         player = local_player;
-        if (!is_picking || GetTickCount() - last_pickup < 100)
+        if (!is_picking || GetTickCount() - last_pickup < 300)
             return;
 
         std::lock_guard<std::mutex> guard(selected_item_mutex);
         int action_id = local_player->actor->action_id();
-        if (action_id & 0x82) {
+        if (selected_item && action_id & 0x82) {
             if (!selected_item || local_player->actor->target_address == 0) {
                 stop_pickup();
             }
