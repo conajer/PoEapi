@@ -42,7 +42,7 @@ public:
     float opacity = .8;
 
     ID2D1Bitmap* textures[16] = {};
-    bool texture_enabled = true;
+    bool texture_enabled = false;
     bool texture_loaded = false;
 
     int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe16, 0xf28930,    // monster
@@ -60,7 +60,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.17"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.18"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
     {
@@ -247,6 +247,7 @@ public:
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
+        std::lock_guard<std::mutex> guard(drawn_entities_mutex);
         drawn_entities.clear();
         ignored_entities.clear();
     }
