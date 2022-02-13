@@ -25,7 +25,7 @@ global PoEOffsets = { "version" : "3.17", "offsets"
                         , "local_player"                : 0x688
                         , "entity_list"                 : 0x738
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x640 }
+                        , "entity_list_count"           : 0x740 }
 
       , "IngameUI"    : { "inventory"                   : 0x598
                         ,     "grid"                    : 0x3d8
