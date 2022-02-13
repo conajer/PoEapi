@@ -358,6 +358,7 @@ public:
         add_method(L"charges", this, (MethodType)&Item::get_charges);
         add_method(L"size", this, (MethodType)&Item::get_size);
         add_method(L"getInfluenceType", this, (MethodType)&Item::get_influence_type, AhkInt);
+        add_method(L"getExplicitMods", this, (MethodType)&Item::get_explicit_mods, AhkObject);
         add_method(L"getMods", this, (MethodType)&Item::get_mods, AhkObject);
         add_method(L"getExplicitStats", this, (MethodType)&Item::get_explicit_stats, AhkObject);
         add_method(L"getStats", this, (MethodType)&Item::get_stats, AhkObject);
@@ -528,6 +529,17 @@ public:
 
     int get_influence_type() {
         return base ? base->influence_type() : 0;
+    }
+
+    AhkObjRef* get_explicit_mods() {
+        AhkTempObj temp_mods;
+        if (mods) {
+            mods->get_mods();
+            for (auto& i : mods->explicit_mods)
+                temp_mods.__set(L"", (AhkObjRef*)i, AhkObject, nullptr);
+        }
+        
+        return temp_mods;
     }
 
     AhkObjRef* get_mods() {
