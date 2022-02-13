@@ -34,7 +34,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.15") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.16") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -167,8 +167,14 @@ public:
             return;
         }
 
-        if (selected_item && entities.count(selected_item->id))
+        if (selected_item && entities.count(selected_item->id)) {
+            if (GetTickCount() - last_pickup > 300 && player->actor->action_id() == 0) {
+                Point pos = selected_item->label->get_pos();
+                poe->mouse_click(pos);
+                last_pickup = GetTickCount();
+            }
             return;
+        }
 
         std::lock_guard<std::mutex> guard(selected_item_mutex);
         selected_item.reset();
