@@ -742,8 +742,14 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 
 int main(int argc, char* argv[]) {
     SetProcessDPIAware();
-    ptask.reset();
-    ptask.list_game_states();
     ptask.start();
-    ptask.join();
+    ptask.list_game_states();
+    ptask.plugins[L"MinimapSymbol"]->enabled = true;
+    while (1) {
+        if (!ptask.is_ready) {
+            if (ptask.in_game_flag && !ptask.is_loading)
+                ptask.reset();
+        }
+        Sleep(1000);
+    }
 }

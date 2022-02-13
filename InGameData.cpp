@@ -29,15 +29,15 @@ public:
 };
 
 std::map<string, int> in_game_data_offsets {
-    {"world_area",         0x68},
-    {"area_data",          0x70},
+    {"world_area",         0x80},
+    {"area_data",          0x88},
         {"area_index",     0x38},
-    {"area_level",         0x80},
-    {"area_hash",          0xe4},
-    {"local_player",      0x408},
-    {"entity_list",       0x490},
+    {"area_level",         0xa0},
+    {"area_hash",         0x114},
+    {"local_player",      0x688},
+    {"entity_list",       0x738},
         {"root",            0x8},
-    {"entity_list_count", 0x498},
+    {"entity_list_count", 0x740},
     {"terrain",           0x750},
 };
 

@@ -13,19 +13,19 @@ struct Rect {
 float g_scale_x = 1.0f, g_scale_y = 1.0f;
 
 std::map<string, int> element_offsets {
-    {"self",          0x18},
-    {"childs",        0x38},
-    {"root",          0x88},
-    {"parent",        0x90},
-    {"position",      0x98},
-    {"scale",        0x108},
-    {"is_visible",   0x111},
-    {"is_enabled",   0x115},
-    {"size",         0x130},
-    {"highlighted",  0x178},
-    {"text",         0x2e8},
-    {"item",         0x428},
-    {"item_pos",     0x430},
+    {"self",          0x28},
+    {"childs",        0x68},
+    {"root",          0xd8},
+    {"parent",        0xe0},
+    {"position",      0xe8},
+    {"scale",        0x100},
+    {"is_visible",   0x161},
+    {"is_enabled",   0x165},
+    {"size",         0x180},
+    {"highlighted",  0x1c0},
+    {"text",         0x3a0},
+    {"item",         0x440},
+    {"item_pos",     0x448},
 };
 
 class Element : public PoEObject {

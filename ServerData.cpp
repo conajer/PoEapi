@@ -43,12 +43,12 @@ public:
 };
 
 std::map<string, int> inventory_offsets {
-    {"type",         0x8},
-    {"sub_type",     0xc},
-    {"cols",        0x14},
-    {"rows",        0x18},
-    {"cells",       0x38},
-    {"count",       0x58},
+    {"type",        0x138},
+    {"sub_type",    0x13c},
+    {"cols",        0x144},
+    {"rows",        0x148},
+    {"cells",       0x168},
+    {"count",       0x188},
 };
 
 class InventorySlot : public RemoteMemoryObject, public AhkObj {
@@ -265,7 +265,7 @@ std::map<string, int> stash_tab_offsets {
     {"folder_id",    0x3a},
     {"flags",        0x3d},
     {"is_affinity",  0x3e},
-    {"affinities",    0x3f},
+    {"affinities",   0x3f},
 };
 
 class StashTab : public RemoteMemoryObject, public AhkObj {
@@ -326,18 +326,18 @@ static bool compare_stash_tab(shared_ptr<StashTab>& tab1, shared_ptr<StashTab>& 
 }
 
 std::map<string, int> server_data_offsets {
-    {"player_data",                0x7898},
+    {"player_data",                0x8660},
         {"passive_skills",          0x160},
         {"player_class",            0x200},
         {"level",                   0x204},
         {"skill_points_from_quest", 0x20c},
         {"skill_points_left",       0x210},
         {"ascendancy_skill_points", 0x214},
-    {"league",          0x78d0},
-    {"latency",         0x7948},
-    {"party_status",    0x7a80},
-    {"stash_tabs",      0x7958},
-    {"inventory_slots", 0x7ce8},
+    {"league",                     0x8860},
+    {"latency",                    0x7948},
+    {"party_status",               0x8ac0},
+    {"stash_tabs",                 0x88f0},
+    {"inventory_slots",            0x8d28},
 };
 
 class ServerData : public RemoteMemoryObject {

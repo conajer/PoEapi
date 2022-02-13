@@ -11,7 +11,6 @@ struct Matrix4x4 {
 };
 
 static std::map<string, int> game_state_offsets {
-    {"name", 0x10},
 };
 
 class GameState : public RemoteMemoryObject {
@@ -31,20 +30,16 @@ public:
 };
 
 std::map<string, int> in_game_state_offsets {
-    {"name",          0x10},
-    {"load_stage1",   0x40},
-    {"in_game_ui",    0x80},
-    {"in_game_data", 0x500},
-    {"server_data",  0x508},
-    {"ui_root",      0x630},
-    {"hovered",      0x698},
-    {"hovered_item", 0x6a8},
-    {"time_in_game", 0x6dc},
-    {"load_stage2",  0x6f0},
-    {"camera",      0x1178},
-    {"width",       0x1180},
-    {"height",      0x1184},
-    {"matrix",      0x1238},
+    {"in_game_ui",      0x438},
+    {"in_game_data",     0x18},
+        {"server_data", 0x680},
+    {"ui_root",         0x1a8},
+    {"hovered",         0x1e8},
+    {"hovered_item",    0x1f0},
+    {"camera",           0x78},
+    {"width",            0xb0},
+    {"height",           0xb4},
+    {"matrix",          0x128},
 };
 
 class InGameState : public GameState {

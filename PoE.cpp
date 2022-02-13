@@ -25,7 +25,7 @@ typedef unsigned __int64 addrtype;
 
 std::map<string, int> poe_offsets {
     {"active_game_states", 0x20},
-    {"all_game_states",    0x50},
+    {"all_game_states",    0x48},
 };
 
 class PoE : public RemoteMemoryObject, public AhkObj, public Hud {
@@ -244,8 +244,6 @@ public:
 
             if (addrtype addr = find_pattern("48 8b f1 33 ed 48 39 2d")) {
                 address = PoEMemory::read<addrtype>(addr + PoEMemory::read<int>(addr + 8) + 12);
-                CloseHandle(process_handle);
-                process_handle = OpenProcess(PROCESS_VM_READ, false, process_id);
                 get_all_game_states();
                 bind(window);
                 return true;
