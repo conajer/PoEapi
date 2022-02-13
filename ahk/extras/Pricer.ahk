@@ -365,7 +365,7 @@ class Pricer {
         if (ptask.league != this.league || language != this.lang) {
             total := this.__load()
             t := ObjBindMethod(this, "update", ptask.league)
-            SetTimer, %t%, % (total > 0) ? -60000 : 1000
+            SetTimer, %t%, % (total > 1) ? -60000 : 1000
         }
     }
 }
