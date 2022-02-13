@@ -72,10 +72,11 @@ global version := "1.7.2f"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
-#Include, %A_ScriptDir%\extras\vendor.ahk
+#Include, %A_ScriptDir%\extras\Archnemsis.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
+#Include, %A_ScriptDir%\extras\vendor.ahk
 
 ; Patreon only features
 #Include, %A_ScriptDir%\patreon.ahk
