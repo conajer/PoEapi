@@ -95,6 +95,13 @@ class PoEObject extends AhkObj {
         return NumGet(dataPtr + 0, "Ptr")
     }
 
+    getObject(offset) {
+        dataPtr := DllCall("poeapi\poeapi_read", "Ptr", this.address + offset, "Int", 8, "Ptr")
+        obj := new PoEobject()
+        obj.address := NumGet(dataPtr + 0, "Ptr")
+        return obj
+    }
+
     getString(offset, len) {
         dataPtr := this.__read(this.address + offset, (len + 1) * 2)
         return StrGet(dataPtr + 0)
