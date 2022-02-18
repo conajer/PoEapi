@@ -296,18 +296,21 @@ class Archnemesis extends WebGui {
     }
 
     onclick(event) {
-        if (this.isOpened()) {
-            ;modName := RegExReplace(event.srcElement.innerText, " \+ ", "|")
-            ;ptask.activate()
-            ;SendInput, ^{f}
-            ;SendInput, %modNames%{Enter}
-            modName := event.srcElement.innerText
-            if (Not modName ~= "\+") {
-                this._("#recipe_combo").innerHTML := ""
-                this.add(modName, this.getRecipe(modName))
-                this.checkMod(modName)
-                this.bindAll("tr")
-            }
+        if (Not this.isOpened()) {
+            this.hide()
+            return
+        }
+
+        modName := event.srcElement.innerText
+        if (Not modName ~= "\+") {
+            this._("#recipe_combo").innerHTML := ""
+            this.add(modName, this.getRecipe(modName))
+            this.checkMod(modName)
+            this.bindAll("tr")
+
+            ptask.activate()
+            SendInput, ^{f}
+            SendInput, %modName%{Enter}
         }
     }
 
