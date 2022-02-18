@@ -20,7 +20,7 @@ public:
     }
 
     bool is_opened() {
-        return childs[3] ? childs[3]->is_visible() : false;
+        return (childs.size() >= 4) ? childs[3]->is_visible() : false;
     }
 
     bool has_next() {
