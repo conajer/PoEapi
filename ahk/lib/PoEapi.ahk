@@ -244,13 +244,11 @@ class Inventory extends InventoryGrid {
         try {
             Critical
             this.open()
-            this.getItems()
             index := this.nextCell()
-            if (this.items[index])
+            if (Not index := this.nextCell())
                 return false
-
             this.moveTo(index)
-            Click
+            MouseClick
         } finally {
             Critical off
         }
