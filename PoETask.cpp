@@ -516,8 +516,8 @@ public:
     }
 
     void check_game() {
-        check_window_state();
         check_game_state();
+        check_window_state();
         check_stash_and_inventory();
 
         if (!in_game_flag) {
