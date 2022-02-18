@@ -53,7 +53,7 @@ public:
 
         // set default font name and size
         if (!text_format)
-            set_font(L"Consolas", 16);
+            set_font(L"Fontin SmallCaps", 12);
 
         // resize to fit the window
         resize();
