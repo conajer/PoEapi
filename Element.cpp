@@ -163,6 +163,12 @@ public:
         return child;
     }
 
+    shared_ptr<Element> get_child(const string name) {
+        if (offsets->find(name) != offsets->end())
+            return get_child((*offsets)[name]);
+        return nullptr;
+    }
+
     std::vector<shared_ptr<Element>>& get_childs() {
         std::vector<addrtype> vec = read_array<addrtype>("childs", 0x0, 0x8);
         if (childs.size() == vec.size()) {
