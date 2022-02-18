@@ -17,23 +17,37 @@
 #include "ui/Skills.cpp"
 
 std::map<string, int> in_game_ui_offsets {
-    {"inventory",       0x598},
+    {"overlay_map",         3},
+    {"gem_level_up",        5},
+    {"vendor",             23},
+    {"skills",             25},
+    {"atlas",              27},
+    {"shop",               29},
+    {"inventory",          37},
         {"grid",        0x3d8},
-    {"stash",           0x5a0},
+    {"stash",              38},
         {"tabs",        0x2f8},
-    {"overlay_map",     0x6a8},
-        {"large",       0x280},
-        {"small",       0x288},
-    {"chat",            0x470},
-    {"lefe_panel",      0x570},
-    {"right_panel",     0x578},
-    {"panel_flags",     0x580},
-    {"atlas",           0x648},
-    {"entity_list",     0x6b0},
+    {"archnemesis",        46},
+    {"chat",               49},
+    {"temple",             73},
+    {"delve_chart",        77},
+    {"syndicate",          79},
+    {"horticrafting",      93},
+    {"heist_locker",       96},
+    {"favours",            97},
+    {"expedition_locker",  99},
+    {"purchase",          102},
+    {"purchase2",         103},
+    {"sell",              104},
+    {"sell2",             105},
+    {"trade",             106},
+    {"notifications",     129},
+    {"lefe_panel",      0x580},
+    {"right_panel",     0x588},
+    {"panel_flags",     0x590},
+    {"entity_list",     0x6c0},
         {"root",        0x2a8},
         {"count",       0x2b0},
-    {"gem_level_up",    0xa88},
-    {"notifications",   0xa90},
 };
 
 enum {
@@ -55,6 +69,7 @@ public:
     unique_ptr<Notifications> notifications;
     unique_ptr<Atlas> atlas;
     unique_ptr<Skills> skills;
+    std::map<string, shared_ptr<Element>> active_panels;
     shared_ptr<Entity> nearest_entity;
 
     InGameUI(addrtype address) : Element(address, &in_game_ui_offsets) {
@@ -68,6 +83,13 @@ public:
             get_notifications();
             get_atlas();
             get_skills();
+
+            std::vector<string> active_panel_names = {
+                "skills", "atlas", "shlop", "temple", "delve_chart", "syndicate", "horticrafting"
+            };
+
+            for (auto& i : active_panel_names)  
+                active_panels[i] = get_child(i);
         }
     }
 
@@ -85,22 +107,28 @@ public:
     }
 
     bool has_active_panel() {
-        return read<short>("panel_flags")
-                || atlas->is_visible()
-                || chat->is_opened()
-                || skills->is_visible()
-                || vendor->is_selected();
+        if (read<short>("panel_flags") || chat->is_opened() || vendor->is_selected())
+            return true;
+
+        for (auto& i : active_panels) {
+            if (i.second && i.second->is_visible())
+                return true;
+        }
+
+        return false;
     }
 
     Inventory* get_inventory() {
-        addrtype addr = read<addrtype>("inventory", "grid");
+        shared_ptr<Element> e = get_child("inventory");
+        addrtype addr = PoEMemory::read<addrtype>(e->address + (*offsets)["grid"]);
         if (!inventory || inventory->address != addr)
             inventory = unique_ptr<Inventory>(new Inventory(addr));
         return inventory.get();
     }
 
     Stash* get_stash() {
-        addrtype addr = read<addrtype>("stash", "tabs");
+        shared_ptr<Element> e = get_child("stash");
+        addrtype addr = PoEMemory::read<addrtype>(e->address + (*offsets)["tabs"]);
         if (!stash || stash->address != addr)
             stash = unique_ptr<Stash>(new Stash(addr));
         return stash.get();
@@ -108,14 +136,14 @@ public:
 
     Vendor* get_vendor() {
         if (!vendor) {
-            shared_ptr<Element> e = get_child(23);
+            shared_ptr<Element> e = get_child("vendor");
             vendor = unique_ptr<Vendor>(new Vendor(e->address));
         }
         return vendor.get();
     }
 
     Purchase* get_purchase() {
-        map<int, vector<int>> v = {{97, {11}}, {102, {6, 1, 0, 0}}, {103, {8, 1, 0, 0}}};
+        map<string, vector<int>> v = {{"favours", {11}}, {"purchase", {6, 1, 0, 0}}, {"purchase2", {8, 1, 0, 0}}};
 
         purchase.reset();
         for (auto& i : v) {
@@ -131,7 +159,7 @@ public:
     }
 
     Sell* get_sell() {
-        map<int, vector<int>> v = {{104, {3}}, {105, {4}}};
+        map<string, vector<int>> v = {{"sell", {3}}, {"sell2", {4}}};
 
         sell.reset();
         for (auto& i : v) {
@@ -149,8 +177,8 @@ public:
     }
 
     Trade* get_trade() {
-        shared_ptr<Element> e = get_child({106, 3, 1, 0, 0});
-        if (e) {
+        shared_ptr<Element> e = get_child("trade");
+        if (e = e->get_child(std::vector<int>{3, 1, 0, 0})) {
             trade = unique_ptr<Trade>(new Trade(e->address));
             return trade.get();
         }
@@ -160,9 +188,10 @@ public:
 
     OverlayMap* get_overlay_map() {
         if (!large_map) {
-            large_map.reset(new OverlayMap(read<addrtype>("overlay_map", "large")));
+            shared_ptr<Element> e = get_child("overlay_map");
+            large_map.reset(new OverlayMap(e->get_child(0)->address));
             large_map->shift_modifier = -20.0;
-            corner_map.reset(new OverlayMap(read<addrtype>("overlay_map", "small")));
+            corner_map.reset(new OverlayMap(e->get_child(1)->address));
             corner_map->shift_modifier = 0;
         }
         
@@ -171,26 +200,32 @@ public:
     }
 
     Chat* get_chat() {
-        if (!chat)
-            chat = unique_ptr<Chat>(new Chat(read<addrtype>("chat")));
+        if (!chat) {
+            shared_ptr<Element> e = get_child("chat");
+            chat = unique_ptr<Chat>(new Chat(e->address));
+        }
         return chat.get();
     }
 
     Notifications* get_notifications() {
-        if (!notifications)
-            notifications.reset(new Notifications(read<addrtype>("notifications")));
+        if (!notifications) {
+            shared_ptr<Element> e = get_child("notifications");
+            notifications = unique_ptr<Notifications>(new Notifications(e->address));
+        }
         return notifications.get();
     }
 
     Atlas* get_atlas() {
-        if (!atlas)
-            atlas = unique_ptr<Atlas>(new Atlas(read<addrtype>("atlas")));
+        if (!atlas) {
+            shared_ptr<Element> e = get_child("atlas");
+            atlas = unique_ptr<Atlas>(new Atlas(e->address));
+        }
         return atlas.get();
     }
 
     Skills* get_skills() {
         if (!skills) {
-            shared_ptr<Element> e = get_child(25);
+            shared_ptr<Element> e = get_child("skills");
             skills = unique_ptr<Skills>(new Skills(e->address));
         }
         return skills.get();
