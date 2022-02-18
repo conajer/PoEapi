@@ -326,18 +326,18 @@ static bool compare_stash_tab(shared_ptr<StashTab>& tab1, shared_ptr<StashTab>& 
 }
 
 std::map<string, int> server_data_offsets {
-    {"player_data",                0x8660},
-        {"passive_skills",          0x160},
-        {"player_class",            0x200},
-        {"level",                   0x204},
-        {"skill_points_from_quest", 0x20c},
-        {"skill_points_left",       0x210},
-        {"ascendancy_skill_points", 0x214},
-    {"league",                     0x8860},
-    {"latency",                    0x7948},
-    {"party_status",               0x8ac0},
-    {"stash_tabs",                 0x88f0},
-    {"inventory_slots",            0x8d28},
+    {"player_data",                0x89a0},
+        {"passive_skills",          0x180},
+        {"player_class",            0x238},
+        {"level",                   0x23c},
+        {"refund_points_left",      0x240},
+        {"skill_points_from_quest", 0x244},
+        {"ascendancy_skill_points", 0x24c},
+    {"league",                     0x89e0},
+    {"latency",                    0x8a68},
+    {"party_status",               0x8c40},
+    {"stash_tabs",                 0x8a70},
+    {"inventory_slots",            0x8eb0},
 };
 
 class ServerData : public RemoteMemoryObject {

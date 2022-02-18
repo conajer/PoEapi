@@ -27,35 +27,25 @@ global PoEOffsets = { "version" : "3.17", "offsets"
                         ,     "root"                    : 0x8
                         , "entity_list_count"           : 0x740 }
 
-      , "IngameUI"    : { "inventory"                   : 0x598
-                        ,     "grid"                    : 0x3d8
-                        , "stash"                       : 0x5a0
-                        ,     "tabs"                    : 0x2f8
-                        , "overlay_map"                 : 0x6a8
-                        ,     "large"                   : 0x280
-                        ,     "small"                   : 0x288
-                        , "chat"                        : 0x470
-                        , "lefe_panel"                  : 0x570
-                        , "right_panel"                 : 0x578
-                        , "panel_flags"                 : 0x580
-                        , "atlas"                       : 0x648
-                        , "entity_list"                 : 0x6b0
+      , "IngameUI"    : { "lefe_panel"                  : 0x580
+                        , "right_panel"                 : 0x588
+                        , "panel_flags"                 : 0x590
+                        , "entity_list"                 : 0x6c0
                         ,     "root"                    : 0x2a8
-                        ,     "count"                   : 0x2b0
-                        , "gem_level_up"                : 0xa88
-                        , "notifications"               : 0xa90 }
+                        ,     "count"                   : 0x2b0 }
 
-      , "ServerData"  : { "player_data"                 : 0x8660
-                        ,     "passive_skills"          : 0x160
-                        ,     "player_class"            : 0x200
-                        ,     "level"                   : 0x204
-                        ,     "skill_points_from_quest" : 0x20c
-                        ,     "skill_points_left"       : 0x210
-                        ,     "ascendancy_skill_points" : 0x214
-                        , "league"                      : 0x8860
-                        , "party_status"                : 0x8ac0
-                        , "stash_tabs"                  : 0x88f0
-                        , "inventory_slots"             : 0x8d28 }
+      , "ServerData"  : { "player_data"                 : 0x89a0
+                        ,     "passive_skills"          : 0x180
+                        ,     "player_class"            : 0x238
+                        ,     "level"                   : 0x23c
+                        ,     "refund_points_left"      : 0x240
+                        ,     "skill_points_from_quest" : 0x244
+                        ,     "ascendancy_skill_points" : 0x24c
+                        , "league"                      : 0x89e0
+                        , "latency"                     : 0x8a68
+                        , "party_status"                : 0x8c40
+                        , "stash_tabs"                  : 0x8a70
+                        , "inventory_slots"             : 0x8eb0 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
