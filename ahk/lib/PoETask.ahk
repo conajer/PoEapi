@@ -497,10 +497,6 @@ class PoETask extends AhkObj {
                 this.displayItemPrice(e, shift)
             }
         }
-
-        if (archnemesis.isOpened()) {
-            archnemesis.showTiers()
-        }
     }
 
     setStatus(text, args*) {

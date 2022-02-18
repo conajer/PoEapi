@@ -73,10 +73,10 @@ global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchle
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
 #Include, %A_ScriptDir%\extras\Archnemsis.ahk
+#Include, %A_ScriptDir%\extras\vendor.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
-#Include, %A_ScriptDir%\extras\vendor.ahk
 
 ; Patreon only features
 #Include, %A_ScriptDir%\patreon.ahk
@@ -345,32 +345,37 @@ ToggleMaphack:
 return
 
 ShowPrices:
-    stickyMode := false
     ptask.c.clear()
-    if (Betrayer.isOpened())
-        Betrayer.show()
-    else if (Temple.isOpened())
-        Temple.show()
-    else if (not ptask.getHoveredItem())
-        ptask.showPrices()
-
     loop, {
-        if (item := ptask.getHoveredItem()) {
-            if (item.name && item != hoveredItem) {
+        if (Betrayer.isOpened())
+            Betrayer.show()
+        else if (Temple.isOpened())
+            Temple.show()
+        else if (archnemesis.isOpened()) {
+            archnemesis.show()
+        } else {
+            item := ptask.getHoveredItem()
+            if (item.name) {
+                if (item != hoveredItem) {
+                    ptask.c.clear()
+                    item.price := $(item)
+                    hoveredItem := item
+                }
+            } else if (hoveredItem) {
                 ptask.c.clear()
-                item.price := $(item)
-                ptask.showPrices(hoveredItem := item)
+                hoveredItem := ""
             }
+            ptask.showPrices(hoveredItem)
         }
 
-        if (GetKeyState("Ctrl"))
-            stickyMode := true
-        Sleep, 100
         if (Not GetKeyState("Alt")) {
-            if (Not stickyMode)
+            if (Not GetKeyState("Ctrl")) {
                 ptask.c.clear()
+                archnemesis.hide()
+            }
             break
         }
+        Sleep, 200
     }
 return
 
