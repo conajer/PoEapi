@@ -68,7 +68,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.7.4"
+global version := "1.7.4a"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -345,15 +345,16 @@ ToggleMaphack:
 return
 
 ShowPrices:
+    stickyMode := false
     ptask.c.clear()
     loop, {
-        if (Betrayer.isOpened())
+        if (archnemesis.isOpened())
+            archnemesis.show()
+        else if (Betrayer.isOpened())
             Betrayer.show()
         else if (Temple.isOpened())
             Temple.show()
-        else if (archnemesis.isOpened()) {
-            archnemesis.show()
-        } else {
+        else {
             item := ptask.getHoveredItem()
             if (item.name) {
                 if (item != hoveredItem) {
@@ -368,8 +369,10 @@ ShowPrices:
             ptask.showPrices(hoveredItem)
         }
 
+        if (GetKeyState("Ctrl"))
+            stickyMode := true
         if (Not GetKeyState("Alt")) {
-            if (Not GetKeyState("Ctrl")) {
+            if (Not stickyMode) {
                 ptask.c.clear()
                 archnemesis.hide()
             }
