@@ -151,8 +151,9 @@ protected:
 
 public:
 
-    const char* executable_names[3] = {
+    const char* executable_names[4] = {
         "PathOfExile.exe",
+        "PathOfExile_x64.exe",
         "PathOfExileSteam.exe",
         "PathOfExile_KG.exe"
     };
