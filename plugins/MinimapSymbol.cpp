@@ -32,6 +32,7 @@ public:
     // heist chests
     bool show_heist_chests = true;
     std::wregex heist_regex;
+    std::wregex heist_chests;
 
     bool show_player = true;
     bool show_npc = true;
@@ -60,9 +61,10 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.18"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.19"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
-        heist_regex(L"HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)")
+        heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
+        heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques")
     {
         add_property(L"showMonsters", &show_monsters, AhkBool);
         add_property(L"showCorpses", &show_corpses, AhkBool);
@@ -182,12 +184,23 @@ public:
         if (!targetable || !targetable->is_targetable())
             return;
 
-        Vector3 pos = e->pos;
-        poe->in_game_state->transform(pos);
-
         std::wsmatch match;
-        if (std::regex_search(e->path, match, heist_regex) && match.size() > 0)
-            poe->draw_text(match[2].str(), pos.x, pos.y, 0xffffff, 0xad1616, 1.0, 1);
+        if (std::regex_search(e->path, match, heist_regex) && match.size() > 0) {
+            Vector3 pos = e->pos;
+            pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+            pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+            pos.z = pos.z * scale;
+
+            int x = pos.x + shift_x;
+            int y = pos.y + shift_y;
+            poe->in_game_state->transform(pos);
+
+            wstring heist_type = match[3].str();
+            if (std::regex_search(heist_type, heist_chests))
+                poe->draw_text(heist_type, pos.x, pos.y, 0xadadad, 0x0c0c0c, .8, 1);
+            else
+                poe->draw_text(heist_type, pos.x, pos.y, 0xffff52, 0x0c0c0c, 1.0, 1);
+        }
     }
 
     void render() {
