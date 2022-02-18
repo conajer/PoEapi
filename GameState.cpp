@@ -34,7 +34,7 @@ std::map<string, int> in_game_state_offsets {
     {"in_game_data",     0x18},
         {"server_data", 0x680},
     {"ui_root",         0x1a8},
-    {"hovered",         0x1e8},
+    {"hovered",         0x1e0},
     {"hovered_item",    0x1f0},
     {"camera",           0x78},
     {"width",            0xb0},
@@ -90,10 +90,12 @@ public:
     }
 
     shared_ptr<Item> get_hovered_item() {
-        addrtype addr = read<addrtype>("hovered_item");
-        if (addr) {
-            Element e(addr);
-            return shared_ptr<Item>(new Item(e.read<addrtype>("item")));
+        addrtype element_ptr = read<addrtype>("hovered_item");
+        if (element_ptr) {
+            Element e(element_ptr);
+            addrtype item_ptr = e.read<addrtype>("item");
+            if (item_ptr)
+                return shared_ptr<Item>(new Item(item_ptr));
         }
         return nullptr;
     }
