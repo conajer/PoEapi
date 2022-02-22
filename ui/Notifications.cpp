@@ -45,7 +45,7 @@ public:
                 if (last_notification->child_count() > 2) {
                     shared_ptr<Element> player = last_notification->get_child(std::vector<int>{0, 0, 1});
                     shared_ptr<Element> notification_text = last_notification->get_child(std::vector<int>{0, 1});
-                    if (notification_text)
+                    if (player && notification_text)
                         last_notification->text = player->get_text() + L" " + notification_text->get_text();
                 } else {
                     shared_ptr<Element> notification_text = last_notification->get_child(0);
