@@ -194,6 +194,7 @@ class Pricer {
 
     update(league) {
         if (not ptask.isReady || league != ptask.league) {
+            this.league := ""
             SetTimer,, Delete
             return
         }
