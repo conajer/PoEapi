@@ -13,7 +13,7 @@ public:
     unsigned int threshold_percentage = 20;
     bool min_level = 90;
 
-    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.5") {
+    PlayerStatus() : PoEPlugin(L"PlayerStatus", "0.6") {
         life = mana = 0;
         is_dead = false;
 
@@ -70,7 +70,10 @@ public:
         if (life > 0
             && (life + es) * 100 / maximum_hp < threshold_percentage
             && local_player->level() >= min_level)
+        {
             poe->logout();
+            poe->is_ready = false;
+        }
 
         /* action */
         Actor* actor = player->get_component<Actor>();
