@@ -213,9 +213,10 @@ public:
 
     AhkObjRef* get_inventory() {
         if (is_ready) {
-           Inventory* inventory = in_game_ui->get_inventory();
-            __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
-            return inventory->obj_ref;
+           if (Inventory* inventory = in_game_ui->get_inventory()) {
+                __set(L"inventory", (AhkObjRef*)*inventory, AhkObject, nullptr);
+                return *inventory;
+           }
         }
         __set(L"inventory", nullptr, AhkObject, nullptr);
 
@@ -231,7 +232,7 @@ public:
                                       (AhkObjRef*)*slot, AhkObject, nullptr);
             }
             __set(L"inventories", (AhkObjRef*)inventory_slots, AhkObject, nullptr);
-            return inventory_slots.obj_ref;
+            return inventory_slots;
         }
         __set(L"inventories", nullptr, AhkObject, nullptr);
 
@@ -240,10 +241,11 @@ public:
 
     AhkObjRef* get_stash() {
         if (is_ready) {
-            Stash* stash = in_game_ui->get_stash();
-            stash->__set(L"tabs", nullptr, AhkObject, nullptr);
-            __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
-            return stash->obj_ref;
+            if (Stash* stash = in_game_ui->get_stash()) {
+                stash->__set(L"tabs", nullptr, AhkObject, nullptr);
+                __set(L"stash", (AhkObjRef*)*stash, AhkObject, nullptr);
+                return *stash;
+            }
         }
         __set(L"stash", nullptr, AhkObject, nullptr);
 
