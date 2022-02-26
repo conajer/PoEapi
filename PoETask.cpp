@@ -454,14 +454,13 @@ public:
         if (!is_attached) {
             is_attached = true;
             PostThreadMessage(owner_thread_id, WM_PTASK_ATTACHED, (WPARAM)window, (LPARAM)0);
+            Sleep(100);
         }
 
         HANDLE active_window = GetForegroundWindow();
         if (active_window != window) {
             if (is_active) {
                 is_active = false;
-                PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)active_window, (LPARAM)0);
-                Sleep(300);
                 PostThreadMessage(owner_thread_id, WM_PTASK_ACTIVE, (WPARAM)active_window, (LPARAM)0);
             }
         } else {
@@ -518,6 +517,9 @@ public:
     }
 
     void check_game() {
+        if (!task_mutex.try_lock())
+            return;
+
         check_game_state();
         check_window_state();
         check_stash_and_inventory();
@@ -536,13 +538,13 @@ public:
                 // wait for loading the game instance.
                 while (is_loading) {
                     check_game_state();
-                    Sleep(500);
                 }
             }
 
             if (!is_ready)
                 PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
         }
+        task_mutex.unlock();
     }
 
     void check_player() {
@@ -559,9 +561,10 @@ public:
             }
         }
 
-        for (auto& i : plugins)
-            if (i.second->enabled)
+        for (auto& i : plugins) {
+            if (is_ready && i.second->enabled)
                 i.second->on_player(local_player, in_game_state.get());
+        }
     }
 
     void check_entities() {
@@ -624,8 +627,12 @@ public:
     }
 
     void stop() {
+        is_ready = false;
+        if (in_game_data)
+            in_game_data->force_reset = true;
         Hud::stop();
         Task::stop();
+        std::unique_lock<std::mutex> lock(task_mutex);
     }
 
     bool toggle_maphack() {
@@ -691,7 +698,7 @@ public:
     }
 
     int has_buff(const wchar_t* name) {
-        if (local_player) {
+        if (is_ready && local_player) {
             Buffs* buffs = local_player->get_component<Buffs>();
             return buffs->has_buff(name);
         }
