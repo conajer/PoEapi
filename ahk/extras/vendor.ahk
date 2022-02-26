@@ -6,7 +6,7 @@ addMenuItem("__vendor", _("Trade quality gems"), "tradeGems")
 addMenuItem("__vendor", _("Trade divination cards"), "tradeDivinationCards")
 addMenuItem("__vendor", _("Trade full rare sets"), "tradeFullRareSets")
 addMenuItem("__vendor")
-addMenuItem("__vendor", _("Unstack divination cards"), "unstackCards")
+addMenuItem("__vendor", _("Open stacked decks"), "openStackedDecks")
 addMenuItem("__vendor")
 addMenuItem("__vendor", _("Sort items"), "sortItems")
 addMenuItem("__vendor", _("Dump useless items (< 1 Chaos)"), "dumpUselessItems")
@@ -250,29 +250,49 @@ dumpStashTabItems() {
     }
 }
 
-unstackCards() {
+openStackedDecks() {
     ptask.activate()
     if (ptask.stash.isOpened())
         inventory := ptask.stash.Tab
     else if (ptask.inventory.open())
         inventory := ptask.inventory
 
-    for i, item in inventory.getItems() {
-        if (item.name == _("Stacked Deck")) {
-            index := item.index
-            loop, % item.stackCount {
-                if (Not ptask.inventory.freeCells())
-                    return
+    n := 0
+    debug("Open stacked decks:")
+    for i, item in inventory.findItems(_("Stacked Deck")) {
+        index := item.index
+        loop, % item.stackCount {
+            if (Not ptask.inventory.freeCells())
+                break
 
-                inventory.moveTo(index)
-                Sleep, 50
-                MouseClick, Right
-                Sleep, 100
+            inventory.moveTo(index)
+            MouseClick, Right
+            Sleep, 100
 
-                if (Not ptask.inventory.drop())
-                    return
+            divinationCard := ptask.inventories[13].getItemByIndex(1)
+            price := $(divinationCard)
+            if (price > 5)
+                debug("    {:2d}. <b style='color: red;'>{}, {:g}</b>", ++n, divinationCard.name, price)
+            else if (price > 1)
+                debug("    {:2d}. {}, {:g}", ++n, divinationCard.name, price)
+            else
+                debug("    {:2d}. <span style='color: grey;'>{}, {:g}</span>", ++n, divinationCard.name, price)
+
+            stackedCards := ptask.inventory.findItems(divinationCard.name)
+            if (stackedCards.Length() > 0) {
+                for i, item in stackedCards {
+                    if (item.stackCount() < item.stackSize()) {
+                        ptask.inventory.moveTo(item.index)
+                        MouseClick
+                        break
+                    }
+                }
+            } else if (Not ptask.inventory.drop()) {
+                break
             }
+            Sleep, 50
         }
+        debug("Opened <b>{}</b> stacked decks.", n)
     }
 }
 
