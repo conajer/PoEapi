@@ -58,7 +58,7 @@ ArchnemesisMods_json =
     "Soul Eater":         [3, "Monster empowers when nearby allies die. Periodically summons Phantasms", "2 x Maps"],
     "Evocationist":       [3, "Monster is imbued with Elemental Damage, Resistances and Ailments", "Generic Weapon Armour Trinkets"],
     "Invulnerable":       [3, "Monster and its Minions periodically become immune to all Damage. Minions cannot die while Monster is alive", "Delirium Metamorphosis"],
-    "Crystal-Skinned":    [3, "Monster triggers the creation of Crystals when hit. Crystals explode when the Monster dies", "2 x Harbinger"],
+    "Crystal-skinned":    [3, "Monster triggers the creation of Crystals when hit. Crystals explode when the Monster dies", "2 x Harbinger"],
     "Empowered Elements": [3, "Monster cycles between imbued damage of a particular type and immunity to all other damage types", "2 x Uniques", "Rewards are rolled 1 additional time, choosing the rarest result"],
     "Effigy":             [3, "Monster creates an Effigy of the player. Damage dealt to the Effigy is also reflected to the bonded player", "2 x DivinationCards", "Rewards are rolled 1 additional time, choosing the rarest result"],
 
@@ -115,7 +115,7 @@ class Archnemesis extends WebGui {
                       , ["Invulnerable",        ["Sentinel", "Juggernaut", "Consecrator"]]
                       , ["Empowering Minions",  ["Necromancer", "Executioner", "Gargantuan"]]
                       , ["Effigy",              ["Hexer", "Malediction", "Corrupter"]]
-                      , ["Crystal-Skinned",     ["Rejuvenating", "Permafrost", "Berserker"]]
+                      , ["Crystal-skinned",     ["Rejuvenating", "Permafrost", "Berserker"]]
                       , ["Temporal Bubble",     ["Juggernaut", "Hexer", "Arcane Buffer"]]
                       , ["Empowered Elements",  ["Evocationist", "Steel-infused", "Chaosweaver"]]
                       , ["Trickster",           ["Overcharged", "Assassin", "Echoist"]]
@@ -337,6 +337,7 @@ class Archnemesis extends WebGui {
         if (RegExMatch(e.getObject(0x3d0).readString(0x230, 32), "[^\n\r]+", name)) {
             if (name != this.selected) {
                 this._("#recipe_combo").innerHTML := ""
+                this.add(name, this.getRecipe(name))
                 this.checkMod(name)
                 this.bindAll("tr")
                 this.selected := name
