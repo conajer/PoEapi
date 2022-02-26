@@ -173,6 +173,9 @@ tradeFullRareSets() {
 
     vendor := ptask.getVendor()
     loop {
+        if (GetKeyState("Ctrl"))
+            break
+
         rareItems := rareSets.get()
         if (Not rareItems || Not ptask.stash.open())
             break
@@ -208,6 +211,8 @@ dumpInventoryItems() {
         return
 
     for i, item in ptask.inventory.getItems() {
+        if (GetKeyState("Ctrl"))
+            break
         ptask.inventory.move(item)
     }
 }
@@ -227,7 +232,7 @@ dumpStashTabItems() {
         if (aItem.stackCount > 1)
             n += aItem.stackCount // aItem.stackSize
 
-        if (ptask.inventory.freeCells() == 0)
+        if (GetKeyState("Ctrl") || ptask.inventory.freeCells() == 0)
             return
 
         if (n > 1) {
@@ -322,6 +327,9 @@ sortItems() {
     t0 := A_Tickcount
 
     loop % tab.rows * tab.cols {
+        if (GetKeyState("Ctrl"))
+            break
+
         offset := A_Index
         selected := A_Index
         loop % tab.rows * tab.cols - offset {
