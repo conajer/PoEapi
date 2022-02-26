@@ -239,13 +239,10 @@ AutoClick() {
 
         x0 := x
         y0 := y
-        if (GetKeyState("Shift", "P")) {
-            SendInput, +{Click}
-            Sleep, 100
-        } else {
-            SendInput, ^{Click}
-        }
-        Sleep, 30
+        keys .= GetKeyState("Ctrl", "P") ? "^" : ""
+        keys .= GetKeyState("Shift", "P") ? "+" : ""
+        SendInput, %keys%{Click}
+        Sleep, 100
     }
     clickerEnabled := false
 }
@@ -285,7 +282,10 @@ return
 AutoCtrlClick:
     If (A_PriorHotKey = A_ThisHotKey and A_TimeSincePriorHotkey < 200)
         clickerEnabled := true
-    SendInput, ^{Click}
+    if (GetKeyState("Shift", P))
+        SendInput, ^+{Click}
+    else
+        SendInput, ^{Click}
     SetTimer, AutoClick, -200
 return
 
