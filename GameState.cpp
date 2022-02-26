@@ -61,7 +61,7 @@ public:
     InGameUI* in_game_ui() {
         addrtype addr = read<addrtype>("in_game_ui");
         if (!igu || igu->address != addr)
-            igu.reset(new InGameUI(addr));
+            igu.reset(addr ? new InGameUI(addr) : nullptr);
 
         return igu.get();
     }
@@ -69,7 +69,7 @@ public:
     InGameData* in_game_data() {
         addrtype addr = read<addrtype>("in_game_data");
         if (!igd || igd->address != addr)
-            igd.reset(new InGameData(addr));
+            igd.reset(addr ? new InGameData(addr) : nullptr);
 
         return igd.get();
     }
@@ -77,7 +77,7 @@ public:
     ServerData* server_data() {
         addrtype addr = read<addrtype>("in_game_data", "server_data");
         if (!sd || sd->address != addr)
-            sd.reset(new ServerData(addr));
+            sd.reset(addr ? new ServerData(addr) : nullptr);
 
         return sd.get();
     }
