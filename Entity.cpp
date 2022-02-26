@@ -101,9 +101,9 @@ public:
     wstring type_name;
     wstring path;
     int id;
-    Life *health;
-    Positioned* positioned;
-    Render* render;
+    Life *health = nullptr;
+    Positioned* positioned = nullptr;
+    Render* render = nullptr;
     shared_ptr<Element> label;
     shared_ptr<Item> item;
     Vector3 pos;
