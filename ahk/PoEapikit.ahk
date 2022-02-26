@@ -309,7 +309,7 @@ AutoFillPrice:
             return
 
         loop, 10 {
-            e := ptask.getIngameUI().getChild(143, 1)
+            e := ptask.getIngameUI().getChild(145, 1)
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible() && not tag.getText()) {
                 exalted := $("Exalted Orb")
