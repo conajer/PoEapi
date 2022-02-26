@@ -165,9 +165,6 @@ class PoETask extends AhkObj {
                 plugins[name][key] := value
         }
 
-        ; Start PoE task
-        this.start()
-
         ; 'Create' Rules objects manually
         IdentifyExceptions.base := Rules
         VendorRules.base := Rules

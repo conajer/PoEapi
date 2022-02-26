@@ -78,6 +78,9 @@ syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiV
 #Include, %A_ScriptDir%\extras\Trader.ahk
 #Include, %A_ScriptDir%\extras\Updater.ahk
 
+; Start PoE task
+ptask.start()
+
 ; Patreon only features
 #Include, %A_ScriptDir%\patreon.ahk
 
