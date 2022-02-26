@@ -42,10 +42,10 @@ global PoEOffsets = { "version" : "3.17", "offsets"
                         ,     "skill_points_from_quest" : 0x244
                         ,     "ascendancy_skill_points" : 0x24c
                         , "league"                      : 0x89e0
-                        , "latency"                     : 0x8a68
-                        , "party_status"                : 0x8c40
-                        , "stash_tabs"                  : 0x8a70
-                        , "inventory_slots"             : 0x8eb0 }
+                        , "latency"                     : 0x8a70
+                        , "party_status"                : 0x8c48
+                        , "stash_tabs"                  : 0x8a78
+                        , "inventory_slots"             : 0x8eb8 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
