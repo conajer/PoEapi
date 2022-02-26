@@ -52,11 +52,6 @@ std::map<string, int> in_game_ui_offsets {
         {"count",       0x2b0},
 };
 
-enum {
-    InventoryIndex  = 32,
-    StashIndex      = 33,
-};
-
 class InGameUI : public Element {
 public:
 
@@ -109,30 +104,34 @@ public:
     }
 
     bool has_active_panel() {
-        if (read<short>("panel_flags") || chat->is_opened() || vendor->is_selected())
-            return true;
-
-        for (auto& i : active_panels) {
-            if (i.second && i.second->is_visible())
+        if (address) {
+            if (read<short>("panel_flags") || chat->is_opened() || vendor->is_selected())
                 return true;
+
+            for (auto& i : active_panels) {
+                if (i.second && i.second->is_visible())
+                    return true;
+            }
         }
 
         return false;
     }
 
     Inventory* get_inventory() {
-        shared_ptr<Element> e = get_child("inventory");
-        addrtype addr = PoEMemory::read<addrtype>(e->address + (*offsets)["grid"]);
-        if (!inventory || inventory->address != addr)
-            inventory = unique_ptr<Inventory>(new Inventory(addr));
+        if (shared_ptr<Element> e = get_child("inventory")) {
+            addrtype addr = PoEMemory::read<addrtype>(e->address + (*offsets)["grid"]);
+            if (!inventory || inventory->address != addr)
+                inventory = unique_ptr<Inventory>(new Inventory(addr));
+        }
         return inventory.get();
     }
 
     Stash* get_stash() {
-        shared_ptr<Element> e = get_child("stash");
-        addrtype addr = PoEMemory::read<addrtype>(e->address + (*offsets)["tabs"]);
-        if (!stash || stash->address != addr)
-            stash = unique_ptr<Stash>(new Stash(addr));
+        if (shared_ptr<Element> e = get_child("stash")) {
+            addrtype addr = PoEMemory::read<addrtype>(e->address + (*offsets)["tabs"]);
+            if (!stash || stash->address != addr)
+                stash = unique_ptr<Stash>(new Stash(addr));
+        }
         return stash.get();
     }
 
@@ -237,17 +236,16 @@ public:
         entities.swap(removed);
         entities.clear();
         addrtype root = read<addrtype>("entity_list", "root");
-        int count = read<addrtype>("entity_list", "count");
-        addrtype next = root;
+        int count = std::min(read<int>("entity_list", "count"), 1024);
 
+        addrtype next = root;
         while (1) {
             next = PoEMemory::read<addrtype>(next);
             if (!next || next == root || entities.size() > count)
                 break;
 
             addrtype label = PoEMemory::read<addrtype>(next + 0x10);
-            bool is_visible = PoEMemory::read<byte>(label + 0x161) & 0x8;
-            if (!is_visible)
+            if (!(PoEMemory::read<byte>(label + 0x161) & 0x8))
                 continue;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x18);
