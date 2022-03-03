@@ -232,13 +232,13 @@ dumpStashTabItems() {
         if (aItem.stackCount > 1)
             n += aItem.stackCount // aItem.stackSize
 
-        if (GetKeyState("Ctrl") || ptask.inventory.freeCells() == 0)
-            return
+        if (ptask.inventory.freeCells() == 0)
+            break
 
         if (n > 1) {
             loop, % n {
                 if (ptask.inventory.freeCells() == 0)
-                    return
+                    break
 
                 SendInput, ^{Click}
                 Sleep, 100
@@ -247,6 +247,9 @@ dumpStashTabItems() {
             SendInput, ^{Click}
             Sleep, 30
         }
+
+        if (A_Index > 1 && GetKeyState("Ctrl"))
+            break
     }
 }
 
