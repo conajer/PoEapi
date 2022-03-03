@@ -217,9 +217,13 @@ class Inventory extends InventoryGrid {
             SendInput, %InventoryKey%
 
         if (Not ptask.player.isMoving()) {
-            Sleep, 100
-            portal := ptask.getNearestEntity("Portal")
-            portal.getPos(x, y)
+            loop, 3 {
+                Sleep, 100
+                portal := ptask.getNearestEntity("Portal")
+                portal.getPos(x, y)
+                if (x && y)
+                    break
+            }
             MouseMove, x, y + 100, 0
             return
         }
@@ -506,7 +510,7 @@ class Stash extends Element {
             if (this.tabs.hasKey(tabName)) {
                 tabIndex := this.tabs[tabName].index
             } else {
-                for i, tab in ptask.getStashTabs() {
+                for i, tab in ptask.stashTabs {
                     if (tab.name == tabName) {
                         tabIndex := tab.index + 1
                         break
