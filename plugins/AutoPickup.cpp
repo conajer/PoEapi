@@ -34,7 +34,7 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.17") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.18") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -84,6 +84,7 @@ public:
 
     void stop_pickup() {
         is_picking = false;
+        selected_item.reset();
     }
 
     bool check_item(addrtype address) {
@@ -99,12 +100,13 @@ public:
         int ilvl = item.get_item_level();
         switch (strict_level) {
         case 0:
-            if (rarity == 2 && (ilvl >= 60 && ilvl < 75)
-                && !item.is_identified() && item.get_size() <= 6)
+            if (rarity == 3 || item.is_rgb())
+                return true;
+            if (rarity == 2 && !item.identified && ilvl >= 60 && ilvl < 75 && item.size <= 6)
                 return true;
 
         case 1:
-            if (rarity == 3 || item.get_sockets() == 6 || item.is_rgb())
+            if (item.get_sockets() == 6)
                 return true;
             if (item.has_component("SkillGem"))
                 return (item.get_quality() >= 5);
@@ -150,8 +152,9 @@ public:
         std::lock_guard<std::mutex> guard(selected_item_mutex);
         int action_id = local_player->actor->action_id();
         if (action_id & 0x82) {
-            if (selected_item && !local_player->actor->target_address)
+            if (selected_item && !local_player->actor->target_address) {
                 stop_pickup();
+            }
         }
     }
 
@@ -160,8 +163,9 @@ public:
             return;
 
         if (GetTickCount() - last_pickup > 3000) {
-            if (selected_item)
+            if (selected_item) {
                 ignored_entities[selected_item->id] = selected_item;
+            }
             stop_pickup();
             return;
         }
