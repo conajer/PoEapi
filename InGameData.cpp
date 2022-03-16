@@ -123,38 +123,6 @@ protected:
             foreach(entity_id, entity_address);
     }
 
-    void traverse_entity_list2(addrtype root, addrtype node, int count) {
-        std::queue<addrtype> q_nodes;
-        q_nodes.push(node);
-        while (!q_nodes.empty()) {
-            node = q_nodes.front();
-            q_nodes.pop();
-            if (force_reset || ((node ^ root) & mask) || entity_list_nodes.count(node))
-                continue;
-
-            entity_list_nodes.insert(node);
-            if (entity_list_nodes.size() > count)
-                break;
-
-            addrtype buffer[8];
-            if (!PoEMemory::read<addrtype>(node, buffer, 8))
-                break;
-
-            addrtype entity_address = buffer[5];
-            if ((entity_address ^ root) & mask)
-                return;
-
-            int entity_id = buffer[4];
-            if (entity_id > 0)
-                entity_list_index[entity_id] = entity_address;
-
-            if (buffer[0] != root)
-                q_nodes.push(buffer[0]);
-            if (buffer[2] != root)
-                q_nodes.push(buffer[2]);
-        }
-    }
-
 public:
 
     shared_ptr<AreaTemplate> area;
