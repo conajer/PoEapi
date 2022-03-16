@@ -6,7 +6,7 @@ global PoEOffsets = { "version" : "3.17", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         , "all_game_states"             : 0x48 }
 
-      , "IngameState" : { "in_game_ui"                  : 0x438
+      , "IngameState" : { "in_game_ui"                  : 0x440
                         , "in_game_data"                : 0x18
                         ,     "server_data"             : 0x680
                         , "ui_root"                     : 0x1a8
