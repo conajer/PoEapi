@@ -352,6 +352,20 @@ class PoETask extends AhkObj {
         return false
     }
 
+    getPartyMembers() {
+        if (this.getPartyStatus() == 3)
+            return
+
+        members := {}
+        for i, e in this.getIngameUI().getChild(21, 1, 1).getChilds() {
+            debug(e.address)
+            name := e.getChild(1).getText()
+            members[name] := e
+        }
+
+        return members
+    }
+
     checkStats(item) {
         for itemType, stats in this.statGroups {
             if ((item.baseType ~= itemType) || (item.subType ~= itemType))
