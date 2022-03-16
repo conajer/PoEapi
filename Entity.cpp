@@ -330,6 +330,9 @@ protected:
     
 public:
 
+    bool identified = false;
+    bool size = 1;
+
     Item(addrtype address) : Entity(address) {
         base = get_component<Base>();
         mods = get_component<Mods>();
@@ -337,6 +340,9 @@ public:
 
     void __init() {
         Entity::__init();
+        identified = is_identified();
+        size = get_size();
+
         add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted, AhkBool);
         add_method(L"isBlighted", this, (MethodType)&Item::is_blighted, AhkBool);
         add_method(L"isCrafted", this, (MethodType)&Item::is_crafted, AhkBool);
