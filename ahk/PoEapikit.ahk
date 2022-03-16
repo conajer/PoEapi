@@ -230,10 +230,19 @@ AutoClick() {
     global clickerEnabled
 
     MouseGetPos, x0, y0
+    keys := GetKeyState("Ctrl") ? "^" : ""
+    keys .= GetKeyState("Shift") ? "+" : ""
+    if (GetKeyState("LButton", "P")) {
+        button := "LButton"
+        keys := keys "{Click}"
+    } else {
+        button := "RButton"
+        keys .= "{Click, Right}"
+    }
     Loop {
-        if (Not clickerEnabled && Not GetKeyState("LButton", "P"))
+        if (Not clickerEnabled && Not GetKeyState(button, "P"))
             break
-        if (Not GetKeyState("Ctrl", "P") && Not GetKeyState("Shift", "P"))
+        if (Not GetKeyState("Ctrl") && Not GetKeyState("Shift"))
             break
 
         MouseGetPos, x, y
@@ -242,9 +251,7 @@ AutoClick() {
 
         x0 := x
         y0 := y
-        keys .= GetKeyState("Ctrl", "P") ? "^" : ""
-        keys .= GetKeyState("Shift", "P") ? "+" : ""
-        SendInput, %keys%{Click}
+        SendInput, %keys%
         Sleep, 100
     }
     clickerEnabled := false
