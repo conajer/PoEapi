@@ -34,6 +34,9 @@ public:
     std::wregex heist_regex;
     std::wregex heist_chests;
 
+    // strongbox
+    bool show_strongbox_chest = true;
+
     bool show_player = true;
     bool show_npc = true;
     bool show_minions = true;
@@ -71,6 +74,8 @@ public:
         add_property(L"rarity", &rarity, AhkInt);
         add_property(L"showDelveChests", &show_delve_chests, AhkBool);
         add_property(L"showHeistChests", &show_heist_chests, AhkBool);
+        add_property(L"showStrongboxChests", &show_strongbox_chest, AhkBool);
+        
         add_property(L"showPlayer", &show_player, AhkBool);
         add_property(L"showNPC", &show_npc, AhkBool);
         add_property(L"showMinions", &show_minions, AhkBool);
@@ -263,7 +268,7 @@ public:
                     draw_delve_chests(entity);
                 else if (show_heist_chests && entity->path.find(L"/HeistChest") != wstring::npos)
                     draw_heist_chests(entity);
-                else if (chest->is_strongbox() && !chest->is_opened())
+                else if (show_strongbox_chest && chest->is_strongbox() && !chest->is_opened())
                     draw_object(entity, 10, min_size + 1, 0);
                 else
                     ignored_entities.push_back(i.first);

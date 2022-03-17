@@ -42,6 +42,7 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true}
                                             , "rarity"             : 1
                                             , "showDelveChests"    : true
                                             , "showHeistChests"    : true
+                                            , "showStrongboxChests": true
                                             , "minSize"            : 4
                                             , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter" }
                         , "PlayerStatus"  : { "enabled" : true
