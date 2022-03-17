@@ -131,6 +131,25 @@ public:
         scale = 1. / factor * minimap->zoom();
     }
 
+    void draw_object(Entity* e, int index, int size, int rarity_minimum = 2) {
+        Vector3 pos = e->pos;
+        pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+        pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+        pos.z = pos.z * scale;
+        poe->in_game_state->transform(pos);
+
+        int x = pos.x + shift_x;
+        int y = pos.y + shift_y;
+        
+        if (texture_enabled) 
+            poe->draw_bitmap(textures[index], x-size, y-size, x+size, y+size);
+        else 
+            poe->draw_rect(x-size, y-size, x+size, y+size, entity_colors[index], opacity);
+        
+        if (e->rarity >= rarity_minimum)
+            poe->draw_rect(x-size, y-size, x+size, y+size, entity_colors[index], 2);
+    }
+
     void draw_entity(Entity* e, int index, int size) {
         Vector3 pos = e->pos;
         pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
@@ -239,10 +258,13 @@ public:
                 if (show_player)
                     draw_entity(entity, 10, min_size + 4);
             } else if (entity->has_component("Chest")) {
+                Chest* chest = entity->get_component<Chest>();
                 if (show_delve_chests && entity->path.find(L"/DelveChests") != wstring::npos)
                     draw_delve_chests(entity);
                 else if (show_heist_chests && entity->path.find(L"/HeistChest") != wstring::npos)
                     draw_heist_chests(entity);
+                else if (chest->is_strongbox() && !chest->is_opened())
+                    draw_object(entity, 10, min_size + 1, 0);
                 else
                     ignored_entities.push_back(i.first);
             } else {
