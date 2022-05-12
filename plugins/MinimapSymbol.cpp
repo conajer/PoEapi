@@ -31,8 +31,10 @@ public:
 
     // heist chests
     bool show_heist_chests = true;
+    const wchar_t* font_name = L"Fontin SmallCaps";
+    int font_size = 12;
     std::wregex heist_regex;
-    std::wregex heist_chests;
+    std::wregex ignored_heist_chests;
 
     bool show_player = true;
     bool show_npc = true;
@@ -61,10 +63,10 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.19"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.20"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
-        heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques")
+        ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques")
     {
         add_property(L"showMonsters", &show_monsters, AhkBool);
         add_property(L"showCorpses", &show_corpses, AhkBool);
@@ -78,11 +80,22 @@ public:
         add_property(L"opacity", &opacity, AhkFloat);
         add_property(L"textureEnabled", &texture_enabled, AhkBool);
 
+        add_method(L"setFontSize", this, (MethodType)&MinimapSymbol::set_font_size, AhkVoid, ParamList{AhkInt});
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
+        add_method(L"setIgnoredHeistChests", this, (MethodType)&MinimapSymbol::set_ignored_heist_chests, AhkVoid, ParamList{AhkWString});
     }
 
     void set_ignored_delve_chests(const wchar_t* regex_string) {
         ignored_delve_chests.assign(regex_string);
+    }
+
+    void set_ignored_heist_chests(const wchar_t* regex_string) {
+        ignored_heist_chests.assign(regex_string);
+    }
+
+    void set_font_size(int font_size) {
+        this->font_size = font_size;
+        poe->set_font(font_name, font_size);
     }
 
     void load_textures() {
@@ -196,7 +209,7 @@ public:
             poe->in_game_state->transform(pos);
 
             wstring heist_type = match[3].str();
-            if (std::regex_search(heist_type, heist_chests))
+            if (std::regex_search(heist_type, ignored_heist_chests))
                 poe->draw_text(heist_type, pos.x, pos.y, 0xadadad, 0x0c0c0c, .8, 1);
             else
                 poe->draw_text(heist_type, pos.x, pos.y, 0xffff52, 0x0c0c0c, 1.0, 1);
@@ -257,6 +270,11 @@ public:
             poe->pop_rectangle_clip();
             is_clipped = false;
         }
+    }
+
+    void on_load(PoE& poe, int owner_thread_id) {
+        PoEPlugin::on_load(poe, owner_thread_id);
+        poe.set_font(font_name, font_size);
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
