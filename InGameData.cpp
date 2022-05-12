@@ -34,11 +34,11 @@ std::map<string, int> in_game_data_offsets {
         {"area_index",     0x38},
     {"area_level",         0xa0},
     {"area_hash",         0x114},
-    {"local_player",      0x688},
-    {"entity_list",       0x738},
+    {"local_player",      0x678},
+    {"entity_list",       0x728},
         {"root",            0x8},
-    {"entity_list_count", 0x740},
-    {"terrain",           0x750},
+    {"entity_list_count", 0x730},
+    {"terrain",           0x740},
 };
 
 class InGameData : public RemoteMemoryObject, Parallel<addrtype> {
@@ -83,7 +83,7 @@ protected:
             return;
         }
 
-        if (new_entities++ <= 32) {
+        if (new_entities++ <= 64) {
             std::shared_ptr<Entity> entity(new Entity(entity_address, path.c_str()));
             std::unique_lock<std::mutex> lock(entity_list_mutex);
             entity_list[entity_id] = entity;
@@ -178,7 +178,7 @@ public:
         entities.added.clear();
 
         root = read<addrtype>("entity_list");
-        count = read<addrtype>("entity_list_count");
+        count = std::min(read<int>("entity_list_count"), 1024);
         if ((root ^ address) & mask)
             return 0;
 

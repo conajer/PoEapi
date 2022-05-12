@@ -71,12 +71,12 @@ enum ActionFlags {
 
 static std::map<string, int> actor_component_offsets {
     {"action",       0x1a8},
-        {"skill",    0xb8},
-        {"target",   0xe8},
+        {"skill",     0xb8},
+        {"target",    0xe8},
     {"action_id",    0x208},
     {"action_count", 0x20a},
-    {"vaal_skills",  0x6b0},
-    {"skills",       0x6a8},
+    {"skills",       0x690},
+    {"vaal_skills",  0x6c0},
 };
 
 class Actor : public Component {

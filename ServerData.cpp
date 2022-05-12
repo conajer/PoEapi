@@ -247,6 +247,8 @@ static const wchar_t* stash_tab_types[] = {
     L"Metamorph",
     L"Delirium",
     L"Folder",
+    L"Flask",
+    L"Gem",
 };
 
 enum StashTabFlags {
@@ -336,8 +338,8 @@ std::map<string, int> server_data_offsets {
     {"league",                     0x89e0},
     {"latency",                    0x8a68},
     {"party_status",               0x8c40},
-    {"stash_tabs",                 0x8a70},
-    {"inventory_slots",            0x8eb0},
+    {"stash_tabs",                 0x8a78},
+    {"inventory_slots",            0x8eb8},
 };
 
 class ServerData : public RemoteMemoryObject {

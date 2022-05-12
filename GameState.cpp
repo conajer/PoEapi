@@ -32,14 +32,14 @@ public:
 std::map<string, int> in_game_state_offsets {
     {"in_game_ui",      0x438},
     {"in_game_data",     0x18},
-        {"server_data", 0x680},
-    {"ui_root",         0x1a8},
-    {"hovered",         0x1e0},
-    {"hovered_item",    0x1f0},
+        {"server_data", 0x670},
+    {"ui_root",         0x1a0},
+    {"hovered",         0x1d8},
+    {"hovered_item",    0x1e8},
     {"camera",           0x78},
-    {"width",            0xb0},
-    {"height",           0xb4},
-    {"matrix",          0x128},
+        {"width",        0xb0},
+        {"height",       0xb4},
+        {"matrix",      0x128},
 };
 
 class InGameState : public GameState {

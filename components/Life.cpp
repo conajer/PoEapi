@@ -5,16 +5,16 @@
 /* Life component offsets */
 
 static FieldOffsets life_component_offsets {
-    {"maximum_life",          0x24c},
-    {"life",                  0x250},
-    {"reserved_life_flat",    0x254},
-    {"reserved_life_percent", 0x258},
-    {"maximum_mana",          0x1b4},
-    {"mana",                  0x1b8},
-    {"reserved_mana_flat",    0x1bc},
-    {"reserved_mana_percent", 0x1c0},
-    {"maximum_energy_shield", 0x1ec},
-    {"energy_shield",         0x1f0},
+    {"maximum_life",          0x234},
+    {"life",                  0x238},
+    {"reserved_life_flat",    0x23c},
+    {"reserved_life_percent", 0x240},
+    {"maximum_mana",          0x19c},
+    {"mana",                  0x1a0},
+    {"reserved_mana_flat",    0x1a4},
+    {"reserved_mana_percent", 0x1a8},
+    {"maximum_energy_shield", 0x1d4},
+    {"energy_shield",         0x1d8},
 };
 
 class Life : public Component {
