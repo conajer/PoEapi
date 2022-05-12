@@ -6,12 +6,12 @@ global PoEOffsets = { "version" : "3.17", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         , "all_game_states"             : 0x48 }
 
-      , "IngameState" : { "in_game_ui"                  : 0x440
+      , "IngameState" : { "in_game_ui"                  : 0x438
                         , "in_game_data"                : 0x18
-                        ,     "server_data"             : 0x680
-                        , "ui_root"                     : 0x1a8
-                        , "hovered"                     : 0x1e0
-                        , "hovered_item"                : 0x1f0
+                        ,     "server_data"             : 0x670
+                        , "ui_root"                     : 0x1a0
+                        , "hovered"                     : 0x1d8
+                        , "hovered_item"                : 0x1e8
                         , "camera"                      : 0x78
                         ,     "width"                   : 0xb0
                         ,     "height"                  : 0xb4
@@ -21,16 +21,16 @@ global PoEOffsets = { "version" : "3.17", "offsets"
                         , "area_data"                   : 0x88
                         ,     "area_index"              : 0x38
                         , "area_level"                  : 0xa0
-                        , "area_hash"                   : 0x114
-                        , "local_player"                : 0x688
-                        , "entity_list"                 : 0x738
+                        , "area_hash"                   : 0x104
+                        , "local_player"                : 0x678
+                        , "entity_list"                 : 0x728
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x740 }
+                        , "entity_list_count"           : 0x730 }
 
-      , "IngameUI"    : { "lefe_panel"                  : 0x580
-                        , "right_panel"                 : 0x588
-                        , "panel_flags"                 : 0x590
-                        , "entity_list"                 : 0x6c0
+      , "IngameUI"    : { "lefe_panel"                  : 0x550
+                        , "right_panel"                 : 0x558
+                        , "panel_flags"                 : 0x560
+                        , "entity_list"                 : 0x690
                         ,     "root"                    : 0x2a8
                         ,     "count"                   : 0x2b0 }
 
