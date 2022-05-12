@@ -5,9 +5,9 @@
 /* Chest component offsets */
 
 static std::map<string, int> chest_component_offsets {
-    {"is_opened",    0x178},
-    {"is_locked",    0x179},
-    {"is_strongbox", 0x1b8},
+    {"is_opened",    0x160},
+    {"is_locked",    0x161},
+    {"is_strongbox", 0x1a0},
 };
 
 class Chest : public Component {
