@@ -115,7 +115,7 @@ protected:
         return len;
     }
 
-    int compare(byte* pattern, byte* data, byte* mask, int len) {
+    int compare(const byte* pattern, const byte* data, const byte* mask, int len) {
         int matched = true;
 
         for (int i = 0; i < len; i++) {
@@ -128,17 +128,13 @@ protected:
         return matched;
     }
 
-    addrtype find_pattern(const char* pattern_str) {
-        byte pattern[256];
-        byte mask[256];
-        int len = parse_pattern(pattern_str, pattern, mask);
-
+    addrtype find_bytes(const byte* data, const byte* mask, int len) {
         addrtype end_address = base_address + size_of_image;
         byte* buffer = new byte[size_of_image];
 
         if (PoEMemory::read(base_address, buffer, size_of_image)) {
             for (int i = 0; i < size_of_image - len; i++) {
-                if (compare(pattern, &buffer[i], mask, len)) {
+                if (compare(data, &buffer[i], mask, len)) {
                     delete[] buffer;
                     return base_address + i;
                 }
@@ -147,6 +143,20 @@ protected:
         delete[] buffer;
 
         return 0;
+    }
+
+    addrtype find_string(const string str) {
+        byte mask[str.length()];
+        for (int i = 0; i < str.length(); ++i)
+            mask[i] = 'x';
+
+        return find_bytes((const byte*)str.c_str(), mask, str.length());
+    }
+
+    addrtype find_pattern(const char* pattern_str) {
+        byte pattern[256], mask[256];
+        int len = parse_pattern(pattern_str, pattern, mask);
+        return find_bytes(pattern, mask, len);
     }
 
 public:
