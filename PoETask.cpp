@@ -91,6 +91,7 @@ public:
         add_method(L"start", (Task*)this, (MethodType)&Task::start, AhkInt);
         add_method(L"stop", this, (MethodType)&PoETask::stop);
         add_method(L"reset", this, (MethodType)&PoETask::reset);
+        add_method(L"getVersion", this, (MethodType)&PoE::get_version, AhkString);
         add_method(L"getLoadedFiles", this, (MethodType)&PoETask::get_loaded_files, AhkObject, ParamList{AhkInt, AhkWString});
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});

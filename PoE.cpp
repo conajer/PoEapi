@@ -172,6 +172,7 @@ public:
     int size_of_image;
     int process_id;
     HWND window;
+    char version_string[128];
 
     std::map<addrtype, int> all_game_states;
     shared_ptr<GameState> active_game_state;
@@ -209,6 +210,14 @@ public:
             is_loading = false;
             in_game_flag = false;
         }
+    }
+
+    const char* get_version() {
+        if (addrtype addr = find_string("release tags")) {
+            PoEMemory::read<char>(addr, version_string, 128);
+        }
+
+        return version_string;
     }
 
     void reset() {
