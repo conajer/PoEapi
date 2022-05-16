@@ -374,8 +374,9 @@ class Trader extends AhkGui {
 
     __onMessage(wParam, lParam) {
         message := StrGet(wParam)
-        if (Not message ~= "^(\$|#).+")
-            this.parseMessage(StrGet(wParam), lParam)
+        if (Not message ~= "^(\$|#).+") {
+            this.parseMessage(message, lParam)
+        }
     }
 }
 
