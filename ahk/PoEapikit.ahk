@@ -270,17 +270,17 @@ OpenPortal:
 return
 
 SellItems:
-    if (ptask.InMap)
-        SendInput, % "{" RegExReplace(A_ThisHotkey, "\*") "}"
-    else
+    if (ptask.getEntities("/Stash").count() > 0)
         ptask.sellItems(GetKeyState("Alt"))
+    else
+        SendInput, % "{" RegExReplace(A_ThisHotkey, "\*") "}"
 return
 
 StashItems:
-    if (ptask.InMap)
-        SendInput, % "{" A_ThisHotkey "}"
-    else
+    if (ptask.getEntities("/Stash").count() > 0)
         ptask.stashItems()
+    else
+        SendInput, % "{" A_ThisHotkey "}"
 return
 
 Hideout:
