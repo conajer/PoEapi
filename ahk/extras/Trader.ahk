@@ -212,8 +212,7 @@ class TradeBroker {
 
     tradeRequestFormat := [ "O)Hi, (I would|I'd) like to buy your (?P<item1>.+) (listed for|for my) (?P<item2>.+) in (?P<league>[^(.))]+)( |\.)(\(stash tab (?P<tabName>.+); position: left (?P<left>[0-9]+), top (?P<top>[0-9]+)\))?(?P<postscript>.*)"
                           , "O)Здравствуйте, хочу купить у вас (?P<item1>.+) за (?P<item2>.+) в лиге (?P<league>[^(.)]+)( |\.)(\(секция (?P<tabName>.+); позиция: (?P<left>[0-9]+) столбец, (?P<top>[0-9]+) ряд\))?(?P<postscript>.*)"
-                          , "O)안녕하세요, (?P<league>.+)에 올려놓은(?P<item1>.+)\(을\)를 제 (?P<item2>.+)\(으\)로 구매하고 싶습니다(?P<postscript>.*)"
-                          , "O)안녕하세요, (?P<league>.+)(\(보관함 탭 (?P<tabName>.+), 위치: 왼쪽 (?P<left>[0-9]+), 상단 (?P<top>[0-9]+)\))에 (?P<item2>.+)\(으\)로 올려놓은 (?P<item1>.+)\(을\)를 구매하고 싶습니다(?P<postscript>.*)" ]
+                          , "O)안녕하세요, (?P<league>.+) 리그의 (?P<item1>.+)\(을\)를 (?P<item2>.+)\(으\)로 구매하고 싶습니다(\(보관함 탭 (?P<tabName>.+), 위치: 왼쪽 (?P<left>[0-9]+), 상단 (?P<top>[0-9]+)\)|\.)(?P<postscript>.*)" ]
 
     translate(whisperType, message, player = "", ByRef aTrade = "") {
         for i, regex in this.tradeRequestFormat {
