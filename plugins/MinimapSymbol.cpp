@@ -63,7 +63,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.20"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.21"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques")
@@ -155,12 +155,12 @@ public:
         int y = pos.y + shift_y;
         if (texture_enabled) {
             poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
-            if (e->rarity >= 2)
-                poe->draw_circle(x, y, size + 2, entity_colors[index], 2);
+            if (min_size >= 4 && e->rarity >= 2)
+                poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
         } else {
             poe->fill_circle(x, y, size, entity_colors[index], opacity);
-            if (e->rarity >= 2)
-                poe->draw_circle(x, y, size + 2, entity_colors[index], 2);
+            if (min_size >= 4 && e->rarity >= 2)
+                poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
         }
     }
 
