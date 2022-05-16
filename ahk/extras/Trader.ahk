@@ -133,7 +133,7 @@ class TradeSession extends AhkGui {
     }
 
     leave() {
-        if (ptask.getPartyStatus() < 3) {
+        if (this.isJoined) {
             poe.activate()
             ptask.sendKeys("/kick " ptask.player.name)
             Sleep, 30
@@ -337,7 +337,11 @@ class Trader extends AhkGui {
                 this.tsActive[player].messages.Push(message)
             }
         } else if (RegExMatch(message, _("You have joined a party."), matched)) {
-            debug("*** You have joined a party")
+            for i, name in ptask.getPartyMembers() {
+                if (this.tsActive[name])
+                    this.tsActive[name].isJoined := true
+            }
+            trace("*** You have joined a party")
         } else if (RegExMatch(message, _("You have left the party."), matched)) {
             for player, ts in this.tsActive {
                 if (ts.isJoined) {
@@ -345,13 +349,14 @@ class Trader extends AhkGui {
                     ts.close()
                 }
             }
+            trace("*** You have left the party")
         } else if (RegExMatch(message, _("(.*) has joined your party."), matched)) {
             this.tsActive[matched1].isJoined := true
         } else if (RegExMatch(message, _("(.*) has left the party."), matched)) {
             this.tsActive[matched1].isJoined := false
             this.tsActive[matched1].close()
         } else if (RegExMatch(message, _("(.*) sent you a party invite"), matched)) {
-            debug("*** Received a party invite from <b style=""color:blue"">{}</b>", matched1)
+            trace("*** Received a party invite from <b style=""color:blue"">{}</b>", matched1)
         }
     }
 
