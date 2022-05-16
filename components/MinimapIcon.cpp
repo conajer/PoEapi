@@ -5,7 +5,7 @@
 /* MinimapIcon component offsets */
 
 static std::map<string, int> minimapicon_component_offsets {
-    {"base",    0x28},
+    {"base",    0x20},
         {"name", 0x0},
 };
 

@@ -6,7 +6,7 @@
 
 static std::map<string, int> monster_component_offsets {
     {"internal",      0x18},
-        {"base",      0x18},
+        {"base",      0x10},
             {"name", 0x104},
 };
 

@@ -6,7 +6,7 @@
 
 static std::map<string, int> npc_component_offsets {
     {"internal",           0x18},
-        {"base",           0x18},
+        {"base",           0x10},
             {"name",        0x8},
             {"short_name", 0x2c},
             {"act",        0x34},
