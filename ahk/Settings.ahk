@@ -121,6 +121,8 @@ global VendorExceptions := [ {"baseType" : ".*", "Constraints" : {"rarity" : 3, 
 global StashRules := [ {"tabName" : "Es",      "baseName" : "Essence of|Remnant of"}
                      , {"tabName" : "Fossils", "baseName" : "Fossil$|Resonator$"}
                      , {"tabName" : "$$$",     "baseType" : "Currency", "Constraints" : {"index" : [3, 60] }}
-                     , {"tabName" : "2xChaos", "baseType" : "Weapon|Armour|Belt|Amulet|Ring", "Constraints" : {"rarity" : 2, "isIdentified" : false, "itemLevel" : [60, 100]}}
+                     , {"tabName" : "1",       "baseType" : "Weapon", "Constraints" : {"rarity" : 2, "isIdentified" : false, "itemLevel" : [60, 85]}}
+                     , {"tabName" : "2",       "baseType" : "Armour", "Constraints" : {"rarity" : 2, "isIdentified" : false, "itemLevel" : [60, 85]}}
+                     , {"tabName" : "3",       "baseType" : "Belt|Amulet|Ring", "Constraints" : {"rarity" : 2, "isIdentified" : false, "itemLevel" : [60, 85]}}
                      , {"tabName" : "Maps",    "baseType" : "Map(?!Fragment)"}
                      , {"tabName" : "Fr",      "baseType" : "MapFragment", "baseName" : "Splinter|Scarab$"} ]
