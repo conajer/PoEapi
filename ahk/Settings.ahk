@@ -1,58 +1,50 @@
-; Hotkeys (^ for Ctrl, # for window key)
 ;
-; `,    Logout
-; a,	Auto pickup/levelup gems
-; F1,   Auto aruas
-; F2,	Auto portal
-; F3,   Auto identify/sell
-; !F3,  Identify all and sell
-; F4,   Auto stash
-; F5,   Hideout
-; ^F5,  Azurite mine
-; !F5   Menagerie
-; F6    Dump inventory items
-; ^F6   Dump highlighted or all items from current stash tab
-; F7    Sell full rare sets to vendor
-; F12   Toggle log window
-; LAlt  Hold down the left Alt key to show price of items
-; #d,   Minimize window
-; ^m,   Toggle maphack
-; ^r,   Reload script
-; ^q,   Quit
+; Settings.ahk, 5/17/2022 5:31 PM
+;
 
 ; Plugins
-global PluginOptions := { "AutoFlask"     : { "enabled" : true}
-                        , "AutoOpen"      : { "enabled" : true, "range" : 15
+global PluginOptions := { "AutoFlask"     : { "enabled" : true }
+
+                        , "AutoOpen"      : { "enabled" : true
+                                            , "range"   : 5
                                             , "ignoredChests" : "Amphora"
                                             , "chest"   : true
                                             , "delveChestOnly" : true
                                             , "door"    : true }
-                        , "AutoPickup"    : { "enabled" : true, "range" : 50
+
+                        , "AutoPickup"    : { "enabled" : true
+                                            , "range"   : 75
                                             , "ignoreChests"      : false
                                             , "strictLevel"       : 0
-                                            , "genericItemFilter" : "Incubator|Quicksilver|Basalt|Quartz|(Divine|Eternal) Life"
-                                            , "rareItemFilter"    : "Jewel|Amulet|Ring|Belt" }
-                        , "KillCounter"   : { "enabled" : true, "radius" : 50 }
+                                            , "genericItemFilter" : "Sentinel$|Incubator|Quicksilver|Basalt|Quartz|Eternal (Life|Mana)"
+                                            , "rareItemFilter"    : "Jewel|Amulet|Ring" }
+
+                        , "KillCounter"   : { "enabled" : true
+                                            , "radius"  : 50 }
+
                         , "MinimapSymbol" : { "enabled" : true
                                             , "showNPC"            : true
                                             , "showPlayer"         : true
                                             , "showMonsters"       : true
                                             , "showMinions"        : true
                                             , "showCorpses"        : false
-                                            , "rarity"             : 1
+                                            , "rarity"             : 0
                                             , "showDelveChests"    : true
                                             , "showHeistChests"    : true
+                                            , "fontSize"           : 12
                                             , "minSize"            : 4
-                                            , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter" }
+                                            , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter"
+                                            , "ignoredHeistChests" : "Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques" }
+
                         , "PlayerStatus"  : { "enabled" : true
                                             , "autoQuitThresholdPercentage" : 20
-                                            , "autoQuitMinLevel"   : 90 } }
+                                            , "autoQuitMinLevel" : 90 } }
 
 ; Flasks
 global LifeThreshold := 80
-global ManaThreshold := 30
-global ChargesPerUseLimit := 30
-global MonsterThreshold := 10
+global ManaThreshold := 50
+global ChargesPerUseLimit := 50
+global MonsterThreshold := 5
 global AlwaysRunning := true
 
 ; Trader
@@ -68,7 +60,7 @@ global TraderMessages := { "thanks" : "t4t, gl."
 ; Vendor recipes
 global VendorTabDivinationCards := "1"
 global VendorTabGems := "2"
-global VendorTabFullRareSets := "3"
+global VendorTabFullRareSets := "1, 2, 3"
 
 ; Attack and defense
 global AttackSkillKey := "w"
