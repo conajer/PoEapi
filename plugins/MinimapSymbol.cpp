@@ -276,7 +276,7 @@ public:
                     draw_delve_chest(entity);
                 else if (show_heist_chests && entity->path.find(L"/HeistChest") != wstring::npos)
                     draw_heist_chest(entity);
-                if (show_delve_chests && entity->path.find(L"/StrongBoxes") != wstring::npos)
+                else if (entity->path.find(L"/StrongBoxes") != wstring::npos)
                     draw_strongbox(entity);
                 else
                     ignored_entities.push_back(i.first);
