@@ -60,9 +60,10 @@ public:
         bool is_button_pressed = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
         bool is_moving = player->is_moving();
 
-        if (is_button_pressed)
+        if (is_button_pressed) {
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-
+            Sleep(10);
+        }
         poe->mouse_click({(int)pos.x, (int)pos.y});
         SetCursorPos (old_pos.x, old_pos.y);
         Sleep(30);
