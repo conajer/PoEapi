@@ -298,9 +298,10 @@ public:
     void mouse_click(Point pos) {
         ClientToScreen(window, (LPPOINT)&pos);
         SetCursorPos (pos.x, pos.y);
-        Sleep(30);
+        Sleep(10);
 
-        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_ABSOLUTE, pos.x, pos.y, 0, 0);
+        Sleep(50);
         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
     }
 
