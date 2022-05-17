@@ -8,6 +8,7 @@ public:
     std::vector<string> entity_types = {
         "Chest",
         "WorldItem",
+        "MinimapIcon",
     };
 
     std::vector<string> item_types = {
@@ -33,6 +34,7 @@ public:
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
+    std::wregex misc_entity_filter;
 
     AutoPickup() : PoEPlugin(L"AutoPickup", "0.18") {
         add_property(L"range", &range, AhkInt);
@@ -42,6 +44,7 @@ public:
 
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
+        add_method(L"setMiscEntityFilter", this, (MethodType)&AutoPickup::set_misc_entity_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&AutoPickup::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&AutoPickup::stop_pickup);
         add_method(L"getDroppedItems", this, (MethodType)&AutoPickup::get_dropped_items, AhkObject);
@@ -49,6 +52,7 @@ public:
 
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
+        misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Door|Hazards/.+Marker");
     }
 
     void reset() {
@@ -64,6 +68,11 @@ public:
 
     void set_rare_item_filter(const wchar_t* regex_string) {
         rare_item_filter.assign(regex_string);
+    }
+
+    void set_misc_entity_filter(const wchar_t* regex_string) {
+        log(regex_string);
+        misc_entity_filter.assign(regex_string);
     }
 
     void begin_pickup() {
@@ -214,6 +223,15 @@ public:
                     }
                 }
                 break;
+            case 2:
+                {
+                    if (!std::regex_search(i.second->path, misc_entity_filter))
+                        continue;
+
+                    Targetable* targetable = i.second->get_component<Targetable>();
+                    if (!targetable || !targetable->is_targetable())
+                        continue;
+                }
             }
 
             int dist = player->dist(*i.second);
@@ -223,9 +241,6 @@ public:
                 min_dist = dist;
             }
         }
-
-        if (!is_picking)
-            return;
 
         if (!nearest_item) {
             if (!is_chest)
@@ -238,6 +253,9 @@ public:
             poe->mouse_click(pos);
             selected_item = nearest_item;
             last_pickup = GetTickCount();
+
+            if (selected_item->path.find(L"AreaTransition") != wstring::npos)
+                stop_pickup();
         } else {
             ignored_entities[nearest_item->id] = nearest_item;
         }
