@@ -280,6 +280,11 @@ class Navi extends WebGui {
                 .nav_bar { display: none; border-collapse: collapse; }
                 .nav_bar td { padding: 0 12px; }
 
+                @media screen and (min-width: 3839px) {
+                  .nav { position: fixed; right: 128px; top: 32px; }
+                  .nav_bar { transform: scale(4); }
+                }
+
                 #toggle { color: lightgrey; background-color: brown; padding: 0 5px; }
                 #area_time { font-family: Arail Narrow; font-weight: bold; color: #0c0c0c; background-color: lightblue; }
                 .second { font-family: Arail Narrow; color: maroon; }
