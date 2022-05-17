@@ -34,8 +34,9 @@ public:
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
     std::wregex misc_entity_filter;
+    std::wregex one_shot_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.19") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.20") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -51,7 +52,8 @@ public:
 
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
-        misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Heist/Objects/Level/|HeistChestRewardRoom");
+        misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Heist/Objects|HeistChestRewardRoom");
+        one_shot_filter.assign(L"AreaTransition|Heist/Objects|HeistChestRewardRoom");
     }
 
     void reset() {
@@ -209,7 +211,6 @@ public:
                         continue;
                 }
 
-
             case 1:
                 {
                     if (!std::regex_search(i.second->path, misc_entity_filter))
@@ -246,7 +247,7 @@ public:
 
         if (!nearest_item) {
             if (selected_item) {
-                if (selected_item->has_component("Chest"))
+                if (!selected_item->has_component("Chest"))
                     stop_pickup();
                 selected_item.reset();
             } 
@@ -259,7 +260,7 @@ public:
             selected_item = nearest_item;
             last_pickup = GetTickCount();
 
-            if (selected_item->path.find(L"AreaTransition") != wstring::npos)
+            if (std::regex_search(selected_item->path, one_shot_filter))
                 stop_pickup();
         } else {
             ignored_entities[nearest_item->id] = nearest_item;
