@@ -7,8 +7,8 @@ public:
 
     std::vector<string> entity_types = {
         "Chest",
-        "WorldItem",
         "MinimapIcon",
+        "WorldItem",
     };
 
     std::vector<string> item_types = {
@@ -24,7 +24,6 @@ public:
     std::map<int, shared_ptr<Item>> dropped_items;
     std::mutex selected_item_mutex;
     shared_ptr<Entity> selected_item;
-    bool is_chest = false;
     RECT bounds;
     unsigned int range = 50, last_pickup = 0;
     bool ignore_chests = false;
@@ -36,7 +35,7 @@ public:
     std::wregex rare_item_filter;
     std::wregex misc_entity_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.18") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.19") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -52,7 +51,7 @@ public:
 
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
-        misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Door|Hazards/.+Marker");
+        misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Heist/Objects/Level/|HeistChestRewardRoom");
     }
 
     void reset() {
@@ -189,7 +188,6 @@ public:
         }
 
         std::lock_guard<std::mutex> guard(selected_item_mutex);
-        selected_item.reset();
         shared_ptr<Entity> nearest_item;
         int min_dist = range;
         for (auto& i : entities) {
@@ -204,12 +202,26 @@ public:
                         continue;
 
                     Chest* chest = i.second->get_component<Chest>();
-                    if (!chest || chest->is_locked())
+                    if (chest && !chest->is_locked())
+                        break;
+                        
+                    if (!i.second->has_component("MinimapIcon"))
+                        continue;
+                }
+
+
+            case 1:
+                {
+                    if (!std::regex_search(i.second->path, misc_entity_filter))
+                        continue;
+
+                    Targetable* targetable = i.second->get_component<Targetable>();
+                    if (!targetable || !targetable->is_targetable())
                         continue;
                 }
                 break;
 
-            case 1:
+            case 2:
                 {
                     WorldItem* world_item = i.second->get_component<WorldItem>();
                     if (!world_item || !check_item(world_item->item()))
@@ -223,28 +235,21 @@ public:
                     }
                 }
                 break;
-            case 2:
-                {
-                    if (!std::regex_search(i.second->path, misc_entity_filter))
-                        continue;
-
-                    Targetable* targetable = i.second->get_component<Targetable>();
-                    if (!targetable || !targetable->is_targetable())
-                        continue;
-                }
             }
 
             int dist = player->dist(*i.second);
             if (dist < min_dist) {
                 nearest_item = i.second;
-                is_chest = (index == 0) ? true : false;
                 min_dist = dist;
             }
         }
 
         if (!nearest_item) {
-            if (!is_chest)
-                stop_pickup();
+            if (selected_item) {
+                if (selected_item->has_component("Chest"))
+                    stop_pickup();
+                selected_item.reset();
+            } 
             return;
         }
 
@@ -258,6 +263,7 @@ public:
                 stop_pickup();
         } else {
             ignored_entities[nearest_item->id] = nearest_item;
+            selected_item.reset();
         }
     }
 };
