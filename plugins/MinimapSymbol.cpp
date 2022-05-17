@@ -63,7 +63,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.21"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.22"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques")
@@ -164,7 +164,7 @@ public:
         }
     }
 
-    void draw_delve_chests(Entity* e) {
+    void draw_delve_chest(Entity* e) {
         if (std::regex_search(e->path, ignored_delve_chests))
             return;
 
@@ -192,7 +192,7 @@ public:
         poe->fill_circle(x, y, min_size + 4, color, 0.8);
     }
 
-    void draw_heist_chests(Entity* e) {
+    void draw_heist_chest(Entity* e) {
         Targetable* targetable = e->get_component<Targetable>();
         if (!targetable || !targetable->is_targetable())
             return;
@@ -214,6 +214,26 @@ public:
             else
                 poe->draw_text(heist_type, pos.x, pos.y, 0xffff52, 0x0c0c0c, 1.0, 1);
         }
+    }
+
+    void draw_strongbox(Entity* e) {
+        Targetable* targetable = e->get_component<Targetable>();
+        if (!targetable || !targetable->is_targetable())
+            return;
+
+        Vector3 pos = e->pos;
+        pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+        pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+        pos.z = 0.0f;
+        poe->in_game_state->transform(pos);
+
+        int x = pos.x + shift_x;
+        int y = pos.y + shift_y;
+        float dw = min_size * 2;
+        float dh = min_size * 1.5;
+        poe->fill_rect(x - dw, y - dh, x + dw, y + dh, 0xf1c40f, 0.8);
+        poe->draw_rect(x - dw, y - dh, x + dw, y + dh, 0x0c0c0c, 0.8);
+        poe->draw_rect(x - dw, y - dh, x + dw, y - dh / 3, 0x0c0c0c, 0.8);
     }
 
     void render() {
@@ -253,9 +273,11 @@ public:
                     draw_entity(entity, 10, min_size + 4);
             } else if (entity->has_component("Chest")) {
                 if (show_delve_chests && entity->path.find(L"/DelveChests") != wstring::npos)
-                    draw_delve_chests(entity);
+                    draw_delve_chest(entity);
                 else if (show_heist_chests && entity->path.find(L"/HeistChest") != wstring::npos)
-                    draw_heist_chests(entity);
+                    draw_heist_chest(entity);
+                if (show_delve_chests && entity->path.find(L"/StrongBoxes") != wstring::npos)
+                    draw_strongbox(entity);
                 else
                     ignored_entities.push_back(i.first);
             } else {
