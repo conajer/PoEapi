@@ -36,7 +36,7 @@ public:
     std::wregex misc_entity_filter;
     std::wregex one_shot_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.20") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.21") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -105,6 +105,12 @@ public:
 
         if (item.get_links() == 6)
             return true;
+
+        if (item.get_size() > 1) {
+            InventorySlot* inventory = poe->server_data->inventory_slots[1].get();
+            if (!inventory->next_cell(item.width, item.height))
+                return false;
+        }
 
         int rarity = item.get_rarity();
         int ilvl = item.get_item_level();
