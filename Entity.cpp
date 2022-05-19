@@ -331,7 +331,8 @@ protected:
 public:
 
     bool identified = false;
-    bool size = 1;
+    int size;
+    int width = 1, height = 1;
 
     Item(addrtype address) : Entity(address) {
         base = get_component<Base>();
@@ -530,7 +531,12 @@ public:
     }
 
     int get_size() {
-        return base ? base->size() : 1;
+        if (base) {
+            width = base->width();
+            height = base->height();
+        }
+
+        return width * height;
     }
 
     int get_influence_type() {
