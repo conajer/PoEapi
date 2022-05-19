@@ -5,7 +5,9 @@
 /* Targetable component offsets */
 
 static std::map<string, int> targetable_component_offsets {
-    {"is_targetable", 0x48},
+    {"is_targetable",       0x48},
+    {"is_highlightable",    0x49},
+    {"is_targeted",         0x4a},
 };
 
 class Targetable : public Component {
@@ -18,6 +20,14 @@ public:
 
     bool is_targetable() {
         return read<byte>("is_targetable");
+    }
+
+    bool is_highlightable() {
+        return read<byte>("is_highlightable");
+    }
+
+    bool is_targeted() {
+        return read<byte>("is_targeted");
     }
 
     void to_print() {
