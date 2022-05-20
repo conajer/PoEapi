@@ -252,11 +252,10 @@ public:
         }
 
         if (!nearest_item) {
-            if (selected_item) {
-                if (!selected_item->has_component("Chest"))
-                    stop_pickup();
-                selected_item.reset();
-            } 
+            if (!selected_item || !selected_item->has_component("Chest")) {
+                stop_pickup();
+                log(L"Stop picking up items.");
+            }
             return;
         }
 
