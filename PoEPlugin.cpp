@@ -10,6 +10,7 @@ public:
     PoE* poe;
     DWORD thread_id;
     bool enabled = false;
+    bool verbose = false;
     buffer<wchar_t> log_buffer;
 
     LocalPlayer* player;
@@ -18,6 +19,7 @@ public:
         : name(name), version(version_string), log_buffer(256)
     {
         add_property(L"enabled", &enabled, AhkBool);
+        add_property(L"verbose", &verbose, AhkBool);
     }
 
     void __new() {
@@ -56,6 +58,9 @@ public:
     void log(const wchar_t* format, ...) {
         va_list args;
         wchar_t* buffer = log_buffer;
+
+        if (!verbose)
+            return;
 
         buffer += swprintf(buffer, L"[%S] ", name.c_str());
         va_start(args, format);
