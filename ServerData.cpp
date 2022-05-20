@@ -157,21 +157,23 @@ public:
 
     int next_cell(int width = 1, int height = 1) {
         auto all_cells = read_array<addrtype>("cells", 0x0, 8);
-        for (int l = 0; l < cols; ++l)
-            for (int t = 0; t < rows; ++t) {
+        for (int l = 0; l < cols - width + 1; ++l)
+            for (int t = 0; t < rows - height + 1; ++t) {
                 if (all_cells[t * cols + l] == 0) {
-                    if (l + width <= cols && t + height <= rows) {
-                        int w, h;
+                    int w, h;
 
-                        for (w = 1; w < width; ++w)
-                            if (all_cells[t * cols + l + w] > 0)
+                    for (w = 0; w < width; ++w) {
+                        for (h = 0; h < height; ++h) {
+                            if (all_cells[(t + h) * cols + l + w] > 0)
                                 break;
-                        for (h = 1; h < height; ++h)
-                            if (all_cells[(t + h) * cols + l] > 0)
-                                break;
-                        if (w == width && h == height)
-                            return l * rows + t + 1;
+                        }
+
+                        if (h < height)
+                            break;
                     }
+
+                    if (w == width)
+                        return l * rows + t + 1;
                 }
             }
 
