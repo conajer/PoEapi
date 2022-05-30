@@ -213,6 +213,7 @@ Factory<RemoteMemoryObject> RemoteMemoryObject::factory = {
     NEW_ENTRY(SkillGem),
     NEW_ENTRY(Sockets),
     NEW_ENTRY(Stack),
+    NEW_ENTRY(Stats),
     NEW_ENTRY(Targetable),
     NEW_ENTRY(TriggerableBlockage),
     NEW_ENTRY(WorldItem),
