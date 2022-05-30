@@ -33,7 +33,7 @@ class Logger extends WebGui {
         this.logFile := FileOpen(filename, "a", "utf-8")
         this.logId := 0
 
-        x := y := 50
+        x := y := 0
         SysGet, n, MonitorCount
         if (n > 1) {
             SysGet, primary, MonitorPrimary
