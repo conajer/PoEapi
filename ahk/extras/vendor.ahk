@@ -196,7 +196,7 @@ tradeFullRareSets() {
 
         Sleep, 100
         offerItem := sell.getItems()[1]
-        if (Not RegExMatch(offerItem.name, _("Chaos") "|" _("Exalted Shard")))
+        if (Not RegExMatch(offerItem.name, _("Chaos Orb") "|" _("Regal Orb") "|" _("Exalted Shard")))
             break
 
         debug(_("Received") " <b>{} {}</b>", offerItem.stackCount, offerItem.name)
