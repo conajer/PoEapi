@@ -147,6 +147,9 @@ tradeDivinationCards() {
                 Sleep, 100
                 MouseClick(x, y)
                 Sleep, 200
+                item := ptask.inventories[28].getItemByIndex(1)
+                if (Not item || Not ptask.inventory.nextCell(item.width, item.height))
+                    return
                 MouseMove, x, y - 150, 0
                 Sleep, 50
                 SendInput, ^{Click}
@@ -232,7 +235,7 @@ dumpStashTabItems() {
         if (aItem.stackCount > 1)
             n += aItem.stackCount // aItem.stackSize
 
-        if (ptask.inventory.freeCells() == 0)
+        if (Not ptask.inventory.nextCell(aItem.width, aItem.height))
             break
 
         if (n > 1) {
