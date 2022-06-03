@@ -26,4 +26,15 @@ public:
 
         return stats;
     }
+
+    int get_stat(int key) {
+        auto local_stats = read_array<__int64>("data", "stats", 0, 0x8);
+
+        for (auto& i : local_stats) {
+            if ((i & 0xffff) == key)
+                return i >> 32;
+        }
+
+        return -1;
+    }
 };
