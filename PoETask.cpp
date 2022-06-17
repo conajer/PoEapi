@@ -737,6 +737,8 @@ BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         ahkpp_register(L"StashTab", L"AhkObj", []()->StashTab* {return new StashTab(0);});
         ahkpp_register(L"Vendor", L"Element", []()->Vendor* {return new Vendor(0);});
         ahkpp_register(L"Sell", L"Element", []()->Sell* {return new Sell(0);});
+        ahkpp_register(L"Purchase", L"Element", []()->Purchase* {return new Purchase(0);});
+        ahkpp_register(L"Sell", L"Element", []()->Sell* {return new Sell(0);});
         ahkpp_register(L"Trade", L"Sell", []()->Trade* {return new Trade(0);});
         ahkpp_register(L"Chat", L"Element", []()->Chat* {return new Chat(0);});
         ahkpp_register(L"Charges", L"Component", []()->Charges* {return new Charges(0);});
