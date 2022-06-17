@@ -310,7 +310,7 @@ dumpUselessItems() {
     tab := ptask.stash.Tab
     for i, e in tab.getChilds() {
         if (e.item && Not e.item.isCurrency) {
-            if (e.item.price && e.item.stackCount == 1 && e.item.price <= 1) {
+            if (e.item.price && e.item.price < 1) {
                 debug("{}, {}", e.item.name, e.item.price)
                 e.getPos(x, y)
                 MouseMove, x, y, 0
