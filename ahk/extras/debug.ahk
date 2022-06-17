@@ -19,6 +19,7 @@ addMenuItem("__debug", _("List flasks"), "listFlasks")
 addMenuItem("__debug", _("List flask slot"), "listFlaskSlot")
 addMenuItem("__debug")
 addMenuItem("__debug", _("List buffs"), "listBuffs")
+addMenuItem("__debug", _("List entities"), "listEntities")
 
 Hotkey, ^!d, openConsole
 Hotkey, ^i, openInspector
@@ -82,7 +83,7 @@ class IngameUIInspector extends AhkGui {
                 , e.address, e.getText(), r.l, r.t, r.w, r.h, e.childs.Count())
 
             ptask.c.clear()
-            e.draw()
+            e.draw(,, 1)
         } else if (A_GuiEvent == "DoubleClick") {
             e := this.elements[A_EventInfo]
             if (Not TV_GetChild(A_EventInfo) && e.childs.Count() > 0)
@@ -94,7 +95,7 @@ class IngameUIInspector extends AhkGui {
 
     drawElement() {
         itemId := TV_GetSelection()
-        this.elements[itemId].draw()
+        this.elements[itemId].draw(,, 1)
     }
 }
 
@@ -444,5 +445,12 @@ listBuffs() {
     debug("Buffs:")
     for i, b in buffs {
         debug("    {:2d}. {:4.2f} {:4.2f} {:-4d} {}", i, b.duration, b.timer, b.charges, b.name)
+    }
+}
+
+listEntities() {
+    debug("All entities:")
+    for i, e in ptask.getEntities("") {
+        debug("{:4x}. <b>{}</b>, {}", e.id, e.name, e.path)
     }
 }
