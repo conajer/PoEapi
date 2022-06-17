@@ -29,7 +29,6 @@ std::map<string, int> in_game_ui_offsets {
     {"stash",              38},
         {"tabs",        0x2f8},
     {"archnemesis",        46},
-    {"chat",               49},
     {"kirac_mission",      65},
     {"temple",             77},
     {"delve_chart",        81},
@@ -43,11 +42,12 @@ std::map<string, int> in_game_ui_offsets {
     {"sell",              107},
     {"sell2",             108},
     {"trade",             109},
-    {"notifications",     124},
-    {"lefe_panel",      0x550},
-    {"right_panel",     0x558},
-    {"panel_flags",     0x560},
-    {"entity_list",     0x6a0},
+    {"chat",            0x488},
+    {"notifications",   0xa80},
+    {"lefe_panel",      0x558},
+    {"right_panel",     0x560},
+    {"panel_flags",     0x568},
+    {"entity_list",     0x6a8},
         {"root",        0x2a8},
         {"count",       0x2b0},
 };
@@ -202,16 +202,16 @@ public:
 
     Chat* get_chat() {
         if (!chat) {
-            shared_ptr<Element> e = get_child("chat");
-            chat = unique_ptr<Chat>(new Chat(e->address));
+            //shared_ptr<Element> e = get_child("chat");
+            chat = unique_ptr<Chat>(new Chat(read<addrtype>("chat")));
         }
         return chat.get();
     }
 
     Notifications* get_notifications() {
         if (!notifications) {
-            shared_ptr<Element> e = get_child("notifications");
-            notifications = unique_ptr<Notifications>(new Notifications(e->address));
+            //shared_ptr<Element> e = get_child("notifications");
+            notifications = unique_ptr<Notifications>(new Notifications(read<addrtype>("notifications")));
         }
         return notifications.get();
     }
