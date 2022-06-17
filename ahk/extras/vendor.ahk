@@ -298,8 +298,8 @@ openStackedDecks() {
             }
             Sleep, 50
         }
-        debug("Opened <b>{}</b> stacked decks.", n)
     }
+    debug("Opened <b>{}</b> stacked decks.", n)
 }
 
 dumpUselessItems() {
