@@ -59,6 +59,7 @@ public:
     EntitySet entities;
     EntityList labeled_entities, labeled_removed;
     std::map<wstring, addrtype> loaded_files;
+    std::map<int, wstring> all_stats;
     int area_hash;
     wstring league;
     bool in_map = false;
@@ -94,6 +95,8 @@ public:
         add_method(L"reset", this, (MethodType)&PoETask::reset);
         add_method(L"getVersion", this, (MethodType)&PoE::get_version, AhkString);
         add_method(L"getFiles", this, (MethodType)&PoETask::get_files, AhkObject, ParamList{AhkWString});
+        add_method(L"getStats", this, (MethodType)&PoETask::get_stats, AhkObject);
+        add_method(L"getStat", this, (MethodType)&PoETask::get_stat, AhkInt, ParamList{AhkWString});
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
@@ -175,6 +178,44 @@ public:
                 }
             }
         }
+    }
+
+    void get_all_stats() {
+        addrtype stats_dat_ptr = loaded_files[L"Data/Stats.dat"];
+
+        if (!stats_dat_ptr)
+            return;
+
+        addrtype stats_ptr = PoEMemory::read<addrtype>(stats_dat_ptr + 0x30);
+        addrtype first_ptr = PoEMemory::read<addrtype>(stats_ptr + 0x0);
+        addrtype last_ptr = PoEMemory::read<addrtype>(stats_ptr + 0x8);
+        int count = PoEMemory::read<int>(stats_ptr + 0x40);
+        int element_size = (last_ptr - first_ptr) / count;
+
+        byte buffer[last_ptr - first_ptr];
+        PoEMemory::read<byte>(first_ptr, buffer, last_ptr - first_ptr);
+
+        wchar_t stat_name[128];
+        for (int i = 0, id = 1; i < last_ptr - first_ptr; i += element_size) {
+            all_stats[id++] = PoEMemory::read<wchar_t>(*(addrtype *)&buffer[i], stat_name, 128);
+        }
+    }
+
+    AhkObjRef* get_stats() {
+        AhkTempObj temp_stats;
+        for (auto& i : local_player->get_component<Stats>()->get_stats())
+            temp_stats.__set(all_stats[i.first].c_str(), i.second, AhkInt, nullptr);
+
+        return temp_stats;
+    }
+
+    int get_stat(const wchar_t* key) {
+        auto i = std::find_if(std::begin(all_stats), std::end(all_stats),
+                              [&key](auto&& i) { return i.second == key; });
+
+        if (i != std::end(all_stats))
+            return local_player->get_component<Stats>()->get_stat(i->first);
+        return -1;
     }
 
     int get_party_status() {
@@ -441,6 +482,7 @@ public:
                   nullptr);
 
             get_loaded_files();
+            get_all_stats();
             get_inventory_slots();
             get_stash_tabs();
             get_stash();
