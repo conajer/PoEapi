@@ -363,10 +363,10 @@ class PoETask extends AhkObj {
         return members
     }
 
-    checkStats(item) {
+    checkStats(item, min = 1) {
         for itemType, stats in this.statGroups {
             if ((item.baseType ~= itemType) || (item.subType ~= itemType))
-                return stats.check(item, item.isJewel ? 2 : 3)
+                return stats.check(item, min)
         }
     }
 
@@ -402,7 +402,7 @@ class PoETask extends AhkObj {
 
             if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem)) {
                 ptask.inventory.moveTo(aItem.index)
-                if (aItem.rarity != 2 || Not this.checkStats(aItem))
+                if (aItem.rarity != 2 || Not this.checkStats(aItem, aItem.isJewel ? 3 : 4))
                     this.inventory.move(aItem)
             }
         }
@@ -451,7 +451,9 @@ class PoETask extends AhkObj {
                 price := e.item.stackCount * price
 
             if (price > 1000)
-                price := Format("{:.f}k", price / 1000)
+                price := Format("{:.1f}k", price / 1000)
+            else if (price < 10)
+                price := Format("{:.1f}", price)
             else if (price < 1)
                 price := Format("{:.g}", price)
             else
@@ -488,19 +490,27 @@ class PoETask extends AhkObj {
 
         if (this.stash.isOpened()) {
             for i, e in this.stash.Tab.getChilds() {
-                if (e.isVisible())
+                if (e.isVisible()) {
+                    if (this.checkStats(e.item, e.item.isMap ? 1 : 3))
+                        e.draw("", "red", 0)
                     this.displayItemPrice(e, shift)
+                }
             }
         }
 
         if (this.inventory.isOpened()) {
-            for i, e in this.inventory.getChilds()
+            for i, e in this.inventory.getChilds() {
+                if (this.checkStats(e.item, e.item.isMap ? 1 : 3))
+                    e.draw("", "red")
                 this.displayItemPrice(e, shift)
+            }
         }
 
         purchase := ptask.getPurchase()
         if (purchase.isOpened()) {
             for i, e in purchase.getChilds() {
+                if (this.checkStats(e.item, e.item.isMap ? 1 : 3))
+                    e.draw("", "red")
                 e.item.price := $(e.item)
                 this.displayItemPrice(e, shift)
             }
