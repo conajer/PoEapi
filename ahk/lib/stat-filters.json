@@ -111,5 +111,8 @@
         ["#% increased Critical Strike Chance", 22],
         ["#% of Physical Damage Converted to Chaos Damage"],
         ["Minions have (+#|+#%|#%) [^\r\n]*"]
+    ],
+    "Map": [
+        ["Monsters reflect #% of (Physical|Elemental) Damage"]
     ]
 }
