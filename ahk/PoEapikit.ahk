@@ -48,11 +48,16 @@ global defaultHotkeys := [ [ true,  "",    "``",        "ExitGame",        "Exit
                          , [ true,  "~*",  "LAlt",      "ShowPrices",      "Show price of the item(s) in stash tab, inventory, etc."]
                          , [ true,  "",    "^LButton",  "AutoCtrlClick",   "Hold to activate auto CTRL clicker"]
                          , [ true,  "~",   "+LButton",  "AutoShiftClick",  "Hold to activate auto SHIFT clicker"]
+                         , [ true,  "",    "+RButton",  "AutoRButtonClick","Hold to activate auto right mouse button clicker"]
                          , [ true,  "~",   "^RButton",  "AutoFillPrice",   "Auto fill the price tag of the selected item"]
                          , [ true,  "~*",  "^c",        "CopyItemName",    "Copy the selected item's name"]
                          , [ true,  "~",   "^f",        "HighlightItems",  "Highlight items in stash tab"]
                          , [ true,  "",    "^m",        "ToggleMaphack",   "Toggle maphack"]
                          , [ true,  "",    "^w",        "OpenWiki",        "Open wiki"]
+                         , [ false, "",     "",         "tradeGems",       "Trade quality gems"]
+                         , [ false, "",     "",         "tradeDivinationCards", "Trade divination cards"]
+                         , [ false, "",     "",         "openStackedDecks","Open stacked decks"]
+                         , [ false, "",     "",         "sortItems",       "Sort items"]
                          , [ true,  "",    "^r",        "Reload",          "Reload script"]
                          , [ true,  "",    "^q",        "ExitApp",         "Quit PoEapikit"] ]
 
@@ -140,7 +145,29 @@ loadLibrary(filename) {
 loadHotkeys() {
     try {
         hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
-    } catch {
+        hotkeyIndex := []
+        for i, hotkey in hotkeyOptions
+            hotkeyIndex[hotkey.label] := hotkey
+
+        for i, hotkey in defaultHotkeys {
+            hkey := hotkeyIndex[hotkey[4]]
+            if (Not hkey) {
+                hkey := { "enabled": hotkey[1]
+                        , "prefix": hotkey[2]
+                        , "name": hotkey[3]
+                        , "label": hotkey[4]
+                        , "description": hotkey[5] }
+                hotkeyOptions.Insert(i, hkey)
+                hotkeyChanged := true
+            } else if (hkey.prefix != hotkey[2]) {
+                hkey.prefix := hotkey[2]
+                hotkeyChanged := true
+            }
+        }
+
+        if (hotkeyChanged)
+            saveHotkeys(hotkeyOptions)
+    } catch e {
     } finally  {
         if (Not hotkeyOptions) {
             db.exec("
@@ -164,7 +191,7 @@ loadHotkeys() {
     Hotkey, IfWinActive, ahk_class POEWindowClass
     for i, hotkey in hotkeyOptions {
         try {
-            if (hotkey.enabled)
+            if (hotkey.enabled && hotkey.name)
                 Hotkey, % hotkey.prefix . hotkey.name, % hotkey.label, On
         } catch e {
             hotkey.enabled := false
@@ -182,8 +209,10 @@ saveHotkeys(hotkeyOptions) {
     oldHotkeys := db.exec("SELECT * FROM hotkeys;")
     Hotkey, IfWinActive, ahk_class POEWindowClass
     for i, hotkey in hotkeyOptions {
-        if (oldHotkeys[i].enabled)
-            Hotkey, % oldHotkeys[i].prefix . oldHotkeys[i].name, Off
+        try {
+            if (oldHotkeys[i].enabled && oldHotkeys[i].name)
+                Hotkey, % oldHotkeys[i].prefix . oldHotkeys[i].name, Off
+        } catch {}
         db.exec("INSERT OR REPLACE INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");"
                 , i, hotkey.enabled, hotkey.prefix, hotkey.name, hotkey.label, hotkey.description)
     }
@@ -305,6 +334,10 @@ AutoCtrlClick:
 return
 
 AutoShiftClick:
+    SetTimer, AutoClick, -200
+return
+
+AutoRButtonClick:
     SetTimer, AutoClick, -200
 return
 
