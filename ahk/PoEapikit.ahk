@@ -73,7 +73,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.8.1a"
+global version := "1.8.2"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -298,14 +298,14 @@ OpenPortal:
 return
 
 SellItems:
-    if (ptask.getEntities("/Stash").count() > 0)
+    if (ptask.InHideout || ptask.getEntities("/Stash").count() > 0)
         ptask.sellItems(GetKeyState("Alt"))
     else
         SendInput, % "{" RegExReplace(A_ThisHotkey, "\*") "}"
 return
 
 StashItems:
-    if (ptask.getEntities("/Stash").count() > 0)
+    if (ptask.InHideout || ptask.getEntities("/Stash").count() > 0)
         ptask.stashItems()
     else
         SendInput, % "{" A_ThisHotkey "}"
