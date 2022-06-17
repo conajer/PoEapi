@@ -35,8 +35,9 @@ public:
     std::wregex rare_item_filter;
     std::wregex misc_entity_filter;
     std::wregex one_shot_filter;
+    std::wregex ignored_chest_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.21") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.22") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -53,7 +54,8 @@ public:
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
         misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Heist/Objects|HeistChestRewardRoom");
-        one_shot_filter.assign(L"AreaTransition|Heist/Objects|HeistChestRewardRoom");
+        one_shot_filter.assign(L"AreaTransition|Heist/Objects|HeistChestRewardRoom|Strongbox");
+        ignored_chest_filter.assign(L"IzaroChest|/Chests/(?!Blight)[^/]+$");
     }
 
     void reset() {
@@ -126,7 +128,7 @@ public:
             if (item.get_sockets() == 6)
                 return true;
             if (item.has_component("SkillGem"))
-                return (item.get_quality() >= 5);
+                return (item.get_quality() >= 5 || item.get_level() >= 19);
 
         case 2:
             if (ilvl >= 82 && item.get_influence_type())
@@ -211,7 +213,7 @@ public:
             switch (index) {
             case 0:
                 {
-                    if (ignore_chests || i.second->path.find(L"IzaroChest") != wstring::npos)
+                    if (ignore_chests || std::regex_search(i.second->path, ignored_chest_filter))
                         continue;
 
                     Chest* chest = i.second->get_component<Chest>();
