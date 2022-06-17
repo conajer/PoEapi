@@ -72,7 +72,6 @@ global version := "1.8.1a"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
-#Include, %A_ScriptDir%\extras\Archnemsis.ahk
 #Include, %A_ScriptDir%\extras\vendor.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
@@ -364,9 +363,7 @@ ShowPrices:
     stickyMode := false
     ptask.c.clear()
     loop, {
-        if (archnemesis.isOpened())
-            archnemesis.show()
-        else if (Betrayer.isOpened())
+        if (Betrayer.isOpened())
             Betrayer.show()
         else if (Temple.isOpened())
             Temple.show()
