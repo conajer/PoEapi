@@ -388,6 +388,9 @@ class FolderTab extends SpecialStashTab {
         if (Not __tab.getId())
             return
 
+        if (this.tab.id == __tab.id)
+            return this.tab
+
         tab := this.childs[2].getChild(2, tabIndex + 1)
         if (__tab.type > 2 && __tab.type != 7) {
             tab := tab.getChild(1)
@@ -407,10 +410,19 @@ class FolderTab extends SpecialStashTab {
         tab.index := i
         tab.type := __tab.type
 
-        this.name := __tab.name
-        this.type := __tab.type
+        this.tab := tab
+        this.id := tab.id
 
         return tab
+    }
+
+    hasTab(name) {
+        for i, t in ptask.stashTabs[this.index].tabs {
+            if (t.name == name)
+                return true
+        }
+
+        return false
     }
 }
 
@@ -504,8 +516,17 @@ class Stash extends Element {
         if (Not this.isOpened() || Not tabName)
             return
 
-        if (Not this.tabs.hasKey(tabName) && this.hasTab(tabName))
-            this.__getTabs()
+        if (Not this.tabs.hasKey(tabName)) {
+            if (Not this.tabs || this.hasTab(tabName))
+                this.__getTabs()
+
+            for i, t in this.tabs {
+                if (t.type == 0x10 && t.hasTab(tabName)) {
+                    tabName := t.name
+                    break
+                }
+            }
+        }
 
         activeTabIndex := this.activeTabIndex() + 1
         if (ptask.stashTabs[activeTabIndex].name != tabName) {
