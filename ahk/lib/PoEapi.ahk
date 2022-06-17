@@ -148,7 +148,7 @@ class Element extends PoEObject {
         return r
     }
 
-    draw(label = "", color = "", depth = 1, x = 0.5, y = 0.5) {
+    draw(label = "", color = "", depth = 0, x = 0.5, y = 0.5) {
         if (depth < 0)
             return
 
@@ -159,7 +159,8 @@ class Element extends PoEObject {
         if (r.w < 0 || r.h < 0)
             return
         ptask.c.drawRect(r.l + x, r.t + y, r.w, r.h, bgr)
-        ptask.c.drawText(label, r.l + x, r.t + y, bgr, "white", 1, 1)
+        if (label)
+            ptask.c.drawText(label, r.l + x, r.t + y, bgr, "white", 1, 1)
 
         for i, e in this.getChilds() {
             if (e.isVisible()) {
