@@ -27,10 +27,10 @@ global PoEOffsets = { "version" : "3.18", "offsets"
                         ,     "root"                    : 0x8
                         , "entity_list_count"           : 0x7b0 }
 
-      , "IngameUI"    : { "lefe_panel"                  : 0x550
-                        , "right_panel"                 : 0x558
-                        , "panel_flags"                 : 0x560
-                        , "entity_list"                 : 0x6a0
+      , "IngameUI"    : { "lefe_panel"                  : 0x558
+                        , "right_panel"                 : 0x560
+                        , "panel_flags"                 : 0x568
+                        , "entity_list"                 : 0x6a8
                         ,     "root"                    : 0x2a8
                         ,     "count"                   : 0x2b0 }
 
