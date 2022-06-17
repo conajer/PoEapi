@@ -224,7 +224,8 @@ class Inventory extends InventoryGrid {
                 if (x && y)
                     break
             }
-            MouseMove, x, y + 100, 0
+            if (x && y)
+                MouseMove, x, y + 100, 0
             return
         }
 
