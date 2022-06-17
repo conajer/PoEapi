@@ -90,6 +90,7 @@ public:
         bounds.top += 150;
         bounds.right -= 200;
         bounds.bottom -= 150;
+        log(L"Begin picking up items...");
     }
 
     void stop_pickup() {
@@ -170,6 +171,7 @@ public:
         if (action_id & 0x82) {
             if (selected_item && !local_player->actor->target_address) {
                 stop_pickup();
+                log(L"Pickup up items interrupted.");
             }
         }
     }
@@ -181,8 +183,10 @@ public:
         if (GetTickCount() - last_pickup > 3000) {
             if (selected_item) {
                 ignored_entities[selected_item->id] = selected_item;
+                log(L"Failed to pick up '%S(%04x)'.", selected_item->name().c_str(), selected_item->id);
             }
             stop_pickup();
+            log(L"Stop picking up items (timeout).");
             return;
         }
 
@@ -191,6 +195,7 @@ public:
                 Point pos = selected_item->label->get_pos();
                 poe->mouse_click(pos);
                 last_pickup = GetTickCount();
+                log(L"Try to pickup up '%S(%04x)' again.", selected_item->name().c_str(), selected_item->id);
             }
             return;
         }
@@ -264,6 +269,7 @@ public:
             poe->mouse_click(pos);
             selected_item = nearest_item;
             last_pickup = GetTickCount();
+            log(L"Picking up '%S(%04x)'.", selected_item->name().c_str(), selected_item->id);
 
             if (std::regex_search(selected_item->path, one_shot_filter))
                 stop_pickup();
