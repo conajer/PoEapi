@@ -193,6 +193,7 @@ class Pricer {
     }
 
     update(league) {
+        Sleep, 1000
         if (not ptask.isReady || league != ptask.league) {
             this.league := ""
             SetTimer,, Delete
@@ -203,7 +204,7 @@ class Pricer {
         lastUpdateTime := db.load("pricer.last_update_time")
         tPeriod -= lastUpdateTime, seconds
         tBegin := A_Tickcount
-        total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
+        total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", league)
         if (total < 256 || not lastUpdateTime || (tPeriod >= this.updatePeriod / 1000) || lang != this.lang) {
             JSON.eval("
             (
@@ -217,10 +218,10 @@ class Pricer {
             )")
             try {
                 db.exec("BEGIN TRANSACTION")
-                db.exec("DELETE FROM item_prices WHERE league='{}';", this.league)
+                db.exec("DELETE FROM item_prices WHERE league='{}';", league)
                 lang := this.langNames[this.lang] ? this.langNames[this.lang] : this.lang
                 for name, t in this.types {
-                    url := Format(this.url, t.catalog, this.league, t.type, lang)
+                    url := Format(this.url, t.catalog, league, t.type, lang)
                     parsed := JSON.__parse(ajax(url))
                     rdebug("#PRICER", "<b style='background-color:gold;color:black'>Loading item prices of {} ... {}</b>", name, parsed.lines.length)
                     dict := JSON.__copy(parsed.language.translations)
@@ -243,7 +244,8 @@ class Pricer {
                 return
             }
 
-            total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
+            this.league := league
+            total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", league)
             rdebug("#PRICER", "<b style='background-color:gold;color:black'>Total {} item prices loaded (in {} ms).</b>", total, A_Tickcount - tBegin)
         }
 
