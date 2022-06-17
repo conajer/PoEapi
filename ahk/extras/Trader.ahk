@@ -453,8 +453,7 @@ class IncomingTradeSession extends TradeSession {
             if (Not tab := ptask.stash.switchTab(this.tabName)) {
                 Sleep, 500
                 if (Not tab := ptask.stash.switchTab(this.tabName)) {
-                    this.tabName .= " (Remove-only)"
-                    if (Not tab := ptask.stash.switchTab(this.tabName)) {
+                    if (Not tab := ptask.stash.switchTab(this.tabName " (Remove-only)")) {
                         this.log("    ! Stash tab not found: <b>{}</b>", this.tabName)
                         return
                     }
