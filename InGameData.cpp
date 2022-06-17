@@ -33,11 +33,11 @@ std::map<string, int> in_game_data_offsets {
     {"area_data",          0x88},
         {"area_index",     0x38},
     {"area_level",         0xa0},
-    {"area_hash",         0x114},
-    {"local_player",      0x678},
-    {"entity_list",       0x728},
+    {"area_hash",         0x104},
+    {"local_player",      0x6f8},
+    {"entity_list",       0x7a8},
         {"root",            0x8},
-    {"entity_list_count", 0x730},
+    {"entity_list_count", 0x7b0},
     {"terrain",           0x740},
 };
 
@@ -55,7 +55,6 @@ protected:
     std::mutex entity_list_mutex;
     std::mutex ignored_entities_mutex;
 
-    const __int64 mask = 0xffffff0000000000;
     addrtype root;
     int count;
     int new_entities;
@@ -95,7 +94,7 @@ protected:
     }
 
     void traverse_entity_list(addrtype node) {
-        if (force_reset || ((node ^ root) & mask))
+        if (force_reset)
             return;
 
         {
@@ -110,9 +109,6 @@ protected:
             return;
 
         addrtype entity_address = buffer[5];
-        if ((entity_address ^ root) & mask)
-            return;
-
         if (buffer[0] != root)
             Parallel::add_task(buffer[0]);
         if (buffer[2] != root)
@@ -132,8 +128,7 @@ public:
 
     InGameData(addrtype address) :
         RemoteMemoryObject(address, &in_game_data_offsets),
-        ignored_entity_exp(L"WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
-                           "|BlightFoundation|BlightTower|DoodadDaemons|Projectiles|Effects")
+        ignored_entity_exp(L"WorldItem|/Chests/[^/]+$|BlightFoundation|BlightTower|DoodadDaemons|Projectiles|Effects|Doodad")
     {
         Parallel::start();
     }
@@ -179,8 +174,6 @@ public:
 
         root = read<addrtype>("entity_list");
         count = std::min(read<int>("entity_list_count"), 1024);
-        if ((root ^ address) & mask)
-            return 0;
 
         // take a snapshot of the entity list
         for (auto i : entity_list)
