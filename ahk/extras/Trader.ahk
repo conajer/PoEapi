@@ -589,18 +589,24 @@ class OutgoingTradeSession extends TradeSession {
         ptask.stash.switchTab(this.currencyTabName)
         Sleep, 100
         tab := ptask.stash.Tab
-        item := tab.findItem(_(this.item2.name))
-        if (item.stackCount() < this.item2.count) {
-            this.log("   ! No enough <b>{}</b> ({} in stock)", this.item2.name, item.stackCount())
-            return false
+        item := tab.findItem("^" _(this.item2.name))
+        n := item ? item.stackCount() : 0
+        if (n < Floor(this.item2.count)) {
+            chaosItem := tab.findItem("^" _("Chaos Orb"))
+            m := $(this.item2.name) * (this.item2.count - n)
+            if (chaosItem.stackCount() < m || m > ptask.inventory.freeCells() * 10) {
+                this.log("   ! No enough <b>{}</b> ({} in stock)", this.item2.name, n)
+                return false
+            }
         }
 
         MouseGetPos, x, y
-        n := tab.dump(this.item2.name, Floor(this.item2.count))
+        if (this.item2.count >=  1, n := 0)
+            n := tab.dump("^" this.item2.name, Floor(this.item2.count))
         if (n < this.item2.count) {
             m := $(this.item2.name) * (this.item2.count - n)
             if (m > 0)
-                m := tab.dump(_("Chaos Orb"), Ceil(m))
+                m := tab.dump("^" _("Chaos Orb"), Ceil(m))
         }
         MouseMove, x, y, 0
         this.log("    Withdrew <b>{} {}{}</b>", n, this.item2.name, (m > 0 ? " + " m " " _("Chaos Orb") : ""))
