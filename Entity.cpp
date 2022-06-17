@@ -378,6 +378,8 @@ public:
               L"isIdentified", is_identified(), AhkBool,
               L"ilvl", get_item_level(), AhkInt,
               L"rarity", get_rarity(), AhkInt,
+              L"width", width, AhkInt,
+              L"height", height, AhkInt,
               nullptr);
     }
 
