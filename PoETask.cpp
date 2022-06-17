@@ -58,6 +58,7 @@ public:
     std::mutex entities_mutex;
     EntitySet entities;
     EntityList labeled_entities, labeled_removed;
+    std::map<wstring, addrtype> loaded_files;
     int area_hash;
     wstring league;
     bool in_map = false;
@@ -92,7 +93,7 @@ public:
         add_method(L"stop", this, (MethodType)&PoETask::stop);
         add_method(L"reset", this, (MethodType)&PoETask::reset);
         add_method(L"getVersion", this, (MethodType)&PoE::get_version, AhkString);
-        add_method(L"getLoadedFiles", this, (MethodType)&PoETask::get_loaded_files, AhkObject, ParamList{AhkInt, AhkWString});
+        add_method(L"getFiles", this, (MethodType)&PoETask::get_files, AhkObject, ParamList{AhkWString});
         add_method(L"getLatency", this, (MethodType)&PoETask::get_latency);
         add_method(L"getNearestEntity", this, (MethodType)&PoETask::get_nearest_entity, AhkObject, ParamList{AhkWString});
         add_method(L"getPartyStatus", this, (MethodType)&PoETask::get_party_status);
@@ -141,21 +142,17 @@ public:
         log(L"added plugin %S %s", plugin->name.c_str(), plugin->version.c_str());
     }
 
-    AhkObjRef* get_loaded_files(int area_index, const wchar_t* filter) {
+    void get_loaded_files() {
         const char pattern[] = "48 8b 08 48 8d 3d ?? ?? ?? ?? 41";
-        addrtype root_ptr;
         FileIndex indices[16];
-        wregex regex_filter;
+        wchar_t filename[256];
 
-        root_ptr = find_pattern(pattern);
+        loaded_files.clear();
+        addrtype root_ptr = find_pattern(pattern);
         if (!root_ptr)
-            return nullptr;
+            return;
 
-        if (area_index == 0)
-            area_index = in_game_data->area_index();
-
-        AhkTempObj loaded_files;
-        regex_filter.assign(filter);
+        int area_index = in_game_data->area_index();
         root_ptr += PoEMemory::read<int>(root_ptr + 0x6) + 0xa;
         PoEMemory::read<FileIndex>(root_ptr, indices, 16);
         for (auto&  i : indices) {
@@ -172,16 +169,12 @@ public:
                     addrtype file_ptr = PoEMemory::read<addrtype>(entry_ptr + 0x8 + k * 0x18 + 0x8);
                     PoEMemory::read<FileNode>(file_ptr, &node, 1);
                     if (node.area_index == area_index) {
-                        wchar_t filename[256];
                         PoEMemory::read<wchar_t>(node.name, filename, 256);
-                        if (std::regex_search(filename, regex_filter))
-                            loaded_files.__set(L"", filename, AhkWString, nullptr);
+                        loaded_files[filename] = file_ptr;
                     }
                 }
             }
         }
-
-        return loaded_files;
     }
 
     int get_party_status() {
@@ -190,6 +183,18 @@ public:
 
     int get_latency() {
         return in_game_state->server_data()->latency();
+    }
+
+    AhkObjRef* get_files(const wchar_t* filter) {
+        AhkTempObj files;
+        wregex regex_filter(filter);
+
+        for (auto& i : loaded_files) {
+            if (std::regex_search(i.first, regex_filter))
+                files.__set(i.first.c_str(), i.second, AhkPointer, nullptr);
+        }
+
+        return files;
     }
 
     AhkObjRef* get_nearest_entity(const wchar_t* text) {
@@ -435,6 +440,7 @@ public:
                   L"areaLevel", current_area->level(), AhkInt,
                   nullptr);
 
+            get_loaded_files();
             get_inventory_slots();
             get_stash_tabs();
             get_stash();
