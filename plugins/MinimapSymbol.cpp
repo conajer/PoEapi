@@ -35,6 +35,7 @@ public:
     int font_size = 12;
     std::wregex heist_regex;
     std::wregex ignored_heist_chests;
+    std::wregex valuable_strongbox;
 
     bool show_player = true;
     bool show_npc = true;
@@ -63,10 +64,11 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.22"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.23"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
-        ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques")
+        ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques"),
+        valuable_strongbox(L"Cartographer|Divination|Scarab|VaalTempleChest")
     {
         add_property(L"showMonsters", &show_monsters, AhkBool);
         add_property(L"showCorpses", &show_corpses, AhkBool);
@@ -231,7 +233,11 @@ public:
         int y = pos.y + shift_y;
         float dw = min_size * 2;
         float dh = min_size * 1.5;
-        poe->fill_rect(x - dw, y - dh, x + dw, y + dh, 0xf1c40f, 0.8);
+
+        if (std::regex_search(e->path, valuable_strongbox))
+            poe->fill_rect(x - dw, y - dh, x + dw, y + dh, 0xC70039, 0.8);
+        else
+            poe->fill_rect(x - dw, y - dh, x + dw, y + dh, 0xf1c40f, 0.8);
         poe->draw_rect(x - dw, y - dh, x + dw, y + dh, 0x0c0c0c, 0.8);
         poe->draw_rect(x - dw, y - dh, x + dw, y - dh / 3, 0x0c0c0c, 0.8);
     }
