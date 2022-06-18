@@ -15,6 +15,10 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true }
                         , "AutoPickup"    : { "enabled" : true
                                             , "range"   : 75
                                             , "ignoreChests"      : false
+                                            ; 0: unique items, RGB items and full rare set recipe items.
+                                            ; 1: 6 sockets items and quality gems
+                                            ; 2: influenced items with item level >= 82 and synthesised items
+                                            ; 3 and above: currency items, 6 links items
                                             , "strictLevel"       : 0
                                             , "genericItemFilter" : "Sentinel$|Incubator|Quicksilver|Basalt|Quartz|Eternal (Life|Mana)"
                                             , "rareItemFilter"    : "Jewel|Amulet|Ring" }
