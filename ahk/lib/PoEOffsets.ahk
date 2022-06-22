@@ -34,18 +34,18 @@ global PoEOffsets = { "version" : "3.18", "offsets"
                         ,     "root"                    : 0x2a8
                         ,     "count"                   : 0x2b0 }
 
-      , "ServerData"  : { "player_data"                 : 0x89a0
+      , "ServerData"  : { "player_data"                 : 0x8a20
                         ,     "passive_skills"          : 0x180
                         ,     "player_class"            : 0x238
                         ,     "level"                   : 0x23c
                         ,     "refund_points_left"      : 0x240
                         ,     "skill_points_from_quest" : 0x244
                         ,     "ascendancy_skill_points" : 0x24c
-                        , "league"                      : 0x8d60
-                        , "latency"                     : 0x8df0
-                        , "party_status"                : 0x8fc8
-                        , "stash_tabs"                  : 0x8df8
-                        , "inventory_slots"             : 0x9378 }
+                        , "league"                      : 0x8de0
+                        , "latency"                     : 0x8e70
+                        , "party_status"                : 0x9048
+                        , "stash_tabs"                  : 0x8e78
+                        , "inventory_slots"             : 0x93f8 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
