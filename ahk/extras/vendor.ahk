@@ -264,11 +264,12 @@ openStackedDecks() {
         inventory := ptask.inventory
 
     n := 0
-    debug("Open stacked decks:")
+    debug("Opening stacked decks:")
     for i, item in inventory.findItems(_("Stacked Deck")) {
         index := item.index
-        loop, % item.stackCount {
-            if (Not ptask.inventory.freeCells())
+        stackCount := item.stackCount
+        loop, {
+            if (stackCount == 0 || Not ptask.inventory.freeCells())
                 break
 
             inventory.moveTo(index)
@@ -276,6 +277,10 @@ openStackedDecks() {
             Sleep, 100
 
             divinationCard := ptask.inventories[13].getItemByIndex(1)
+            if (Not divinationCard)
+                continue
+
+            stackCount--
             price := $(divinationCard)
             if (price > 5)
                 debug("    {:2d}. <b style='color: red;'>{}, {:g}</b>", ++n, divinationCard.name, price)
