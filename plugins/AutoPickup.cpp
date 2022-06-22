@@ -37,7 +37,7 @@ public:
     std::wregex one_shot_filter;
     std::wregex ignored_chest_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.22") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.23") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -46,6 +46,7 @@ public:
         add_method(L"setGenericItemFilter", this,(MethodType)&AutoPickup::set_generic_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setRareItemFilter", this, (MethodType)&AutoPickup::set_rare_item_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"setMiscEntityFilter", this, (MethodType)&AutoPickup::set_misc_entity_filter, AhkVoid, ParamList{AhkWString});
+        add_method(L"setIgnoredChests", this, (MethodType)&AutoPickup::set_ignored_chest_filter, AhkVoid, ParamList{AhkWString});
         add_method(L"beginPickup", this, (MethodType)&AutoPickup::begin_pickup);
         add_method(L"stopPickup", this, (MethodType)&AutoPickup::stop_pickup);
         add_method(L"getDroppedItems", this, (MethodType)&AutoPickup::get_dropped_items, AhkObject);
@@ -55,7 +56,7 @@ public:
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
         misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Heist/Objects|HeistChestRewardRoom");
         one_shot_filter.assign(L"AreaTransition|Heist/Objects|HeistChestRewardRoom|Strongbox");
-        ignored_chest_filter.assign(L"IzaroChest|/Chests/(?!Blight)[^/]+$");
+        ignored_chest_filter.assign(L"IzaroChest");
     }
 
     void reset() {
@@ -76,6 +77,11 @@ public:
     void set_misc_entity_filter(const wchar_t* regex_string) {
         log(regex_string);
         misc_entity_filter.assign(regex_string);
+    }
+
+    void set_ignored_chest_filter(const wchar_t* regex_string) {
+        log(regex_string);
+        ignored_chest_filter.assign(regex_string);
     }
 
     void begin_pickup() {
