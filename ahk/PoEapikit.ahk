@@ -73,7 +73,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.8.2"
+global version := "1.8.3"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -361,7 +361,7 @@ AutoFillPrice:
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible() && not tag.getText()) {
                 exalted := $("Exalted Orb")
-                if (price >= 2 * exalted)
+                if (price >= 0.9 * exalted)
                     note := Format("~b/o {:.1f} exalted", price / exalted)
                 else if (price >= 1)
                     note := Format("~b/o {} chaos", Round(price))
