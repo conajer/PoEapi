@@ -261,7 +261,7 @@ class Pricer {
                     ? this.addPrice(p.currencyTypeName, "", type, {"price": p.receive.value})
                     : this.addPrice(p.currencyTypeName, "", type, {"price": p.chaosEquivalent})
             } else {
-                if (p.sparkline.data.length == 0 || (p.itemClass != 6 && InStr(p.detailsId, "-relic")))
+                if (p.count < 10 || p.sparkline.data.length == 0 || (p.itemClass != 6 && InStr(p.detailsId, "-relic")))
                     return
 
                 dict.hasKey(p.name) ? db.addTranslation(p.name, dict[p.name]) : ""
