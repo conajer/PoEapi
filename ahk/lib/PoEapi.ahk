@@ -324,6 +324,9 @@ class StashTab extends InventoryGrid {
                     dumped += m
                     stackCount -= m
                     k -= m
+
+                    if (Not ptask.inventory.freeCells())
+                        break
                 }
             }
         }
