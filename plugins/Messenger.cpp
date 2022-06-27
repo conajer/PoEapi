@@ -5,7 +5,7 @@
 class Messenger : public PoEPlugin {
 public:
 
-    Messenger() : PoEPlugin(L"Messenger", "0.2") {
+    Messenger() : PoEPlugin(L"Messenger", "0.3") {
     }
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
@@ -13,15 +13,12 @@ public:
         Notifications *notifications = poe->in_game_ui->get_notifications();
 
         if (chat->has_next()) {
-            wstring* new_message = chat->next_message();
-            if (new_message)
-                PostThreadMessage(thread_id, WM_NEW_MESSAGE,
-                                  (WPARAM)new_message->c_str(), (LPARAM)chat->index);
+            if (wstring* new_message = chat->next_message())
+                PostThreadMessage(thread_id, WM_NEW_MESSAGE, (WPARAM)new_message->c_str(), 0);
         }
 
         if (notifications->has_next()) {
-            wstring* new_notification = notifications->next_notification();
-            if (new_notification)
+            if (wstring* new_notification = notifications->next_notification())
                 PostThreadMessage(thread_id, WM_NEW_MESSAGE,
                                   (WPARAM)new_notification->c_str(),
                                   (LPARAM)notifications->address);
