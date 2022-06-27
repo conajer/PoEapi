@@ -100,7 +100,7 @@ class InventoryGrid extends Element {
                 result.Push(aItem)
         }
 
-        return result
+        return result.Count() ? result : ""
     }
 
     checkItem(regex) {
