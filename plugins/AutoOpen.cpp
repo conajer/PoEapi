@@ -56,10 +56,11 @@ public:
         poe->in_game_state->transform(pos);
 
         Point old_pos;
-        GetCursorPos ((POINT*)&old_pos);
+        GetCursorPos((POINT*)&old_pos);
         bool is_button_pressed = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
         bool is_moving = player->is_moving();
 
+        log(L"Tring to open '%S' at (%d, %d)", entity->name().c_str(), old_pos.x, old_pos.y);
         if (is_button_pressed) {
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
             Sleep(10);
