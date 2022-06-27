@@ -89,7 +89,7 @@ template <typename T> std::vector<T> read_array(HANDLE handle, addrtype address,
     std::vector<T> vec;
     addrtype ptrs[2];
     if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
-        int size = ptrs[1] - ptrs[0];
+        size_t size = ptrs[1] - ptrs[0];
         if (size > 0 && size / element_size < 1024) {
             for (address = ptrs[0]; address < ptrs[1]; address += element_size)
                 vec.push_back(T(address));
@@ -103,7 +103,7 @@ template <> std::vector<wstring> read_array(HANDLE handle, addrtype address, int
     std::vector<wstring> vec;
     addrtype ptrs[2];
     if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
-        int size = ptrs[1] - ptrs[0];
+        size_t size = ptrs[1] - ptrs[0];
         if (size > 0 && size / element_size < 1024) {
             for (address = ptrs[0]; address < ptrs[1]; address += element_size)
                 vec.push_back(read<wstring>(handle, address));
@@ -117,7 +117,7 @@ template <typename T> std::vector<T> read_array(HANDLE handle, addrtype address,
     std::vector<T> vec;
     addrtype ptrs[2];
     if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
-        int size = ptrs[1] - ptrs[0];
+        size_t size = ptrs[1] - ptrs[0];
         if (size > 0 && size / element_size < 1024) {
             byte buffer[size];
             if (ReadProcessMemory(handle, (LPVOID)ptrs[0], buffer, size, 0)) {
@@ -134,7 +134,7 @@ template <> std::vector<wstring> read_array(HANDLE handle, addrtype address, int
     std::vector<wstring> vec;
     addrtype ptrs[2];
     if (address && ReadProcessMemory(handle, (LPVOID)address, ptrs, 16, 0)) {
-        int size = ptrs[1] - ptrs[0];
+        size_t size = ptrs[1] - ptrs[0];
         if (size > 0 && size / element_size < 1024) {
             byte buffer[size];
             if (ReadProcessMemory(handle, (LPVOID)ptrs[0], buffer, size, 0)) {
