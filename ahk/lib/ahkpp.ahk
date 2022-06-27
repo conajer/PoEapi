@@ -47,26 +47,33 @@ class AhkObj {
         this.__self := &this
     }
 
-    __Get(key) {
-        if (key != "__properties" && key != "__methods") {
-            if (valType := this.__properties[key]) {
-                value := DllCall(ahkpp_get, "Ptr", this.__self, "Str", key, valType)
-                if (valType == "UPtr") {
-                    if (value)
-                        return Object(value)
+    __Get(key, key2 = "") {
+        __properties := ObjRawGet(this, "__properties")
+        __methods := ObjRawGet(this, "__methods")
 
+        if (valType := __properties[key]) {
+            value := DllCall(ahkpp_get, "Ptr", this.__self, "Str", key, valType)
+            if (valType == "UPtr") {
+                value := Object(value)
+                if (Not value) {
                     value := {}
                     DllCall(ahkpp_set, "Ptr", this.__self, "Str", key, "UPtr", Object(value))
                 }
-
-                return value
-            } else if (m := this.__methods[key]) {
-                if (m.params.Length() == 0) {
-                    result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", key, m.returnType)
-                    return (m.returnType == "UPtr") ? Object(result) : result
-                }
+            }
+        } else if (m := __methods[key]) {
+            if (m.params.Length() == 0) {
+                result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", key, m.returnType)
+                value := (m.returnType == "UPtr") ? Object(result) : result
+            }
+        } else if (m := __methods["get" key]) {
+            if (m.params.Length() == 0) {
+                result := DllCall(ahkpp_call, "Ptr", this.__self, "Str", "get" key, m.returnType)
+                value := (m.returnType == "UPtr") ? Object(result) : result
             }
         }
+
+        if (value != "")
+            return key2 ? value[key2] : value
     }
 
     __Set(key, value) {
