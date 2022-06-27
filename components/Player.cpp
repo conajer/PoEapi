@@ -17,6 +17,14 @@ public:
     Player(addrtype address) : Component(address, "Player", &player_component_offsets) {
     }
 
+    void __new() {
+        Component::__new();
+        __set(L"name", name().c_str(), AhkWString,
+              L"class", class_name().c_str(), AhkWString,
+              L"level", level(), AhkInt,
+              nullptr);
+    }
+
     wstring name() {
         return read<wstring>("name");;
     }
