@@ -7,12 +7,11 @@ public:
 
     shared_ptr<Element> messages;
     shared_ptr<Element> last_message;
-    unsigned int index;
 
     Chat(addrtype address) : Element(address) {
         get_childs();
         messages = get_child(std::vector<int>{1, 2, 1});
-        index = messages ? messages->child_count() : 0;
+        last_message = messages->get_child(messages->child_count() - 1);
 
         add_method(L"isOpened", this, (MethodType)&Chat::is_opened, AhkBool);
         add_method(L"hasNext", this, (MethodType)&Chat::has_next, AhkBool);
@@ -24,31 +23,38 @@ public:
     }
 
     bool has_next() {
-        if (!messages)
-            return false;
-
-        int n = messages->child_count();
-        if (n < index) {
-            if (n > 500) {
-                for (index = n - 10; index < n; ++index) {
-                    shared_ptr<Element> message = messages->get_child(index);
-                    if (message == last_message)
-                        break;
-                }
-            } else {
-                index = 0;
+        if (messages) {
+            int n = messages->child_count();
+            if (n > 0) {
+                shared_ptr<Element> message = messages->get_child(n - 1);
+                if (message != last_message)
+                    return true;
             }
         }
 
-        return n > index;
+        return false;
     }
 
     wstring* next_message() {
         if (messages) {
-            if (messages->child_count() > index) {
-                last_message = messages->get_child(index++);
-                if (last_message)
-                    return &last_message->get_text();
+            shared_ptr<Element> new_message;
+            int n = messages->child_count();
+
+            for (int i = n - 1; i >= max(0, n - 16); --i ) {
+                shared_ptr<Element> message = messages->get_child(i);
+
+                if (!message || !last_message) {
+                    new_message = message;
+                    break;
+                } else if (message->address == last_message->address) {
+                    break;
+                }
+                new_message = message;
+            }
+
+            if (new_message) {
+                last_message = new_message;
+                return &last_message->get_text();
             }
         }
 
