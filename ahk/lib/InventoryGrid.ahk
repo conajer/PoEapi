@@ -105,7 +105,7 @@ class InventoryGrid extends Element {
 
     checkItem(regex) {
         for i, aItem in this.getItems() {
-            if (RegExMatch(aItem.name, "i)" regex))
+            if (RegExMatch(aItem.qualifiedName(), "i)" regex))
                 n += aItem.stackCount ? aItem.stackCount : 1
         }
 
