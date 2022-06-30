@@ -23,35 +23,47 @@ class Flask {
             }
         }
 
-        item.getComponents()
-        FlaskInfo := item.components["Flask"]
+        dCharges := 0
+        dChargesUsed := 0
+        dDuration := 0
+        for i, m in item.getMods() {
+            if (m.id ~= "FlaskExtraCharges")                    ; Ample
+                dCharges := m.value[1]  
+            else if (m.id ~= "FlaskChargesUsed")                ; Chemist's
+                dChargesUsed := m.value[1]   
+            else if (m.id ~= "FlaskIncreasedHealingCharges")
+                dChargesUsed := m.value[2]   
+            else if (m.id ~= "FlaskEffectReducedDuration")      ; Alchemist's
+                dDuration := m.value[1]  
+            else if (m.id ~= "FlaskIncreasedDuration")          ; Experimenter's
+                dDuration := m.value[1]
+            else if (m.id ~= "FlaskFullInstantRecovery")        ; Seething
+                dDuration := -100
+            else if (m.id ~= "FlaskPartialInstantRecovery")     ; Bubbling
+                dDuration := 10000 / (100 + 135) - 100
+            else if (m.id ~= "FlaskIncreasedRecoverySpeed")     ; Catalysed
+                dDuration := 10000 / (100 + m.value[1]) - 100
+            else if (m.id ~= "FlaskIncreasedRecoveryAmount")
+                dDuration := 10000 / (100 + m.value[2]) - 100
+            else if (m.id ~= "Flask.+ImmunityDuringEffect")
+                dDuration := m.value[2]
+            else if (m.id ~= "Flask.+DurationUnique")
+                dDuration := m.value[1]
+        }
+
         ChargesInfo := item.components["Charges"]
+        this.maxCharges := ChargesInfo.maxCharges + dCharges
+        this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 + dChargesUsed) / 100)
 
-        increased := reduced := 0
-        if (RegExMatch(item.name, "Catalysed", matched))
-            increased += 50
-        else if (RegExMatch(item.name, "Bubbling", matched))
-            increased += 135
-        else if (RegExMatch(item.name, "Experimenter's", matched))
-            increased += 40
-        else if (RegExMatch(item.name, "Alchemist's", matched))
-            increased -= 33
-        else if (RegExMatch(item.name, "Chemist's", matched))
-            reduced += 25
-        else if (RegExMatch(item.name, "Dying Sun", matched))
-            increased -= 50
-        else if (RegExMatch(item.name, "Seething", matched))
-            this.duration := 0
-
-        this.maxCharges := ChargesInfo.maxCharges
-        this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 - reduced) / 100)
-        if (this.IsUtility)
-            this.duration := Flaskinfo.duration * (100 + item.quality + increased)
+        FlaskInfo := item.components["Flask"]
+        if (item.IsLife || item.IsMana)
+            this.duration := Floor(Flaskinfo.duration * (100 + dDuration))
         else
-            this.duration := Floor(Flaskinfo.duration * 10000 / (100 + increased))
+            this.duration := Floor(Flaskinfo.duration * (100 + item.quality + dDuration))
+
         this.endTime := A_Tickcount
-        this.key := item.left
         this.item := item
+        this.key := item.left
     }
 
     use(chargesLimit = 0, forceToUse = false) {
