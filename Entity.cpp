@@ -353,6 +353,7 @@ public:
         add_method(L"isSynthesised", this, (MethodType)&Item::is_synthesised, AhkBool);
         add_method(L"isVeiled", this, (MethodType)&Item::is_veiled, AhkBool);
         add_method(L"isRGB", this, (MethodType)&Item::is_rgb, AhkBool);
+        add_method(L"ilvl", this, (MethodType)&Item::get_item_level);
         add_method(L"itemLevel", this, (MethodType)&Item::get_item_level);
         add_method(L"quality", this, (MethodType)&Item::get_quality);
         add_method(L"qualityType", this, (MethodType)&Item::get_quality_type);
