@@ -101,7 +101,7 @@ readIni(iniFile) {
     IniRead, close_panels, %A_ScriptDir%\%iniFile%, ACTION_KEYS, close_panels
     IniRead, open_inventory_panel, %A_ScriptDir%\%iniFile%, ACTION_KEYS, open_inventory_panel
     IniRead, use_temporary_skill1, %A_ScriptDir%\%iniFile%, ACTION_KEYS, use_temporary_skill1
-    IniRead, use_temporary_skill2, %A_ScriptDir%\%iniFile%, ACTION_KEYS, use_temporary_skill1
+    IniRead, use_temporary_skill2, %A_ScriptDir%\%iniFile%, ACTION_KEYS, use_temporary_skill2
     IniRead, language, %A_ScriptDir%\%iniFile%, LANGUAGE, language, en
     FileDelete, %A_ScriptDir%\%iniFile%
 
