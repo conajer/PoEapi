@@ -258,10 +258,13 @@ dumpStashTabItems() {
 
 openStackedDecks() {
     ptask.activate()
-    if (ptask.stash.isOpened())
-        inventory := ptask.stash.Tab
-    else if (ptask.inventory.open())
-        inventory := ptask.inventory
+
+    inventory := ptask.inventory
+    if (ptask.stash.isOpened()) {
+        tab := ptask.stash.Tab
+        if (tab.findItems(_("Stacked Deck")))
+            inventory := tab
+    }
 
     n := 0
     debug("Opening stacked decks:")
@@ -269,7 +272,7 @@ openStackedDecks() {
         index := item.index
         stackCount := item.stackCount
         loop, {
-            if (stackCount == 0 || Not ptask.inventory.freeCells())
+            if (Not stackCount || (A_Index - n) > 3 || Not ptask.inventory.freeCells())
                 break
 
             inventory.moveTo(index)
