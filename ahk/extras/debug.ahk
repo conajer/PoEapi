@@ -365,8 +365,27 @@ listInventorySlots() {
 
 listStashTabItems() {
     debug(_("Stash tab name:") " {}", ptask.stash.Tab.name)
-    for i, item in ptask.stash.Tab.getItems()
-        debug("    {:3d}. {}", item.index, item.name)
+    for i, item in ptask.stash.Tab.getItems() {
+        price := $(item)
+        
+        if (item.stackSize > 0)
+            itemInfo := Format("{} ({}/{})", item.name, item.stackCount, item.stackSize)
+        else if (item.isGem)
+            itemInfo := Format("{} {}/{}", item.name, item.level, item.quality)
+        else if (item.rarity > 1 && item.isIdentified)
+            itemInfo := item.name " " item.baseName
+        else
+            itemInfo := item.name
+
+        if (price >= 10)
+            debug("    {:3d}. <b style='color: red;'>{:-40s} {:.f}</b>", item.index, itemInfo, price)
+        else if (price >= 1)
+            debug("    {:3d}. {:-40s} {:.1f}", item.index, itemInfo, price)
+        else if (Not price)
+            debug("    {:3d}. <span style='color: grey;'>{:-40s}</span>", item.index, itemInfo)
+        else
+            debug("    {:3d}. <span style='color: grey;'>{:-40s} {:.2f}</span>", item.index, itemInfo, price)
+    }
 }
 
 listStashTabs() {
