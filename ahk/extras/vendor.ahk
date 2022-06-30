@@ -88,9 +88,11 @@ tradeGems() {
     Sleep, 300
     tab := ptask.stash.Tab
     for i, item in tab.getItems() {
-        if (item.isGem && item.price < 2 && item.level < 19 && item.quality > 0 && item.quality < 18) {
-            tab.move(item)
-            n += 1
+        if (item.isGem && item.price < 2) {
+            if (item.level < 19 && item.quality > 0 && item.quality < 20) {
+                tab.move(item)
+                n += 1
+            }
         }
     }
 
