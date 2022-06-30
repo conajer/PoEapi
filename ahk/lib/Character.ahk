@@ -75,8 +75,8 @@ class Flask {
                 this.savedLife := Life
                 return true
             }
-        } else {
-            if (this.endTime <= A_Tickcount) {
+        } else { ; IsMana
+            if (this.endTime <= A_Tickcount || Not ptask.getBuff("flask_bonus_mana_cost")) {
                 SendInput, % this.key
                 this.endTime := A_Tickcount + this.duration
                 return true
