@@ -7,8 +7,22 @@ private:
 
     AhkObjRef* __get_items() {
         AhkObj temp_items;
-        for (auto& i : get_items())
-            temp_items.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
+
+        items.clear();
+        auto& elements = get_child(topIndex)->get_childs();
+        for (int i = 1; i < elements.size(); ++i) {
+            if (addrtype addr = elements[i]->read<addrtype>("item")) {
+                Item* item = new Item(addr);
+                Rect r = elements[i]->get_rect();
+                item->__set(L"x", r.x, AhkInt,
+                            L"y", r.y, AhkInt,
+                            L"w", r.w, AhkInt,
+                            L"h", r.h, AhkInt,
+                            nullptr);
+                temp_items.__set(L"", (AhkObjRef*)*item, AhkObject, nullptr);
+                items.push_back(shared_ptr<Item>(item));
+            }
+        }
         __set(L"items", (AhkObjRef*)temp_items, AhkObject, nullptr);
 
         return temp_items;
@@ -16,8 +30,22 @@ private:
 
     AhkObjRef* __get_your_items() {
         AhkObj temp_items;
-        for (auto& i : get_your_items())
-            temp_items.__set(L"", (AhkObjRef*)*i, AhkObject, nullptr);
+
+        your_items.clear();
+        auto& elements = get_child(bottomIndex)->get_childs();
+        for (int i = 2; i < elements.size(); ++i) {
+            if (addrtype addr = elements[i]->read<addrtype>("item")) {
+                Item* item = new Item(addr);
+                Rect r = elements[i]->get_rect();
+                item->__set(L"x", r.x, AhkInt,
+                            L"y", r.y, AhkInt,
+                            L"w", r.w, AhkInt,
+                            L"h", r.h, AhkInt,
+                            nullptr);
+                temp_items.__set(L"", (AhkObjRef*)*item, AhkObject, nullptr);
+                your_items.push_back(shared_ptr<Item>(item));
+            }
+        }
         __set(L"yourItems", (AhkObjRef*)temp_items, AhkObject, nullptr);
 
         return temp_items;
@@ -42,8 +70,7 @@ public:
         if (is_visible()) {
             auto& elements = get_child(topIndex)->get_childs();
             for (int i = 1; i < elements.size(); ++i) {
-                addrtype addr = elements[i]->read<addrtype>("item");
-                if (addr)
+                if (addrtype addr = elements[i]->read<addrtype>("item"))
                     items.push_back(shared_ptr<Item>(new Item(addr)));
             }
         }
@@ -56,8 +83,7 @@ public:
         if (is_visible()) {
             auto& elements = get_child(bottomIndex)->get_childs();
             for (int i = 2; i < elements.size(); ++i) {
-                addrtype addr = elements[i]->read<addrtype>("item");
-                if (addr)
+                if (addrtype addr = elements[i]->read<addrtype>("item"))
                     your_items.push_back(shared_ptr<Item>(new Item(addr)));
             }
         }
