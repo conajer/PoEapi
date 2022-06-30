@@ -31,7 +31,7 @@ CoordMode, Pixel, Client
 ;                           Enabled Prefix Key Name     Label              Description
 ;                           ------- ------ -----------  -----------------  --------------------------------------
 global defaultHotkeys := [ [ true,  "",    "``",        "ExitGame",        "Exit to character selection"]
-                         , [ true,  "~",   "a",         "AutoPickup",      "Pickup nearby items"]
+                         , [ true,  "~*",  "a",         "AutoPickup",      "Pickup nearby items"]
                          , [ true,  "$",   "q",         "QuickDefense",    "Quick defence actions"]
                          , [ true,  "~",   "s",         "LevelupGems",     "Level up skill gems"]
                          , [ true,  "~",   "w",         "Attack",          "Main attack skill"]
