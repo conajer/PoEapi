@@ -46,7 +46,7 @@ global defaultHotkeys := [ [ true,  "",    "``",        "ExitGame",        "Exit
                          , [ true,  "",    "!F5",       "Menagerie",       "Enter menagerie"]
                          , [ true,  "",    "F12",       "ShowLog",         "Show log window"]
                          , [ true,  "~*",  "LAlt",      "ShowPrices",      "Show price of the item(s) in stash tab, inventory, etc."]
-                         , [ true,  "",    "^LButton",  "AutoCtrlClick",   "Hold to activate auto CTRL clicker"]
+                         , [ true,  "*",   "^LButton",  "AutoCtrlClick",   "Hold to activate auto CTRL clicker"]
                          , [ true,  "~",   "+LButton",  "AutoShiftClick",  "Hold to activate auto SHIFT clicker"]
                          , [ true,  "",    "+RButton",  "AutoRButtonClick","Hold to activate auto right mouse button clicker"]
                          , [ true,  "~",   "^RButton",  "AutoFillPrice",   "Auto fill the price tag of the selected item"]
