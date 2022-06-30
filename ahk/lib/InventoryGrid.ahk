@@ -56,21 +56,15 @@ class InventoryGrid extends Element {
 
     dump(regex = "", n = 0) {
         dumped := 0
-        for i, aItem in this.getItems() {
+        for i, aItem in this.findItems(regex) {
             if (Not this.isVisible())
                 break
 
-            if (regex && Not RegExMatch(aItem.qualifiedName(), "i)" regex))
-                continue
-
             count := aItem.stackCount ? aItem.stackCount : 1
-            if (n == 0 || (dumped + count) <= n) {
-                this.move(aItem)
-                dumped += count
-            }
-
-            if (n && dumped >= n)
-                return dumped
+            this.move(aItem)
+            dumped += count
+            if (n > 0 && dumped >= n)
+                break
         }
 
         return dumped
@@ -91,10 +85,6 @@ class InventoryGrid extends Element {
     findItems(regex, rarity = 3) {
         result := []
         for i, aItem in this.getItems() {
-            if (aItem.Index < index)
-                continue
-
-            index := aItem.Index + 1
             if (aItem.rarity <= rarity && (InStr(aItem.qualifiedName(), regex)
                 || RegExMatch(aItem.qualifiedName(), "i)" regex)))
                 result.Push(aItem)
@@ -104,10 +94,8 @@ class InventoryGrid extends Element {
     }
 
     checkItem(regex) {
-        for i, aItem in this.getItems() {
-            if (RegExMatch(aItem.qualifiedName(), "i)" regex))
-                n += aItem.stackCount ? aItem.stackCount : 1
-        }
+        for i, aItem in this.findItems(regex)
+            n += aItem.stackCount ? aItem.stackCount : 1
 
         return n
     }
