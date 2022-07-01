@@ -180,7 +180,8 @@ public:
     Trade* get_trade() {
         shared_ptr<Element> e = get_child("trade");
         if (e = e->get_child(std::vector<int>{3, 1, 0, 0})) {
-            trade = unique_ptr<Trade>(new Trade(e->address));
+            if (!trade || trade->address != e->address)
+                trade = unique_ptr<Trade>(new Trade(e->address));
             return trade.get();
         }
 
