@@ -18,10 +18,11 @@ class Item extends Entity {
 
     __Get(key) {
         if (RegExMatch(key, "i)baseType|subType|is.*")) {
-            if (RegExMatch(this.path, "Metadata/Items/(([^/]+)s)/((Gloves|Boots|[^/]+[^/s])s?)*", matched)) {
+            if (RegExMatch(this.path, "Metadata/Items/(([^/]+)s)/((Gloves|Boots|[^/]+[^/s])s?)*(/([^/]+)s/)?", matched)) {
                 baseType := matched2
                 if (matched2 == "Weapon")
                     this.gripType := (matched4 == "OneHandWeapon") ? "1H" : "2H"
+                    , subType := matched6
                 else if (matched2 == "Armour")
                     subType := matched4
                 else if (matched1 == "AtlasExiles")
