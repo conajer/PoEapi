@@ -106,7 +106,7 @@ public:
     Render* render = nullptr;
     shared_ptr<Element> label;
     shared_ptr<Item> item;
-    Vector3 pos;
+    Vector3 pos, bounds;
     Point grid_pos;
 
     bool is_player = false;
@@ -209,8 +209,10 @@ public:
     }
 
     void get_position() {
-        if (render)
+        if (render) {
             pos = render->position();
+            bounds = render->bounds();
+        }
         if (positioned)
             grid_pos = positioned->grid_position();
     }
