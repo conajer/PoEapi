@@ -242,7 +242,7 @@ class Profiler {
             d.tval > max ? max := d.tval
             total += d.tval
         }
-        average := n ? total / n : 0
+        average := Ceil(n ? total / n : 0)
 
         for i, d in durations
             trace("   {}. <b style='color:{};'>{}{}</b> ms", i
@@ -353,8 +353,12 @@ listInventoryItems() {
         Return
     }
 
-    for i, item in items
-        debug("    {:2d}. {}", item.index, item.name)
+    for i, item in items {
+        if (item.rarity > 1)
+            debug("    {:2d}. {} <span style='color: grey;'>{}</span>", item.index, item.name, item.baseName)
+        else
+            debug("    {:2d}. {}", item.index, item.name)
+    }
 }
 
 listInventorySlots() {
@@ -380,11 +384,11 @@ listStashTabItems() {
         if (price >= 10)
             debug("    {:3d}. <b style='color: red;'>{:-40s} {:.f}</b>", item.index, itemInfo, price)
         else if (price >= 1)
-            debug("    {:3d}. {:-40s} {:.1f}", item.index, itemInfo, price)
+            debug("    {:3d}. {:-40s} {:g}", item.index, itemInfo, Round(price, 1))
         else if (Not price)
             debug("    {:3d}. <span style='color: grey;'>{:-40s}</span>", item.index, itemInfo)
         else
-            debug("    {:3d}. <span style='color: grey;'>{:-40s} {:.2f}</span>", item.index, itemInfo, price)
+            debug("    {:3d}. <span style='color: grey;'>{:-40s} {:g}</span>", item.index, itemInfo, Round(price, 2))
     }
 }
 
