@@ -37,13 +37,13 @@ public:
         return n > index;
     }
 
-    wstring* next_notification() {
+    Element* next_notification() {
         if (child_count() > index) {
             last_notification = get_child(index++);
             if (last_notification) {
                 notifications.push_back(last_notification);
                 if (last_notification->child_count() > 2) {
-                    shared_ptr<Element> player = last_notification->get_child(std::vector<int>{0, 0, 1});
+                    shared_ptr<Element> player = last_notification->get_child(std::vector<int>{1, 0, 0, 0});
                     shared_ptr<Element> notification_text = last_notification->get_child(std::vector<int>{0, 1});
                     if (player && notification_text)
                         last_notification->text = player->get_text() + L" " + notification_text->get_text();
@@ -53,10 +53,17 @@ public:
                         last_notification->text = notification_text->get_text();
                 }
 
-                return &last_notification->text;
+                return last_notification.get();
             }
         }
 
+        return nullptr;
+    }
+
+    Element* get_notification(addrtype id) {
+        for (auto i : notifications)
+            if (i->address == id)
+                return i.get();
         return nullptr;
     }
 

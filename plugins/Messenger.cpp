@@ -18,10 +18,10 @@ public:
         }
 
         if (notifications->has_next()) {
-            if (wstring* new_notification = notifications->next_notification())
+            if (Element* new_notification = notifications->next_notification())
                 PostThreadMessage(thread_id, WM_NEW_MESSAGE,
-                                  (WPARAM)new_notification->c_str(),
-                                  (LPARAM)notifications->address);
+                                  (WPARAM)new_notification->text.c_str(),
+                                  (LPARAM)new_notification->address);
         }
     }
 };
