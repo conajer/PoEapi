@@ -11,7 +11,7 @@ class Item extends Entity {
         if (this.IsMap)
             qName .= " (T" this.tier ")"
         if (this.IsGem)
-            qName .= " Level " this.level " " this.quality "%" 
+            qName .= " Level " this.level " " this.quality "%"
 
         return qName
     }
@@ -30,13 +30,14 @@ class Item extends Entity {
                 else if (matched1 == "Metamorphosis")
                     baseType := "Metamorph"
             } else if (RegExMatch(this.path, "Metadata/Items/([^/]*)/([^/]*)", matched)) {
-                baseType := matched1
                 if (matched2 ~= "HeistCoin|VendorCurrency")
                     baseType := "Currency"
-                else if (InStr(matched2, "Prophecy"))
-                    baseType := "Prophecy"
                 else if (InStr(matched2, "CapturedMonster"))
                     baseType := "Beast"
+                else if (matched1 == "Heist")
+                    baseType := RegExReplace(matched2, "Heist(Contract|Blueprint).+", "$1")
+                else
+                    baseType := matched1
             }
 
             this["baseType"] := baseType
