@@ -367,6 +367,7 @@ public:
         add_method(L"stackSize", this, (MethodType)&Item::get_stack_size);
         add_method(L"charges", this, (MethodType)&Item::get_charges);
         add_method(L"size", this, (MethodType)&Item::get_size);
+        add_method(L"getInfluences", this, (MethodType)&Item::get_influences, AhkWString);
         add_method(L"getInfluenceType", this, (MethodType)&Item::get_influence_type, AhkInt);
         add_method(L"getExplicitMods", this, (MethodType)&Item::get_explicit_mods, AhkObject);
         add_method(L"getMods", this, (MethodType)&Item::get_mods, AhkObject);
@@ -550,6 +551,25 @@ public:
 
     int get_influence_type() {
         return base ? base->influence_type() : 0;
+    }
+
+    const wchar_t* get_influences() {
+        static wstring all_influences[] = {L"Shaper", L"Elder", L"Crusader", L"Redeemer", L"Hunter", L"Warlord"};
+        static wstring influences;
+        int itype = base->influence_type();
+
+        influences.clear();
+        for (int i = 0; i < 6; ++i) {
+            if (itype & (1 << i)) {
+                if (!influences.empty()) {
+                    influences += L"/" + all_influences[i];
+                    break;
+                }
+                influences = all_influences[i];
+            }
+        }
+
+        return influences.c_str();
     }
 
     AhkObjRef* get_explicit_mods() {
