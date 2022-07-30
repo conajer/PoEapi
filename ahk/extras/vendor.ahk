@@ -154,7 +154,9 @@ tradeDivinationCards() {
                     return
                 MouseMove, x, y - 150, 0
                 Sleep, 50
-                SendInput, ^{Click}
+                SendInput, {Ctrl down}
+                Click
+                SendInput, {Ctrl up}
                 Sleep, 100
             }
         }
@@ -245,11 +247,15 @@ dumpStashTabItems() {
                 if (ptask.inventory.freeCells() == 0)
                     break
 
-                SendInput, ^{Click}
+                SendInput, {Ctrl down}
+                Click
+                SendInput, {Ctrl up}
                 Sleep, 100
             }
         } else {
-            SendInput, ^{Click}
+            SendInput, {Ctrl down}
+            Click
+            SendInput, {Ctrl up}
             Sleep, 30
         }
 
@@ -303,11 +309,14 @@ openStackedDecks() {
                         break
                     }
                 }
-            } else if (Not ptask.inventory.drop()) {
+            } else if (Not ptask.inventory.drop() || GetKeyState("Ctrl")) {
                 break
             }
             Sleep, 50
         }
+
+        if (GetKeyState("Ctrl"))
+            break
     }
     debug("Opened <b>{}</b> stacked decks.", n)
 }
