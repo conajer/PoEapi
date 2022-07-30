@@ -80,9 +80,7 @@ class Logger extends WebGui {
         } else {
             hwnd := this.Hwnd
             WinGet, state, MinMax, ahk_id %hwnd%
-            Gui %hwnd%: +AlwaysOnTop
-            base.show((state == -1) ? "NoActivate" : "NA")
-            Gui %hwnd%: -AlwaysOnTop
+            base.show()
         }
     }
 
