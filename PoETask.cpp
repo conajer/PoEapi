@@ -110,6 +110,7 @@ public:
         add_method(L"getSell", this, (MethodType)&PoETask::get_sell, AhkObject);
         add_method(L"getTrade", this, (MethodType)&PoETask::get_trade, AhkObject);
         add_method(L"getChat", this, (MethodType)&PoETask::get_chat, AhkObject);
+        add_method(L"getNotification", this, (MethodType)&PoETask::get_notification, AhkObject, ParamList{AhkPointer});
         add_method(L"getPassiveSkills", this, (MethodType)&PoETask::get_passive_skills, AhkObject);
         add_method(L"getJobs", this, (MethodType)&PoETask::get_jobs, AhkObject);
         add_method(L"setJob", this, (MethodType)&PoETask::set_job, AhkVoid, ParamList{AhkWString, AhkInt});
@@ -329,7 +330,8 @@ public:
     AhkObjRef* get_trade() {
         if (is_ready) {
             Trade* trade = in_game_ui->get_trade();
-            return (AhkObjRef*)*trade;
+            if (trade != nullptr)
+                return (AhkObjRef*)*trade;
         }
 
         return nullptr;
@@ -339,6 +341,16 @@ public:
         if (is_ready) {
             Chat* chat = in_game_ui->get_chat();
             return (AhkObjRef*)*chat;
+        }
+
+        return nullptr;
+    }
+
+    AhkObjRef* get_notification(addrtype id) {
+        if (is_ready) {
+            Notifications* notifications = in_game_ui->get_notifications();
+            if (Element* e = notifications->get_notification(id))
+                return (AhkObjRef*)*e;
         }
 
         return nullptr;
