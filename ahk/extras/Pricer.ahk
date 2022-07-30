@@ -85,7 +85,9 @@ class Pricer {
         if (not IsObject(item))
             return this.__getPrice(item)[1].price
 
-        if (item.isMap) {
+        if (item.isCurrency || item.isDivinationCard) {
+            return this.__getPrice(item.name)[1].price
+        } else if (item.isMap) {
             name := (item.rarity == 3) ? item.name : item.baseName
             result := this.__getPrice(name, "ORDER BY map_tier DESC")
             for i, r in result {
@@ -103,17 +105,7 @@ class Pricer {
                 if (item.level >= r.gem_level && item.quality >= r.quality)
                     return r.price
             }
-        } else if (item.isProphecy) {
-            result := this.__getPrice(item.name)
-            if (item.name == "A Master Seeks Help") {
-                prophecy := item.getComponent("Prophecy")
-                RegExMatch(prophecy.predictionText, "You will find (.*) and complete (his|her) mission.", matched)
-                for i, r in result {
-                    if (r.variant == matched1)
-                        return r.price
-                }
-            }
-            return result[1].price
+            return
         } else if (item.rarity == 3 && item.baseName ~= "Cluster Jewel") {
             result := this.__getPrice(item.name)
             mods := item.getMods()
@@ -123,16 +115,16 @@ class Pricer {
                     return r.price
             }
             return result[1].price
-        } else if (not item.isCurrency) {
+        } else if (item.ilvl > 0) {
             result := this.__getPrice((item.rarity == 3) ? item.name : item.baseName, "ORDER BY ilvl DESC")
             if (not result)
                 return
 
             if (item.rarity < 3) {
-                ilvl := (item.ilvl >= 86) ? 86 : item.ilvl
-                if (ilvl && ilvl < 82)
+                if (item.ilvl < 82)
                     return
 
+                ilvl := (item.ilvl >= 86) ? 86 : item.ilvl
                 if (itype := item.getInfluenceType()) {
                     loop, 6 {
                         if (itype & (1 << (A_Index - 1))) {
@@ -154,9 +146,9 @@ class Pricer {
                 if (ilvl >= r.ilvl)
                     return r.price
             }
-        } else {
-            return this.__getPrice(item.name)[1].price
         }
+
+        return this.__getPrice(item.name)[1].price
     }
 
     findPrices(regexp, limit = 100) {
@@ -222,7 +214,8 @@ class Pricer {
                 lang := this.langNames[this.lang] ? this.langNames[this.lang] : this.lang
                 for name, t in this.types {
                     url := Format(this.url, t.catalog, league, t.type, lang)
-                    parsed := JSON.__parse(ajax(url))
+                    if (Not parsed := JSON.__parse(ajax(url)))
+                        throw, "bad connection"
                     rdebug("#PRICER", "<b style='background-color:gold;color:black'>Loading item prices of {} ... {}</b>", name, parsed.lines.length)
                     dict := JSON.__copy(parsed.language.translations)
                     parsed.lines.forEach(ObjBindMethod(this, "__addPrice", t.type, dict))
