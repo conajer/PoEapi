@@ -404,6 +404,10 @@ public:
             Prophecy* prophecy = get_component<Prophecy>();
             if (prophecy)
                 return prophecy->name();
+        } else if (is_synthesised()) {
+            if (type_name.empty())
+                type_name = L"Synthesised " + base->name();
+            return type_name;
         }
 
         return base ? base->name() : type_name;
