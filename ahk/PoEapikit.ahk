@@ -50,7 +50,7 @@ global defaultHotkeys := [ [ true,  "",    "``",        "ExitGame",        "Exit
                          , [ true,  "~",   "+LButton",  "AutoShiftClick",  "Hold to activate auto SHIFT clicker"]
                          , [ true,  "",    "+RButton",  "AutoRButtonClick","Hold to activate auto right mouse button clicker"]
                          , [ true,  "~",   "^RButton",  "AutoFillPrice",   "Auto fill the price tag of the selected item"]
-                         , [ true,  "~*",  "^c",        "CopyItemName",    "Copy the selected item's name"]
+                         , [ false, "~*",  "^c",        "CopyItemName",    "Copy the selected item's name"]
                          , [ true,  "~",   "^f",        "HighlightItems",  "Highlight items in stash tab"]
                          , [ true,  "",    "^m",        "ToggleMaphack",   "Toggle maphack"]
                          , [ true,  "",    "^w",        "OpenWiki",        "Open wiki"]
