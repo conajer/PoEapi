@@ -26,15 +26,16 @@ class Flask {
         dCharges := 0
         dChargesUsed := 0
         dDuration := 0
+        lessDuration := 0
         for i, m in item.getMods() {
             if (m.id ~= "FlaskExtraCharges")                    ; Ample
-                dCharges := m.value[1]  
+                dCharges := m.value[1]
             else if (m.id ~= "FlaskChargesUsed")                ; Chemist's
-                dChargesUsed := m.value[1]   
+                dChargesUsed := m.value[1]
             else if (m.id ~= "FlaskIncreasedHealingCharges")
-                dChargesUsed := m.value[2]   
+                dChargesUsed := m.value[2]
             else if (m.id ~= "FlaskEffectReducedDuration")      ; Alchemist's
-                dDuration := m.value[1]  
+                dDuration := m.value[1]
             else if (m.id ~= "FlaskIncreasedDuration")          ; Experimenter's
                 dDuration := m.value[1]
             else if (m.id ~= "FlaskFullInstantRecovery")        ; Seething
@@ -46,7 +47,9 @@ class Flask {
             else if (m.id ~= "FlaskIncreasedRecoveryAmount")
                 dDuration := 10000 / (100 + m.value[2]) - 100
             else if (m.id ~= "Flask.+ImmunityDuringEffect")
-                dDuration := m.value[2]
+                lessDuration := m.value[2] / 100
+            else if (m.id ~= "FlaskLessDuration")
+                lessDuration := m.value[1] / 100
             else if (m.id ~= "Flask.+DurationUnique")
                 dDuration := m.value[1]
             else if (m.name ~= "Enduring")
@@ -63,7 +66,7 @@ class Flask {
         else if (this.IsMana)
             this.duration := Floor(Flaskinfo.duration * (100 + dDuration - 20))
         else
-            this.duration := Floor(Flaskinfo.duration * (100 + item.quality + dDuration))
+            this.duration := Floor(Flaskinfo.duration * (100 + item.quality + dDuration) * (1 + lessDuration))
 
         this.endTime := A_Tickcount
         this.item := item
