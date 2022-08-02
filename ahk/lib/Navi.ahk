@@ -298,7 +298,7 @@ class Navi extends WebGui {
                 .stats td { padding: .5rem; }
                 .stats tr:first-child { background: #1a1411; color: #d9aa6f; font-size: 1rem; }
                 .stats tr:hover:not(:first-child) { background: #d9aa6f; color: #120e0a; }
-                .statusbar { display: none; line-height: 1.5em; color: lightyellow; background: #1a1411; padding: 5px 15px; position: fixed; left: 50%; top: 80px; transform: translate(-50%, 0); width: 800px; max-height: 100px; overflow: hidden; }
+                .statusbar { display: none; line-height: 1.5em; color: lightyellow; background: #1a1411; padding: 5px 15px; position: fixed; left: 50%; top: 80px; transform: translate(-50%, 0); width: 800px; max-height: 200px; overflow: hidden; }
             </style>
         </head>
         <body oncontextmenu='return false;'>
@@ -396,27 +396,18 @@ class Navi extends WebGui {
                     ctx.fillText(text, x, y);
                 }
 
-                function setStatus(text) {
-                    document.querySelector('.statusbar').innerHTML = text;
-                    if (text) {
-                        setTimeout(function() {
-                            setStatus('');
-                        }, 3000);
-                    }
-                }
-
                 setInterval(function() {
                     tt = usedTime + enterTime++;
                     document.querySelector('#area_time').innerHTML =
                         String('0' + parseInt(tt / 60)).slice(-2) + ':<span class=second>' +
-                        String('0' + (tt % 60)).slice(-2) + '</span>';
+                        String('0' + (tt % 60)).slice(-2) + '</span>';                        
                 }, 1000);
 
                 window.addEventListener('resize', function () {
                     canvas.width = window.innerWidth
                     canvas.height = window.innerHeight
                     ctx.textBaseline = 'bottom'
-                    ctx.setFont('18px Fontin Smallcaps')
+                    ctx.setFont('16px Fontin Smallcaps')
                 });
             </script>
         </body>
@@ -574,7 +565,7 @@ class Navi extends WebGui {
             this.statusbar.style.display := "block"
             this.statusbar.innerHtml .= text "<br>"
             t := this.statusTimer
-            SetTimer, %t%, -5000
+            SetTimer, %t%, -3000
             this.statusbar.scrollTop := this.statusbar.scrollHeight
         } else {
             this.statusbar.innerHtml := ""
