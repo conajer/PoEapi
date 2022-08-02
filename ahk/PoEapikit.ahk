@@ -334,37 +334,48 @@ AutoRButtonClick:
 return
 
 AutoFillPrice:
-    if (ptask.InMap)
-        return
-
     loop, 50 {
         if (item := ptask.getHoveredItem())
             break
         SLeep, 10
     }
 
-    if (item.rarity == 0 || item.rarity == 3) {
-        price := $(item)
-        if (Not price)
-            return
+    if (Not price := $(item))
+        return
 
-        loop, 10 {
-            e := ptask.getIngameUI().getChild(142, 1)
+    if (price >= 1)
+        formatted_price := Round(price)
+    else if (item.stackSize() > 1)
+        formatted_price := Format("{}/{}", 10, Round(10 / price))
+    else
+        formatted_price := Round(price, 1)
+
+    loop, 5 {
+        Sleep, 100
+        e := ptask.getIngameUI().getChild(142, 1)
+        if (e.isVisible()) {
+            exalted := $("Exalted Orb")
             tag := e.getChild(1, 2, 2, 1)
-            if (tag.isVisible() && not tag.getText()) {
-                exalted := $("Exalted Orb")
-                if (price >= 0.9 * exalted)
+            if (tag.isVisible()) {
+                if (price > 1 * exalted)
                     note := Format("~b/o {:.1f} exalted", price / exalted)
-                else if (price >= 1)
-                    note := Format("~b/o {} chaos", Round(price))
-                else if (item.stackSize() > 1)
-                    note := Format("~b/o {}/{} chaos", 10, Round(10 / price))
                 else
-                    note := Format("~b/o {:.1f} chaos", price)
+                    note := Format("~b/o {} chaos", formatted_price)
                 SendInput, %note%
-                break
+            } else if (RegExMatch(tag.getText(), "~(b/o|price) ([0-9./]+) (.+)", matched)) {
+                tag := e.getChild(1, 2, 3, 1)
+                tag.getPos(x, y)
+                MouseMove, x,  y, 0
+                SendInput, {Click}{Click}
+                if (matched3 == "exalted") {
+                    if (price < .3 * exalted)
+                        formatted_price := Format("1/{}", Round(exalted / price))
+                    else
+                        formatted_price := Round(price / exalted, 1)
+                }
+                SendInput, %formatted_price%
             }
-            Sleep, 50
+            break
         }
     }
 return
