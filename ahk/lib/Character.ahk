@@ -165,19 +165,20 @@ class Character {
         life := Round(life * 100 / (maximum - reserved))
 
         if (ptask.isActive && ptask.InMap && life < 100) {
-            if (this.nearbyMonsters > MonsterThreshold)
+            if (this.defenseBuffCooldownTime < A_Tickcount && this.nearbyMonsters > MonsterThreshold) {
                 SendInput, %DefenseBuffSkillKey%
+                this.defenseBuffCooldownTime := A_Tickcount + 4000
+            }
 
-            if (AutoDropFlare) {
-                darkness := ptask.hasBuff("delve_degen_buff")
-                if ((darkness > MaxDarknessStacks) || (life < 80 && darkness > 0)) {
+            if (AutoDropFlare && ptask.areaName == "Azurite Mine" && darkness := ptask.hasBuff("delve_degen_buff")) {
+                if (darkness > MaxDarknessStacks || life < 80) {
                     SendInput, %DropFlareKey%
                     Sleep, 100
                 }
             }
         }
 
-        if (life < LifeThreshold && A_TickCount > this.lifeFlaskTime + 1000) {
+        if (life < LifeThreshold && A_TickCount > this.lifeFlaskTime + 500) {
             maxUses := 0
             for i, aFlask in this.flasks {
                 if (aFlask.IsLife) {
