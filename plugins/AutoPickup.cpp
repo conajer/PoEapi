@@ -94,10 +94,10 @@ public:
         last_pickup = GetTickCount();
 
         GetClientRect(poe->window, &bounds);
-        bounds.left += 200;
-        bounds.top += 150;
-        bounds.right -= 200;
-        bounds.bottom -= 150;
+        bounds.left += 50;
+        bounds.top += 75;
+        bounds.right -= 50;
+        bounds.bottom -= 75;
         log(L"Begin picking up items...");
     }
 
