@@ -49,6 +49,8 @@ class Flask {
                 dDuration := m.value[2]
             else if (m.id ~= "Flask.+DurationUnique")
                 dDuration := m.value[1]
+            else if (m.name ~= "Enduring")
+                this.isEnduring := true
         }
 
         ChargesInfo := item.components["Charges"]
@@ -56,8 +58,10 @@ class Flask {
         this.chargesPerUse := Floor(ChargesInfo.chargesPerUse * (100 + dChargesUsed) / 100)
 
         FlaskInfo := item.components["Flask"]
-        if (item.IsLife || item.IsMana)
+        if (this.IsLife)
             this.duration := Floor(Flaskinfo.duration * (100 + dDuration))
+        else if (this.IsMana)
+            this.duration := Floor(Flaskinfo.duration * (100 + dDuration - 20))
         else
             this.duration := Floor(Flaskinfo.duration * (100 + item.quality + dDuration))
 
@@ -88,7 +92,7 @@ class Flask {
                 return true
             }
         } else { ; IsMana
-            if (this.endTime <= A_Tickcount || Not ptask.getBuff("flask_bonus_mana_cost")) {
+            if (Not this.isEnduring || this.endTime <= A_Tickcount) {
                 SendInput, % this.key
                 this.endTime := A_Tickcount + this.duration
                 return true
