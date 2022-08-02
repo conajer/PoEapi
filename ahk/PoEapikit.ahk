@@ -255,34 +255,26 @@ OnClipboardChange:
 return
 
 AutoClick() {
-    global clickerEnabled
-
     MouseGetPos, x0, y0
     keys := GetKeyState("Ctrl") ? "^" : ""
     keys .= GetKeyState("Shift") ? "+" : ""
     if (GetKeyState("LButton", "P")) {
         button := "LButton"
-        keys := keys "{Click}"
+        keys .= "{Click}"
     } else {
         button := "RButton"
         keys .= "{Click, Right}"
     }
-    Loop {
-        if (Not clickerEnabled && Not GetKeyState(button, "P"))
+
+    loop, {
+        if (Not GetKeyState(button, "P"))
             break
         if (Not GetKeyState("Ctrl") && Not GetKeyState("Shift"))
             break
 
-        MouseGetPos, x, y
-        if (abs(x - x0) > 100 || abs(y - y0) > 100)
-            break
-
-        x0 := x
-        y0 := y
         SendInput, %keys%
-        Sleep, 100
+        Sleep, 75
     }
-    clickerEnabled := false
 }
 
 ExitGame:
@@ -324,10 +316,10 @@ Menagerie:
 return
 
 AutoCtrlClick:
-    If (A_PriorHotKey = A_ThisHotKey and A_TimeSincePriorHotkey < 200)
-        clickerEnabled := true
     if (GetKeyState("Shift", P))
         SendInput, ^+{Click}
+    else if (GetKeyState("Alt", P))
+        SendInput, ^!{Click}
     else
         SendInput, ^{Click}
     SetTimer, AutoClick, -200
