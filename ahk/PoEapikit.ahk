@@ -443,14 +443,16 @@ CopyItemName:
 return
 
 HighlightItems:
-    name := (item := ptask.getHoveredItem()) ? item.name : ""
-    if (name && ptask.stash.isOpened())
-        SendInput, %name%{Enter}
+    if (item := ptask.getHoveredItem()) {
+        name := (item.rarity == 1 || item.rarity == 2) ? item.baseName : item.name
+        if (ptask.stash.isOpened())
+            SendInput, %name%{Enter}
 
-    ptask.c.clear()
-    if (name && ptask.inventory.isOpened()) {
-        for i, item in ptask.inventory.findItems(name)
-            ptask.inventory.highlight(item)
+        ptask.c.clear()
+        if (ptask.inventory.isOpened()) {
+            for i, item in ptask.inventory.findItems(name)
+                ptask.inventory.highlight(item)
+        }
     }
 return
 
