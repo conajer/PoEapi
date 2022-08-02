@@ -459,7 +459,7 @@ return
 OpenWiki:
     if (item := ptask.getHoveredItem()) {
         if (Not item.isIdentified || item.rarity ~= "1|2")
-            name := item.baseName
+            name := RegExReplace(item.baseName, "Synthesised ", "")
         else
             name := item.name
         Run, % "https://www.poewiki.net/wiki/" RegExReplace(name, " ", "_")
