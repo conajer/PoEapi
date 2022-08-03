@@ -205,7 +205,7 @@ public:
     }
 
     bool is_valid() {
-        return read<byte>("is_valid");
+        return id == read<int>("id");
     }
 
     void get_position() {
