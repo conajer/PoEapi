@@ -273,7 +273,7 @@ AutoClick() {
             break
 
         SendInput, %keys%
-        Sleep, 75
+        Sleep, 50
     }
 }
 
