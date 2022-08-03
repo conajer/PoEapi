@@ -366,6 +366,7 @@ public:
         add_method(L"stackCount", this, (MethodType)&Item::get_stack_count);
         add_method(L"stackSize", this, (MethodType)&Item::get_stack_size);
         add_method(L"charges", this, (MethodType)&Item::get_charges);
+        add_method(L"job", this, (MethodType)&Item::get_job, AhkWString);
         add_method(L"size", this, (MethodType)&Item::get_size);
         add_method(L"getInfluences", this, (MethodType)&Item::get_influences, AhkWString);
         add_method(L"getInfluenceType", this, (MethodType)&Item::get_influence_type, AhkInt);
@@ -538,6 +539,11 @@ public:
     int get_charges() {
         Charges* charges = get_component<Charges>();
         return charges ? charges->charges(): 0;
+    }
+
+    const wchar_t* get_job() {
+        HeistContract* contract = get_component<HeistContract>();
+        return contract ? contract->get_jobs()[0]->skill_name.c_str(): nullptr;
     }
 
     int get_size() {
