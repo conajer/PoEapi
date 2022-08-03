@@ -285,11 +285,17 @@ class StashTab extends InventoryGrid {
                 stackSize := aItem.stackSize()
                 k := (n && (n - dumped < stackCount)) ? n - dumped : stackCount
                 while (k > 0) {
-                    m  := k
+                    m := k
                     this.moveTo(aItem.index)
+                    hoveredItem := ptask.getHoveredItem()
+                    if (Not hoveredItem || Not hoveredItem.name ~= "i)"regex)
+                        break
+
                     while (m > 0) {
                         if (m >= stackSize || k == stackCount) {
-                            SendInput, ^{Click}
+                            SendInput, {Ctrl down}
+                            SendInput, {Click}
+                            SendInput, {Ctrl up}
                             Sleep, 30
                             m -= stackSize
                         } else {
@@ -301,13 +307,15 @@ class StashTab extends InventoryGrid {
                             }
 
                             Sleep, 30
-                            SendInput +{Click}
+                            SendInput, {Shift down}
+                            SendInput, {Click}
+                            SendInput, {Shift up}
                             SendInput, %m%{Enter}
                             Sleep, 100
                             
                             if (Not ptask.inventory.drop()) {
                                 this.moveTo(aItem.index)
-                                Click
+                                SendInput, {Click}
                                 return dumped
                             }
 
