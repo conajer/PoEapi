@@ -462,14 +462,14 @@ class PoETask extends AhkObj {
             if (sum && e.item.stackCount > 1)
                 price := e.item.stackCount * price
 
-            if (price > 1000)
-                formatted_price := Format("{:.1f}k", price / 1000)
-            else if (price < 10)
-                formatted_price := Format("{:.2g}", price)
-            else if (price < 1)
-                formatted_price := Format("{:.g}", price)
+            if (price > $("Exalted Orb"))
+                formatted_price := Format("{:.3g}e", Round(price / $("Exalted Orb"), 1))
+            else if (price > 10)
+                formatted_price := Format("{:.f}", Round(price))
+            else if (price > 1)
+                formatted_price := Format("{:2g}", Round(price, 1))
             else
-                formatted_price := Format("{:.f}", price)
+                formatted_price := Format("{:g}", Round(price, 2))
 
             r := e.getRect()
             switch (anchor) {
@@ -480,7 +480,9 @@ class PoETask extends AhkObj {
             default: x := (r.r + r.l) / 2, y := (r.b + r.t) / 2
             }
 
-            if (price >= 10)
+            if (price > $("Exalted Orb"))
+                this.c.drawText(formatted_price, x, y, "red", "white", align, baseline)
+            else if (price >= 10)
                 this.c.drawText(formatted_price, x, y, "white", "red", align, baseline)
             else if (price)
                 this.c.drawText(formatted_price, x, y, "#00007f", "gold", align, baseline)
