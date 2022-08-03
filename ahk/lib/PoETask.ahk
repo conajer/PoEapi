@@ -115,12 +115,13 @@ class StatFilter {
 class StatGroup {
 
     filters := []
+    min := 1
 
     add(filter) {
         this.filters.Push(filter)
     }
 
-    check(item, min = 1, max = "") {
+    check(item, min = "", max = "") {
         if (item) {
             matched := 0
             for i, stat in item.getStats() {
@@ -129,7 +130,17 @@ class StatGroup {
                         matched++
             }
 
+            (Not min) ? min := this.min
             if (matched >= min && (Not max || matched <= max))
+                return true
+        }
+
+        return false
+    }
+
+    has(stat) {
+        for k, filter in this.filters {
+            if (filter.match(stat))
                 return true
         }
 
@@ -171,10 +182,11 @@ class PoETask extends AhkObj {
         StashRules.base := Rules
 
         this.statGroups := {}
-        for itemType, filters in JSON.load("lib/stat-filters.json") {
+        for itemType, statFilters in JSON.load("lib/stat-filters.json") {
             stats := new StatGroup()
-            for i, filter in filters
+            for i, filter in statFilters.filters
                 stats.add(new StatFilter(filter[1], filter[2], filter[3]))
+            stats.min := statFilters.min
             this.statGroups[itemType] := stats
         }
     }
@@ -363,10 +375,10 @@ class PoETask extends AhkObj {
         return members
     }
 
-    checkStats(item, min = 1) {
+    checkStats(item) {
         for itemType, stats in this.statGroups {
             if ((item.baseType ~= itemType) || (item.subType ~= itemType))
-                return stats.check(item, min)
+                return stats.check(item)
         }
     }
 
@@ -402,7 +414,7 @@ class PoETask extends AhkObj {
 
             if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem)) {
                 ptask.inventory.moveTo(aItem.index)
-                if (aItem.rarity != 2 || Not this.checkStats(aItem, aItem.isJewel ? 3 : 4))
+                if (aItem.rarity != 2 || Not this.checkStats(aItem))
                     this.inventory.move(aItem)
             }
         }
@@ -493,7 +505,7 @@ class PoETask extends AhkObj {
         if (this.stash.isOpened()) {
             for i, e in this.stash.Tab.getChilds() {
                 if (e.isVisible()) {
-                    if (this.checkStats(e.item, e.item.isMap ? 1 : 3))
+                    if (this.checkStats(e.item))
                         e.draw("", "red", 0)
                     this.displayItemPrice(e, shift)
                 }
@@ -502,7 +514,7 @@ class PoETask extends AhkObj {
 
         if (this.inventory.isOpened()) {
             for i, e in this.inventory.getChilds() {
-                if (this.checkStats(e.item, e.item.isMap ? 1 : 3))
+                if (this.checkStats(e.item))
                     e.draw("", "red")
                 this.displayItemPrice(e, shift)
             }
@@ -511,7 +523,7 @@ class PoETask extends AhkObj {
         purchase := ptask.getPurchase()
         if (purchase.isOpened()) {
             for i, e in purchase.getChilds() {
-                if (this.checkStats(e.item, e.item.isMap ? 1 : 3))
+                if (this.checkStats(e.item))
                     e.draw("", "red")
                 e.item.price := $(e.item)
                 this.displayItemPrice(e, shift)
