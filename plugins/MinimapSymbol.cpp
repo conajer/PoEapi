@@ -263,8 +263,8 @@ public:
                             draw_entity(entity, 4 + entity->rarity, min_size + entity->rarity);
                         else
                             ignored_entities.push_back(i.first);
-                    } else if (entity->is_neutral) {
-                        if (show_minions && entity->is_minion)
+                    } else if (entity->is_minion) {
+                        if (show_minions)
                             draw_entity(entity, 8, min_size + 1);
                         else
                             ignored_entities.push_back(i.first);
