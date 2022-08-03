@@ -122,8 +122,8 @@ public:
     Entity(addrtype address, const wchar_t* metadata = L"")
         : PoEObject(address, &entity_offsets), path(metadata)
     {
-        addrtype hdata[16];
-        PoEMemory::read<addrtype>(address, hdata, 16);
+        addrtype hdata[4];
+        PoEMemory::read<addrtype>(address, hdata, 4);
         if (!hdata[1] || !hdata[2])
             return;
 
@@ -139,7 +139,7 @@ public:
 
             path = path_string;
         }
-        id = hdata[12];
+        id = read<int>("id");
         get_all_components(internal[6]);
         health = get_component<Life>();
         positioned = get_component<Positioned>();
