@@ -650,3 +650,15 @@ class Sell extends Element {
         }
     }
 }
+
+class NotificationPopup extends Element {
+
+    accept(flag = false) {
+        this.getChild(3, 1, 1).getPos(x, y)
+        MouseMove, x, y, 0
+        if (flag) {
+            Sleep, 50
+            MouseClick, Left, x, y
+        }
+    }
+}
