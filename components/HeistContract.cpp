@@ -32,7 +32,7 @@ public:
     std::vector<shared_ptr<HeistJob>>& get_jobs() {
         if (jobs.empty()) {
             for (auto addr : read_array<addrtype>("jobs", 0x18)) {
-                HeistJob* job = new HeistJob(PoEMemory::read<addrtype>(addr + 0x8));
+                HeistJob* job = new HeistJob(PoEMemory::read<addrtype>(addr));
                 job->level = PoEMemory::read<byte>(addr + 0x10);
                 jobs.push_back(shared_ptr<HeistJob>(job));
             }

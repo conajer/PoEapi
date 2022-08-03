@@ -3,7 +3,8 @@
 */
 
 static std::map<string, int> heist_job_offsets {
-    {"skill_name", 0x0},
+    {"id",         0x0},
+    {"skill_name", 0x8},
 };
 
 class HeistJob : public PoEObject {
@@ -95,7 +96,7 @@ public:
     std::vector<shared_ptr<HeistJob>>& get_jobs() {
         if (jobs.empty()) {
             for (auto addr : read_array<addrtype>("jobs", 0x18)) {
-                HeistJob* job = new HeistJob(PoEMemory::read<addrtype>(addr + 0x8));
+                HeistJob* job = new HeistJob(PoEMemory::read<addrtype>(addr));
                 job->level = PoEMemory::read<byte>(addr + 0x10);
                 jobs.push_back(shared_ptr<HeistJob>(job));
             }
@@ -105,7 +106,7 @@ public:
 
     std::vector<shared_ptr<RewardRoom>>& get_reward_rooms() {
         if (reward_rooms.empty()) {
-            for (auto addr : read_array<addrtype>("rewared_rooms", 0x8, 0x18))
+            for (auto addr : read_array<addrtype>("rewared_rooms", 0x0, 0x18))
                 reward_rooms.push_back(shared_ptr<RewardRoom>(new RewardRoom(addr)));
         }
         return reward_rooms;
