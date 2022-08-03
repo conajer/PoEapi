@@ -25,11 +25,13 @@ public:
     std::mutex selected_item_mutex;
     shared_ptr<Entity> selected_item;
     RECT bounds;
-    unsigned int range = 50, last_pickup = 0;
+    unsigned int range = 50;
+    unsigned int last_pickup = 0;
     bool ignore_chests = false;
     bool is_picking = false;
     bool event_enabled = false;
     int strict_level = 0;
+    int pending_retries = 0;
 
     std::wregex generic_item_filter;
     std::wregex rare_item_filter;
@@ -37,7 +39,7 @@ public:
     std::wregex one_shot_filter;
     std::wregex ignored_chest_filter;
 
-    AutoPickup() : PoEPlugin(L"AutoPickup", "0.23") {
+    AutoPickup() : PoEPlugin(L"AutoPickup", "0.24") {
         add_property(L"range", &range, AhkInt);
         add_property(L"ignoreChests", &ignore_chests, AhkBool);
         add_property(L"eventEnabled", &event_enabled, AhkBool);
@@ -75,12 +77,10 @@ public:
     }
 
     void set_misc_entity_filter(const wchar_t* regex_string) {
-        log(regex_string);
         misc_entity_filter.assign(regex_string);
     }
 
     void set_ignored_chest_filter(const wchar_t* regex_string) {
-        log(regex_string);
         ignored_chest_filter.assign(regex_string);
     }
 
@@ -171,7 +171,7 @@ public:
 
     void on_player(LocalPlayer* local_player, InGameState* in_game_state) {
         player = local_player;
-        if (!is_picking || GetTickCount() - last_pickup < 100)
+        if (!is_picking)
             return;
 
         std::lock_guard<std::mutex> guard(selected_item_mutex);
@@ -188,26 +188,25 @@ public:
         if (!is_picking && !event_enabled)
             return;
 
-        if (GetTickCount() - last_pickup > 3000) {
-            if (selected_item) {
+        if (selected_item && entities.count(selected_item->id)) {
+            if (GetTickCount() - last_pickup < 3000) {
+                int action_id = player->actor->action_id();
+                if (action_id == 0 && ++pending_retries >= 3) {
+                    pending_retries = 0;
+                    Point pos = selected_item->label->get_pos();
+                    poe->mouse_click(pos);
+                    log(L"Try to pickup up '%S(%#x)' again.", selected_item->name().c_str(), selected_item->id);
+                }
+            } else {
                 ignored_entities[selected_item->id] = selected_item;
                 log(L"Failed to pick up '%S(%04x)'.", selected_item->name().c_str(), selected_item->id);
-            }
-            stop_pickup();
-            log(L"Stop picking up items (timeout).");
-            return;
-        }
-
-        if (selected_item && entities.count(selected_item->id)) {
-            if (GetTickCount() - last_pickup > 300 && player->actor->action_id() == 0) {
-                Point pos = selected_item->label->get_pos();
-                poe->mouse_click(pos);
-                last_pickup = GetTickCount();
-                log(L"Try to pickup up '%S(%04x)' again.", selected_item->name().c_str(), selected_item->id);
+                stop_pickup();
+                log(L"Stop picking up items (timeout).");
             }
             return;
         }
 
+        pending_retries = 0;
         std::lock_guard<std::mutex> guard(selected_item_mutex);
         shared_ptr<Entity> nearest_item;
         int min_dist = range;
