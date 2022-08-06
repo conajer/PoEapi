@@ -37,6 +37,15 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true }
                                             , "showHeistChests"    : true
                                             , "fontSize"           : 12
                                             , "minSize"            : 4
+                                            , "showDamage"         : true
+                                            , "minDamage"          : 100000
+                                            ; 0: move up/down(negative speed);
+                                            ; 1: also move left/right, with random speed;
+                                            ; 2: all directions with random speed;
+                                            ; others: same as 0;
+                                            , "style"              : 1
+                                            , "speedX"             : 0.5
+                                            , "speedY"             : 1.0
                                             , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter"
                                             , "ignoredHeistChests" : "Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques" }
 

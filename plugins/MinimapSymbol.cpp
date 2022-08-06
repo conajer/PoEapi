@@ -3,8 +3,21 @@
 */
 
 #include <regex>
+#include <list>
 #include <map>
 #include <math.h>
+
+#define RAND(min, max) (min + (static_cast<float>(rand()) / RAND_MAX * (max - min)))
+
+struct BubbleText {
+    wstring text;
+    int color;
+    float x;
+    float y;
+    float speed_x;
+    float speed_y;
+    float opacity;
+};
 
 class MinimapSymbol : public PoEPlugin {
 public:
@@ -35,11 +48,24 @@ public:
     int font_size = 12;
     std::wregex heist_regex;
     std::wregex ignored_heist_chests;
+
+    // strongbox
     std::wregex valuable_strongbox;
+
+    // damage numbers
+    int min_damage = 10000;
+    float speed_x = 1.0;
+    float speed_y = 1.0;
+    int style = 0;
+    int max_damage = 0;
+    int max_damage_count = 0;
+    int decay_time;
+    std::list<BubbleText> damage_numbers;
 
     bool show_player = true;
     bool show_npc = true;
     bool show_minions = true;
+    bool show_damage = true;
 
     // minimal size of the symbols
     int min_size = 4;
@@ -64,7 +90,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.23"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.24"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques"),
@@ -80,6 +106,11 @@ public:
         add_property(L"showMinions", &show_minions, AhkBool);
         add_property(L"minSize", &min_size, AhkInt);
         add_property(L"opacity", &opacity, AhkFloat);
+        add_property(L"showDamage", &show_damage, AhkBool);
+        add_property(L"minDamage", &min_damage, AhkInt);
+        add_property(L"style", &style, AhkInt);
+        add_property(L"speedX", &speed_x, AhkFloat);
+        add_property(L"speedY", &speed_y, AhkFloat);
         add_property(L"textureEnabled", &texture_enabled, AhkBool);
 
         add_method(L"setFontSize", this, (MethodType)&MinimapSymbol::set_font_size, AhkVoid, ParamList{AhkInt});
@@ -164,6 +195,55 @@ public:
             if (min_size >= 4 && e->rarity >= 2)
                 poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
         }
+
+        if (show_damage && e->damage_taken > min_damage) {
+            BubbleText dmg_num;
+            pos = e->pos;
+            pos.z -= e->bounds.z;
+            poe->in_game_state->transform(pos);
+
+            wchar_t buffer[32];
+            if (e->damage_taken < 1000)
+                swprintf(buffer, L"%d", e->damage_taken);
+            else if (e->damage_taken < 100000)
+                swprintf(buffer, L"%.1fK", e->damage_taken / 1000.);
+            else if (e->damage_taken < 10000000)
+                swprintf(buffer, L"%dK", e->damage_taken / 1000);
+            else if (e->damage_taken > 100000000)
+                swprintf(buffer, L"%.1fM", e->damage_taken / 1000000.);
+            else
+                swprintf(buffer, L"%dM", e->damage_taken / 1000000);
+
+            dmg_num.text = buffer;
+            dmg_num.color = (e->damage_taken < 1000000) ? entity_colors[0] : entity_colors[2];
+            if (e->damage_taken > max_damage) {
+                if (max_damage_count++ > 10)
+                    dmg_num.color = entity_colors[3];
+                decay_time = GetTickCount() + 1000;
+                max_damage = e->damage_taken;
+            }
+            dmg_num.x = pos.x;
+            dmg_num.y = pos.y;
+            switch (style) {
+                case 1:
+                    dmg_num.speed_x = RAND(-1, 1) * 3.0 * speed_x;
+                    dmg_num.speed_y = RAND(0, 1) * 2.0 * speed_y;
+                    break;
+
+                case 2:
+                    dmg_num.speed_x = RAND(-1, 1) * 3.0 * speed_x;
+                    dmg_num.speed_y = RAND(-1, 1) * 2.0 * speed_y;
+                    break;
+
+                default:
+                    dmg_num.speed_x = 0;
+                    dmg_num.speed_y = 2.0 * speed_y;
+            }
+            dmg_num.opacity = 1.0;
+
+            damage_numbers.push_back(dmg_num);
+        }
+        e->damage_taken = 0;
     }
 
     void draw_delve_chest(Entity* e) {
@@ -258,7 +338,7 @@ public:
                     draw_entity(entity, 9, min_size + 2);
             } else if (entity->is_monster) {
                 if (show_monsters) {
-                    if (entity->is_dead()) {
+                    if (entity->is_dead() && entity->damage_taken <= min_damage) {
                         if (show_corpses)
                             draw_entity(entity, 4 + entity->rarity, min_size + entity->rarity);
                         else
@@ -298,6 +378,28 @@ public:
             poe->pop_rectangle_clip();
             is_clipped = false;
         }
+
+        if (show_damage) {
+            for (auto i = damage_numbers.begin(); i != damage_numbers.end(); ++i) {
+                if (i->opacity > 0) {
+                    poe->draw_big_text(i->text, i->x, i->y, i->color, 0, i->opacity, 1);
+                    i->x += i->speed_x;
+                    i->y -= i->speed_y;
+                    i->opacity -= 0.005 * (1 + fabs(speed_y));
+                } else {
+                    i = damage_numbers.erase(i);
+                }
+            }
+
+            if (max_damage > 0 && GetTickCount() > decay_time) {
+                max_damage *= 0.95;
+                decay_time = decay_time + 1000;
+                if (max_damage < min_damage) {
+                    max_damage = 0;
+                    max_damage_count = 0;
+                }
+            }
+        }
     }
 
     void on_load(PoE& poe, int owner_thread_id) {
@@ -309,6 +411,7 @@ public:
         std::lock_guard<std::mutex> guard(drawn_entities_mutex);
         drawn_entities.clear();
         ignored_entities.clear();
+        damage_numbers.clear();
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
