@@ -111,11 +111,11 @@ global AutoPickupKey := "a"
 ; 
 ; Supported base types:
 ;       Currency, DivinationCard, Flask, Gem, Map, MapFragment, Prophecy,
-;       Weapon, Quiver, Armour, Belt, Amulet, Ring, Jewel
+;       Weapon, Quiver, Armour, Belt, Amulet, Ring, Jewel, Contract, Blueprint
 ;
 ; Supported constraints:
 ;       index, name, baseName, isIdentified, isMirrored, isCorrupted, isRGB
-;       rarity, itemLevel, quality, sockets, links, tier, level, price
+;       rarity, itemLevel, quality, sockets, links, tier, level, price, job
 ;       and is<BaseType> is<SubType>
 ;
 global IdentifyExceptions :=[ {"baseType" : "Map"},
