@@ -95,8 +95,8 @@ static std::map<string, int> mods_component_offsets {
 class Mods : public Component {
 public:
 
-    wstring unique_name;
-    int rarity, item_level;
+    int rarity;
+    int item_level;
 
     /* Modifiers */
     std::vector<Modifier> implicit_mods;
@@ -115,19 +115,22 @@ public:
         item_level = read<int>("item_level");
     }
 
-    wstring& name(wstring& base_name) {
-        if (!unique_name.empty())
-            return unique_name;
+    wstring get_name(wstring& base_name) {
+        wstring item_name;
 
         switch (rarity) {
+        case 0:
+            item_name = base_name;
+            break;
+
         case 1:
-            unique_name = base_name;
+            item_name = base_name;
             get_mods();
             for (auto i : explicit_mods) {
                 if (i.gen_type == 1)
-                    unique_name = i.name + L" " + unique_name;
+                    item_name = i.name + L" " + item_name;
                 if (i.gen_type == 2)
-                    unique_name += L" " + i.name;
+                    item_name += L" " + i.name;
             }
             break;
 
@@ -138,11 +141,11 @@ public:
                 size_t pos = s.find(L'{');
                 if (pos != wstring::npos)
                     s = s.substr(pos + 1, s.find(L'}') - pos - 1);
-                unique_name += s;
+                item_name += s;
             }
         }
 
-        return unique_name;
+        return item_name;
     }
 
     bool is_identified() {
