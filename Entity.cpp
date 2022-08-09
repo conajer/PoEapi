@@ -339,6 +339,7 @@ protected:
     
 public:
 
+    wstring item_name;
     bool identified = false;
     int size;
     int width = 1, height = 1;
@@ -396,25 +397,28 @@ public:
     }
 
     wstring& name() {
-        if (mods) {
-            if (mods->rarity > 0 && mods->is_identified())   /* magic/rare/unique items */
-                return mods->name(base_name());
-        } else if (has_component("Prophecy")) {
-            Prophecy* prophecy = get_component<Prophecy>();
-            if (prophecy)
-                return prophecy->name();
+        if (item_name.empty()) {
+            if (mods) {
+                if (mods->rarity > 0 && mods->is_identified()) {  /* magic/rare/unique items */
+                    item_name = mods->get_name(base->name());
+                    if (mods->rarity == 1 && is_synthesised())
+                        item_name = L"Synthesised " + item_name;
+                } else {
+                    item_name = base_name();                     /* normal or unidentified items */
+                    if (get_quality() > 0)
+                        item_name = L"Superior " + item_name;
+                }
+            } else {
+                item_name = base_name();
+            }
         }
 
-        return base_name();                                 /* normal or unidentified items */
+        return item_name;                                 
     }
 
     wstring& base_name() {
          if (has_component("CapturedMonster")) {
             return get_component<CapturedMonster>()->name();
-        } else if (has_component("Prophecy")) {
-            Prophecy* prophecy = get_component<Prophecy>();
-            if (prophecy)
-                return prophecy->name();
         } else if (is_synthesised()) {
             if (type_name.empty())
                 type_name = L"Synthesised " + base->name();
