@@ -43,7 +43,7 @@ protected:
         std::vector<addrtype> component_list;
 
         component_list = read_array<addrtype>("component_list", 0x0, 0x8);
-        if (component_list.size() > 16)
+        if (component_list.empty() || component_list.size() > 16)
             return;
 
         addrtype entry_ptr = PoEMemory::read<addrtype>(component_lookup + 0x30);
