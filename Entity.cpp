@@ -108,6 +108,8 @@ public:
     shared_ptr<Item> item;
     Vector3 pos, bounds;
     Point grid_pos;
+    int saved_life = -1;
+    int damage_taken = 0;
 
     bool is_player = false;
     bool is_npc = false;
@@ -195,13 +197,18 @@ public:
     AhkObjRef* get_item();
 
     int life() {
-        return health ? health->life() : -1;
+        if (health) {
+            int life = health->life();
+            if (saved_life > life)
+                damage_taken += saved_life - life;
+            saved_life = life;
+        }
+
+        return saved_life;
     }
 
     bool is_dead() {
-        if (health)
-            return health->life() == 0;
-        return false;
+        return life() == 0;
     }
 
     bool is_valid() {
