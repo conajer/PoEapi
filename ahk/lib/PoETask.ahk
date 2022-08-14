@@ -364,6 +364,16 @@ class PoETask extends AhkObj {
         return false
     }
 
+    getPlayers() {
+        players := {}
+        for i, e in ptask.getEntities("Characters") {
+            player := e.components["Player"]
+            players[player.name] := {"name": player.name, "class": player.class, "level": player.level}
+        }
+
+        return players
+    }
+
     getPartyMembers() {
         if (this.getPartyStatus() == 3)
             return
@@ -410,11 +420,13 @@ class PoETask extends AhkObj {
                 } else if (aItem.baseName ~= "Two-Toned|Stygain|Convoking|Bone Helmet") {
                     this.inventory.use("Orb of Alchemy", aItem)
                 }
+            } else if (Not aItem.isMap && aItem.rarity ~="1|2") {
+                ptask.inventory.moveTo(aItem.index)
             }
 
             if (Not VendorExceptions.check(aItem) && VendorRules.check(aItem)) {
                 ptask.inventory.moveTo(aItem.index)
-                if (aItem.rarity != 2 || Not this.checkStats(aItem))
+                if (aItem.rarity == 3 || aItem.baseType ~= "Map|Contract|Blueprint" || Not this.checkStats(aItem))
                     this.inventory.move(aItem)
             }
         }
@@ -463,7 +475,7 @@ class PoETask extends AhkObj {
                 price := e.item.stackCount * price
 
             if (price > $("Exalted Orb"))
-                formatted_price := Format("{:.3g}e", Round(price / $("Exalted Orb"), 1))
+                formatted_price := Format("{:.4g}e", Round(price / $("Exalted Orb"), 1))
             else if (price > 10)
                 formatted_price := Format("{:.f}", Round(price))
             else if (price > 1)
