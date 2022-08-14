@@ -34,7 +34,8 @@ public:
 
     // for drawing text
     ComPtr<IDWriteFactory> write_factory;
-    ComPtr<IDWriteTextFormat> text_format;
+    ComPtr<IDWriteTextFormat> default_format;
+    ComPtr<IDWriteTextFormat> default_big_format;
 
     // the window handle and size
     HWND hwnd;
@@ -44,7 +45,8 @@ public:
     }
 
     ~D2DCanvas() {
-        text_format.Reset();
+        default_format.Reset();
+        default_big_format.Reset();
         write_factory.Reset();
     }
 
@@ -52,7 +54,7 @@ public:
         this->hwnd = hwnd;
 
         // set default font name and size
-        if (!text_format)
+        if (!default_format)
             set_font(L"Fontin SmallCaps", 12);
 
         // resize to fit the window
@@ -104,7 +106,19 @@ public:
                 DWRITE_FONT_STRETCH_NORMAL,
                 font_size,
                 L"en-us",
-                &text_format)
+                &default_format)
+            );
+
+        DX::ThrowIfFailed(
+            write_factory->CreateTextFormat(
+                font_name,
+                nullptr,
+                DWRITE_FONT_WEIGHT_NORMAL,
+                DWRITE_FONT_STYLE_NORMAL,
+                DWRITE_FONT_STRETCH_NORMAL,
+                font_size * 2,
+                L"en-us",
+                &default_big_format)
             );
     }
 
@@ -125,7 +139,25 @@ public:
         IDWriteTextLayout* layout;
         
         HRESULT hr = write_factory->CreateTextLayout(text.c_str(), text.size(),
-            text_format.Get(), width, height, &layout);
+            default_format.Get(), width, height, &layout);
+
+        if (SUCCEEDED(hr)) {
+            DWRITE_TEXT_METRICS m;
+
+            layout->GetMetrics(&m);
+            x = x - m.width * align / 2;
+            fill_rect(x, y, x + m.width, y + m.height, backgroud, alpha);
+            brush->SetColor(D2D1::ColorF(rgb, alpha));
+            rt->DrawTextLayout({x, y}, layout, brush.Get());
+            layout->Release();
+        }
+    }
+
+    void draw_big_text(std::wstring text, float x, float y, int rgb, int backgroud, float alpha = 1.0, int align = 0) {
+        IDWriteTextLayout* layout;
+        
+        HRESULT hr = write_factory->CreateTextLayout(text.c_str(), text.size(),
+            default_big_format.Get(), width, height, &layout);
 
         if (SUCCEEDED(hr)) {
             DWRITE_TEXT_METRICS m;
