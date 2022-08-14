@@ -6,7 +6,7 @@
 global PluginOptions := { "AutoFlask"     : { "enabled" : true }
 
                         , "AutoOpen"      : { "enabled" : true
-                                            , "range"   : 5
+                                            , "range"   : 10
                                             , "ignoredChests" : "Amphora"
                                             , "chest"   : true
                                             , "delveChestOnly" : true
