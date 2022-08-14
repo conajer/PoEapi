@@ -21,9 +21,9 @@ public:
     bool delve_chest_only = true;
     bool door_enabled = true;
 
-    AutoOpen() : PoEPlugin(L"AutoOpen", "0.7"),
+    AutoOpen() : PoEPlugin(L"AutoOpen", "0.8"),
         entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
-        default_ignored_chests(L"Barrel|Basket|Bloom|Bone (Chest|Pile)|Boulder|Cairn|Crate|Pot|Urn|Vase|Izaro")
+        default_ignored_chests(L"Izaro")
     {
         total_opened = 0;
         add_property(L"range", &range, AhkInt);
@@ -61,20 +61,17 @@ public:
         bool is_moving = player->is_moving();
 
         log(L"Tring to open '%S' at (%d, %d)", entity->name().c_str(), old_pos.x, old_pos.y);
-        if (is_button_pressed) {
+        if (is_button_pressed)
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
-            Sleep(10);
-        }
         poe->mouse_click({(int)pos.x, (int)pos.y});
         SetCursorPos (old_pos.x, old_pos.y);
-        Sleep(30);
+        Sleep(10);
         if (is_button_pressed) {
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
         } else if (is_moving) {
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
         }
-        Sleep(100);
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
@@ -89,11 +86,11 @@ public:
             int index = i.second->has_component(entity_types);
             if (index < 0) {
                 ignored_entities.insert(i.second->id);
-                return;
+                continue;
             }
 
             int dist = player->dist(*i.second);
-            if (dist > 4 * range)
+            if (dist > 2 * range)
                 continue;
 
             Targetable* targetable = i.second->get_component<Targetable>();
@@ -122,7 +119,7 @@ public:
 
             case 1: { // MinimapIcon
                 MinimapIcon* minimap_icon = i.second->get_component<MinimapIcon>();
-                if (dist <= 2 * range && std::regex_search(minimap_icon->name(), entity_names))
+                if (std::regex_search(minimap_icon->name(), entity_names))
                     try_open(i.second.get());
                 break;
             }
@@ -137,10 +134,10 @@ public:
             }
 
             case 3: // Transitionable
-                if (dist <= 2 * range && std::regex_search(i.second->name(), entity_names))
+                if (std::regex_search(i.second->name(), entity_names))
                     try_open(i.second.get());
                 break;
             }
-        };
+        }
     }
 };
