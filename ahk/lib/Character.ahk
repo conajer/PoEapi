@@ -189,7 +189,7 @@ class Character {
                     }
                 }
             }
-            if (selected) {
+            if (selected && ptask.isActive) {
                 selected.use()
                 this.lifeFlaskTime := A_Tickcount
             }
