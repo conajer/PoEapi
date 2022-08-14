@@ -109,6 +109,7 @@ public:
     Vector3 pos, bounds;
     Point grid_pos;
     int saved_life = -1;
+    int saved_es = -1;
     int damage_taken = 0;
 
     bool is_player = false;
@@ -198,9 +199,14 @@ public:
 
     int life() {
         if (health) {
+            int es = health->energy_shield();
             int life = health->life();
+
+            if (saved_es > es)
+                damage_taken += saved_es - es;
             if (saved_life > life)
                 damage_taken += saved_life - life;
+            saved_es = es;
             saved_life = life;
         }
 
