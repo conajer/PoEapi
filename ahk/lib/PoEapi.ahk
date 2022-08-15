@@ -239,27 +239,22 @@ class Inventory extends InventoryGrid {
         return this.use(_("Scroll of Wisdom"), item)
     }
 
-    drop() {
+    drop(index = "") {
         if (ptask.getChat().isOpened())
             SendInput, {Enter}
 
-        cursor := ptask.inventories[13]
-        if (Not cursor.getItemByIndex(1))
+        if (Not ptask.inventories[13].getItemByIndex(1))
             return false
 
-        try {
-            Critical
-            this.open()
-            index := this.nextCell()
-            if (Not index := this.nextCell())
-                return false
+        Critical
+        this.open()
+        if (index || index := this.nextCell()) {
             this.moveTo(index)
             MouseClick
-        } finally {
-            Critical off
+            return true
         }
 
-        return true
+        return false
     }
 }
 
