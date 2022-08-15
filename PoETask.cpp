@@ -421,6 +421,8 @@ public:
     }
 
     AhkObjRef* get_entities(const wchar_t* types) {
+        std::unique_lock<std::mutex> lock(entities_mutex);
+        in_game_data->get_all_entities(entities);
         AhkTempObj temp_entities;
         std::wregex types_exp(types);
         for (auto& i : entities.all) {
