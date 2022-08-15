@@ -238,7 +238,8 @@ LevelupGems:
 return
 
 AutoPickup:
-    ptask.beginPickup()
+    if (ptask.InMap)
+        ptask.beginPickup()
 return
 
 OnClipboardChange:
