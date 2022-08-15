@@ -114,5 +114,5 @@ rsyslog(id, string, args*) {
 
 error(string, args*) {
     SendInput {F8}
-    return logger.log(Format("[E]<span style=""color: red""> !!! " string "</span>", args*),, 3)
+    return logger.log(Format("[E]<b style=""color: red""> !!! " string "</b>", args*),, 3)
 }
