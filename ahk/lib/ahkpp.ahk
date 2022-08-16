@@ -44,12 +44,20 @@ class AhkObj {
 
     __New() {
         DllCall(ahkpp_new, "Ptr", Object(this), "Str", this.__Class)
-        this.__self := &this
+        ObjRawSet(this, "__self", &this)
     }
 
     __Get(key, key2 = "") {
-        __properties := ObjRawGet(this, "__properties")
-        __methods := ObjRawGet(this, "__methods")
+        if (ObjHasKey(this, "__self")) {
+            __properties := ObjRawGet(this, "__properties")
+            , __methods := ObjRawGet(this, "__methods")
+        } else {
+            if (key == "__properties" || key == "__methods")
+                return
+
+            __properties := this.__properties
+            , __methods := this.__methods
+        }
 
         if (valType := __properties[key]) {
             value := DllCall(ahkpp_get, "Ptr", this.__self, "Str", key, valType)
@@ -77,16 +85,24 @@ class AhkObj {
     }
 
     __Set(key, value) {
-        if (valType := this.__properties[key]) {
+        if (ObjHasKey(this, "__self")) {
+            __properties := ObjRawGet(this, "__properties")
+            , __methods := ObjRawGet(this, "__methods")
+        } else {
+            __properties := this.__properties
+            , __methods := this.__methods
+        }
+
+        if (__properties && valType := __properties[key]) {
             if (valType == "UPtr") {
                 value := Object(value)
             }
 
             return DllCall(ahkpp_set, "Ptr", this.__self, "Str", key, valType, value)
-        } else if (this.__methods["set" key]) {
+        } else if (__methods["set" key]) {
             name := "set" key
-            if (this.__methods[name].params.Length() == 1) {
-                valType := this.__methods[name].params[1]
+            if (__methods[name].params.Length() == 1) {
+                valType := __methods[name].params[1]
                 DllCall(ahkpp_call, "Ptr", this.__self, "Str", name, valType, value)
 
                 return value
@@ -95,7 +111,8 @@ class AhkObj {
     }
 
     __Call(name, params*) {
-        if (m := this.__methods[name]) {
+        __methods := ObjHasKey(this, "__self") ? ObjRawGet(this, "__methods") : this.__methods
+        if (m := __methods[name]) {
             if (m.params.Length() != params.Length()) {
                 MsgBox, % this.__Class "." name "(): invalid number of parameters, should be " m.params.Length() " parameters."
                 return
@@ -122,20 +139,20 @@ __New(className, baseClassName) {
                 obj := __ahkpp_classes[className]
             } else {
                 if (__ahkpp_classes[baseClassName]) {
-                    obj.base := __ahkpp_classes[baseClassName]
-                    obj.__Class := className
-                    __ahkpp_classes[className] := obj
+                    ObjSetBase(obj, __ahkpp_classes[baseClassName])
+                    objRawSet(obj, "__Class", className)
+                    ObjRawSet(__ahkpp_classes, className, obj)
                 }
             }
         } else if (className != "AhkObj") {
             if (__ahkpp_classes[className]) {
-                obj.base := __ahkpp_classes[className]
+                ObjSetBase(obj, __ahkpp_classes[className])
+                ObjRawSet(obj, "__self", &obj)
                 obj.__Init()
-                obj.__self := &obj
             } else if (IsObject(%className%)) {
-                obj.base := %className%
+                ObjSetBase(obj, %className%)
             } else {
-                obj.base := {"__Class": className}
+                ObjSetBase(obj, {"__Class": className})
             }
         }
     }
@@ -150,7 +167,12 @@ __Delete(obj) {
 __Get(obj, key) {
     obj := Object(obj)
     key := StrGet(key)
-    __ahkpp_value := obj ? obj[key] : %key%
+
+    if (key == "base")
+        __ahkpp_value := ObjGetBase(obj)
+    else
+        __ahkpp_value := obj ? obj[key] : %key%
+
     if (IsObject(__ahkpp_value))
         return Object(__ahkpp_value)
     else if (__ahkpp_value)
@@ -184,7 +206,7 @@ __Set(obj, key, params*) {
         }
 
         if (obj)
-            obj[key] := value
+            ObjRawSet(obj, key, value)
         else
             %key% := value
 
