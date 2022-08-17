@@ -46,6 +46,12 @@ class LocalDB extends sqlite3 {
                  , name, value, league)
     }
 
+    delete(name, league = "") {
+        (not league) ? league := ptask.league
+        this.exec("DELETE FROM properties WHERE name LIKE '{}' AND league='{}';"
+                 , name, league)
+    }
+
     addTranslation(source, target) {
         if (language == "en" || not target || __translations[source] == target)
             return
