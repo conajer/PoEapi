@@ -10,6 +10,7 @@ class AhkGui {
         this.hwnd := Hwnd
 
         this.onMessage(0x005, "__onSize")
+        this.onMessage(0x006, "__onActivate")
         this.onMessage(0x010, "__onClose")
         this.onMessage(0x112, "__onClose")
     }
@@ -46,14 +47,17 @@ class AhkGui {
         } catch {}
     }
 
+    __onActivate(wParam, lParam, msg, hwnd) {
+        if (this.Hwnd == hwnd)
+            this.onActivate()
+    }
+
     __onClose(wParam, lParam, msg, hwnd) {
         if (this.Hwnd == hwnd) {
             if (msg == 0x112 && wParam != 0xf060)
                 return
 
-            this.document.close()
-            this.document.write("")
-            hwnd := this.Hwnd
+            this.onClose()
             Gui, %hwnd%:Destroy
             for number, handler in this.__handlers
                 OnMessage(number, handler, 0)
@@ -177,6 +181,11 @@ class WebGui extends AhkGui {
 
     open(url) {
         this.browser.navigate(url)
+    }
+
+    onClose() {
+        this.document.close()
+        this.document.write("")
     }
 
     onResize(width, height) {
