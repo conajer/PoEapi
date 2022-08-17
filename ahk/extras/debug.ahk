@@ -161,12 +161,12 @@ class Console extends AhkGui {
         if (result) {
             if (IsObject(result)) {
                 baseClasses := ""
-                base := result.base
+                base := ObjGetBase(result)
                 loop {
                     if (Not base)
                         break
                     baseClasses .= " -> " (ObjRawGet(base, "__Class") ? base.__Class : Format("{:#x}", &base))
-                    base := base.base
+                    base := ObjGetBase(base)
                 }
 
                 ellipsisMin := 15
@@ -302,12 +302,12 @@ objdump(obj, prefix = "", depth = 0) {
     }
 
     baseClasses := ""
-    base := obj.base
+    base := ObjGetBase(obj)
     loop {
         if (Not base)
             break
         baseClasses .= " -> " (ObjRawGet(base, "__Class") ? base.__Class : Format("{:#x}", &base))
-        base := base.base
+        base := ObjGetBase(base)
     }
 
     if (Not prefix)
