@@ -233,34 +233,24 @@ dumpStashTabItems() {
     if (Not items := tab.getHighlightedItems())
         items := tab.getItems()
 
+    Sleep, 500
     for i, aItem in items {
-        tab.moveTo(aItem.index)
-        n := 1
-        if (aItem.stackCount > 1)
-            n += aItem.stackCount // aItem.stackSize
-
         if (Not ptask.inventory.nextCell(aItem.width, aItem.height))
             break
 
-        if (n > 1) {
-            loop, % n {
-                if (ptask.inventory.freeCells() == 0)
-                    break
-
-                SendInput, {Ctrl down}
-                Click
-                SendInput, {Ctrl up}
-                Sleep, 100
-            }
-        } else {
+        tab.moveTo(aItem.index)
+        loop, {
             SendInput, {Ctrl down}
-            Click
+            SendInput, {Click}
             SendInput, {Ctrl up}
-            Sleep, 30
-        }
+            Sleep, 100
 
-        if (A_Index > 1 && GetKeyState("Ctrl"))
-            break
+            if (GetKeyState("Ctrl"))
+                return
+
+            if (Not ptask.getHoveredItem() || Not ptask.inventory.freeCells())
+                break
+        }
     }
 }
 
@@ -300,18 +290,19 @@ openStackedDecks() {
             else
                 debug("    {:2d}. <span style='color: grey;'>{}, {:g}</span>", ++n, divinationCard.name, price)
 
+            toIndex := 0
             stackedCards := ptask.inventory.findItems(divinationCard.name)
             if (stackedCards.Length() > 0) {
                 for i, item in stackedCards {
                     if (item.stackCount() < item.stackSize()) {
-                        ptask.inventory.moveTo(item.index)
-                        MouseClick
+                        toIndex := item.index
                         break
                     }
                 }
-            } else if (Not ptask.inventory.drop() || GetKeyState("Ctrl")) {
-                break
             }
+
+            if (Not ptask.inventory.drop(toIndex) || GetKeyState("Ctrl"))
+                break
             Sleep, 50
         }
 
@@ -398,6 +389,7 @@ sortItems() {
                 if (itemPicked) {
                     tab.moveTo(A_Index)
                     SendInput, {Click}
+                    Sleep, 50
                     ;debug("    Placed " A_Index ", " itemPicked.baseName)
                 }
                 break
