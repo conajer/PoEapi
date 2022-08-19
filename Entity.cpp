@@ -362,6 +362,7 @@ public:
 
         add_method(L"isCorrupted", this, (MethodType)&Item::is_corrupted, AhkBool);
         add_method(L"isBlighted", this, (MethodType)&Item::is_blighted, AhkBool);
+        add_method(L"isBlightRavaged", this, (MethodType)&Item::is_blight_ravaged, AhkBool);
         add_method(L"isCrafted", this, (MethodType)&Item::is_crafted, AhkBool);
         add_method(L"isEnchanted", this, (MethodType)&Item::is_enchanted, AhkBool);
         add_method(L"isFractured", this, (MethodType)&Item::is_fractured, AhkBool);
@@ -443,6 +444,16 @@ public:
             mods->get_mods();
             if (!mods->implicit_mods.empty())
                 return mods->implicit_mods.front().id == L"InfectedMap";
+        }
+
+        return false;
+    }
+
+    bool is_blight_ravaged() {
+        if (mods) {
+            mods->get_mods();
+            if (!mods->implicit_mods.empty())
+                return mods->implicit_mods.front().id == L"UberInfectedMap__";
         }
 
         return false;
