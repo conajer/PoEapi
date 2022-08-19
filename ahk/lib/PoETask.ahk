@@ -202,7 +202,15 @@ class PoETask extends AhkObj {
                 this.c := this.nav.getCanvas()
             }
         }
-        this.reset()
+
+        poeVersion := RegExReplace(ptask.getVersion(), "release tags/")
+        if (poeVersion ~= PoEOffsets.version) {
+            this.reset()
+        } else {
+            this.stop()
+            error("PoE version <u>{}</u> is not supported!", poeVersion)
+            MsgBox, 32,, % Format("PoE version {} is not supported, some features are disabled!", poeVersion)
+        }
     }
 
     onExit() {
