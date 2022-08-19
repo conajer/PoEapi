@@ -50,7 +50,7 @@ class TradeItem {
             this.isMap := true
             this.name := matched1
             this.tier := matched2
-        } else if (RegExMatch(detailInfo, "([0-9.,]*)\s?([^-]+)", matched)) {
+        } else if (RegExMatch(detailInfo, "([0-9.,]*)\s?(.+)", matched)) {
             this.name := alias[matched2] ? alias[matched2] : matched2
             if (matched1) {
                 RegExMatch(matched1, "([0-9.]+)(,([0-9.]+))*", matched)
@@ -135,8 +135,10 @@ class TradeSession extends AhkGui {
     leave() {
         if (this.isJoined) {
             poe.activate()
-            ptask.sendKeys("/kick " ptask.player.name)
-            Sleep, 30
+            if (ptask.getPartyStatus() < 3) {
+                ptask.sendKeys("/kick " ptask.player.name)
+                Sleep, 30
+            }
             if (this.needReturn)
                 ptask.sendKeys("/hideout")
         }
@@ -210,9 +212,11 @@ class TradeSession extends AhkGui {
 
 class TradeBroker {
 
-    tradeRequestFormat := [ "O)Hi, (I would|I'd) like to buy your (?P<item1>.+) (listed for|for my) (?P<item2>.+) in (?P<league>[^(.))]+)( |\.)(\(stash tab (?P<tabName>.+); position: left (?P<left>[0-9]+), top (?P<top>[0-9]+)\))?(?P<postscript>.*)"
-                          , "O)Здравствуйте, хочу купить у вас (?P<item1>.+) за (?P<item2>.+) в лиге (?P<league>[^(.)]+)( |\.)(\(секция (?P<tabName>.+); позиция: (?P<left>[0-9]+) столбец, (?P<top>[0-9]+) ряд\))?(?P<postscript>.*)"
-                          , "O)안녕하세요, (?P<league>.+) 리그의 (?P<item1>.+)\(을\)를 (?P<item2>.+)\(으\)로 구매하고 싶습니다(\(보관함 탭 (?P<tabName>.+), 위치: 왼쪽 (?P<left>[0-9]+), 상단 (?P<top>[0-9]+)\)|\.)(?P<postscript>.*)" ]
+    tradeRequestFormat := [ "O)Hi, (I would|I'd) like to buy your[  ]+(?P<item1>.+) (listed for|for my) (?P<item2>.+) in (?P<league>[^(.))]+)( |\.)(\(stash tab (?P<tabName>.+); position: left (?P<left>[0-9]+), top (?P<top>[0-9]+)\))?(?P<postscript>.*)"
+                          , "O)Здравствуйте, хочу купить у вас[  ]+(?P<item1>.+) за (?P<item2>.+) в лиге (?P<league>[^(.)]+)( |\.)(\(секция (?P<tabName>.+); позиция: (?P<left>[0-9]+) столбец, (?P<top>[0-9]+) ряд\))?(?P<postscript>.*)"
+                          , "O)안녕하세요, (?P<league>.+) 리그의[  ]+(?P<item1>.+)\(을\)를 (?P<item2>.+)\(으\)로 구매하고 싶습니다(\(보관함 탭 (?P<tabName>.+), 위치: 왼쪽 (?P<left>[0-9]+), 상단 (?P<top>[0-9]+)\)|\.)(?P<postscript>.*)"
+                          , "O)Salut, je voudrais t'acheter[  ]+(?P<item1>.+) contre (?P<item2>.+) \(ligue (?P<league>[^(.)]+)\)"
+                          , "O)Bonjour, je souhaiterais t'acheter[  ]+(?P<item1>.+) pour (?P<item2>.+) dans la ligue (?P<league>[^(.))]+)( |\.)(\(onglet de réserve (?P<tabName>.+) . (?P<left>[0-9]+)e en partant de la gauche, (?P<top>[0-9]+)e en partant du haut\))?(?P<postscript>.*)" ]
 
     translate(whisperType, message, player = "", ByRef aTrade = "") {
         for i, regex in this.tradeRequestFormat {
@@ -220,7 +224,7 @@ class TradeBroker {
                 ;if (matched["League"] != _(ptask.league))
                 ;    return
 
-                if (whisperType ~= "From|От кого|수신") {
+                if (whisperType ~= "From|От кого|수신|De") {
                     aTrade := new IncomingTradeSession(player, matched["item2"], matched["item1"], matched["postscript"])
                     if (matched["tabName"]) {
                         aTrade.left := matched["left"]
@@ -248,6 +252,7 @@ class Trader extends AhkGui {
 
     __new() {
         base.__new("Trader",, 900, 600)
+        this.onMessage(WM_AREA_CHANGED, "__onAreaChanged")
         this.onMessage(WM_NEW_MESSAGE, "__onMessage")
         this.addBroker(new TradeBroker())
     }
@@ -324,6 +329,7 @@ class Trader extends AhkGui {
             for i, broker in this.tradeBrokers {
                 if (broker.translate(matched["type"], matched["message"], player, aTrade)) {
                     if (aTrade) {
+                        SoundBeep
                         aTrade.message := matched["message"]
                         aTrade.timestamp := A_Tickcount
                         this.queue(aTrade)
@@ -340,7 +346,6 @@ class Trader extends AhkGui {
                 if (this.tsActive[name])
                     this.tsActive[name].isJoined := true
             }
-            trace("*** You have joined a party")
         } else if (RegExMatch(message, _("You have left the party."), matched)) {
             for player, ts in this.tsActive {
                 if (ts.isJoined) {
@@ -348,14 +353,27 @@ class Trader extends AhkGui {
                     ts.close()
                 }
             }
-            trace("*** You have left the party")
         } else if (RegExMatch(message, _("(.*) has joined your party."), matched)) {
             this.tsActive[matched1].isJoined := true
+            SoundBeep
         } else if (RegExMatch(message, _("(.*) has left the party."), matched)) {
             this.tsActive[matched1].isJoined := false
             this.tsActive[matched1].close()
         } else if (RegExMatch(message, _("(.*) sent you a party invite"), matched)) {
-            trace("*** Received a party invite from <b style=""color:blue"">{}</b>", matched1)
+            SoundBeep
+        } else if (RegExMatch(message, _("(.*) has joined the area."), matched)) {
+            if (ts := this.tsActive[matched1]) {
+                hwnd := ts.hwnd
+                Gui, %hwnd%:Font, c47E635 bold s10
+                GuiControl, %hwnd%:Font, % ts.__var("whois")
+                SoundBeep
+            }
+        } else if (RegExMatch(message, _("(.*) has left the area."), matched)) {
+            if (ts := this.tsActive[matched1]) {
+                hwnd := ts.hwnd
+                Gui, %hwnd%:Font, cFEFE76 bold s10
+                GuiControl, %hwnd%:Font, % ts.__var("whois")
+            }
         }
     }
 
@@ -375,6 +393,16 @@ class Trader extends AhkGui {
         message := StrGet(wParam)
         if (Not message ~= "^(\$|#).+") {
             this.parseMessage(message, lParam)
+        }
+    }
+
+    __onAreaChanged() {
+        for name in ptask.getPlayers() {
+            if (ts := this.tsActive[name]) {
+                hwnd := ts.hwnd
+                Gui, %hwnd%:Font, c47E635 bold s10
+                GuiControl, %hwnd%:Font, % ts.__var("whois")
+            }
         }
     }
 }
@@ -414,7 +442,7 @@ class IncomingTradeSession extends TradeSession {
             Gui, Font, cFFFAFA bold s10
             Gui, Add, Text, ys, % this.item1.detailInfo " => "
             Gui, Font, cD20000 bold s10
-            Gui, Add, Text, % "x+0 w300 gL1 v" this.__var("checkItem"), % this.item2.detailInfo
+            Gui, Add, Text, % "x+0 w250 gL1 v" this.__var("checkItem"), % this.item2.detailInfo
 
             Gui, Font, c8787FE bold s8
             Gui, Add, Text, % "ys+3 x500 w25 Hwnd" this.__var("elapsedTimeHwnd"), 0s
@@ -464,8 +492,9 @@ class IncomingTradeSession extends TradeSession {
             Clipboard := itemName
             SendInput, ^{v}{Enter}
 
+            Sleep, 300
             aItem := tab.getItem(this.left, this.top)
-            if (Not aItem || Not (this.item2.name ~= aItem.qualifiedName()))
+            if (Not aItem || Not (aItem.qualifiedName() ~= this.item2.name))
                 aItem := tab.findItem(this.item2.name)
 
             if (Not aItem) {
@@ -475,15 +504,16 @@ class IncomingTradeSession extends TradeSession {
 
             tab.moveTo(aItem.index)
             clipboard := ""
-            loop, 5 {
-                Sleep, 200
+            loop, 10 {
                 SendInput ^{c}
+                Sleep, 10
             } until clipboard
 
             if (RegExMatch(clipboard, "~(b/o|price) ([0-9.]+) (.+)", matched)
                 || RegExMatch(this.tabName, "~(b/o|price) ([0-9.]+) (.+)", matched)) {
 
-                if (this.item1.count >= matched2 && this.item1.name == alias[matched3])
+                if (this.item1.count >= matched2
+                    && (this.item1.name == matched3 || this.item1.name == alias[matched3]))
                     return true
 
                 this.log("  ! Price not match: {} {} / {} {}!!!", this.item1.count, this.item1.name, matched2, alias[matched3])
