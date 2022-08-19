@@ -93,18 +93,26 @@ class Pricer {
             result := this.__getPrice(name, "ORDER BY map_tier DESC")
             for i, r in result {
                 if (r.map_tier == item.tier) {
+                    price := r.price
                     if ((item.rarity == 3) ^ r.is_unique || item.isBlighted() ^ r.is_blighted)
                         continue
                     return r.price
                 } 
             }
+            return price
         } else if (item.isGem) {
             result := this.__getPrice(item.name, "ORDER BY gem_level DESC, quality DESC")
             for i, r in result {
                 if ((item.isCorrupted() ^ r.is_corrupted) || (item.qualityType() != r.quality_type))
                     continue
-                if (item.level >= r.gem_level && item.quality >= r.quality)
-                    return r.price
+                if (item.level >= r.gem_level) {
+                    if (price && r.gem_level < item.level)
+                        return price
+
+                    if (item.quality >= r.quality)
+                        return r.price
+                    price := r.price
+                }
             }
             return
         } else if (item.rarity == 3 && item.baseName ~= "Cluster Jewel") {
