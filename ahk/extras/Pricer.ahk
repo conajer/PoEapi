@@ -3,6 +3,7 @@
 ;
 
 global pricer := new Pricer()
+global $divine, $exalted
 
 class Pricer {
 
@@ -280,6 +281,12 @@ class Pricer {
                 db.store("pricer.language", this.lang)
                 db.store("pricer.last_update_time", A_NOW)
                 db.exec("END TRANSACTION")
+                $divine := this.getPrice("Divine Orb")
+                $exalted := this.getPrice("Exalted Orb")
+                if ($divine <= $exalted) {
+                    $divine := this.evaluate("divine")
+                    this.__prices["Divine Orb", 1].price := $divine
+                }
             } catch {
                 db.exec("ROLLBACK")
                 SetTimer,, -60000
@@ -394,6 +401,13 @@ class Pricer {
 
             for i, r in db.exec("SELECT id, name FROM v_items;")
                 this.__items[r.name] := this.__items[_(r.name)] := r.id
+
+            $divine := this.getPrice("Divine Orb")
+            $exalted := this.getPrice("Exalted Orb")
+            if ($divine <= $exalted) {
+                $divine := this.evaluate("divine")
+                this.__prices["Divine Orb", 1].price := $divine
+            }
         }
 
         total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", this.league)
