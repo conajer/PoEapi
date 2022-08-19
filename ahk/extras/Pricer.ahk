@@ -54,7 +54,7 @@ class Pricer {
             (
             CREATE TABLE IF NOT EXISTS items (
                 id INTEGER PRIMARY KEY,
-                literal_id INTEGER UNIQUE,
+                literal_id INTEGER,
                 base_type TEXT,
                 item_type TEXT);
             
@@ -83,7 +83,7 @@ class Pricer {
     }
 
     getPrice(item) {
-        if (not IsObject(item))
+        if (Not IsObject(item))
             return this.__getPrice(item)[1].price
 
         if (item.isCurrency || item.isDivinationCard) {
@@ -126,11 +126,11 @@ class Pricer {
             return result[1].price
         } else if (item.ilvl > 0) {
             result := this.__getPrice((item.rarity == 3) ? item.name : item.baseName, "ORDER BY ilvl DESC")
-            if (not result)
+            if (Not result)
                 return
 
             if (item.rarity < 3) {
-                if (item.ilvl < 82)
+                if (item.ilvl < 82 && Not item.isBeast)
                     return
 
                 ilvl := (item.ilvl >= 86) ? 86 : item.ilvl
@@ -219,7 +219,8 @@ class Pricer {
     }
 
     addPrice(name, baseType, itemType, columns) {
-        if (not id := this.__items[name]) {
+        id := (itemType == "Map") ? this.__items[name, baseType] : this.__items[name]
+        if (Not id) {
             id := db.get("
                 (
                 INSERT INTO literals (text)
@@ -228,12 +229,14 @@ class Pricer {
                 INSERT INTO items (literal_id, base_type, item_type)
                 VALUES ((SELECT id FROM literals WHERE text=""{1}""),
                         ""{2}"", '{3}')
-                    ON CONFLICT (literal_id) DO UPDATE SET id=id
                 RETURNING id;
                 )", name, baseType, itemType)
-            this.__items[name] := id
+
+            if (itemType == "Map")
+                this.__items[name, baseType] := this.__items[_(name), baseType] := id
+            else
+                this.__items[name] := this.__items[_(name)] := id
         }
-        this.__items[_(name)] := this.__items[name]
 
         colNames := "id"
         values := id
@@ -243,8 +246,7 @@ class Pricer {
     }
 
     update(league) {
-        Sleep, 1000
-        if (not ptask.isReady || league != ptask.league) {
+        if (!ptask.isReady || league != ptask.league) {
             this.league := ""
             SetTimer,, Delete
             return
@@ -255,20 +257,11 @@ class Pricer {
         tPeriod -= lastUpdateTime, seconds
         tBegin := A_Tickcount
         total := db.get("SELECT count(*) AS total FROM item_prices WHERE league='{}';", league)
-        if (total < 256 || not lastUpdateTime || (tPeriod >= this.updatePeriod / 1000) || lang != this.lang) {
-            JSON.eval("
-            (
-                function parse(type, json, cb) {
-                    result = JSON.parse(json);
-                    dict = result.language.translations;
-                    for (let i = 0; i < result.lines.length; ++i) {
-                        alert(result.lines[i].name);
-                    }
-                }
-            )")
+        if (total < 256 || !lastUpdateTime || (tPeriod >= this.updatePeriod / 1000) || lang != this.lang) {
             try {
                 db.exec("BEGIN TRANSACTION")
                 db.exec("DELETE FROM item_prices WHERE league='{}';", league)
+                (lang != this.lang) ? this.__items := {}
                 lang := this.langNames[this.lang] ? this.langNames[this.lang] : this.lang
                 for name, t in this.types {
                     url := Format(this.url, t.catalog, league, t.type, lang)
@@ -277,18 +270,17 @@ class Pricer {
                     rdebug("#PRICER", "<b style='background-color:gold;color:black'>Loading item prices of {} ... {}</b>", name, parsed.lines.length)
                     dict := JSON.__copy(parsed.language.translations)
                     parsed.lines.forEach(ObjBindMethod(this, "__addPrice", t.type, dict))
-                    if (t.type == "Currency" && dict["Chaos Orb"])
-                        db.addTranslation("Chaos Orb", dict["Chaos Orb"])
                     if (t.type == "BaseType") {
                         for i, t in this.influenceTypes
                             db.addTranslation(t, dict[t])
                     }
                 }
                 this.addPrice("Chaos Orb", "", t.type, {"price": 1})
-                this.__prices := {}
                 db.store("pricer.language", this.lang)
                 db.store("pricer.last_update_time", A_NOW)
                 db.exec("END TRANSACTION")
+
+                this.__prices := {}
                 $divine := this.getPrice("Divine Orb")
                 $exalted := this.getPrice("Exalted Orb")
                 if ($divine <= $exalted) {
@@ -297,6 +289,7 @@ class Pricer {
                 }
             } catch {
                 db.exec("ROLLBACK")
+                rdebug("#PRICER", "<b style='background-color:gold;color:black'>Failed to update prices, try again later!</b>")
                 SetTimer,, -60000
                 return
             }
@@ -321,8 +314,8 @@ class Pricer {
                 if (p.count < 10 || p.sparkline.data.length == 0 || (p.itemClass != 6 && InStr(p.detailsId, "-relic")))
                     return
 
-                dict.hasKey(p.name) ? db.addTranslation(p.name, dict[p.name]) : ""
-                , cols := {"price": p.chaosValue}
+                dict.hasKey(p.name) ? db.addTranslation(p.name, RegExReplace(dict[p.name], "\(.+\)"))
+                cols := {"price": p.chaosValue}
                 , InStr(type, "Unique") ? cols.is_unique := true : 0
                 , p.hasOwnProperty("variant") ? cols.variant := p.variant : ""
                 switch (type) {
@@ -338,9 +331,16 @@ class Pricer {
                     , cols.map_tier := p.mapTier
                     , cols.is_blighted := true
                     , cols.details := "T" cols.map_tier
+                case "BlightRavagedMap":
+                    type := "Map"
+                    , p.name := RegExReplace(p.name, "Blight-ravaged ")
+                    , cols.map_tier := p.mapTier
+                    , cols.is_blighted := true
+                    , cols.details := "T" cols.map_tier
                 case "UniqueMap":
                     type := "Map"
                     , cols.map_tier := p.mapTier
+                    , cols.details := "T" cols.map_tier
                     , this.addPrice(p.baseType, p.baseType, type, cols)
                 case "SkillGem":
                     type := "Gem"
@@ -351,7 +351,7 @@ class Pricer {
                     if (RegExMatch(p.name, "(Anomalous|Divergent|Phantasmal) (.*)", matched))
                         p.name := matched2
                         , cols.quality_type := this.qualityTypes[matched1]
-                        , cols.variant := matched1
+                        , cols.details := matched1 " " cols.details
                 case "UniqueWeapon":
                     if (p.hasOwnProperty("links"))
                         cols.links := p.links
@@ -370,23 +370,26 @@ class Pricer {
     }
 
     __getPrice(name, orderBy = "") {
-        if (not result := this.__prices[name]) {
-            if (id := this.__items[name]) {
+        if (Not result := this.__prices[name]) {
+            id := this.__items[name]
+            if (IsObject(id))
+                result := db.exec("SELECT * FROM v_item_prices WHERE name=""{}"" AND league='{}' {}"
+                              , name, this.league, orderBy)
+            else if (id > 0)
                 result := db.exec("SELECT * FROM item_prices WHERE id={} AND league='{}' {}"
                                  , id, this.league, orderBy)
-                this.__prices[name] := result
-            }
+            this.__prices[name] := result
         }
 
         return result
     }
 
     __load() {
-        if (not ptask.isReady)
+        if (Not ptask.isReady)
             return
 
         this.league := ptask.league
-        if (not this.__items || language != this.lang) {
+        if (Not this.__items || language != this.lang) {
             this.__items := {}
             this.lang := language
 
@@ -407,8 +410,12 @@ class Pricer {
                 )"
                 , this.lang, this.league)
 
-            for i, r in db.exec("SELECT id, name FROM v_items;")
-                this.__items[r.name] := this.__items[_(r.name)] := r.id
+            for i, r in db.exec("SELECT * FROM v_items;") {
+                if (r.item_type == "Map")
+                    this.__items[r.name, r.base_type] := this.__items[_(r.name), r.base_type] := r.id
+                else
+                    this.__items[r.name] := this.__items[_(r.name)] := r.id
+            }
 
             $divine := this.getPrice("Divine Orb")
             $exalted := this.getPrice("Exalted Orb")
@@ -432,7 +439,7 @@ class Pricer {
         if (ptask.league != this.league || language != this.lang) {
             total := this.__load()
             t := ObjBindMethod(this, "update", ptask.league)
-            SetTimer, %t%, % (total > 1) ? -60000 : 1000
+            SetTimer, %t%, % (total > 1) ? -10000 : 1000
         }
     }
 }
