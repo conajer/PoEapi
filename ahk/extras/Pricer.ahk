@@ -151,6 +151,55 @@ class Pricer {
         return this.__getPrice(item.name)[1].price
     }
 
+    evaluate(want, have = "chaos", limit = 10) {
+        js := new JScriptHost()
+        js.eval("
+        (
+            function __evaluate(response, limit) {
+                let totalPrice = 0;
+                let totalStock = 0;
+
+                response = JSON.parse(response);
+                for (id in response.result) {
+                    if (limit-- < 0)
+                        break;
+
+                    r = response.result[id];
+                    n = r.listing.offers[0].item.amount;
+                    m = r.listing.offers[0].exchange.amount;
+                    stock = r.listing.offers[0].item.stock;
+                    totalPrice += m / n * stock;
+                    totalStock += stock;
+                }
+
+                if (totalStock > 0)
+                    return totalPrice / totalStock;
+            }
+        )")
+
+        url := Format("https://www.pathofexile.com/api/trade/exchange/{}", ptask.league)
+        query := { "engine": "new"
+                 , "query": { "want": [want]
+                            , "have": [have]
+                            , "minimum": 2
+                            , "status": {"option": "online"} }
+                 , "sort": {"have": "asc"} 
+                 , "limit": 10 }
+        return js.__evaluate(ajax(url, "POST", query), limit)
+    }
+
+    format(price, rate = 1, symbol = "") {
+        price /= rate
+        if (price > 10)
+            price := Format("{:.f}{}", Round(price), symbol)
+        else if (price > 1)
+            price := Format("{:2g}{}", Round(price, 1), symbol)
+        else
+            price := Format("{:g}{}", Round(price, 2), symbol)
+
+        return price
+    }
+
     findPrices(regexp, limit = 100) {
         return db.exec("
             (
