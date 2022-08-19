@@ -405,31 +405,19 @@ public:
 
     wstring& name() {
         if (item_name.empty()) {
-            if (mods) {
-                if (mods->rarity > 0 && mods->is_identified()) {  /* magic/rare/unique items */
-                    item_name = mods->get_name(base->name());
-                    if (mods->rarity == 1 && is_synthesised())
-                        item_name = L"Synthesised " + item_name;
-                } else {
-                    item_name = base_name();                     /* normal or unidentified items */
-                    if (get_quality() > 0)
-                        item_name = L"Superior " + item_name;
-                }
-            } else {
-                item_name = base_name();
-            }
+            if (mods && mods->rarity > 0 && mods->is_identified())
+                item_name = mods->get_name(base->name());   /* magic/rare/unique items */
+            if (item_name.empty())
+                item_name = base_name();                    /* normal or unidentified items */
         }
 
         return item_name;                                 
     }
 
     wstring& base_name() {
-         if (has_component("CapturedMonster")) {
-            return get_component<CapturedMonster>()->name();
-        } else if (is_synthesised()) {
-            if (type_name.empty())
-                type_name = L"Synthesised " + base->name();
-            return type_name;
+        if (has_component("CapturedMonster")) {
+            if (path.find(L"Metamorphosis") == wstring::npos)
+                return get_component<CapturedMonster>()->name();
         }
 
         return base ? base->name() : type_name;
