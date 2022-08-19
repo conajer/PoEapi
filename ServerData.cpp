@@ -372,7 +372,7 @@ public:
 
     std::vector<shared_ptr<StashTab>>& get_stash_tabs() {
         stash_tabs.clear();
-        for (auto addr : read_array<addrtype>("stash_tabs", 0x48))
+        for (auto addr : read_array<addrtype>("stash_tabs", 0x68))
             stash_tabs.push_back(shared_ptr<StashTab>(new StashTab(addr)));
 
         for (auto& i : stash_tabs) {

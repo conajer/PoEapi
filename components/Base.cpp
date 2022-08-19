@@ -8,7 +8,7 @@ static std::map<string, int> base_component_offsets {
     {"internal",       0x10},
         {"x_cells",    0x10},
         {"y_cells",    0x11},
-        {"name",       0x18},
+        {"name",       0x30},
     {"influence_type", 0xc6},
     {"is_corrupted",   0xc7},
 };
