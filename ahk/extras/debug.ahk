@@ -200,13 +200,10 @@ class Console extends AhkGui {
         this.doc.parentWindow.scrollTo(0, this.doc.body.scrollHeight)
     }
 
-    __onClose(wParam, lParam, msg, hwnd) {
-        if (this.Hwnd == hwnd) {
-            for i, stmt in this.__history
-                (A_Index == 1) ? histories := stmt : histories .= "`n" stmt
-            db.store("console.history", histories)
-            base.__onClose()
-        }
+    onClose() {
+        for i, stmt in this.__history
+            (A_Index == 1) ? histories := stmt : histories .= "`n" stmt
+        db.store("console.history", histories)
     }
 }
 
