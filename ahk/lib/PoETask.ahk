@@ -553,7 +553,8 @@ class PoETask extends AhkObj {
                 if (this.checkStats(e.item))
                     e.draw("", "red")
                 e.item.price := $(e.item)
-                this.displayItemPrice(e, shift)
+                ; showing the accumulated price of stacked currency items.
+                this.displayItemPrice(e, true)
             }
         }
     }
