@@ -112,11 +112,12 @@ readIni(iniFile) {
 }
 
 _(str) {
-    if (language == "en")
-        return str
-    if (not __translations.hasKey(str))
-        __translations[str] := (pos := InStr(str, "/"))
-            ? _(SubStr(str, 1, pos - 1)) "/" _(SubStr(str, pos + 1)) : str
+    if (Not ObjHasKey(__translations, str)) {
+        if (Not pos := InStr(str, "/"))
+            return str
+        __translations[str] := _(SubStr(str, 1, pos - 1)) "/" _(SubStr(str, pos + 1))
+    }
+
     return __translations[str]
 }
 
