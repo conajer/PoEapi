@@ -344,22 +344,16 @@ AutoFillPrice:
     if (Not price := $(item))
         return
 
-    if (price >= 1)
-        formatted_price := Round(price)
-    else if (item.stackSize() > 1)
-        formatted_price := Format("{}/{}", 10, Round(10 / price))
-    else
-        formatted_price := Round(price, 1)
-
     loop, 5 {
         Sleep, 100
         e := ptask.getIngameUI().getChild(142, 1)
         if (e.isVisible()) {
-            exalted := $("Exalted Orb")
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible()) {
-                if (price > 1 * exalted)
-                    note := Format("~b/o {:.1f} exalted", price / exalted)
+                if (price > $divine)
+                    note := Format("~b/o {:.1f} divine", price / $divine)
+                else if (price > $exalted)
+                    note := Format("~b/o {:.1f} exalted", price / $exalted)
                 else
                     note := Format("~b/o {} chaos", formatted_price)
                 SendInput, %note%
@@ -368,13 +362,23 @@ AutoFillPrice:
                 tag.getPos(x, y)
                 MouseMove, x,  y, 0
                 SendInput, {Click}{Click}
-                if (matched3 == "exalted") {
+                if (matched3 == "divine") {
+                    price := Round(price / $divine, 1)
+                } else if (matched3 == "exalted") {
                     if (price < .3 * exalted)
-                        formatted_price := Format("1/{}", Round(exalted / price))
+                        price := Format("1/{}", Round($exalted / price))
                     else
-                        formatted_price := Round(price / exalted, 1)
+                        price := Round(price / $exalted, 1)
+                } else if (matched3 == "chaos") {
+                    if (price >= 1)
+                        price := Round(price)
+                    else if (item.stackSize() > 1)
+                        price := Format("{}/{}", 10, Round(10 / price))
+                    else
+                        price := Round(price, 1)
                 }
-                SendInput, %formatted_price%
+
+                SendInput, %price%
             }
             break
         }
