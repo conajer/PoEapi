@@ -40,23 +40,24 @@ class LocalDB extends sqlite3 {
     }
 
     store(name, value, league = "") {
-        (not league) ? league := ptask.league
+        (!league) ? league := ptask.league
         InStr(value, "'") ? value := StrReplace(value, "'", "''")
         this.exec("INSERT OR REPLACE INTO properties VALUES ('{}', '{}', '{}');"
                  , name, value, league)
     }
 
     delete(name, league = "") {
-        (not league) ? league := ptask.league
+        (!league) ? league := ptask.league
         this.exec("DELETE FROM properties WHERE name LIKE '{}' AND league='{}';"
                  , name, league)
     }
 
     addTranslation(source, target) {
-        if (language == "en" || not target || __translations[source] == target)
+        if (language == "en" || !source || !target || __translations[source] == target)
             return
         __translations[source] := target
-        this.exec("INSERT INTO v_trans VALUES (""{}"", ""{}"", '{}');"
+        __translations[target] := source
+        this.exec("INSERT OR REPLACE INTO v_trans VALUES (""{}"", ""{}"", '{}');"
                  , source, target, language)
     }
 
@@ -91,6 +92,7 @@ class LocalDB extends sqlite3 {
 
         for i, r in this.exec("SELECT * FROM v_trans;")
             __translations[r.source] := r.target
+            , __translations[r.target] := r.source
 
         dict := JSON.load("lib\translations.json")
         for i, t in dict[language]
