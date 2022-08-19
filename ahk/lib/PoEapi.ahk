@@ -351,6 +351,9 @@ class StashTab extends InventoryGrid {
 class SpecialStashTab extends StashTab {
 
     getChilds() {
+        if (this.type == 0x6 || this.type >= 0x10)
+            return
+
         this.getItems()
         childs := []
         for i, e in this.__Call("getChilds") {
