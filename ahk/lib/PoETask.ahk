@@ -482,15 +482,6 @@ class PoETask extends AhkObj {
             if (sum && e.item.stackCount > 1)
                 price := e.item.stackCount * price
 
-            if (price > $("Exalted Orb"))
-                formatted_price := Format("{:.4g}e", Round(price / $("Exalted Orb"), 1))
-            else if (price > 10)
-                formatted_price := Format("{:.f}", Round(price))
-            else if (price > 1)
-                formatted_price := Format("{:2g}", Round(price, 1))
-            else
-                formatted_price := Format("{:g}", Round(price, 2))
-
             r := e.getRect()
             switch (anchor) {
             case 1: x := r.l, y := r.t
@@ -500,14 +491,14 @@ class PoETask extends AhkObj {
             default: x := (r.r + r.l) / 2, y := (r.b + r.t) / 2
             }
 
-            if (price > $("Exalted Orb"))
-                this.c.drawText(formatted_price, x, y, "red", "white", align, baseline)
+            if (price > $divine)
+                this.c.drawText($$(price, $divine, "d"), x, y, "red", "white", align, baseline)
+            else if (price > $exalted)
+                this.c.drawText($$(price, $exalted, "e"), x, y, "#00007f", "white", violent, baseline)
             else if (price >= 10)
-                this.c.drawText(formatted_price, x, y, "white", "red", align, baseline)
-            else if (price)
-                this.c.drawText(formatted_price, x, y, "#00007f", "gold", align, baseline)
+                this.c.drawText($$(price), x, y, "white", "red", align, baseline)
             else
-                this.c.drawText("!", x, y, "white", "red", align, baseline)
+                this.c.drawText($$(price), x, y, "#00007f", "gold", align, baseline)
         }
     }
 
