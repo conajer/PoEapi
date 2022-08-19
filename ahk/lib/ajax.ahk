@@ -37,18 +37,17 @@ class JScriptHost {
     }
 
     __Get(name) {
-        if (not ObjHasKey(this, name))
+        if (!ObjHasKey(this, name))
             return this.__js[name]
     }
 
     __Set(name, value) {
-        if (not ObjHasKey(this, name)) {
+        if (!ObjHasKey(this, name))
             return this.__js[name] := value
-        }
     }
 
     __Call(name, args*) {
-        if (not ObjHasKey(this, name))
+        if (!ObjHasKey(this, name))
             return this.__js[name].(args*)
     }
 }
@@ -105,7 +104,7 @@ class JSON {
     }
 
     __stringify(value, space = "", eol = "", padding = "") {
-        if (Not IsObject(value))
+        if (!IsObject(value))
             return this.__json.stringify(value)
 
         if (ComObjType(value))
