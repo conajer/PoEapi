@@ -124,6 +124,10 @@ $(item) {
     return pricer.getPrice(item)
 }
 
+$$(price, rate = 1, symbol = "") {
+    return pricer.format(price, rate, symbol)
+}
+
 __Exit() {
     global __libs
 
