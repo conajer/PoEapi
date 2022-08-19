@@ -131,11 +131,18 @@ class InventoryGrid extends Element {
 
     move(aItem) {
         r := this.getRectByIndex(aItem.index)
-        MouseMove, (r.l + r.r) / 2, (r.t + r.b) / 2, 0
-        Sleep, 30
-        SendInput ^{Click}
-        Sleep, 30
-        SendInput ^{Click}
+        x := (r.l + r.r) / 2
+        y := (r.t + r.b) / 2
+
+        SendInput, {Ctrl down}
+        loop, 5 {
+            MouseMove, x, y, 0
+            SendInput, {Click}
+            Sleep, 20
+            if (Not this.getItemByIndex(aItem.index) || Not ptask.getHoveredElement().enabled)
+                break
+        }
+        SendInput, {Ctrl up}
     }
 
     highlight(aItem) {
