@@ -22,7 +22,7 @@ public:
     bool door_enabled = true;
 
     AutoOpen() : PoEPlugin(L"AutoOpen", "0.8"),
-        entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine|CraftingUnlock"),
+        entity_names(L"Standing Stone|Lodestone|DelveMineralVein|Shrine"),
         default_ignored_chests(L"Izaro")
     {
         total_opened = 0;
