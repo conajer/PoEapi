@@ -76,8 +76,19 @@ public:
             }
 
             if (new_message) {
+                wstring* msg_text;
+                
+                msg_text = &new_message->get_text();
+                if (msg_text->c_str()[0] == L'@') {
+                    int pos;
+                    if ((pos = msg_text->find(L"\u00a0\u00a0\u00a0\u00a0")) != wstring::npos)
+                        msg_text->replace(pos, 4, L"");
+                    if ((pos = msg_text->find(L"\u200c")) != wstring::npos)
+                        msg_text->replace(pos, 1, L"");
+                }
                 last_message = new_message;
-                return &last_message->get_text();
+
+                return msg_text;
             }
         }
 
