@@ -16,6 +16,12 @@ public:
 
     EntityList all, removed, added;
 
+    void clear() {
+        all.clear();
+        removed.clear();
+        added.clear();
+    }
+
     friend ostream& operator<<(ostream& os, EntitySet& entities)
     {
         if (entities.added.size() > 0) {
