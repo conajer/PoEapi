@@ -73,7 +73,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.9.5"
+global version := "1.9.6"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -86,6 +86,7 @@ syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiV
 ptask.start()
 
 ; Patreon only features
+Sleep, 500
 #Include, %A_ScriptDir%\patreon.ahk
 
 OnExit("__Exit")
