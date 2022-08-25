@@ -7,7 +7,7 @@ class Item extends Entity {
     qualifiedName() {
         qName := this.name
         if (this.IsIdentified && this.rarity > 1)
-            qName .= " " this.baseName
+            qName .= ", " this.baseName
         if (this.IsMap)
             qName .= " (T" this.tier ")"
         if (this.IsGem)
