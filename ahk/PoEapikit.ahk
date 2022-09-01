@@ -73,7 +73,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.9.6"
+global version := "1.9.7"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -352,7 +352,7 @@ AutoFillPrice:
 
     loop, 5 {
         Sleep, 100
-        e := ptask.getIngameUI().getChild(142, 1)
+        e := ptask.getIngameUI().getChild(130, 1)
         if (e.isVisible()) {
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible()) {
@@ -361,7 +361,7 @@ AutoFillPrice:
                 else if (price > $exalted)
                     note := Format("~b/o {:.1f} exalted", price / $exalted)
                 else
-                    note := Format("~b/o {} chaos", formatted_price)
+                    note := Format("~b/o {:.f} chaos", price)
                 SendInput, %note%
             } else if (RegExMatch(tag.getText(), "~(b/o|price) ([0-9./]+) (.+)", matched)) {
                 tag := e.getChild(1, 2, 3, 1)
