@@ -62,7 +62,7 @@ global PoEOffsets = { "version" : "3.19", "offsets"
                         , "is_enabled"                  : 0x165
                         , "size"                        : 0x180
                         , "highlighted"                 : 0x1c0
-                        , "text"                        : 0x3a0
+                        , "text"                        : 0x378
                         , "item"                        : 0x440
                         , "item_pos"                    : 0x448 }
 
