@@ -118,6 +118,7 @@ public:
 
     /* Monster related fields */
     bool is_monster = false;
+    bool is_beast = false;
     bool is_minion = false;
     bool is_neutral = false;
     int rarity = 0;
@@ -163,6 +164,10 @@ public:
             is_neutral = positioned->is_neutral();
             ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
             rarity = props ? props->rarity() : 0;
+            if (rarity == 2) {
+                if (path.find(L"Bestiary") != wstring::npos && path.find(L"Minion") == wstring::npos)
+                    is_beast = true;
+            }
         }
     }
 
