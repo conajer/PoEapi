@@ -777,6 +777,20 @@ extern "C" WINAPI
 BOOL DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     switch (reason) {
     case DLL_PROCESS_ATTACH:
+        HANDLE token;
+
+        if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token)) {
+            LUID luid;
+
+            if (LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
+                TOKEN_PRIVILEGES tp;
+
+                tp.PrivilegeCount = 1;
+                tp.Privileges[0].Luid = luid;
+                tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+                AdjustTokenPrivileges(token, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL);
+            }
+        }
         SetProcessDPIAware();
 
         /* register classes in ahkpp module */
