@@ -387,7 +387,7 @@ class PoETask extends AhkObj {
             return
 
         members := []
-        for i, e in this.getIngameUI().getChild(21, 1, 1).getChilds()
+        for i, e in this.getIngameUI().getChild(18, 1, 1).getChilds()
             members.Push(e.getChild(1).getText())
 
         return members
