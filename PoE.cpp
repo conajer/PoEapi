@@ -310,18 +310,8 @@ public:
     }
 
     void logout() {
-        HANDLE token;
-        LUID luid;
         PMIB_TCPTABLE_OWNER_PID  tcp_table;
         DWORD size = 0;
-
-        if (!OpenProcessToken(process_handle, TOKEN_ADJUST_PRIVILEGES , &token))
-            return;
-
-        LookupPrivilegeValue(0, "SeDebugPrivilege", &luid);
-        TOKEN_PRIVILEGES token_privileges = {1, {luid, SE_PRIVILEGE_REMOVED}};
-        AdjustTokenPrivileges(token, false, &token_privileges, 0, 0, 0);
-        CloseHandle(token);
 
         GetExtendedTcpTable(tcp_table, &size, 0, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
         tcp_table = (PMIB_TCPTABLE_OWNER_PID)malloc(size);
