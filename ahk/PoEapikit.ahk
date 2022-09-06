@@ -73,12 +73,10 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.9.8"
+global version := "1.9.8a"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
-#Include, %A_ScriptDir%\extras\debug.ahk
-#Include, %A_ScriptDir%\extras\gambler.ahk
 #Include, %A_ScriptDir%\extras\vendor.ahk
 #Include, %A_ScriptDir%\extras\Pricer.ahk
 #Include, %A_ScriptDir%\extras\Trader.ahk
@@ -281,14 +279,8 @@ AutoClick() {
         if (Not GetKeyState("Ctrl") && Not GetKeyState("Shift"))
             break
 
-        if (Not GetKeyState("Ctrl")) {
-            item := ptask.getHoveredItem()
-            if (item.address == selectedItem.address)
-                continue
-            selectedItem := item
-        }
         SendInput, %keys%
-        Sleep, 75
+        Sleep, 50
     }
 }
 
@@ -485,40 +477,14 @@ OpenWiki:
     }
 return
 
-#IfWinActive
-
-^F10::
-    debug(A_CaretX ", " A_CaretY)
-return
-
-F10::
-    ;ptask.inventory.apply("Orb of Scouring", "Map", "rarity", 0)
-    ;ptask.inventory.apply("Cartographer's Chisel", "Map", "quality", 20)
-    ;ptask.inventory.apply("Orb of Alchemy", "Map", "rarity", 2)
-
-
-    for i, item in ptask.inventory.getItems() {
-        if (InStr(item.qualifiedName(), "i)exalted") 
-            || RegExMatch(item.qualifiedName(), "i)exalted"))
-            n += item.stackCount ? item.stackCount : 1
-        else {
-            n += Ceil($(item) * item.stackCount) / $("exalted orb")
-        }
-    }
-    debug(n)
-return
-
-F12::
 ShowLog:
     logger.show()
 return
 
-^r::
 Reload() {
     Reload
 }
 
-^q::
 ExitApp() {
     ExitApp
 }
