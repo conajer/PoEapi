@@ -135,7 +135,7 @@ public:
         rt->DrawBitmap(bitmap, &dest, opacity);
     }
 
-    void draw_text(std::wstring text, float x, float y, int rgb, int backgroud, float alpha = 1.0, int align = 0) {
+    void draw_text(std::wstring text, float x, float y, int rgb, int background, float alpha = 1.0, int align = 0) {
         IDWriteTextLayout* layout;
         
         HRESULT hr = write_factory->CreateTextLayout(text.c_str(), text.size(),
@@ -146,14 +146,15 @@ public:
 
             layout->GetMetrics(&m);
             x = x - m.width * align / 2;
-            fill_rect(x, y, x + m.width, y + m.height, backgroud, alpha);
+            if (background)
+                fill_rect(x, y, x + m.width, y + m.height, background, alpha);
             brush->SetColor(D2D1::ColorF(rgb, alpha));
             rt->DrawTextLayout({x, y}, layout, brush.Get());
             layout->Release();
         }
     }
 
-    void draw_big_text(std::wstring text, float x, float y, int rgb, int backgroud, float alpha = 1.0, int align = 0) {
+    void draw_big_text(std::wstring text, float x, float y, int rgb, int background, float alpha = 1.0, int align = 0) {
         IDWriteTextLayout* layout;
         
         HRESULT hr = write_factory->CreateTextLayout(text.c_str(), text.size(),
@@ -164,7 +165,8 @@ public:
 
             layout->GetMetrics(&m);
             x = x - m.width * align / 2;
-            fill_rect(x, y, x + m.width, y + m.height, backgroud, alpha);
+            if (background)
+                fill_rect(x, y, x + m.width, y + m.height, background, alpha);
             brush->SetColor(D2D1::ColorF(rgb, alpha));
             rt->DrawTextLayout({x, y}, layout, brush.Get());
             layout->Release();
