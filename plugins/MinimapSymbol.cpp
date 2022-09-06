@@ -189,11 +189,15 @@ public:
         if (texture_enabled) {
             poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
             if (min_size >= 4 && e->rarity >= 2)
-                poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
+                poe->draw_circle(x, y + 15, size + 2, entity_colors[index], 1);
         } else {
-            poe->fill_circle(x, y, size, entity_colors[index], opacity);
-            if (min_size >= 4 && e->rarity >= 2)
-                poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
+            if (e->rarity == 2 && e->is_beast) {
+                poe->draw_text(e->name(), x, y, 0xffff52, 0x0c0c0c, 1.0, 1);
+            } else {
+                poe->fill_circle(x, y, size, entity_colors[index], opacity);
+                if (min_size >= 4 && e->rarity >= 2)
+                    poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
+            }
         }
 
         if (show_damage && e->damage_taken > min_damage) {
