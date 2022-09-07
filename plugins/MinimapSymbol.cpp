@@ -376,11 +376,12 @@ public:
         poe.set_font(font_name, font_size);
     }
 
-    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
+    void reset() {
         std::lock_guard<std::mutex> guard(drawn_entities_mutex);
         drawn_entities.clear();
         ignored_entities.clear();
         damage_numbers.clear();
+        player = nullptr;
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
