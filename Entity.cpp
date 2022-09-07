@@ -15,6 +15,18 @@ struct ComponentLookupTable {
     } components[8];
 };
 
+std::map<wstring, wstring> archnemesis_mods = {
+    {L"Abberath", L"Abberath-touched"},
+    {L"Arakaali", L"Arakaali-touched"},
+    {L"Brine King", L"Brine King-touched"},
+    {L"Innocence", L"Innocence-touched"},
+    {L"Kitava", L"Kitava-touched"},
+    {L"Lunaris", L"Lunaris-touched"},
+    {L"Shakari", L"Shakari-touched"},
+    {L"Solaris", L"Solaris-touched"},
+    {L"Tukohama", L"Tukohama-touched"},
+};
+
 FieldOffsets entity_offsets = {
     {"internal",              0x8},
         {"path",              0x8},
@@ -122,6 +134,7 @@ public:
     bool is_minion = false;
     bool is_neutral = false;
     int rarity = 0;
+    wstring archnemesis_hint;
 
     Entity(addrtype address, const wchar_t* metadata = L"")
         : PoEObject(address, &entity_offsets), path(metadata)
@@ -167,6 +180,11 @@ public:
             if (rarity == 2) {
                 if (path.find(L"Bestiary") != wstring::npos && path.find(L"Minion") == wstring::npos)
                     is_beast = true;
+
+                for (auto& i : props->get_mods()) {
+                    if (i.gen_type == 1 && !archnemesis_mods[i.name].empty())
+                        archnemesis_hint += i.name;
+                }
             }
         }
     }
