@@ -86,7 +86,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.24"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.25"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques"),
@@ -160,11 +160,15 @@ public:
 
         int x = pos.x + shift_x;
         int y = pos.y + shift_y;
-        if (e->rarity == 2 && e->is_beast) {
-            poe->draw_text(e->name(), x, y, 0xffff52, 0x0c0c0c, 1.0, 1);
-        } else {
+        if (!e->is_beast)
             poe->fill_circle(x, y, size, entity_colors[index], opacity);
-            if (min_size >= 4 && e->rarity >= 2)
+
+        if (e->rarity >= 2) {
+            if (!e->archnemesis_hint.empty())
+                poe->draw_text(e->archnemesis_hint, x, y + 5, 0xff0000, 0xffffff, 1.0, 1);
+            else if (e->is_beast)
+                poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
+            else if (min_size >= 4)
                 poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
         }
 
