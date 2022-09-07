@@ -469,7 +469,7 @@ public:
             i.second->reset();
 
         // clear cached entities.
-        entities.all.clear();
+        entities.clear();
         labeled_entities.clear();
 
         is_ready = false;
@@ -597,9 +597,12 @@ public:
         } else {
             if (is_loading) {
                 is_ready = false;
+                std::unique_lock<std::mutex> lock(entities_mutex);
+                entities.clear();
 
                 // wait for loading the game instance.
                 while (is_loading) {
+                    Sleep(50);
                     check_game_state();
                 }
             }
@@ -660,6 +663,8 @@ public:
     void render() {
         // clear overlay canvas.
         clear();
+        if (!is_ready)
+            return;
 
         std::unique_lock<std::mutex> lock(entities_mutex);
         if (!is_ready || in_game_ui->has_active_panel())
