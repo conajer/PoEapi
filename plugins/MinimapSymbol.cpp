@@ -71,10 +71,6 @@ public:
     int min_size = 4;
     float opacity = .8;
 
-    ID2D1Bitmap* textures[16] = {};
-    bool texture_enabled = false;
-    bool texture_loaded = false;
-
     int entity_colors[16] = {0xfefefe, 0x5882fe, 0xfefe16, 0xf28930,    // monster
                              0x7f7f7f, 0x2c417f, 0x7f7f3b, 0x794498,    // corpse
                              0x00fe00,                                  // minion
@@ -111,7 +107,6 @@ public:
         add_property(L"style", &style, AhkInt);
         add_property(L"speedX", &speed_x, AhkFloat);
         add_property(L"speedY", &speed_y, AhkFloat);
-        add_property(L"textureEnabled", &texture_enabled, AhkBool);
 
         add_method(L"setFontSize", this, (MethodType)&MinimapSymbol::set_font_size, AhkVoid, ParamList{AhkInt});
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
@@ -129,27 +124,6 @@ public:
     void set_font_size(int font_size) {
         this->font_size = font_size;
         poe->set_font(font_name, font_size);
-    }
-
-    void load_textures() {
-        ID2D1BitmapRenderTarget* bitmap_render;
-        ID2D1SolidColorBrush* brush;
-
-        for (int i = 0; i < 11; ++i) {
-            float size = min_size + ((i < 8) ? (i & 0x3) : (1 << (i & 0x3)));
-            float x = size, y = size;
-            poe->rt->CreateCompatibleRenderTarget(D2D1::SizeF(size * 2, size * 2), &bitmap_render);
-            bitmap_render->CreateSolidColorBrush(D2D1::ColorF(0), &brush);
-            bitmap_render->BeginDraw();
-            brush->SetColor(D2D1::ColorF(entity_colors[i], opacity));
-            bitmap_render->FillEllipse({{x, y}, size, size}, brush);
-            bitmap_render->EndDraw();
-            bitmap_render->GetBitmap(&textures[i]);
-            brush->Release();
-            bitmap_render->Release();
-        }
-
-        texture_loaded = true;
     }
 
     void init_params() {
@@ -186,18 +160,12 @@ public:
 
         int x = pos.x + shift_x;
         int y = pos.y + shift_y;
-        if (texture_enabled) {
-            poe->draw_bitmap(textures[index], x - size, y - size, x + size, y + size);
-            if (min_size >= 4 && e->rarity >= 2)
-                poe->draw_circle(x, y + 15, size + 2, entity_colors[index], 1);
+        if (e->rarity == 2 && e->is_beast) {
+            poe->draw_text(e->name(), x, y, 0xffff52, 0x0c0c0c, 1.0, 1);
         } else {
-            if (e->rarity == 2 && e->is_beast) {
-                poe->draw_text(e->name(), x, y, 0xffff52, 0x0c0c0c, 1.0, 1);
-            } else {
-                poe->fill_circle(x, y, size, entity_colors[index], opacity);
-                if (min_size >= 4 && e->rarity >= 2)
-                    poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
-            }
+            poe->fill_circle(x, y, size, entity_colors[index], opacity);
+            if (min_size >= 4 && e->rarity >= 2)
+                poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
         }
 
         if (show_damage && e->damage_taken > min_damage) {
@@ -327,9 +295,6 @@ public:
     }
 
     void render() {
-        if (!texture_loaded && texture_enabled)
-            load_textures();
-
         init_params();
         std::lock_guard<std::mutex> guard(drawn_entities_mutex);
         for (auto& i : drawn_entities) {
