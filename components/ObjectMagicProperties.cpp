@@ -7,8 +7,7 @@
 static std::map<string, int> objectmagicproperties_component_offsets {
     {"unique_name", 0x20},
     {"rarity",      0x9c},
-    {"mods",        0xb8},
-    {"stats",      0x1e0},
+    {"mods",        0xc0},
 };
 
 class ObjectMagicProperties : public Component {
@@ -16,7 +15,6 @@ public:
 
     /* Modifiers */
     std::vector<Modifier> mods;
-    std::vector<wstring> stats;
 
     ObjectMagicProperties(addrtype address)
         : Component(address, "ObjectMagicProperties", &objectmagicproperties_component_offsets)
@@ -27,12 +25,8 @@ public:
         return read<byte>("rarity");
     }
 
-    void get_mods() {
-        mods = read_array<Modifier>("mods", 0x20, 0x28);
-    }
-
-    void get_stats() {
-        stats = read_array<wstring>("stats", 0x0, 0x20);
+    std::vector<Modifier>& get_mods() {
+        return mods = read_array<Modifier>("mods", 0x38);
     }
 
     void to_print() {
