@@ -22,18 +22,21 @@ ajax(url, method = "GET", data = "", contentType = "application/json") {
 class JScriptHost {
 
     __new() {
-        ObjRawSet(this, "__doc", ComObjCreate("HTMLFile"))
-        this.__doc.write("
-        (
-            <!DOCTYPE html>
-            <html>
-            <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-            <head>
-            </head>
-            </html>
-        )")
-        ObjRawSet(this, "__js", this.__doc.parentWindow)
-
+        try {
+            ObjRawSet(this, "__doc", ComObjCreate("HTMLFile"))
+            this.__doc.write("
+            (
+                <!DOCTYPE html>
+                <html>
+                <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+                <head>
+                </head>
+                </html>
+            )")
+            ObjRawSet(this, "__js", this.__doc.parentWindow)
+        } catch {
+            ObjRawSet(this, "__js", {})
+        }
     }
 
     __Get(name) {
