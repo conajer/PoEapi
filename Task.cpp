@@ -120,11 +120,12 @@ public:
 
     Task(wstring name) : name(name), log_buffer(128) {
         owner_thread_id = GetCurrentThreadId();
-        stop_event = CreateEvent(nullptr, true, false, nullptr);
+        stop_event = CreateEvent(nullptr, true, true, nullptr);
     }
 
     virtual ~Task() {
         stop();
+        join();
     }
 
     void add_job(shared_ptr<Job>& job) {
@@ -146,7 +147,10 @@ public:
                 }
             }
 
-            join(); /* wait for the jobs finish */
+            // wait for the jobs to finish
+            for (auto& i : jobs)
+                i.second->join();
+            SetEvent(stop_event);
         }
     }
 
@@ -169,8 +173,6 @@ public:
 
             log(L"job %S@%x stopped", job->name.c_str(), job->id);
         }
-        jobs.clear();
-        SetEvent(stop_event);
     }
 
     void log(const wchar_t* format, ...) {
