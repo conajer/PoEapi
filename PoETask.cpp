@@ -695,12 +695,16 @@ public:
     }
 
     void stop() {
-        is_ready = false;
+        Task::stop();
+        Hud::stop();
         if (in_game_data)
             in_game_data->force_reset = true;
-        Hud::stop();
-        Task::stop();
-        std::unique_lock<std::mutex> lock(task_mutex);
+
+        if (is_ready) {
+            std::unique_lock<std::mutex> lock(task_mutex);
+            is_ready = false;
+            SwitchToThread();
+        }
     }
 
     bool toggle_maphack() {
