@@ -55,7 +55,7 @@ class Updater extends WebGui {
 
             this.release := this.document.parentWindow.JSON.parse(http.ResponseText)
             if (RegExMatch(this.release.name, "PoEapikit-(.*)", matched)) {
-                if (matched1 > version) {
+                if (this.compareVersion(version, matched1) < 0) {
                     innerHtml .= "<H1>" this.release.name "</H1>"
                     innerHtml .= "<H3>Release Notes:</H3>"
                     innerHtml .= RegExReplace(this.release.body, "\r\n", "</br>")
@@ -69,6 +69,20 @@ class Updater extends WebGui {
         SetTimer,, % 3600 * 1000
 
         return false
+    }
+
+    compareVersion(v1, v2) {
+        v1 := StrSplit(v1, ".")
+        v2 := StrSplit(v2, ".")
+
+        loop, 3 {
+            if (v1[A_Index] != v2[A_Index]) {
+                r := Floor(v1[A_Index]) - Floor(v2[A_Index])
+                return r ? r : ((v1[A_Index] > v2[A_Index]) ? 1 : -1)
+            }
+        }
+
+        return 0
     }
 
     copy(src, dest) {
