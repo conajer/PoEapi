@@ -40,7 +40,7 @@ std::map<string, int> in_game_ui_offsets {
     {"sell",               93},
     {"sell2",              94},
     {"trade",              95},
-    {"chat",            0x478},
+    {"chat",            0x480},
     {"notifications",   0x9f0},
     {"lefe_panel",      0x540},
     {"right_panel",     0x548},
