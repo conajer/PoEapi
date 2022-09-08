@@ -10,8 +10,8 @@ public:
 
     Chat(addrtype address) : Element(address) {
         get_childs();
-        messages = get_child(std::vector<int>{1, 2, 1});
-        last_message = messages->get_child(messages->child_count() - 1);
+        if (messages = get_child(std::vector<int>{1, 2, 1}))
+            last_message = messages->get_child(messages->child_count() - 1);
 
         add_method(L"isOpened", this, (MethodType)&Chat::is_opened, AhkBool);
         add_method(L"count", this, (MethodType)&Chat::count, AhkInt);
