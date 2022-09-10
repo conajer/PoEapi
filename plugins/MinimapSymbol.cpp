@@ -66,6 +66,8 @@ public:
     bool show_npc = true;
     bool show_minions = true;
     bool show_damage = true;
+    bool show_mods = true;
+    bool show_beast = true;
 
     // minimal size of the symbols
     int min_size = 4;
@@ -86,7 +88,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.25"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.26"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques"),
@@ -107,6 +109,8 @@ public:
         add_property(L"style", &style, AhkInt);
         add_property(L"speedX", &speed_x, AhkFloat);
         add_property(L"speedY", &speed_y, AhkFloat);
+        add_property(L"showMods", &show_mods, AhkBool);
+        add_property(L"showBeast", &show_beast, AhkBool);
 
         add_method(L"setFontSize", this, (MethodType)&MinimapSymbol::set_font_size, AhkVoid, ParamList{AhkInt});
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
@@ -164,12 +168,16 @@ public:
             poe->fill_circle(x, y, size, entity_colors[index], opacity);
 
         if (e->rarity >= 2) {
-            if (!e->archnemesis_hint.empty())
-                poe->draw_text(e->archnemesis_hint, x, y + 5, 0xff0000, 0xffffff, 1.0, 1);
-            else if (e->is_beast)
-                poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
-            else if (min_size >= 4)
+            if (!e->archnemesis_hint.empty()) {
+                if (e->archnemesis_hint.find(L"touched") != wstring::npos)
+                    poe->draw_text(e->archnemesis_hint, x, y + 5, 0x800080, 0xffffff, 1.0, 1);
+                else if (show_beast && e->is_beast)
+                    poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
+                else if (show_mods)
+                    poe->draw_text(e->archnemesis_hint, x, y + 5, 0xffffff, 0x0c0c0c, 1.0, 1);
+            } else if (min_size >= 4) {
                 poe->draw_circle(x, y, size + 2, entity_colors[index], 1);
+            }
         }
 
         if (show_damage && e->damage_taken > min_damage) {
