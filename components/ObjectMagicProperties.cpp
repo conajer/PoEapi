@@ -11,6 +11,16 @@ static std::map<string, int> objectmagicproperties_component_offsets {
 };
 
 class ObjectMagicProperties : public Component {
+private:
+
+    AhkObjRef* __get_mods() {
+        AhkTempObj temp_mods;
+        for (auto& i : get_mods())
+            temp_mods.__set(L"", (AhkObjRef*)i, AhkObject, nullptr);
+        
+        return temp_mods;
+    }
+
 public:
 
     /* Modifiers */
@@ -19,6 +29,7 @@ public:
     ObjectMagicProperties(addrtype address)
         : Component(address, "ObjectMagicProperties", &objectmagicproperties_component_offsets)
     {
+        add_method(L"getMods", this, (MethodType)&ObjectMagicProperties::__get_mods, AhkObject);
     }
 
     int rarity() {
