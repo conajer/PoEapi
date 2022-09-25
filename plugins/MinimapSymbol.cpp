@@ -62,12 +62,16 @@ public:
     int decay_time;
     std::list<BubbleText> damage_numbers;
 
+    // expedition
+    bool expedition_detonator_used;
+
     bool show_player = true;
     bool show_npc = true;
     bool show_minions = true;
     bool show_damage = true;
     bool show_mods = true;
     bool show_beast = true;
+    bool show_expedition = true;
 
     // minimal size of the symbols
     int min_size = 4;
@@ -88,7 +92,7 @@ public:
                                            {L"SuppliesFlares", 0xff0000},
                                            {L"Unique", 0xffff}};
 
-    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.26"),
+    MinimapSymbol() : PoEPlugin(L"MinimapSymbol", "0.27"),
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques"),
@@ -111,6 +115,7 @@ public:
         add_property(L"speedY", &speed_y, AhkFloat);
         add_property(L"showMods", &show_mods, AhkBool);
         add_property(L"showBeast", &show_beast, AhkBool);
+        add_property(L"showExpedition", &show_expedition, AhkBool);
 
         add_method(L"setFontSize", this, (MethodType)&MinimapSymbol::set_font_size, AhkVoid, ParamList{AhkInt});
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
@@ -306,6 +311,64 @@ public:
         poe->draw_rect(x - dw, y - dh, x + dw, y - dh / 3, 0x0c0c0c, 0.8);
     }
 
+    void draw_expedition_relic(Entity* e) {
+        Vector3 pos = e->pos;
+        pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+        pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+        pos.z = pos.z * scale;
+        poe->in_game_state->transform(pos);
+
+        int x = pos.x + shift_x;
+        int y = pos.y + shift_y;
+
+        ObjectMagicProperties* props = e->get_component<ObjectMagicProperties>();
+        for (auto& i : props->get_mods()) {
+            if (i.id.find(L"ExpeditionCurrencyQuantity") != wstring::npos)
+                poe->draw_text(L"Artifacts", x, y, 0xff0000, 0xffffff, 1.0, 1);
+            else if (i.id.find(L"ExpeditionLogbookQuantity") != wstring::npos)
+                poe->draw_text(L"Logbook", x, y, 0xff0000, 0xffffff, 1.0, 1);
+            else if (i.id.find(L"ExpeditionBasicCurrency") != wstring::npos)
+                poe->draw_text(L"Currency", x, y, 0xffffff, 0x7f00, 1.0, 1);
+            else if (i.id.find(L"StackedDeck") != wstring::npos)
+                poe->draw_text(L"Stacked Deck", x, y, 0xffffff, 0x7f00, 1.0, 1);
+            else if (i.id.find(L"PackSize") != wstring::npos)
+                poe->draw_text(L"Pack", x, y, 0xffffff, 0x7f00, 1.0, 1);
+            else if (i.id.find(L"ItemQuantity") != wstring::npos)
+                poe->draw_text(L"Item Quantity", x, y, 0xffffff, 0x7f00, 1.0, 1);
+            else if (i.id.find(L"ItemRarity") != wstring::npos)
+                poe->draw_text(L"Item Rarity", x, y, 0xffffff, 0x7f00, 1.0, 1);
+            else if (i.id.find(L"Immune") != wstring::npos) {
+                if (i.id.find(L"Physical") != wstring::npos)
+                    poe->draw_text(L"Physical", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                else if (i.id.find(L"Cold") != wstring::npos)
+                    poe->draw_text(L"Cold", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                else if (i.id.find(L"Fire") != wstring::npos)
+                    poe->draw_text(L"Fire", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                else if (i.id.find(L"Lightning") != wstring::npos)
+                    poe->draw_text(L"Lightning", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                else if (i.id.find(L"Chaos") != wstring::npos)
+                    poe->draw_text(L"Chaos", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                else if (i.id.find(L"Ailments") != wstring::npos)
+                    poe->draw_text(L"Ailments", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                else if (i.id.find(L"Curses") != wstring::npos)
+                    poe->draw_text(L"Curses", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+            }
+        }
+    }
+
+    void draw_expedition_chamber(Entity* e) {
+        Vector3 pos = e->pos;
+        pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+        pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+        pos.z = pos.z * scale;
+        poe->in_game_state->transform(pos);
+
+        int x = pos.x + shift_x;
+        int y = pos.y + shift_y;
+
+        poe->draw_text(L"Door", x, y, 0, 0xffa500, 1.0, 1);
+    }
+
     void render() {
         init_params();
         std::lock_guard<std::mutex> guard(drawn_entities_mutex);
@@ -347,6 +410,18 @@ public:
                     draw_strongbox(entity);
                 else
                     ignored_entities.push_back(i.first);
+            } else if (entity->path.find(L"ExpeditionRelic") != wstring::npos) {
+                if (show_expedition && !expedition_detonator_used)
+                    draw_expedition_relic(entity);
+            } else if (entity->path.find(L"ExpeditionChamber") != wstring::npos) {
+                if (show_expedition && !expedition_detonator_used)
+                    draw_expedition_chamber(entity);
+            } else if (entity->path.find(L"ExpeditionDetonator") != wstring::npos) {
+                Targetable* targetable = entity->get_component<Targetable>();
+                if (targetable && !targetable->is_targetable()) {
+                    expedition_detonator_used = true;
+                    ignored_entities.push_back(i.first);
+                }
             } else {
                 ignored_entities.push_back(i.first);
             }
@@ -394,6 +469,7 @@ public:
         ignored_entities.clear();
         damage_numbers.clear();
         player = nullptr;
+        expedition_detonator_used = true;
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
