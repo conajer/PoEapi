@@ -27,6 +27,7 @@ std::map<string, int> in_game_ui_offsets {
         {"grid",        0x3d8},
     {"stash",              34},
         {"tabs",        0x2f8},
+    {"expedition",         40},
     {"kirac_mission",      61},
     {"temple",             66},
     {"delve_chart",        70},
@@ -80,7 +81,7 @@ public:
             get_skills();
 
             std::vector<string> active_panel_names = {
-                "skills", "atlas", "atlas_skills", "kirac_mission", "temple", "delve_chart", "syndicate", "horticrafting"
+                "skills", "atlas", "atlas_skills", "kirac_mission", "temple", "delve_chart", "syndicate", "horticrafting", "expedition"
             };
 
             for (auto& i : active_panel_names)  
