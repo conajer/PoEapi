@@ -469,7 +469,7 @@ public:
         ignored_entities.clear();
         damage_numbers.clear();
         player = nullptr;
-        expedition_detonator_used = true;
+        expedition_detonator_used = false;
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
