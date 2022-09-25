@@ -335,8 +335,6 @@ public:
                 poe->draw_text(L"Pack", x, y, 0xffffff, 0x7f00, 1.0, 1);
             else if (i.id.find(L"ItemQuantity") != wstring::npos)
                 poe->draw_text(L"Item Quantity", x, y, 0xffffff, 0x7f00, 1.0, 1);
-            else if (i.id.find(L"ItemRarity") != wstring::npos)
-                poe->draw_text(L"Item Rarity", x, y, 0xffffff, 0x7f00, 1.0, 1);
             else if (i.id.find(L"Immune") != wstring::npos) {
                 if (i.id.find(L"Physical") != wstring::npos)
                     poe->draw_text(L"Physical", x, y, 0xffffff, 0x7f0000, 1.0, 1);
