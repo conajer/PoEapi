@@ -5,7 +5,7 @@
 /* ObjectMagicProperties component offsets */
 
 static std::map<string, int> objectmagicproperties_component_offsets {
-    {"unique_name", 0x20},
+    {"unique_name",  0xc0},
     {"rarity",      0x13c},
     {"mods",        0x160},
 };
