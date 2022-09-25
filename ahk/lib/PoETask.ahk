@@ -552,6 +552,38 @@ class PoETask extends AhkObj {
         this.nav.setStatus(Format(text, args*))
     }
 
+    checkLoadedFiles() {
+        areaHints := [ {"text": "The Sacred Grove (Harvest)",         "path": "Metadata/Terrain/Leagues/Harvest/Objects/HarvestPortalToggleableReverse$"}
+                     , {"text": "Sister Cassia (Blight)",             "path": "Metadata/Terrain/Leagues/Blight/Objects/BlightPump$"}
+                     , {"text": "Breach",                             "path": "Metadata/MiscellaneousObjects/Breach/BreachObject"}
+                     , {"text": "Timeless Monolith (Legion)",         "path": "Metadata/Terrain/Leagues/Legion/Objects/LegionInitiator"}
+                     , {"text": "Smuggler's Cache (Heist)",           "path": "Metadata/Chests/LeagueHeist/HeistSmugglersCoinCacheOutdoors"}
+                     , {"text": "Ritual Altar",                       "path": "Metadata/Terrain/Leagues/Ritual/RitualRuneInteractable"}
+                     , {"text": "Expedition Detonator",               "path": "Metadata/MiscellaneousObjects/Expedition/ExpeditionDetonator"} ]
+
+        mapWarnings := [ "Monsters reflect [0-9]+% of Elemental Damage"
+                       , "Monsters reflect [0-9]+% of Physical Damage"
+                       , "Players cannot Regenerate Life, Mana or Energy Shield"
+                       , "Cannot Leech from Monsters" ]
+
+        if (this.InMap) {
+            files := ptask.getFiles("Leagues|BreachObject|LeagueHeist|ExpeditionDetonator")
+            for i, hint in areaHints {
+                for filename in files
+                    if (filename ~= hint.path)
+                        this.setStatus("Area contains <i style='color: gold;'>{}</i>.", hint.text)
+            }
+
+            mapStats := StrSplit(ptask.getIngameUI().getChild(4, 3, 4, 1, 2).getText(), "`n")
+            for i, stat in mapStats {
+                for i, warning in mapWarnings
+                    if (stat ~= "i)" warning)
+                        this.setStatus("<i style='color: red;'>{}</i>", stat)
+            }
+        }
+        SetTimer,, Delete
+    }
+
     onAreaChanged(areaName, lParam) {
         Critical
         areaName := StrGet(areaName)
@@ -563,6 +595,9 @@ class PoETask extends AhkObj {
         this.InMap := Not isTown && Not isHideout
         this.InHideout := isHideout
         Character.base := this.getPlayer()
+
+        t := ObjBindMethod(this, "checkLoadedFiles")
+        SetTimer, %t%, -100
     }
 
     onPlayerChanged(name) {
