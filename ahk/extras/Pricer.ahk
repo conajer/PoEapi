@@ -13,7 +13,6 @@ class Pricer {
              , "Fragments"          : {"catalog" : "currency", "type" : "Fragment"}
              , "Divination Cards"   : {"catalog" : "item", "type" : "DivinationCard"}
              , "Artifacts  "        : {"catalog" : "item", "type" : "Artifact"}
-             , "Prophecies"         : {"catalog" : "item", "type" : "Prophecy"}
              , "Oils"               : {"catalog" : "item", "type" : "Oil"}
              , "Incubators"         : {"catalog" : "item", "type" : "Incubator"}
 
@@ -33,7 +32,6 @@ class Pricer {
              , "Delirium Orbs"      : {"catalog" : "item", "type" : "DeliriumOrb"}
              , "Invitations"        : {"catalog" : "item", "type" : "Invitation"}
              , "Scarabs"            : {"catalog" : "item", "type" : "Scarab"}
-             , "Watchstones"        : {"catalog" : "item", "type" : "Watchstone"}
 
              ; Crafting
              , "Base Types"         : {"catalog" : "item", "type" : "BaseType"}
