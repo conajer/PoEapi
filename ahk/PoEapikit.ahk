@@ -358,8 +358,6 @@ AutoFillPrice:
             if (tag.isVisible()) {
                 if (price > $divine)
                     note := Format("~b/o {:.1f} divine", price / $divine)
-                else if (price > $exalted)
-                    note := Format("~b/o {:.1f} exalted", price / $exalted)
                 else
                     note := Format("~b/o {:.f} chaos", price)
                 SendInput, %note%

@@ -493,8 +493,6 @@ class PoETask extends AhkObj {
 
             if ($divine && price > $divine)
                 this.c.drawText($$(price, $divine, "d"), x, y, "red", "white", align, baseline)
-            else if ($exalted && price > $exalted)
-                this.c.drawText($$(price, $exalted, "e"), x, y, "#00007f", "white", violent, baseline)
             else if (price >= 10)
                 this.c.drawText($$(price), x, y, "white", "red", align, baseline)
             else
