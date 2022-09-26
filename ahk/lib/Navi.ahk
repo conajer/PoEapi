@@ -2,6 +2,8 @@
 ; Navi.ahk, 3/7/2021 5:26 PM
 ;
 
+#Include, %A_ScriptDir%\lib\Hotkeys.ahk
+
 global extraMenus := []
 
 addMenuItem(menu, itemName = "", handler = "", options ="") {
@@ -26,7 +28,7 @@ class About extends WebGui {
                 html, body { display: flex; flex-flow: column; height: 100%; background: #f0f0f0; margin: 0; }
                 div { flex: 2 1 auto; background-color: white; font-size: 18px; border: 1px solid; margin: 5px 5px; padding: 0px 15px; }
                 span { flex: 0 1 auto; margin: 0px 5px 5px; }
-                button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
+                button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; min-width: 98px; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
                 button:focus { outline: solid; outline-width: 1px; outline-color: #0078d7; }
                 button:hover { background-color: #e5f1fb; outline: solid; outline-width: 1px; outline-color: #0078d7; }
                 a { target-new: window; }
@@ -113,7 +115,7 @@ class Feedback extends WebGui {
                 input:focus { border-color: #0078d7; }
                 table { margin: 5px; }
                 span { flex: 0 1 auto; font-size: 16px; margin: 5px; }
-                button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
+                button { font-family: Calibri; background-color: #e1e1e1; border: 1px solid #adadad; min-width: 98px; margin: 5px 2px; float: right; transition: 0.4s; padding: 0 30px; }
                 button:focus { outline: solid; outline-width: 1px; outline-color: #0078d7; }
                 button:hover { background-color: #e5f1fb; outline: solid; outline-width: 1px; outline-color: #0078d7; }
             </style>
@@ -347,11 +349,11 @@ class Navi extends WebGui {
                 addMenuItem("__main", m.name, m.handler, m.options)
         }
         addMenuItem("__main")
+        addMenuItem("__main", _("Hotkeys..."), ObjBindMethod(this, "remapHotkeys"))
         addMenuItem("__main", _("Send feedback..."), ObjBindMethod(this, "sendFeedback"))
-        addMenuItem("__main", _("Hotkeys..."), ObjBindMethod(this, "hotkeys"))
-        addMenuItem("__main", _("About") " PoEapikit...", ObjBindMethod(this, "about"))
-        addMenuItem("__main")
         addMenuItem("__main", _("Reload"), "Reload")
+        addMenuItem("__main")
+        addMenuItem("__main", _("About") " PoEapikit...", ObjBindMethod(this, "about"))
         addMenuItem("__main", _("Quit"), "ExitApp")
 
         this.menu := this._("#menu")
@@ -377,7 +379,7 @@ class Navi extends WebGui {
         new About().show()
     }
 
-    hotkeys() {
+    remapHotkeys() {
         new Hotkeys().show()
     }
 
