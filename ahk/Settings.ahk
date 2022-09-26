@@ -12,15 +12,18 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true }
                                             , "delveChestOnly" : true
                                             , "door"    : true }
 
+                        ; Following items are picked up by default:
+                        ;     1. all currency items, divination cards and map items etc.
+                        ;     2. 6-linked items.
+                        ;     2. unique items and 3 linked R-G-B items (strictLevel = 0).
+                        ;     5. All weapon/armour items whose item level are between 60 to 75 (strictLevel = 0).
+                        ;     4. 6 sockets items, gems whose quality >= 5 or level >= 19 (strictLevel <= 1).
+                        ;     6. Influenced items (ilvl >= 82) and synthesised items (strictLevel <= 2).
                         , "AutoPickup"    : { "enabled" : true
                                             , "range"   : 75
                                             , "ignoreChests"      : false
-                                            ; 0: unique items, RGB items and full rare set recipe items.
-                                            ; 1: 6 sockets items and quality gems
-                                            ; 2: influenced items with item level >= 82 and synthesised items
-                                            ; 3 and above: currency items, 6 links items
                                             , "strictLevel"       : 0
-                                            , "genericItemFilter" : "Sentinel$|Incubator|Quicksilver|Basalt|Quartz|Eternal (Life|Mana)"
+                                            , "genericItemFilter" : "Incubator|Quicksilver|Eternal (Life|Mana)"
                                             , "rareItemFilter"    : "Jewel|Amulet|Ring" }
 
                         , "KillCounter"   : { "enabled" : true
@@ -46,6 +49,9 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true }
                                             , "style"              : 1
                                             , "speedX"             : 0.5
                                             , "speedY"             : 1.0
+                                            , "showBeast"          : true
+                                            , "showMods"           : false
+                                            , "showExpedition"     : true
                                             , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter"
                                             , "ignoredHeistChests" : "Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques" }
 
@@ -76,11 +82,8 @@ global VendorTabGems := "2"
 global VendorTabFullRareSets := "1, 2, 3"
 
 ; Attack and defense
-global AttackSkillKey := "w"
-global SecondaryAttackSkillKey := ""
 global DefenseBuffSkillKey := "r"
-global QuickDefenseKey := "q"
-global QuickDefenseAction := "qe2345"
+global QuickDefenseAction := "q"
 global AruasKey := "!q!w!e!r!t"
 
 ; Delve
@@ -89,17 +92,6 @@ global MaxDarknessStacks := 10
 
 ; Heist Chests
 global HeistChestNameRegex := "HeistChest(Secondary|RewardRoom)(.*)(Military|Robot|Science|Thug)"
-
-; Auto pickup
-; Some items are picked up by default, includes:
-;     1. all currency items, divination cards and map items
-;     2. unique items
-;     3. 6 sockets, 6 linked or 3 linked R-G-B items
-;     4. gems whose quality > 5 or level > 12
-;     5. All weapon/armour items whose item level are between 60 to 75
-;     6. Influenced items
-;
-global AutoPickupKey := "a"
 
 ; Auto identify/sell/stash rules
 ; Rules Syntax:
