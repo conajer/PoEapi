@@ -67,8 +67,8 @@ public:
         add_property(L"statusText", &status_text, AhkString);
         add_property(L"verbose", &verbose, AhkInt);
 
-        add_method(L"escape", (curl*)this, (MethodType)&curl::escape, AhkString, ParamList{AhkString});
-        add_method(L"unescape", (curl*)this, (MethodType)&curl::unescape, AhkString, ParamList{AhkString});
+        add_method(L"__escape", (curl*)this, (MethodType)&curl::escape, AhkString, ParamList{AhkPointer});
+        add_method(L"__unescape", (curl*)this, (MethodType)&curl::unescape, AhkPointer, ParamList{AhkString});
         add_method(L"get", (curl*)this, (MethodType)&curl::get, AhkInt, ParamList{AhkString});
         add_method(L"post", (curl*)this, (MethodType)&curl::post, AhkInt, ParamList{AhkString, AhkString, AhkString});
         add_method(L"getResponseHeader", (curl*)this, (MethodType)&curl::get_response_header, AhkString, ParamList{AhkString});
