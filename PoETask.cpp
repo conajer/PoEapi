@@ -129,10 +129,6 @@ public:
         add_method(L"__logout", (PoE*)this, (MethodType)&PoE::logout, AhkVoid);
     }
 
-    ~PoETask() {
-        stop();
-    }
-
     void set_job(const wchar_t* name, int period) {
         if (jobs.find(name) != jobs.end())
             jobs[name]->delay = period;
