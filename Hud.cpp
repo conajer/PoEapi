@@ -141,7 +141,7 @@ public:
         end_draw();
     }
 
-    void show() {
+    virtual void show() {
         RECT rect = {};
 
         if (target_window) {
@@ -156,7 +156,7 @@ public:
         UpdateWindow(hwnd);
     }
 
-    void hide() {
+    virtual void hide() {
         is_visible = false;
         ShowWindow(hwnd, SW_HIDE);
     }
