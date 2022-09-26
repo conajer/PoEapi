@@ -236,8 +236,7 @@ class Feedback extends WebGui {
                 url := "https://docs.google.com/forms/d/e"
                 curl.ajax(Format("{}/{}/formResponse?entry.1300113286={}&entry.1468854439={}&entry.512599937={}&entry.1915618276={}"
                                 , url, "1FAIpQLSe8v9cU4Xq2WBDXxCVVl3CsCItLA32NL7-mK2UWhfjBQXhIBQ"
-                                , ptask.player.className, ptask.league, logTime, language))
-                tPeriod := 0
+                                , ptask.player.className, curl.escape(ptask.league), logTime, language))
                 db.store("last_log_time", A_NOW)
             }
         }
