@@ -7,13 +7,6 @@
 #Persistent ; Stay open in background
 #IfWinActive, Path of Exile ahk_class POEWindowClass
 
-If (Not A_IsAdmin) {
-    try {
-        Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
-        ExitApp
-    }
-}
-
 SetBatchLines, -1
 SetWorkingDir, %A_ScriptDir%
 CoordMode, Mouse, Client

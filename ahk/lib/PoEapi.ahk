@@ -2,17 +2,32 @@
 ; PoEapi.ahk, 9/10/2020 8:27 PM
 ;
 
-if (FileExist("..\poeapi.dll")) {
-    FileMove ..\poeapi.dll, poeapi.dll, true
-}
+class PoEapi {
+    static _ := PoEapi.__init()
 
-if (Not pLib := loadLibrary("poeapi.dll")) {
-    errCode := DllCall("GetLastError")
-    if (errCode == 0xc1)
-        Msgbox, % "You need 64-Bit AutoHotkey to run PoEapikit."
-    else
-        Msgbox, % errCode ": Failed to load poeapi.dll!"
-    ExitApp
+    __init() {
+        If (Not A_IsAdmin) {
+            try {
+                Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
+                ExitApp
+            }
+        }
+
+        if (FileExist("..\poeapi.dll"))
+            FileMove ..\poeapi.dll, poeapi.dll, true
+
+        if (Not pLib := loadLibrary("poeapi.dll")) {
+            errCode := DllCall("GetLastError")
+            if (errCode == 0xc1)
+                Msgbox, % "You need 64-Bit AutoHotkey to run PoEapikit."
+            else
+                Msgbox, % errCode ": Failed to load poeapi.dll!"
+            ExitApp
+        }
+
+        ; Initialize ahkpp
+        ahkpp_init(pLib)
+    }
 }
 
 #Include, %A_ScriptDir%\lib\ahkpp.ahk
@@ -49,9 +64,6 @@ global WM_PTASK_ATTACHED   := 0x9100
 global WM_PTASK_ACTIVE     := 0x9101
 global WM_PTASK_LOADED     := 0x9102
 global WM_PTASK_EXIT       := 0x9103
-
-; Initialize ahkpp
-ahkpp_init(pLib)
 
 ; Register PoEapi classes
 ahkpp_register_class(PoETask)
