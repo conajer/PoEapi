@@ -19,41 +19,6 @@ CoordMode, Pixel, Client
 #Include, %A_ScriptDir%\lib\LocalDB.ahk
 #Include, %A_ScriptDir%\Settings.ahk
 
-; Hotkeys (^ for Ctrl, ! for Alt, + for Shift, # for window key)
-;
-;                           Enabled Prefix Key Name     Label              Description
-;                           ------- ------ -----------  -----------------  --------------------------------------
-global defaultHotkeys := [ [ true,  "",    "``",        "ExitGame",        "Exit to character selection"]
-                         , [ true,  "~*",  "a",         "AutoPickup",      "Pickup nearby items"]
-                         , [ true,  "$",   "q",         "QuickDefense",    "Quick defence actions"]
-                         , [ true,  "~",   "s",         "LevelupGems",     "Level up skill gems"]
-                         , [ true,  "~",   "w",         "Attack",          "Main attack skill"]
-                         , [ false, "~",   "RButton",   "Attack",          "Secondary attack skill"]
-                         , [ true,  "",    "#d",        "MinimizeWindow",  "Minimize PoE window"]
-                         , [ true,  "",    "F1",        "AutoAuras",       "Auto aruas (ALT+F1 for performance stats)"]
-                         , [ true,  "",    "F2",        "OpenPortal",      "Open portal"]
-                         , [ true,  "*",   "F3",        "SellItems",       "Auto identify and sell items"]
-                         , [ true,  "",    "F4",        "StashItems",      "Stash items"]
-                         , [ true,  "",    "F5",        "Hideout",         "Enter hideout"]
-                         , [ true,  "",    "^F5",       "Delve",           "Enter mine encampment"]
-                         , [ true,  "",    "!F5",       "Menagerie",       "Enter menagerie"]
-                         , [ true,  "",    "F12",       "ShowLog",         "Show log window"]
-                         , [ true,  "~*",  "LAlt",      "ShowPrices",      "Show price of the item(s) in stash tab, inventory, etc."]
-                         , [ true,  "*",   "^LButton",  "AutoCtrlClick",   "Hold to activate auto CTRL clicker"]
-                         , [ true,  "~",   "+LButton",  "AutoShiftClick",  "Hold to activate auto SHIFT clicker"]
-                         , [ true,  "",    "+RButton",  "AutoRButtonClick","Hold to activate auto right mouse button clicker"]
-                         , [ true,  "~",   "^RButton",  "AutoFillPrice",   "Auto fill the price tag of the selected item"]
-                         , [ false, "~*",  "^c",        "CopyItemName",    "Copy the selected item's name"]
-                         , [ true,  "~",   "^f",        "HighlightItems",  "Highlight items in stash tab"]
-                         , [ true,  "",    "^m",        "ToggleMaphack",   "Toggle maphack"]
-                         , [ true,  "",    "^w",        "OpenWiki",        "Open wiki"]
-                         , [ false, "",     "",         "tradeGems",       "Trade quality gems"]
-                         , [ false, "",     "",         "tradeDivinationCards", "Trade divination cards"]
-                         , [ false, "",     "",         "openStackedDecks","Open stacked decks"]
-                         , [ false, "",     "",         "sortItems",       "Sort items"]
-                         , [ true,  "",    "^r",        "Reload",          "Reload script"]
-                         , [ true,  "",    "^q",        "ExitApp",         "Quit PoEapikit"] ]
-
 global CloseAllUIKey, InventoryKey, DropFlareKey, DropDynamiteKey
 global language := "en"
 
@@ -139,85 +104,6 @@ loadLibrary(filename) {
     __libs[filename] := h
 
     return h
-}
-
-loadHotkeys() {
-    try {
-        hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
-        hotkeyIndex := []
-        for i, hotkey in hotkeyOptions
-            hotkeyIndex[hotkey.label] := hotkey
-
-        for i, hotkey in defaultHotkeys {
-            hkey := hotkeyIndex[hotkey[4]]
-            if (Not hkey) {
-                hkey := { "enabled": hotkey[1]
-                        , "prefix": hotkey[2]
-                        , "name": hotkey[3]
-                        , "label": hotkey[4]
-                        , "description": hotkey[5] }
-                hotkeyOptions.Insert(i, hkey)
-                hotkeyChanged := true
-            } else if (hkey.prefix != hotkey[2]) {
-                hkey.prefix := hotkey[2]
-                hotkeyChanged := true
-            }
-        }
-
-        if (hotkeyChanged)
-            saveHotkeys(hotkeyOptions)
-    } catch e {
-    } finally  {
-        if (Not hotkeyOptions) {
-            db.exec("
-            (
-                DROP TABLE IF EXISTS hotkeys;
-                CREATE TABLE hotkeys (
-                    id INTEGER PRIMARY KEY,
-                    enabled INTEGER,
-                    prefix TEXT,
-                    name TEXT,
-                    label TEXT,
-                    description TEXT);
-            )")
-
-            for i, hotkey in defaultHotkeys
-                db.exec("INSERT INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");", i, hotkey*)
-            hotkeyOptions := db.exec("SELECT * FROM hotkeys;")
-        }
-    }
-
-    Hotkey, IfWinActive, ahk_class POEWindowClass
-    for i, hotkey in hotkeyOptions {
-        try {
-            if (hotkey.enabled && hotkey.name)
-                Hotkey, % hotkey.prefix . hotkey.name, % hotkey.label, On
-        } catch e {
-            hotkey.enabled := false
-            db.exec("INSERT OR REPLACE INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");"
-                    , i, hotkey.enabled, hotkey.prefix, hotkey.name, hotkey.label, hotkey.description)
-            MsgBox, % "Hotkey error: " e.message
-            return
-        }
-    }
-
-    return hotkeyOptions
-}
-
-saveHotkeys(hotkeyOptions) {
-    oldHotkeys := db.exec("SELECT * FROM hotkeys;")
-    Hotkey, IfWinActive, ahk_class POEWindowClass
-    for i, hotkey in hotkeyOptions {
-        try {
-            if (oldHotkeys[i].enabled && oldHotkeys[i].name)
-                Hotkey, % oldHotkeys[i].prefix . oldHotkeys[i].name, Off
-        } catch {}
-        db.exec("INSERT OR REPLACE INTO hotkeys VALUES ({}, {}, '{}', '{}', '{}', ""{}"");"
-                , i, hotkey.enabled, hotkey.prefix, hotkey.name, hotkey.label, hotkey.description)
-    }
-
-    ; reload the hotkeys
-    return loadHotkeys()
 }
 
 Attack:
