@@ -4,6 +4,7 @@
 
 class curl extends AhkObj {
 
+    static _ := curl.__new()
     static __options := ""
     static __stypes := ["* ", "< ", "> ", "{ ", "} ", "{ ", "} "]
 
@@ -24,11 +25,8 @@ class curl extends AhkObj {
     }
 
     ajax(url, method = "GET", data = "", contentType = "application/json") {
-        static __curl = ""
-
-        (not __curl) ? __curl := new curl()
-        (method = "POST") ? __curl.post(url, data, contentType) : __curl.get(url)
-        return __curl.responseText
+        (method = "POST") ? this.post(url, data, contentType) : this.get(url)
+        return this.responseText
     }
 
     __debug(type, data, size) {
