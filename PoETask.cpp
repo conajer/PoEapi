@@ -500,6 +500,11 @@ public:
         }
     }
 
+    void show() {
+        Hud::show();
+        PostThreadMessage(owner_thread_id, WM_PTASK_LOADED, (WPARAM)0, (LPARAM)0);
+    }
+
     void check_window_state() {
         if (!window) {
             if (is_attached) {
