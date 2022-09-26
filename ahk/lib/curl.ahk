@@ -17,6 +17,18 @@ class curl extends AhkObj {
         }
     }
 
+    escape(str) {
+        len := StrPut(str, "utf-8")
+        VarSetCapacity(buffer, len)
+        StrPut(str, &buffer, len, "utf-8")
+        return this.__escape(&buffer)
+    }
+
+    unescape(str) {
+        buffer := this.__unescape(str)
+        return StrGet(buffer,, "utf-8")
+    }
+
     setopt(name, data) {
         opt := this.__options[name]
         if (opt.type == 4) ; char* to zero terminated buffer
