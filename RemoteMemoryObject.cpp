@@ -187,6 +187,7 @@ void *PoEObject::buffer;
 
 Factory<RemoteMemoryObject> RemoteMemoryObject::factory = {
     NEW_ENTRY(Actor),
+    NEW_ENTRY(Animated),
     NEW_ENTRY(Base),
     NEW_ENTRY(Buffs),
     NEW_ENTRY(CapturedMonster),

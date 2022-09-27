@@ -37,6 +37,7 @@ public:
 };
 
 #include "components/Actor.cpp"
+#include "components/Animated.cpp"
 #include "components/Base.cpp"
 #include "components/Buffs.cpp"
 #include "components/CapturedMonster.cpp"
