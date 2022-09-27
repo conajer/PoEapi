@@ -20,15 +20,15 @@ public:
     }
 
     int life() {
-        return PoEMemory::read<int>(address + 0x28, {0x30, 0x4});
+        return PoEMemory::read<int>(address, {0x28, 0x30, 0x4});
     }
 
     int mana() {
-        return PoEMemory::read<int>(address + 0x28, {0x30, 0xc});
+        return PoEMemory::read<int>(address, {0x28, 0x30, 0xc});
     }
 
     int duration() {
-        return PoEMemory::read<int>(address + 0x28, {0x30, 0x14});
+        return PoEMemory::read<int>(address, {0x28, 0x30, 0x14});
     }
 
     void to_print() {

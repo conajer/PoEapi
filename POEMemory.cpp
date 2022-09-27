@@ -178,7 +178,6 @@ public:
 
     template <typename T> T read(addrtype address, vector<int> offsets) {
         int n = offsets.size();
-        ReadProcessMemory(process_handle, (LPVOID)address, &address, 8, 0);
         for (int i = 0; i < n - 1; ++i)
             ReadProcessMemory(process_handle, (LPVOID)(address + offsets[i]), &address, 8, 0);
         return read<T>(address + offsets[n - 1]);

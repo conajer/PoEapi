@@ -160,7 +160,7 @@ public:
     LocalPlayer* local_player() {
         addrtype addr = read<addrtype>("local_player");
         if (!player || player->address != addr) {
-            wchar_t path_0 = PoEMemory::read<wchar_t>(addr + 0x8, {8, 0});
+            wchar_t path_0 = PoEMemory::read<wchar_t>(addr, {0x8, 0x8, 0});
             if (path_0 == L'M')
                 player.reset(new LocalPlayer(addr));
         }
