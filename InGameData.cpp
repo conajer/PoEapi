@@ -135,7 +135,7 @@ public:
     InGameData(addrtype address) :
         RemoteMemoryObject(address, &in_game_data_offsets),
         ignored_entity_exp(L"WorldItem|Barrel|Basket|Bloom|BonePile|Boulder|Cairn|Crate|Pot|Urn|Vase"
-                           "|BlightFoundation|BlightTower|DoodadDaemons|Projectiles|Effects|Doodad|Daemon|VolatileCore")
+                           "|BlightFoundation|BlightTower|Projectiles|Effects|Doodad|Daemon|Volatile")
     {
         Parallel::start();
     }
