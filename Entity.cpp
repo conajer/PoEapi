@@ -180,6 +180,7 @@ public:
     shared_ptr<Item> item;
     Vector3 pos, bounds;
     Point grid_pos;
+    int max_life = -1;
     int saved_life = -1;
     int saved_es = -1;
     int damage_taken = 0;
@@ -237,6 +238,7 @@ public:
             is_neutral = positioned->is_neutral();
             ObjectMagicProperties* props = get_component<ObjectMagicProperties>();
             rarity = props ? props->rarity() : 0;
+
             if (rarity == 2) {
                 for (auto& i : props->get_mods()) {
                     if (i.id.find(L"Archnemesis") != wstring::npos) {
@@ -248,6 +250,11 @@ public:
 
                 if (path.find(L"Bestiary") != wstring::npos && path.find(L"Minion") == wstring::npos)
                     is_beast = true;
+            }
+
+            if (health) {
+                saved_es = health->energy_shield();
+                saved_life = health->life(&max_life);
             }
         }
     }
