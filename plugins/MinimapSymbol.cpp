@@ -63,7 +63,7 @@ public:
     std::list<BubbleText> damage_numbers;
 
     // expedition
-    bool expedition_detonator_used;
+    bool expedition_detonated;
 
     bool show_player = true;
     bool show_npc = true;
@@ -337,19 +337,19 @@ public:
                 poe->draw_text(L"Item Quantity", x, y, 0xffffff, 0x7f00, 1.0, 1);
             else if (i.id.find(L"Immune") != wstring::npos) {
                 if (i.id.find(L"Physical") != wstring::npos)
-                    poe->draw_text(L"Physical", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                    poe->draw_text(L"Physical", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
                 else if (i.id.find(L"Cold") != wstring::npos)
-                    poe->draw_text(L"Cold", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                    poe->draw_text(L"Cold", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
                 else if (i.id.find(L"Fire") != wstring::npos)
-                    poe->draw_text(L"Fire", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                    poe->draw_text(L"Fire", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
                 else if (i.id.find(L"Lightning") != wstring::npos)
-                    poe->draw_text(L"Lightning", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                    poe->draw_text(L"Lightning", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
                 else if (i.id.find(L"Chaos") != wstring::npos)
-                    poe->draw_text(L"Chaos", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                    poe->draw_text(L"Chaos", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
                 else if (i.id.find(L"Ailments") != wstring::npos)
-                    poe->draw_text(L"Ailments", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                    poe->draw_text(L"Ailments", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
                 else if (i.id.find(L"Curses") != wstring::npos)
-                    poe->draw_text(L"Curses", x, y, 0xffffff, 0x7f0000, 1.0, 1);
+                    poe->draw_text(L"Curses", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
             }
         }
     }
@@ -409,15 +409,15 @@ public:
                 else
                     ignored_entities.push_back(i.first);
             } else if (entity->path.find(L"ExpeditionRelic") != wstring::npos) {
-                if (show_expedition && !expedition_detonator_used)
+                if (show_expedition && !expedition_detonated)
                     draw_expedition_relic(entity);
             } else if (entity->path.find(L"ExpeditionChamber") != wstring::npos) {
-                if (show_expedition && !expedition_detonator_used)
+                if (show_expedition && !expedition_detonated)
                     draw_expedition_chamber(entity);
             } else if (entity->path.find(L"ExpeditionDetonator") != wstring::npos) {
                 Targetable* targetable = entity->get_component<Targetable>();
                 if (targetable && !targetable->is_targetable()) {
-                    expedition_detonator_used = true;
+                    expedition_detonated = true;
                     ignored_entities.push_back(i.first);
                 }
             } else {
@@ -467,7 +467,13 @@ public:
         ignored_entities.clear();
         damage_numbers.clear();
         player = nullptr;
-        expedition_detonator_used = false;
+        expedition_detonated = true;
+    }
+
+    void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
+        shared_ptr<Element> e = poe->in_game_ui->get_child(std::vector<int>{108, 7, 12, 2, 0});
+        if (e && e->is_visible())
+            expedition_detonated = false;
     }
 
     void on_entity_changed(EntityList& entities, EntityList& removed, EntityList& added) {
