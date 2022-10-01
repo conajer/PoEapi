@@ -226,10 +226,10 @@ public:
 
         if (has_component("Player"))
             is_player = true;
-        else if (has_component("Monster"))
-            is_monster = true;
         else if (has_component("NPC"))
             is_npc = true;
+        else if (has_component("Monster"))
+            is_monster = true;
         else
             is_movable = false;
 
