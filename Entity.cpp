@@ -115,12 +115,12 @@ protected:
         std::vector<addrtype> component_list;
 
         component_list = read_array<addrtype>("component_list", 0x0, 0x8);
-        if (component_list.empty() || component_list.size() > 16)
+        if (component_list.empty() || component_list.size() > 32)
             return;
 
         addrtype entry_ptr = PoEMemory::read<addrtype>(component_lookup + 0x30);
         int have_more_components = PoEMemory::read<int>(component_lookup + 0x48);
-        if (have_more_components > 16)
+        if (have_more_components > 32)
             return;
 
         while (have_more_components) {
