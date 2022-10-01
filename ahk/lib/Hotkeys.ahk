@@ -142,7 +142,8 @@ loadHotkeys() {
 
         if (hotkeyChanged)
             saveHotkeys(hotkeyOptions)
-    } finally  {
+    } catch {
+    } finally {
         if (Not hotkeyOptions) {
             db.exec("
             (
