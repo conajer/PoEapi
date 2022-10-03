@@ -72,6 +72,7 @@ public:
     bool show_mods = true;
     bool show_beast = true;
     bool show_expedition = true;
+    bool show_life = true;
 
     // minimal size of the symbols
     int min_size = 4;
@@ -116,6 +117,7 @@ public:
         add_property(L"showMods", &show_mods, AhkBool);
         add_property(L"showBeast", &show_beast, AhkBool);
         add_property(L"showExpedition", &show_expedition, AhkBool);
+        add_property(L"showLife", &show_life, AhkBool);
 
         add_method(L"setFontSize", this, (MethodType)&MinimapSymbol::set_font_size, AhkVoid, ParamList{AhkInt});
         add_method(L"setIgnoredDelveChests", this, (MethodType)&MinimapSymbol::set_ignored_delve_chests, AhkVoid, ParamList{AhkWString});
@@ -180,10 +182,12 @@ public:
                     poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
                 else if (show_mods)
                     poe->draw_text(e->archnemesis_hint, x, y + 5, 0xffffff, 0x0c0c0c, 1.0, 1);
-            } else if (index == 3) {
-                wchar_t buffer[16];
-                swprintf(buffer, L" %.1f %% ", e->saved_life * 100. / e->max_life);
-                poe->draw_text(buffer, x, y - 25, 0xffffff, 0x7f00, 1.0, 1);
+            } else if (index == 3 && show_life) {
+                if (e->path.find(L"Spirit") == wstring::npos || e->path.find(L"MonsterChest") == wstring::npos) {
+                    wchar_t buffer[16];
+                    swprintf(buffer, L" %.1f %% ", e->saved_life * 100. / e->max_life);
+                    poe->draw_text(buffer, x, y - 25, 0xffffff, 0x7f00, 1.0, 1);
+                }
             }
         }
 
