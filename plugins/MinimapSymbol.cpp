@@ -471,7 +471,7 @@ public:
         ignored_entities.clear();
         damage_numbers.clear();
         player = nullptr;
-        expedition_detonated = true;
+        expedition_detonated = false;
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
