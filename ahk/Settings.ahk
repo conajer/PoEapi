@@ -51,6 +51,7 @@ global PluginOptions := { "AutoFlask"     : { "enabled" : true }
                                             , "speedY"             : 1.0
                                             , "showBeast"          : true
                                             , "showMods"           : false
+                                            , "showBossHealth"     : true
                                             , "showExpedition"     : true
                                             , "ignoredDelveChests" : "Armour|Weapon|Generic|NoDrops|Encounter"
                                             , "ignoredHeistChests" : "Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques" }
