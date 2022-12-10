@@ -23,9 +23,9 @@ std::map<string, int> element_offsets {
     {"is_enabled",   0x165},
     {"size",         0x180},
     {"highlighted",  0x1c0},
-    {"text",         0x3a0},
-    {"item",         0x440},
-    {"item_pos",     0x448},
+    {"text",         0x2e8},
+    {"item",         0x438},
+    {"item_pos",     0x440},
 };
 
 class Element : public PoEObject {
