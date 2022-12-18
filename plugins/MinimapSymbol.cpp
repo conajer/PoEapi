@@ -69,7 +69,6 @@ public:
     bool show_npc = true;
     bool show_minions = true;
     bool show_damage = true;
-    bool show_mods = true;
     bool show_beast = true;
     bool show_expedition = true;
     bool show_life = true;
@@ -114,7 +113,6 @@ public:
         add_property(L"style", &style, AhkInt);
         add_property(L"speedX", &speed_x, AhkFloat);
         add_property(L"speedY", &speed_y, AhkFloat);
-        add_property(L"showMods", &show_mods, AhkBool);
         add_property(L"showBeast", &show_beast, AhkBool);
         add_property(L"showExpedition", &show_expedition, AhkBool);
         add_property(L"showLife", &show_life, AhkBool);
@@ -175,13 +173,8 @@ public:
             poe->fill_circle(x, y, size, entity_colors[index], opacity);
 
         if (e->rarity >= 2) {
-            if (!e->archnemesis_hint.empty()) {
-                if (e->archnemesis_hint.find(L"touched") != wstring::npos)
-                    poe->draw_text(e->archnemesis_hint, x, y + 5, 0x800080, 0xffffff, 1.0, 1);
-                else if (show_beast && e->is_beast)
-                    poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
-                else if (show_mods)
-                    poe->draw_text(e->archnemesis_hint, x, y + 5, 0xffffff, 0x0c0c0c, 1.0, 1);
+            if (show_beast && e->is_beast) {
+                poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
             } else if (index == 3 && show_life) {
                 if (e->path.find(L"Spirit") == wstring::npos || e->path.find(L"MonsterChest") == wstring::npos) {
                     wchar_t buffer[16];
