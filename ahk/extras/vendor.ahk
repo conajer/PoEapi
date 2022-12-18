@@ -139,7 +139,7 @@ tradeDivinationCards() {
     if (n > 0 && ptask.getVendor().tradeDivinationCards()) {
         Sleep, 100
         ingameUI := ptask.getIngameUI()
-        ingameUI.getChild(61, 5).getPos(x, y)
+        ingameUI.getChild(65, 5).getPos(x, y)
         for i, item in ptask.inventory.getItems() {
             if (item.name == "Stack Deck")
                 continue
@@ -268,16 +268,22 @@ openStackedDecks() {
     debug("Opening stacked decks:")
     for i, item in inventory.findItems(_("Stacked Deck")) {
         index := item.index
-        stackCount := item.stackCount
+        stackCount = item.stackCount
         loop, {
             if (Not stackCount || (A_Index - n) > 3 || Not ptask.inventory.freeCells())
                 break
 
             inventory.moveTo(index)
-            MouseClick, Right
-            Sleep, 100
+            Sleep, 50
+            SendInput, {Click Right}
 
-            divinationCard := ptask.inventories[13].getItemByIndex(1)
+            loop, 5 {
+                debug(A_Index)
+                Sleep, 100
+                if (divinationCard := ptask.inventories[13].getItemByIndex(1))
+                    break
+            }
+            debug(divinationCard.name)
             if (Not divinationCard)
                 continue
 
