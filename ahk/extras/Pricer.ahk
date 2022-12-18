@@ -386,9 +386,10 @@ class Pricer {
         if (Not ptask.isReady)
             return
 
-        this.league := ptask.league
-        if (Not this.__items || language != this.lang) {
+        if (Not this.__items || this.league != ptask.league || language != this.lang) {
             this.__items := {}
+            this.__prices := {}
+            this.league := ptask.league
             this.lang := language
 
             db.exec("
