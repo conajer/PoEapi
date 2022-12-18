@@ -6,7 +6,7 @@
 
 static std::map<string, int> skillgem_component_offsets {
     {"level",        0x2c},
-    {"quality_type", 0x38},
+    {"quality_type", 0x3c},
 };
 
 static wstring gem_types[4] = {L"", L"Anomalous", L"Divergent", L"Phantasmal"};

@@ -22,7 +22,7 @@ std::map<string, int> element_offsets {
     {"is_visible",   0x161},
     {"is_enabled",   0x165},
     {"size",         0x180},
-    {"highlighted",  0x1c0},
+    {"highlighted",  0x1b8},
     {"text",         0x2e8},
     {"item",         0x438},
     {"item_pos",     0x440},
