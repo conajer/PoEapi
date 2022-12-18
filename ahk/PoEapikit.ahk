@@ -31,7 +31,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.10.0"
+global version := "1.10.1"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -91,7 +91,6 @@ $$(price, rate = 1, symbol = "") {
 __Exit() {
     global __libs
 
-    ptask.stop()
     DllCall("RemoveFontResource", "Str", A_ScriptDir "\fonts\Fontin-SmallCaps.ttf")
     for filename, h in __libs
         DllCall("FreeLibrary", "Ptr", h)
@@ -231,7 +230,7 @@ AutoFillPrice:
 
     loop, 5 {
         Sleep, 100
-        e := ptask.getIngameUI().getChild(130, 1)
+        e := ptask.getIngameUI().getChild(138, 1)
         if (e.isVisible()) {
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible()) {
