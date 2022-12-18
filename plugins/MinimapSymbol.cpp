@@ -415,9 +415,13 @@ public:
                     draw_expedition_chamber(entity);
             } else if (entity->path.find(L"ExpeditionDetonator") != wstring::npos) {
                 Targetable* targetable = entity->get_component<Targetable>();
-                if (targetable && !targetable->is_targetable()) {
-                    expedition_detonated = true;
-                    ignored_entities.push_back(i.first);
+                if (targetable) {
+                    if (targetable->is_targetable()) {
+                        expedition_detonated = false;
+                    } else {
+                        expedition_detonated = true;
+                        ignored_entities.push_back(i.first);
+                    }
                 }
             } else {
                 ignored_entities.push_back(i.first);
@@ -470,7 +474,7 @@ public:
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
-        shared_ptr<Element> e = poe->in_game_ui->get_child(std::vector<int>{108, 7, 12, 2, 0});
+        shared_ptr<Element> e = poe->in_game_ui->get_child(std::vector<int>{113, 7, 12, 2, 0});
         if (e && e->is_visible())
             expedition_detonated = false;
     }
