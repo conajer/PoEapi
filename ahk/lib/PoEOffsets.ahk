@@ -45,7 +45,7 @@ global PoEOffsets = { "version" : "3.20", "offsets"
                         , "latency"                     : 0x9278
                         , "party_status"                : 0x9450
                         , "stash_tabs"                  : 0x9280
-                        , "inventory_slots"             : 0x9818 }
+                        , "inventory_slots"             : 0x9838 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
