@@ -475,7 +475,7 @@ class IncomingTradeSession extends TradeSession {
             return false
         }
 
-        itemName := this.item2.name
+        itemName := RegExReplace(this.item2.name, ",")
         if (this.left && this.top) {
             this.log("    Checking <b>{}</b> (stash tab ""{}"": left {}, top {})"
                   , this.item2.name, this.tabName, this.left, this.top)
