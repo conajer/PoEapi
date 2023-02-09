@@ -514,7 +514,7 @@ class PoETask extends AhkObj {
         }
 
         if (this.stash.isOpened()) {
-            e := ptask.getIngameUI().getChild(39, 4, 4, 1)
+            e := ptask.getIngameUI().getChild(36, 4, 4, 1)
             highlighted := e.getText()
             for i, e in this.stash.Tab.getChilds() {
                 if (e.isVisible()) {
