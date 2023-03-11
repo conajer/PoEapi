@@ -15,78 +15,6 @@ struct ComponentLookupTable {
     } components[8];
 };
 
-std::map<wstring, wstring> archnemesis_mods = {
-    {L"Abberath",                L"Abberath-touched"},
-    {L"Arakaali",                L"Arakaali-touched"},
-    {L"Arcane",                  L"Arcane Buffer"},
-    {L"Berserk",                 L"Berserker"},
-    {L"Brine King",              L"Brine King-touched"},
-    {L"Charged",                 L"Overcharged"},
-    {L"Consecrating",            L"Consecrator"},
-    {L"Crystalline",             L"Crystal-skinned"},
-    {L"Deadly",                  L"Assassin"},
-    {L"Elemental",               L"Prismatic"},
-    {L"Empowering",              L"Union of Souls"},
-    {L"Entangling",              L"Entangler"},
-    {L"Flamewoven",              L"Flameweaver"},
-    {L"Freezing",                L"Permafrost"},
-    {L"Frostwoven",              L"Frostweaver"},
-    {L"Gargantuan",              L"Gargantuan"},
-    {L"Hexing",                  L"Hexer"},
-    {L"Hungering",               L"Soul Eater"},
-    {L"Igniting",                L"Incendiary"},
-    {L"Imprisoning",             L"Ice Prison"},
-    {L"Innocence",               L"Innocence-touched"},
-    {L"Invulnerable",            L"Benevolent Guardian"},
-    {L"Kitava",                  L"Kitava-touched"},
-    {L"Lunaris",                 L"Lunaris-touched"},
-    {L"Opulent",                 L"Opulent"},
-    {L"Rejuvenating",            L"Rejuvenating"},
-    {L"Sentinel",                L"Sentinel"},
-    {L"Shakari",                 L"Shakari-touched"},
-    {L"Shocking",                L"Electrocuting"},
-    {L"Solaris",                 L"Solaris-touched"},
-    {L"Soul Conduit",            L"Soul Conduit"},
-    {L"Spectral",                L"Spirit Walkers"},
-    {L"Stormwoven",              L"Stormweaver"},
-    {L"Swift",                   L"Hasted"},
-    {L"Temporal",                L"Temporal Bubble"},
-    {L"Toxic",                   L"Toxic"},
-    {L"Tukohama",                L"Tukohama-touched"},
-    {L"Vampiric",                L"Vampiric"},
-    {L"Woodland",                L"Treant Horde"},
-
-    {L"of Accuracy",             L"Deadeye"},
-    {L"of Beyond",               L"Voidspawn of Abaxoth"},
-    {L"of Bloodletting",         L"Bloodletter"},
-    {L"of Bombardment",          L"Bombardier"},
-    {L"of Chaos",                L"Chaosweaver"},
-    {L"of Clones",               L"Mirror Image"},
-    {L"of Corruption",           L"Corrupter"},
-    {L"of Detonation",           L"Corpse Detonator"},
-    {L"of Drought",              L"Drought Bringer"},
-    {L"of Dying Breath",         L"Final Gasp"},
-    {L"of Echoes",               L"Echoist"},
-    {L"of Effigies",             L"Effigy"},
-    {L"of Elemental Attunement", L"Empowered Elements"},
-    {L"of Endurance",            L"Juggernaut"},
-    {L"of Execution",            L"Executioner"},
-    {L"of Flame-striding",       L"Flame Strider"},
-    {L"of Frenzy",               L"Frenzied"},
-    {L"of Frost-striding",       L"Frost Strider"},
-    {L"of Heralding",            L"Heralds of the Obelisk"},
-    {L"of Magma",                L"Magma Barrier"},
-    {L"of Malediction",          L"Malediction"},
-    {L"of Necromancy",           L"Necromancer"},
-    {L"of Siphoning",            L"Mana Siphoner"},
-    {L"of Splitting",            L"Splinterer"},
-    {L"of Steel",                L"Steel-infused"},
-    {L"of Storm-striding",       L"Storm Strider"},
-    {L"of Storms",               L"Storm Herald"},
-    {L"of Stunning",             L"Bonebreaker"},
-    {L"of Trickery",             L"Trickster"},
-};
-
 FieldOffsets entity_offsets = {
     {"internal",              0x8},
         {"path",              0x8},
@@ -195,7 +123,6 @@ public:
     bool is_minion = false;
     bool is_neutral = false;
     int rarity = 0;
-    wstring archnemesis_hint;
 
     Entity(addrtype address, const wchar_t* metadata = L"")
         : PoEObject(address, &entity_offsets), path(metadata)
@@ -240,14 +167,6 @@ public:
             rarity = props ? props->rarity() : 0;
 
             if (rarity == 2) {
-                for (auto& i : props->get_mods()) {
-                    if (i.id.find(L"Archnemesis") != wstring::npos) {
-                        if (!archnemesis_hint.empty())
-                            archnemesis_hint += L", ";
-                        archnemesis_hint += !archnemesis_mods[i.name].empty() ? archnemesis_mods[i.name] : i.name;
-                    }
-                }
-
                 if (path.find(L"Bestiary") != wstring::npos && path.find(L"Minion") == wstring::npos)
                     is_beast = true;
             }
