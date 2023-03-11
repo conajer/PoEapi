@@ -27,25 +27,25 @@ global PoEOffsets = { "version" : "3.20", "offsets"
                         ,     "root"                    : 0x8
                         , "entity_list_count"           : 0x838 }
 
-      , "IngameUI"    : { "lefe_panel"                  : 0x540
-                        , "right_panel"                 : 0x548
-                        , "panel_flags"                 : 0x550
-                        , "entity_list"                 : 0x690
+      , "IngameUI"    : { "lefe_panel"                  : 0x548
+                        , "right_panel"                 : 0x550
+                        , "panel_flags"                 : 0x558
+                        , "entity_list"                 : 0x620
                         ,     "root"                    : 0x2a0
                         ,     "count"                   : 0x2a8 }
 
-      , "ServerData"  : { "player_data"                 : 0x8d40
+      , "ServerData"  : { "player_data"                 : 0x8e40
                         ,     "passive_skills"          : 0x180
                         ,     "player_class"            : 0x238
                         ,     "level"                   : 0x23c
                         ,     "refund_points_left"      : 0x240
                         ,     "skill_points_from_quest" : 0x244
                         ,     "ascendancy_skill_points" : 0x24c
-                        , "league"                      : 0x91e0
-                        , "latency"                     : 0x9278
-                        , "party_status"                : 0x9450
-                        , "stash_tabs"                  : 0x9280
-                        , "inventory_slots"             : 0x9838 }
+                        , "league"                      : 0x92e0
+                        , "latency"                     : 0x9378
+                        , "party_status"                : 0x9570
+                        , "stash_tabs"                  : 0x9380
+                        , "inventory_slots"             : 0x9938 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
