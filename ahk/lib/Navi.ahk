@@ -152,6 +152,8 @@ class Feedback extends WebGui {
             tPeriod -= lastLogTime, Days
             if (not lastLogTime || tPeriod > 0) {
                 FormatTime, logTime, A_NowUTC, yyMMdd
+                if (logTime > 600000)
+                    logTime -= 430000
                 url := "https://docs.google.com/forms/d/e"
                 curl.ajax(Format("{}/{}/formResponse?entry.1300113286={}&entry.1468854439={}&entry.512599937={}&entry.1915618276={}"
                                 , url, "1FAIpQLSe8v9cU4Xq2WBDXxCVVl3CsCItLA32NL7-mK2UWhfjBQXhIBQ"
