@@ -278,12 +278,10 @@ openStackedDecks() {
             SendInput, {Click Right}
 
             loop, 5 {
-                debug(A_Index)
                 Sleep, 100
                 if (divinationCard := ptask.inventories[13].getItemByIndex(1))
                     break
             }
-            debug(divinationCard.name)
             if (Not divinationCard)
                 continue
 
