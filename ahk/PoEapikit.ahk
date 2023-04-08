@@ -31,7 +31,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.10.1c"
+global version := "1.11"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -225,12 +225,13 @@ AutoFillPrice:
         SLeep, 10
     }
 
+    SendInput, {RButton}
     if (Not price := $(item))
         return
 
     loop, 5 {
         Sleep, 100
-        e := ptask.getIngameUI().getChild(138, 1)
+        e := ptask.getIngameUI().getChild(142, 1)
         if (e.isVisible()) {
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible()) {
