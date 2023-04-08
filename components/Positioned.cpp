@@ -17,8 +17,8 @@ struct Vector3 {
 
 static std::map<string, int> positioned_component_offsets {
     {"is_neutral",      0x1d9},
-    {"grid_position",   0x284},
-    {"position",        0x2ac},
+    {"grid_position",   0x290},
+    {"position",        0x2b4},
 };
 
 class Positioned : public Component {

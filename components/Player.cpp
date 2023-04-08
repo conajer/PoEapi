@@ -5,10 +5,10 @@
 /* Player component offsets */
 
 static std::map<string, int> player_component_offsets {
-    {"class", 0x158},
-    {"name",  0x160},
-    {"exp",   0x184},
-    {"level", 0x1a4},
+    {"class", 0x160},
+    {"name",  0x168},
+    {"exp",   0x18c},
+    {"level", 0x1ac},
 };
 
 class Player : public Component {

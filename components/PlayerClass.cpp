@@ -5,7 +5,7 @@
 /* PlayerClass component offsets */
 
 static std::map<string, int> player_class_component_offsets {
-    {"class", 0x18},
+    {"class", 0x158},
 };
 
 static const wchar_t* player_classes[] = {

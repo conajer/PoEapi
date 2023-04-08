@@ -55,7 +55,7 @@ public:
 /* Buffs component offsets */
 
 static FieldOffsets buffs_component_offsets {
-    {"buffs",     0x158},
+    {"buffs",     0x160},
 };
 
 class Buffs : public Component {
