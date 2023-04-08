@@ -474,7 +474,7 @@ public:
     }
 
     void on_area_changed(AreaTemplate* world_area, int hash_code, LocalPlayer* player) {
-        shared_ptr<Element> e = poe->in_game_ui->get_child(std::vector<int>{113, 7, 12, 2, 0});
+        shared_ptr<Element> e = poe->in_game_ui->get_child(std::vector<int>{118, 7, 12, 2, 0});
         if (e && e->is_visible())
             expedition_detonated = false;
     }
