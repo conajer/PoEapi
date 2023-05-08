@@ -98,7 +98,7 @@ public:
         add_method(L"getChild", this, (MethodType)&Element::__get_child, AhkObject, ParamList{AhkPointer});
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
         add_method(L"findChild", this, (MethodType)&Element::__find_child, AhkObject, ParamList{AhkWString});
-        add_method(L"getIndex", this, (MethodType)&Element::get_index, AhkInt, ParamList{AhkInt});
+        add_method(L"getItem", this, (MethodType)&Element::get_item, AhkPointer);
         add_method(L"getParent", this, (MethodType)&Element::__get_parent, AhkObject);
         add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
         add_method(L"getText", this, (MethodType)&Element::get_text, AhkWStringPtr);
@@ -244,9 +244,8 @@ public:
         return read<Vec2>("size");
     }
 
-    int get_index(int rows) {
-        Point pos = read<Point>("item_pos");
-        return pos.x * rows + pos.y + 1;
+    addrtype get_item() {
+        return read<addrtype>("item");
     }
 
     Rect get_rect() {
