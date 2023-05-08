@@ -16,7 +16,7 @@ struct Vector3 {
 };
 
 static std::map<string, int> positioned_component_offsets {
-    {"is_neutral",      0x1d9},
+    {"is_neutral",      0x1e0},
     {"grid_position",   0x290},
     {"position",        0x2b4},
 };
@@ -34,7 +34,7 @@ public:
     }
 
     bool is_minion() {
-        return read<byte>("is_neutral") == 0x81;
+        return read<short>("is_neutral") & 0x8001;
     }
 
     Point grid_position() {
