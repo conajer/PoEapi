@@ -366,14 +366,15 @@ class SpecialStashTab extends StashTab {
         if (this.type == 0x6 || this.type >= 0x10)
             return
 
-        this.getItems()
+        _items := []
+        for i, item in this.getItems()
+            _items[item.address] := item
         childs := []
         for i, e in this.__Call("getChilds") {
             if (e.getChilds().Length() == 2) {
-                e.index := e.childs[2].getIndex(this.rows)
-                , e.item := this.items[e.index]
+                e.item := _items[e.childs[2].getItem()]
                 , e.isHighlighted := e.childs[2].isHighlighted()
-                , childs[e.index] := e
+                , childs[i] := e
             }
         }
         this.childs := childs
@@ -450,21 +451,21 @@ class FolderTab extends SpecialStashTab {
 class CurrencyTab extends SpecialStashTab {
 
     getChilds() {
-        this.getItems()
+        _items := []
+        for i, item in this.getItems()
+            _items[item.address] := item
         childs := []
         for i, e in this.__Call("getChilds") {
             if (e.getChilds().Length() == 2) {
-                e.index := e.childs[2].getIndex(this.rows)
-                , e.item := this.items[e.index]
+                e.item := _items[e.childs[2].getItem()]
                 , e.isHighlighted := e.childs[2].isHighlighted()
-                , childs[e.index] := e
-            } else {
+                , childs[i] := e
+            } else if (e.isVisible()) {
                 for j, e in e.getChilds() {
                     if (e.getChilds().Length() == 2) {
-                        e.index := e.childs[2].getIndex(this.rows)
-                        , e.item := this.items[e.index]
+                        e.item := _items[e.childs[2].getItem()]
                         , e.isHighlighted := e.childs[2].isHighlighted()
-                        , childs[e.index] := e
+                        , childs[j] := e
                     }
                 }
             }
@@ -478,16 +479,17 @@ class CurrencyTab extends SpecialStashTab {
 class FragmentTab extends SpecialStashTab {
 
     getChilds() {
-        this.getItems()
+        _items := []
+        for i, item in this.getItems()
+            _items[item.address] := item
         childs := []
         for i, e in this.__Call("getChilds") {
             if (e.isVisible()) {
                 for i, e in e.__Call("getChilds") {
                     if (e.getChilds().Length() == 2) {
-                        e.index := e.childs[2].getIndex(this.rows)
-                        , e.item := this.items[e.index]
+                        e.item := _items[e.childs[2].getItem()]
                         , e.isHighlighted := e.childs[2].isHighlighted()
-                        , childs[e.index] := e
+                        , childs[i] := e
                     }
                 }
                 break

@@ -184,11 +184,11 @@ class InventoryGrid extends Element {
     getChilds() {
         this.__Call("getChilds")
         this.childs.RemoveAt(1)
-        this.getItems()
-        for i, e in this.childs {
-            e.index := e.getIndex(this.rows)
-            , e.item := this.items[e.index]
-        }
+        _items := []
+        for i, item in this.getItems()
+            _items[item.address] := item
+        for i, e in this.childs
+            e.item := _items[e.getItem()]
 
         return this.childs
     }
