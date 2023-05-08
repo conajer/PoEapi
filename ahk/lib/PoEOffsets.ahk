@@ -63,8 +63,7 @@ global PoEOffsets = { "version" : "3.21", "offsets"
                         , "size"                        : 0x180
                         , "highlighted"                 : 0x1b8
                         , "text"                        : 0x2e8
-                        , "item"                        : 0x438
-                        , "item_pos"                    : 0x440 }
+                        , "item"                        : 0x370 }
 
       , "StashTab"    : { "name"                        : 0x8
                         , "inventory_id"                : 0x28
