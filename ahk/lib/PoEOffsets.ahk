@@ -2,30 +2,30 @@
 ; PoEOffsets.ahk 1/6/2021 10:45 AM
 ;
 
-global PoEOffsets = { "version" : "3.21", "offsets"
+global PoEOffsets = { "version" : "3.22", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         , "all_game_states"             : 0x48 }
 
-      , "IngameState" : { "in_game_ui"                  : 0x450
+      , "IngameState" : { "in_game_ui"                  : 0x98
                         , "in_game_data"                : 0x18
-                        ,     "server_data"             : 0x758
-                        , "ui_root"                     : 0x1a0
-                        , "hovered"                     : 0x1d8
-                        , "hovered_item"                : 0x1e8
+                        ,     "server_data"             : 0x7d0
+                        , "ui_root"                     : 0x2a0
+                        , "hovered"                     : 0x2d8
+                        , "hovered_item"                : 0x2e8
                         , "camera"                      : 0x78
-                        ,     "width"                   : 0xb0
-                        ,     "height"                  : 0xb4
-                        ,     "matrix"                  : 0x128 }
+                        ,     "width"                   : 0x340
+                        ,     "height"                  : 0x344
+                        ,     "matrix"                  : 0x1e8 }
 
       , "IngameData"  : { "world_area"                  : 0x88
                         , "area_data"                   : 0x90
                         ,     "area_index"              : 0x38
                         , "area_level"                  : 0xa8
                         , "area_hash"                   : 0xec
-                        , "local_player"                : 0x760
-                        , "entity_list"                 : 0x810
+                        , "local_player"                : 0x7d8
+                        , "entity_list"                 : 0x888
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x818 }
+                        , "entity_list_count"           : 0x890 }
 
       , "IngameUI"    : { "lefe_panel"                  : 0x550
                         , "right_panel"                 : 0x558
@@ -41,11 +41,11 @@ global PoEOffsets = { "version" : "3.21", "offsets"
                         ,     "refund_points_left"      : 0x240
                         ,     "skill_points_from_quest" : 0x244
                         ,     "ascendancy_skill_points" : 0x24c
-                        , "league"                      : 0x9760
-                        , "latency"                     : 0x97f8
-                        , "party_status"                : 0x99f0
-                        , "stash_tabs"                  : 0x9800
-                        , "inventory_slots"             : 0x9dc8 }
+                        , "league"                      : 0x9b60
+                        , "latency"                     : 0x9bf8
+                        , "party_status"                : 0x9df0
+                        , "stash_tabs"                  : 0x9c00
+                        , "inventory_slots"             : 0xa1e8 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
