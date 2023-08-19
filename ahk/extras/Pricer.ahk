@@ -266,7 +266,8 @@ class Pricer {
                     if (Not parsed := JSON.__parse(ajax(url)))
                         throw, "bad connection"
                     rdebug("#PRICER", "<b style='background-color:gold;color:black'>Loading item prices of {} ... {}</b>", name, parsed.lines.length)
-                    dict := JSON.__copy(parsed.language.translations)
+                    if (parsed.hasOwnProperty("language"))
+                        dict := JSON.__copy(parsed.language.translations)
                     parsed.lines.forEach(ObjBindMethod(this, "__addPrice", t.type, dict))
                     if (t.type == "BaseType") {
                         for i, t in this.influenceTypes
