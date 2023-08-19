@@ -353,7 +353,7 @@ class StashTab extends InventoryGrid {
         items := []
         for i, e in this.getChilds() {
             if (e.isHighlighted)
-                items[e.index] := e.item
+                items[i] := e.item
         }
 
         return items.Length() > 0 ? items : ""
