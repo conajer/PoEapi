@@ -704,7 +704,7 @@ public:
     }
 
     bool toggle_maphack() {
-        const char pattern[] = "66 C7 46 58 ?? 00 C6";
+        const char pattern[] = "66 C7 47 5c ?? 00 C6";
 
         HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, false, process_id);
         if (!handle)
