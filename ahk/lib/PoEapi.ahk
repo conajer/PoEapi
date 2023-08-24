@@ -353,7 +353,7 @@ class StashTab extends InventoryGrid {
         items := []
         for i, e in this.getChilds() {
             if (e.isHighlighted)
-                items[i] := e.item
+                items[e.index] := e.item
         }
 
         return items.Length() > 0 ? items : ""
@@ -368,13 +368,14 @@ class SpecialStashTab extends StashTab {
 
         _items := []
         for i, item in this.getItems()
-            _items[item.address] := item
+            _items[item.address] := i
         childs := []
         for i, e in this.__Call("getChilds") {
             if (e.getChilds().Length() == 2) {
-                e.item := _items[e.childs[2].getItem()]
+                e.index := _items[e.childs[2].getItem()]
+                e.item := this.items[e.index]
                 , e.isHighlighted := e.childs[2].isHighlighted()
-                , childs[i] := e
+                , childs[e.index] := e
             }
         }
         this.childs := childs
@@ -453,19 +454,21 @@ class CurrencyTab extends SpecialStashTab {
     getChilds() {
         _items := []
         for i, item in this.getItems()
-            _items[item.address] := item
+            _items[item.address] := i
         childs := []
         for i, e in this.__Call("getChilds") {
             if (e.getChilds().Length() == 2) {
-                e.item := _items[e.childs[2].getItem()]
+                e.index := _items[e.childs[2].getItem()]
+                e.item := this.items[e.index]
                 , e.isHighlighted := e.childs[2].isHighlighted()
-                , childs[i] := e
+                , childs[e.index] := e
             } else if (e.isVisible()) {
                 for j, e in e.getChilds() {
                     if (e.getChilds().Length() == 2) {
-                        e.item := _items[e.childs[2].getItem()]
+                        e.index := _items[e.childs[2].getItem()]
+                        e.item := this.items[e.index]
                         , e.isHighlighted := e.childs[2].isHighlighted()
-                        , childs[j] := e
+                        , childs[e.index] := e
                     }
                 }
             }
@@ -481,15 +484,16 @@ class FragmentTab extends SpecialStashTab {
     getChilds() {
         _items := []
         for i, item in this.getItems()
-            _items[item.address] := item
+            _items[item.address] := i
         childs := []
         for i, e in this.__Call("getChilds") {
             if (e.isVisible()) {
                 for i, e in e.__Call("getChilds") {
                     if (e.getChilds().Length() == 2) {
-                        e.item := _items[e.childs[2].getItem()]
+                        e.index := _items[e.childs[2].getItem()]
+                        e.item := this.items[e.index]
                         , e.isHighlighted := e.childs[2].isHighlighted()
-                        , childs[i] := e
+                        , childs[e.index] := e
                     }
                 }
                 break
