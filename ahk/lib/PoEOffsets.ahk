@@ -8,7 +8,7 @@ global PoEOffsets = { "version" : "3.22", "offsets"
 
       , "IngameState" : { "in_game_ui"                  : 0x98
                         , "in_game_data"                : 0x18
-                        ,     "server_data"             : 0x7d0
+                        ,     "server_data"             : 0x850
                         , "ui_root"                     : 0x2a0
                         , "hovered"                     : 0x2d8
                         , "hovered_item"                : 0x2e8
@@ -22,10 +22,10 @@ global PoEOffsets = { "version" : "3.22", "offsets"
                         ,     "area_index"              : 0x38
                         , "area_level"                  : 0xa8
                         , "area_hash"                   : 0xec
-                        , "local_player"                : 0x7d8
-                        , "entity_list"                 : 0x888
+                        , "local_player"                : 0x858
+                        , "entity_list"                 : 0x908
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x890 }
+                        , "entity_list_count"           : 0x910 }
 
       , "IngameUI"    : { "lefe_panel"                  : 0x550
                         , "right_panel"                 : 0x558
