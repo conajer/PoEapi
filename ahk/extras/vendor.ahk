@@ -139,7 +139,7 @@ tradeDivinationCards() {
     if (n > 0 && ptask.getVendor().tradeDivinationCards()) {
         Sleep, 100
         ingameUI := ptask.getIngameUI()
-        ingameUI.getChild(68, 5).getPos(x, y)
+        ingameUI.getChild(ingameUI.getIndex("card_trade"), 5).getPos(x, y)
         for i, item in ptask.inventory.getItems() {
             if (item.name == "Stack Deck")
                 continue
