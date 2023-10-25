@@ -231,7 +231,7 @@ AutoFillPrice:
 
     loop, 5 {
         Sleep, 100
-        e := ptask.getIngameUI().getChild(150, 1)
+        e := ptask.getIngameUI().getChildByName("item_note").getChild(1)
         if (e.isVisible()) {
             tag := e.getChild(1, 2, 2, 1)
             if (tag.isVisible()) {
