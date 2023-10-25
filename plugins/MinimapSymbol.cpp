@@ -49,8 +49,11 @@ public:
     std::wregex heist_regex;
     std::wregex ignored_heist_chests;
 
+    // beast
+    std::wregex valuable_beasts;
+
     // strongbox
-    std::wregex valuable_strongbox;
+    std::wregex valuable_strongboxes;
 
     // damage numbers
     int min_damage = 10000;
@@ -96,7 +99,8 @@ public:
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques"),
-        valuable_strongbox(L"Cartographer|Divination|Scarab|VaalTempleChest")
+        valuable_beasts(L"Vivid Vulture|Wild Bristle Matron|Craicic Chimeral|Wild Hellion Alpha|Vivid Watcher"),
+        valuable_strongboxes(L"Cartographer|Divination|Scarab|VaalTempleChest")
     {
         add_property(L"showMonsters", &show_monsters, AhkBool);
         add_property(L"showCorpses", &show_corpses, AhkBool);
@@ -174,7 +178,10 @@ public:
 
         if (e->rarity >= 2) {
             if (show_beast && e->is_beast) {
-                poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
+                if (std::regex_search(e->name(), valuable_beasts))
+                    poe->draw_text(e->name(), x, y + 10, 0xC70039, 0x0c0c0c, 1.0, 1);
+                else
+                    poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
             } else if (index == 3 && show_life) {
                 if (e->path.find(L"Spirit") == wstring::npos || e->path.find(L"MonsterChest") == wstring::npos) {
                     wchar_t buffer[16];
@@ -302,7 +309,7 @@ public:
         float dw = min_size * 2;
         float dh = min_size * 1.5;
 
-        if (std::regex_search(e->path, valuable_strongbox))
+        if (std::regex_search(e->path, valuable_strongboxes))
             poe->fill_rect(x - dw, y - dh, x + dw, y + dh, 0xC70039, 0.8);
         else
             poe->fill_rect(x - dw, y - dh, x + dw, y + dh, 0xf1c40f, 0.8);
