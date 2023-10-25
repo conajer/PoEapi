@@ -15,6 +15,8 @@ class Pricer {
              , "Artifacts  "        : {"catalog" : "item", "type" : "Artifact"}
              , "Oils"               : {"catalog" : "item", "type" : "Oil"}
              , "Incubators"         : {"catalog" : "item", "type" : "Incubator"}
+             , "Tattoos"            : {"catalog" : "item", "type" : "Tattoo"}
+             , "Omens"              : {"catalog" : "item", "type" : "Omen"}
 
              ; Equipment & Gems
              , "Unique Weapons"     : {"catalog" : "item", "type" : "UniqueWeapon"}
