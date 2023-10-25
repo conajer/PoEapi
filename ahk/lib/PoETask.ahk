@@ -319,7 +319,10 @@ class PoETask extends AhkObj {
     }
 
     logout() {
-        this.sendKeys("/exit")
+        If (A_IsAdmin)
+            this.__logout()
+        else
+            this.sendKeys("/exit")
     }
 
     maximize() {
