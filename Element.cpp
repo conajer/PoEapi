@@ -44,6 +44,13 @@ private:
         return e ? (AhkObjRef*)*e : nullptr;
     }
 
+    AhkObjRef* __get_child_by_name(const char* name) {
+        if (offsets->find(name) != offsets->end())
+            return (AhkObjRef*)*get_child((*offsets)[name]);
+
+        return nullptr;
+    }
+
     AhkObjRef* __get_childs() {
         AhkObj temp_childs;
         for (auto& i : get_childs())
@@ -56,6 +63,12 @@ private:
     AhkObjRef* __find_child(const wchar_t* text) {
         Element* e = find_child(wstring(text));
         return e ? (AhkObjRef*)*e : nullptr;
+    }
+
+    int __get_index(const char* name) {
+        if (offsets->find(name) != offsets->end())
+            return (*offsets)[name] + 1;
+        return 0;
     }
 
     AhkObjRef* __get_parent() {
@@ -96,8 +109,10 @@ public:
         PoEObject::__init();
         add_method(L"hasChild", this, (MethodType)&Element::__has_child, AhkBool);
         add_method(L"getChild", this, (MethodType)&Element::__get_child, AhkObject, ParamList{AhkPointer});
+        add_method(L"getChildByName", this, (MethodType)&Element::__get_child_by_name, AhkObject, ParamList{AhkString});
         add_method(L"getChilds", this, (MethodType)&Element::__get_childs, AhkObject);
         add_method(L"findChild", this, (MethodType)&Element::__find_child, AhkObject, ParamList{AhkWString});
+        add_method(L"getIndex", this, (MethodType)&Element::__get_index, AhkInt, ParamList{AhkString});
         add_method(L"getItem", this, (MethodType)&Element::get_item, AhkPointer);
         add_method(L"getParent", this, (MethodType)&Element::__get_parent, AhkObject);
         add_method(L"getRect", this, (MethodType)&Element::__get_rect, AhkObject);
