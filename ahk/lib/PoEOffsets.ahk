@@ -8,7 +8,7 @@ global PoEOffsets = { "version" : "3.22", "offsets"
 
       , "IngameState" : { "in_game_ui"                  : 0x98
                         , "in_game_data"                : 0x18
-                        ,     "server_data"             : 0x850
+                        ,     "server_data"             : 0x848
                         , "ui_root"                     : 0x2a0
                         , "hovered"                     : 0x2d8
                         , "hovered_item"                : 0x2e8
@@ -22,15 +22,15 @@ global PoEOffsets = { "version" : "3.22", "offsets"
                         ,     "area_index"              : 0x38
                         , "area_level"                  : 0xa8
                         , "area_hash"                   : 0xec
-                        , "local_player"                : 0x858
-                        , "entity_list"                 : 0x908
+                        , "local_player"                : 0x850
+                        , "entity_list"                 : 0x900
                         ,     "root"                    : 0x8
-                        , "entity_list_count"           : 0x910 }
+                        , "entity_list_count"           : 0x908 }
 
-      , "IngameUI"    : { "lefe_panel"                  : 0x550
-                        , "right_panel"                 : 0x558
-                        , "panel_flags"                 : 0x560
-                        , "entity_list"                 : 0x628
+      , "IngameUI"    : { "lefe_panel"                  : 0x530
+                        , "right_panel"                 : 0x538
+                        , "panel_flags"                 : 0x540
+                        , "entity_list"                 : 0x610
                         ,     "root"                    : 0x2a0
                         ,     "count"                   : 0x2a8 }
 
@@ -41,11 +41,11 @@ global PoEOffsets = { "version" : "3.22", "offsets"
                         ,     "refund_points_left"      : 0x240
                         ,     "skill_points_from_quest" : 0x244
                         ,     "ascendancy_skill_points" : 0x24c
-                        , "league"                      : 0x9b60
-                        , "latency"                     : 0x9bf8
-                        , "party_status"                : 0x9df0
-                        , "stash_tabs"                  : 0x9c00
-                        , "inventory_slots"             : 0xa1e8 }
+                        , "league"                      : 0x9c68
+                        , "latency"                     : 0x9d00
+                        , "party_status"                : 0x9ef8
+                        , "stash_tabs"                  : 0x9d08
+                        , "inventory_slots"             : 0xa2f0 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
