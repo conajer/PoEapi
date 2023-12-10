@@ -19,38 +19,38 @@
 std::map<string, int> in_game_ui_offsets {
     {"overlay_map",         3},
     {"gem_level_up",        5},
-    {"vendor",             25},
-    {"skills",             28},
-    {"atlas",              29},
-    {"atlas_skills",       30},
-    {"inventory",          38},
-        {"grid",        0x3d0},
-    {"stash",              39},
-        {"tabs",        0x2f0},
-    {"expedition",         44},
-    {"kirac_mission",      66},
-    {"card_trade",         70},
-    {"temple",             76},
-    {"delve_chart",        82},
-    {"syndicate",          84},
-    {"horticrafting",      96},
-    {"heist_locker",       99},
-    {"favours",           100},
-    {"expedition_locker", 102},
-    {"purchase",          104},
-    {"purchase2",         105},
-    {"sell",              106},
-    {"sell2",             107},
-    {"trade",             108},
-    {"item_note",         152},
-    {"chat",            0x468},
-    {"notifications",   0xa08},
-    {"lefe_panel",      0x530},
-    {"right_panel",     0x538},
-    {"panel_flags",     0x540},
-    {"entity_list",     0x610},
-        {"root",        0x2a0},
-        {"count",       0x2a8},
+    {"vendor",             24},
+    {"skills",             27},
+    {"atlas",              28},
+    {"atlas_skills",       29},
+    {"inventory",          37},
+        {"grid",        0x3f0},
+    {"stash",              38},
+        {"tabs",        0x300},
+    {"expedition",         43},
+    {"kirac_mission",      65},
+    {"card_trade",         69},
+    {"temple",             75},
+    {"delve_chart",        81},
+    {"syndicate",          83},
+    {"horticrafting",      93},
+    {"heist_locker",       96},
+    {"favours",            97},
+    {"expedition_locker",  99},
+    {"purchase",          101},
+    {"purchase2",         102},
+    {"sell",              103},
+    {"sell2",             104},
+    {"trade",             105},
+    {"item_note",         149},
+    {"chat",            0x478},
+    {"notifications",   0x9f8},
+    {"lefe_panel",      0x540},
+    {"right_panel",     0x558},
+    {"panel_flags",     0x550},
+    {"entity_list",     0x620},
+        {"root",        0x2b8},
+        {"count",       0x2c0},
 };
 
 class InGameUI : public Element {
@@ -247,11 +247,11 @@ public:
                 break;
 
             addrtype label = PoEMemory::read<addrtype>(next + 0x10);
-            if (!(PoEMemory::read<byte>(label + 0x161) & 0x8))
+            if (!(PoEMemory::read<byte>(label + 0x145) & 0x8))
                 continue;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x18);
-            int entity_id = PoEMemory::read<int>(entity_address + 0x60);
+            int entity_id = PoEMemory::read<int>(entity_address + 0x90);
             auto i = removed.find(entity_id);
             if (i != removed.end()) {
                 entities.insert(*i);

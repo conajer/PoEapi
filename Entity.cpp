@@ -20,7 +20,7 @@ FieldOffsets entity_offsets = {
         {"path",              0x8},
         {"component_lookup", 0x30},
     {"component_list",       0x10},
-    {"id",                   0x60},
+    {"id",                   0x90},
 };
 
 /* Forward declaration */
