@@ -31,7 +31,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.12.1d"
+global version := "1.13"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -48,8 +48,9 @@ Sleep, 500
 #Include, %A_ScriptDir%\patreon.ahk
 
 if (ptask.patreonOnly && !ptask.isPatron) {
-    Msgbox, % "This is a Patreon-Only version, some features are disabled. Public version will be available one week later.`nVisit https://www.patreon.com/conajer for more details."
-    Run, "https://www.patreon.com/conajer"
+    Msgbox, 1,, % "This is a Patreon-Only version, some features are disabled. Public version will be available one week later.`nVisit https://www.patreon.com/conajer for more details."
+    IfMsgBox OK
+        Run, "https://www.patreon.com/conajer"
 }
 
 OnExit("__Exit")
