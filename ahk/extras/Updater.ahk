@@ -95,6 +95,10 @@ class Updater extends WebGui {
                     continue
             }
 
+            if (item.Name == "patreon.dll" && ptask.isPatron)
+                    continue
+            }
+
             if (item.Name != "Settings.ahk")
                 dest.CopyHere(item, 4|16|1024)
             this.show(, Format("Installing ... {:.f}%", A_Index * 100 / Count))
