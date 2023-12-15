@@ -87,9 +87,9 @@ static std::map<string, int> mods_component_offsets {
         {"fractured_stats", 0x188},
     {"item_level",          0x240},
     {"required_level",      0x244},
-    {"is_mirrored",         0x25d},
-    {"is_split",            0x25e},
-    {"is_synthesised",      0x263},
+    {"is_mirrored",         0x265},
+    {"is_split",            0x266},
+    {"is_synthesised",      0x26b},
 };
 
 class Mods : public Component {
