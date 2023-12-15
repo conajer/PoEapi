@@ -12,8 +12,14 @@ class Flask {
             this.IsMana := true
             this.type := "<b style=""color:blue"">M</b>"
         } else if (RegExMatch(item.path, "Hybrid")) {
-            this.IsLife := this.IsMana := true
+            if (item.name ~= "Divination Distillate")
+                this.IsMana := true, this.isEnduring := true
+            else
+                this.IsLife := this.IsMana := true
             this.type := "<b style=""color:magenta"">H</b>"
+        } else if (item.name ~= "Tincture") {
+            this.IsTincture := true
+            this.type := "<b>T</b>"
         } else {
             this.IsUtility := true
             this.type := "<b>U</b>"
