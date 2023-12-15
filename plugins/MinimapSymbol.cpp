@@ -341,6 +341,8 @@ public:
                 poe->draw_text(L"Pack", x, y, 0xffffff, 0x7f00, 1.0, 1);
             else if (i.id.find(L"ItemQuantity") != wstring::npos)
                 poe->draw_text(L"Item Quantity", x, y, 0xffffff, 0x7f00, 1.0, 1);
+            else if (i.id.find(L"CannotBeLeeched") != wstring::npos)
+                poe->draw_text(L"Cannot Leech", x, y, 0xffffff, 0x7f0000, 1.0, 1);
             else if (i.id.find(L"Immune") != wstring::npos) {
                 if (i.id.find(L"Physical") != wstring::npos)
                     poe->draw_text(L"Physical", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
@@ -356,6 +358,8 @@ public:
                     poe->draw_text(L"Ailments", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
                 else if (i.id.find(L"Curses") != wstring::npos)
                     poe->draw_text(L"Curses", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
+                else if (i.id.find(L"Poison") != wstring::npos)
+                    poe->draw_text(L"Poison", x, y - 10, 0xffffff, 0x7f0000, 1.0, 1);
             }
         }
     }
