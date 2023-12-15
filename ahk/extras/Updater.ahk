@@ -95,7 +95,7 @@ class Updater extends WebGui {
                     continue
             }
 
-            if (item.Name == "patreon.dll" && ptask.isPatron)
+            if (item.Name == "patreon.dll" && ptask.isPatron) {
                     continue
             }
 
