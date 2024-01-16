@@ -41,11 +41,11 @@ global PoEOffsets = { "version" : "3.23", "offsets"
                         ,     "refund_points_left"      : 0x240
                         ,     "skill_points_from_quest" : 0x244
                         ,     "ascendancy_skill_points" : 0x24c
-                        , "league"                      : 0x9da8
-                        , "latency"                     : 0x9e40
-                        , "party_status"                : 0xa038
-                        , "stash_tabs"                  : 0x9e48
-                        , "inventory_slots"             : 0xa450 }
+                        , "league"                      : 0x9e28
+                        , "latency"                     : 0x9ec0
+                        , "party_status"                : 0xa0b8
+                        , "stash_tabs"                  : 0x9ec8
+                        , "inventory_slots"             : 0xa4d0 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
@@ -55,11 +55,11 @@ global PoEOffsets = { "version" : "3.23", "offsets"
       , "Element"     : { "self"                        : 0x28
                         , "childs"                      : 0x68
                         , "root"                        : 0xb8
-                        , "parent"                      : 0xc0
-                        , "position"                    : 0xc8
-                        , "scale"                       : 0xe0
-                        , "is_visible"                  : 0x145
-                        , "is_enabled"                  : 0x149
+                        , "parent"                      : 0x140
+                        , "position"                    : 0xc0
+                        , "scale"                       : 0xd8
+                        , "is_visible"                  : 0x149
+                        , "is_enabled"                  : 0x14d
                         , "size"                        : 0x190
                         , "highlighted"                 : 0x198
                         , "text"                        : 0x2f8

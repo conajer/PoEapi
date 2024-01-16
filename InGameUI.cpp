@@ -247,7 +247,7 @@ public:
                 break;
 
             addrtype label = PoEMemory::read<addrtype>(next + 0x10);
-            if (!(PoEMemory::read<byte>(label + 0x145) & 0x8))
+            if (!(PoEMemory::read<byte>(label + 0x149) & 0x8))
                 continue;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x18);
