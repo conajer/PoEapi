@@ -377,6 +377,19 @@ public:
         poe->draw_text(L"Door", x, y, 0, 0xffa500, 1.0, 1);
     }
 
+    void draw_wisps(Entity* e) {
+        Vector3 pos = e->pos;
+        pos.x = player->pos.x + (pos.x - player->pos.x) * scale;
+        pos.y = player->pos.y + (pos.y - player->pos.y) * scale;
+        pos.z = pos.z * scale;
+        poe->in_game_state->transform(pos);
+
+        int x = pos.x + shift_x;
+        int y = pos.y + shift_y;
+
+        poe->draw_rect( x - 2, y -2, x + 2, y + 2, 0xcccccc);
+    }
+
     void render() {
         init_params();
         std::lock_guard<std::mutex> guard(drawn_entities_mutex);
@@ -434,6 +447,8 @@ public:
                         ignored_entities.push_back(i.first);
                     }
                 }
+            } else if (entity->path.find(L"AzmeriResourceBase") != wstring::npos) {
+                draw_wisps(entity);
             } else {
                 ignored_entities.push_back(i.first);
             }
