@@ -85,11 +85,11 @@ static std::map<string, int> mods_component_offsets {
         {"explicit_stats",  0x108},
         {"crafted_stats",   0x148},
         {"fractured_stats", 0x188},
-    {"item_level",          0x240},
-    {"required_level",      0x244},
-    {"is_mirrored",         0x265},
-    {"is_split",            0x266},
-    {"is_synthesised",      0x26b},
+    {"item_level",          0x248},
+    {"required_level",      0x24c},
+    {"is_mirrored",         0x26d},
+    {"is_split",            0x26e},
+    {"is_synthesised",      0x273},
 };
 
 class Mods : public Component {

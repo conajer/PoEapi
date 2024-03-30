@@ -7,12 +7,9 @@
 #include <math.h>
 
 struct ComponentLookupTable {
-    byte flags[8];
-    struct {
-        addrtype name_ptr;
-        int index;
-        int __padding_0;
-    } components[8];
+    addrtype name_ptr;
+    int index;
+    int __padding_0;
 };
 
 FieldOffsets entity_offsets = {
@@ -20,7 +17,7 @@ FieldOffsets entity_offsets = {
         {"path",              0x8},
         {"component_lookup", 0x30},
     {"component_list",       0x10},
-    {"id",                   0x90},
+    {"id",                   0x88},
 };
 
 /* Forward declaration */
@@ -40,32 +37,19 @@ protected:
     }
 
     void get_all_components(addrtype component_lookup) {
-        std::vector<addrtype> component_list;
+        std::vector<addrtype> component_list, lookup_table;
 
         component_list = read_array<addrtype>("component_list", 0x0, 0x8);
         if (component_list.empty() || component_list.size() > 32)
             return;
 
-        addrtype entry_ptr = PoEMemory::read<addrtype>(component_lookup + 0x30);
-        int have_more_components = PoEMemory::read<int>(component_lookup + 0x48);
-        if (have_more_components > 32)
-            return;
-
-        while (have_more_components) {
-            ComponentLookupTable lookup_table;
+        lookup_table = PoEMemory::read_array<addrtype>(component_lookup + 0x28, 0, 16);
+        for (int i = 0; i < lookup_table.size(); ++i) {
             char name[32];
 
-            PoEMemory::read<ComponentLookupTable>(entry_ptr, &lookup_table, 1);
-            for (int i = 0; i < 8; ++i) {
-                if (lookup_table.flags[i] != 0xff) {
-                    PoEMemory::read<char>(lookup_table.components[i].name_ptr, name, 32);
-                    component_names.push_back(name);
-                    components[name] = shared_ptr<Component>(
-                        read_component(name, component_list[lookup_table.components[i].index]));
-                    have_more_components--;
-                }
-            }
-            entry_ptr += 0x8 + 0x80;
+            PoEMemory::read<char>(lookup_table[i], name, 32);
+            component_names.push_back(name);
+            components[name] = shared_ptr<Component>(read_component(name, component_list[i]));
         }
     }
 

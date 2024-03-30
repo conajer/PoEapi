@@ -236,7 +236,7 @@ public:
     }
 
     bool is_highlighted() {
-        return read<byte>("highlighted") && PoEMemory::read<byte>(address + 0x11d);
+        return read<byte>("highlighted");
     }
 
     float scale() {

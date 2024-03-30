@@ -386,8 +386,15 @@ public:
 
         int x = pos.x + shift_x;
         int y = pos.y + shift_y;
-
-        poe->draw_rect( x - 2, y -2, x + 2, y + 2, 0xcccccc);
+        if (e->path.find(L"ResourceBase") != wstring::npos) {
+            poe->draw_rect(x, y - 3, x + 1, y + 3, 0xcccccc);
+        } else if (e->path.find(L"FuelResupply") != wstring::npos) {
+            poe->draw_rect(x - 2, y - 2, x + 2, y + 2, 0xfefefe);
+            poe->draw_rect(x - 5, y - 5, x + 5, y + 5, 0xfefefe);
+        } else if (e->path.find(L"LightBomb") != wstring::npos) {
+            poe->fill_rect(x - 2, y - 2, x + 2, y + 2, 0xfefefe);
+            poe->draw_rect(x - 5, y - 5, x + 5, y + 5, 0xfefefe);
+        }
     }
 
     void render() {
@@ -447,8 +454,6 @@ public:
                         ignored_entities.push_back(i.first);
                     }
                 }
-            } else if (entity->path.find(L"AzmeriResourceBase") != wstring::npos) {
-                draw_wisps(entity);
             } else {
                 ignored_entities.push_back(i.first);
             }
