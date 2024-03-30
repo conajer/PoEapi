@@ -57,6 +57,7 @@ class TradeItem {
                 RegExMatch(matched1, "([0-9.]+)(,([0-9.]+))*", matched)
                 this.count := matched1 matched3
             }
+            this.name := RegExReplace(this.name, ",")
         }
     }
 }
