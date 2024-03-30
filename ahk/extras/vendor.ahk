@@ -7,6 +7,7 @@ addMenuItem("__vendor", _("Trade divination cards"), "tradeDivinationCards")
 addMenuItem("__vendor", _("Trade full rare sets"), "tradeFullRareSets")
 addMenuItem("__vendor")
 addMenuItem("__vendor", _("Open stacked decks"), "openStackedDecks")
+addMenuItem("__vendor", _("Unstack Veiled Scarabs"), "unstackVeildedScarabs")
 addMenuItem("__vendor")
 addMenuItem("__vendor", _("Sort items"), "sortItems")
 addMenuItem("__vendor", _("Dump useless items (< 1 Chaos)"), "dumpUselessItems")
@@ -267,13 +268,13 @@ openStackedDecks() {
     debug("Opening stacked decks:")
     for i, item in inventory.findItems(_("Stacked Deck")) {
         index := item.index
-        stackCount = item.stackCount
         loop, {
-            if (Not stackCount || (A_Index - n) > 3 || Not ptask.inventory.freeCells())
+            if (Not stackCount || Not ptask.inventory.freeCells())
                 break
 
             inventory.moveTo(index)
             Sleep, 50
+            stackCount := ptask.getHoveredItem().stackCount()
             SendInput, {Click Right}
 
             loop, 5 {
@@ -313,6 +314,69 @@ openStackedDecks() {
             break
     }
     debug("Opened <b>{}</b> stacked decks.", n)
+}
+
+unstackVeildedScarabs() {
+    ptask.activate()
+
+    inventory := ptask.inventory
+    if (ptask.stash.isOpened()) {
+        tab := ptask.stash.Tab
+        if (tab.findItems(_("Veiled Scarab")))
+            inventory := tab
+    }
+
+    ptask.inventory.open()
+    n := 0
+    debug("Unstacking Veiled Scarabs:")
+    for i, item in inventory.findItems(_("Veiled Scarab")) {
+        index := item.index
+        loop, {
+            if (Not stackCount || Not ptask.inventory.freeCells())
+                break
+
+            inventory.moveTo(index)
+            Sleep, 50
+            stackCount := ptask.getHoveredItem().stackCount()
+            SendInput, {Click Right}
+
+            loop, 5 {
+                Sleep, 50
+                if (scarab := ptask.inventories[13].getItemByIndex(1))
+                    break
+            }
+            if (Not scarab)
+                continue
+
+            price := $(scarab)
+            if (price > 5)
+                debug("    {:2d}. <b style='color: red;'>{}, {:g}</b>", ++n, scarab.name, price)
+            else if (price > 1)
+                debug("    {:2d}. {}, {:g}", ++n, scarab.name, price)
+            else
+                debug("    {:2d}. <span style='color: grey;'>{}, {:g}</span>", ++n, scarab.name, price)
+
+            toIndex := 0
+            stackedScarabs := ptask.inventory.findItems(scarab.name)
+            if (stackedScarabs.Length() > 0) {
+                for i, item in stackedScarabs {
+                    if (item.stackCount() < item.stackSize()) {
+                        toIndex := item.index
+                        break
+                    }
+                }
+            }
+
+            if (Not ptask.inventory.drop(toIndex) || GetKeyState("Ctrl"))
+                break
+            stackCount--
+            Sleep, 50
+        }
+
+        if (GetKeyState("Ctrl"))
+            break
+    }
+    debug("Unstacked <b>{}</b> Veilded Scarabs.", n)
 }
 
 dumpUselessItems() {
