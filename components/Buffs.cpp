@@ -10,7 +10,7 @@ static FieldOffsets buff_offsets {
         {"description", 0x8},
     {"duration",       0x18},
     {"timer",          0x1c},
-    {"charges",        0x3e},
+    {"charges",        0x42},
 };
 
 class Buff : public RemoteMemoryObject {
