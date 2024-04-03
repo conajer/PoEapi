@@ -31,8 +31,8 @@ global PoEOffsets = { "version" : "3.24", "offsets"
                         , "right_panel"                 : 0x560
                         , "panel_flags"                 : 0x568
                         , "entity_list"                 : 0x640
-                        ,     "root"                    : 0x400
-                        ,     "count"                   : 0x408 }
+                        ,     "root"                    : 0x468
+                        ,     "count"                   : 0x470 }
 
       , "ServerData"  : { "player_data"                 : 0x9858
                         ,     "passive_skills"          : 0x180
