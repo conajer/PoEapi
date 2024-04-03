@@ -268,6 +268,7 @@ openStackedDecks() {
     debug("Opening stacked decks:")
     for i, item in inventory.findItems(_("Stacked Deck")) {
         index := item.index
+        stackCount := item.stackCount
         loop, {
             if (Not stackCount || Not ptask.inventory.freeCells())
                 break
@@ -331,6 +332,7 @@ unstackVeildedScarabs() {
     debug("Unstacking Veiled Scarabs:")
     for i, item in inventory.findItems(_("Veiled Scarab")) {
         index := item.index
+        stackCount := item.stackCount
         loop, {
             if (Not stackCount || Not ptask.inventory.freeCells())
                 break
@@ -360,7 +362,7 @@ unstackVeildedScarabs() {
             stackedScarabs := ptask.inventory.findItems(scarab.name)
             if (stackedScarabs.Length() > 0) {
                 for i, item in stackedScarabs {
-                    if (item.stackCount() < item.stackSize()) {
+                    if (item.name == scarab.name && item.stackCount() < item.stackSize()) {
                         toIndex := item.index
                         break
                     }
