@@ -175,9 +175,12 @@ public:
             return;
 
         std::lock_guard<std::mutex> guard(selected_item_mutex);
+        if (!selected_item)
+            return;
+
         int action_id = local_player->actor->action_id();
-        if (action_id & 0x82) {
-            if (selected_item && !local_player->actor->target_address) {
+        if (action_id & 0x80) {
+            if (selected_item->address != local_player->actor->target_address) {
                 stop_pickup();
                 log(L"Pickup up items interrupted.");
             }
