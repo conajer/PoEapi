@@ -138,7 +138,7 @@ class TradeSession extends AhkGui {
         if (this.isJoined) {
             poe.activate()
             if (ptask.getPartyStatus() < 3) {
-                ptask.sendKeys("/kick " ptask.player.name)
+                ptask.sendKeys("/leave")
                 Sleep, 30
             }
             if (this.needReturn)
