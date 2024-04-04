@@ -177,7 +177,7 @@ class Character {
             }
 
             if (AutoDropFlare && ptask.areaName == "Azurite Mine" && darkness := ptask.hasBuff("delve_degen_buff")) {
-                if (darkness > MaxDarknessStacks || life < 80) {
+                if (darkness > MaxDarknessStacks) {
                     SendInput, %DropFlareKey%
                     Sleep, 100
                 }
