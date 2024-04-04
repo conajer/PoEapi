@@ -357,7 +357,6 @@ class Trader extends AhkGui {
             }
         } else if (RegExMatch(message, _("(.*) has joined your party."), matched)) {
             this.tsActive[matched1].isJoined := true
-            SoundBeep
         } else if (RegExMatch(message, _("(.*) has left the party."), matched)) {
             this.tsActive[matched1].isJoined := false
             this.tsActive[matched1].close()
