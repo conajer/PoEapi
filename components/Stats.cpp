@@ -6,7 +6,7 @@
 
 static std::map<string, int> stats_component_offsets {
     {"data",        0x20},
-        {"stats",   0xe8},
+        {"stats",   0xf0},
 };
 
 class Stats : public Component {
