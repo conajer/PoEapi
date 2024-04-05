@@ -19,12 +19,12 @@
 #include "plugins/KillCounter.cpp"
 
 struct FileIndex {
-    __int64 __padding_0;
-    addrtype node_ptr;
+    addrtype first;
+    addrtype last;
+    addrtype end;
+    addrtype unknown_ptr;
     int capacity;
-    int __padding_1[3];
-    int size;
-    int __padding_2;
+    int __padding_1[5];
 };
 
 struct FileNode {
@@ -34,9 +34,10 @@ struct FileNode {
     int size;
     int __padding_2;
     int capacity;
-    int __padding_3[5];
+    int __padding_3[3];
+    addrtype data_ptr;
+    int __padding_4[2];
     int area_index;
-
 };
 
 static std::map<wstring, std::map<string, int>&> g_offsets = {
@@ -143,7 +144,7 @@ public:
     }
 
     void get_loaded_files() {
-        const char pattern[] = "48 8b 08 48 8d 3d ?? ?? ?? ?? 41";
+        const char pattern[] = "0f 29 74 24 30 4c 8d 3d ?? ?? ?? ?? 4c";
         FileIndex indices[16];
         wchar_t filename[256];
 
@@ -153,48 +154,39 @@ public:
             return;
 
         int area_index = in_game_data->area_index();
-        root_ptr += PoEMemory::read<int>(root_ptr + 0x6) + 0xa;
+        root_ptr += PoEMemory::read<int>(root_ptr + 0x8) + 12;
         PoEMemory::read<FileIndex>(root_ptr, indices, 16);
         for (auto&  i : indices) {
-            for (int j = 0; j < (i.capacity + 1) / 8; ++j) {
-                FileNode node;
-                byte flags[8];
-                
-                addrtype entry_ptr = i.node_ptr + j * 0xc8;
-                PoEMemory::read<byte>(entry_ptr, flags, 8);
-                for (int k = 0; k < 8; ++k) {
-                    if (flags[k] == 0xff)
-                        continue;
+            FileNode node;
+            int size = (i.last - i.first) / 8;
+            addrtype node_ptrs[size];
 
-                    addrtype file_ptr = PoEMemory::read<addrtype>(entry_ptr + 0x8 + k * 0x18 + 0x8);
-                    PoEMemory::read<FileNode>(file_ptr, &node, 1);
-                    if (node.area_index == area_index) {
-                        PoEMemory::read<wchar_t>(node.name, filename, 256);
-                        loaded_files[filename] = file_ptr;
-                    }
+            PoEMemory::read<addrtype>(i.first, node_ptrs, size);
+            for (int j = 1; j < size; j += 3) {
+                PoEMemory::read<FileNode>(node_ptrs[j], &node, 1);
+                if (node.area_index == area_index) {
+                    PoEMemory::read<wchar_t>(node.name, filename, 256);
+                    loaded_files[filename] = node.data_ptr;
                 }
             }
         }
     }
 
     void get_all_stats() {
-        addrtype stats_dat_ptr = loaded_files[L"Data/Stats.dat"];
+        addrtype stats_ptr = loaded_files[L"Data/Stats.dat"];
 
-        if (!stats_dat_ptr)
+        if (!stats_ptr)
             return;
 
-        addrtype stats_ptr = PoEMemory::read<addrtype>(stats_dat_ptr + 0x30);
         addrtype first_ptr = PoEMemory::read<addrtype>(stats_ptr + 0x0);
         addrtype last_ptr = PoEMemory::read<addrtype>(stats_ptr + 0x8);
-        int count = PoEMemory::read<int>(stats_ptr + 0x40);
-        int element_size = (last_ptr - first_ptr) / count;
 
         byte buffer[last_ptr - first_ptr];
         PoEMemory::read<byte>(first_ptr, buffer, last_ptr - first_ptr);
 
         wchar_t stat_name[128];
-        for (int i = 0, id = 1; i < last_ptr - first_ptr; i += element_size) {
-            all_stats[id++] = PoEMemory::read<wchar_t>(*(addrtype *)&buffer[i], stat_name, 128);
+        for (int i = 0, id = 1; i < last_ptr - first_ptr; i += 0x71) {
+            all_stats[id++] = PoEMemory::read<wchar_t>(*(addrtype *)&buffer[i], stat_name, 100);
         }
     }
 
