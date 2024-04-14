@@ -280,7 +280,7 @@ class Character {
         if (this.nearbyMonsters >= MonsterThreshold) {
             for i, aFlask in this.flasks {
                 if (aFlask.IsUtility)
-                    aFlask.use(0, this.life < LifeThreshold)
+                    aFlask.use()
             }
         }
     }
