@@ -666,7 +666,7 @@ class Vendor extends Element {
 class Sell extends Element {
 
     accept(flag = false) {
-        this.getChild(6).getPos(x, y)
+        this.getChild(7).getPos(x, y)
         MouseMove, x, y, 0
         if (flag) {
             Sleep, 50
