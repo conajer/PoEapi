@@ -24,9 +24,9 @@ std::map<string, int> in_game_ui_offsets {
     {"atlas",              28},
     {"atlas_skills",       29},
     {"inventory",          37},
-        {"grid",        0x3f8},
+        {"grid",        0x400},
     {"stash",              38},
-        {"tabs",        0x308},
+        {"tabs",        0x310},
     {"expedition",         45},
     {"kirac_mission",      66},
     {"card_trade",         70},
@@ -43,15 +43,15 @@ std::map<string, int> in_game_ui_offsets {
     {"sell",              105},
     {"sell2",             106},
     {"trade",             107},
-    {"item_note",         155},
-    {"chat",            0x490},
-    {"notifications",   0xa40},
-    {"lefe_panel",      0x558},
-    {"right_panel",     0x560},
-    {"panel_flags",     0x568},
-    {"entity_list",     0x640},
-        {"root",        0x400},
-        {"count",       0x408},
+    {"item_note",         168},
+    {"chat",            0x498},
+    {"notifications",   0xac0},
+    {"lefe_panel",      0x560},
+    {"right_panel",     0x568},
+    {"panel_flags",     0x570},
+    {"entity_list",     0x648},
+        {"root",        0x470},
+        {"count",       0x478},
 };
 
 class InGameUI : public Element {
@@ -248,11 +248,11 @@ public:
                 break;
 
             addrtype label = PoEMemory::read<addrtype>(next + 0x10);
-            if (!(PoEMemory::read<byte>(label + 0x149) & 0x8))
+            if (!(PoEMemory::read<byte>(label + 0x151) & 0x8))
                 continue;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x18);
-            int entity_id = PoEMemory::read<int>(entity_address + 0x88);
+            int entity_id = PoEMemory::read<int>(entity_address + 0x80);
             auto i = removed.find(entity_id);
             if (i != removed.end()) {
                 entities.insert(*i);
