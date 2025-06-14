@@ -2,7 +2,7 @@
 ; PoEOffsets.ahk 1/6/2021 10:45 AM
 ;
 
-global PoEOffsets = { "version" : "3.25", "offsets"
+global PoEOffsets = { "version" : "3.26", "offsets"
     : { "GameStates"  : { "active_game_states"          : 0x20
                         , "all_game_states"             : 0x48 }
 
@@ -31,8 +31,8 @@ global PoEOffsets = { "version" : "3.25", "offsets"
                         , "right_panel"                 : 0x568
                         , "panel_flags"                 : 0x570
                         , "entity_list"                 : 0x648
-                        ,     "root"                    : 0x470
-                        ,     "count"                   : 0x478 }
+                        ,     "root"                    : 0x468
+                        ,     "count"                   : 0x470 }
 
       , "ServerData"  : { "player_data"                 : 0x9858
                         ,     "passive_skills"          : 0x180
@@ -41,10 +41,10 @@ global PoEOffsets = { "version" : "3.25", "offsets"
                         ,     "refund_points_left"      : 0x240
                         ,     "skill_points_from_quest" : 0x244
                         ,     "ascendancy_skill_points" : 0x24c
-                        , "league"                      : 0xb2b0
-                        , "party_status"                : 0xb5a0
-                        , "stash_tabs"                  : 0xb358
-                        , "inventory_slots"             : 0xb9d0 }
+                        , "league"                      : 0xb3b0
+                        , "party_status"                : 0xb6a0
+                        , "stash_tabs"                  : 0xb458
+                        , "inventory_slots"             : 0xbaf8 }
 
       , "Entity"      : { "internal"                    : 0x8
                         ,     "path"                    : 0x8
@@ -59,10 +59,10 @@ global PoEOffsets = { "version" : "3.25", "offsets"
                         , "scale"                       : 0xd8
                         , "is_visible"                  : 0x151
                         , "is_enabled"                  : 0x155
-                        , "size"                        : 0x198
+                        , "size"                        : 0x1d0
                         , "highlighted"                 : 0x1d8
-                        , "text"                        : 0x310
-                        , "item"                        : 0x390 }
+                        , "text"                        : 0x308
+                        , "item"                        : 0x388 }
 
       , "StashTab"    : { "name"                        : 0x8
                         , "inventory_id"                : 0x28
