@@ -17,6 +17,7 @@ class Pricer {
              , "Incubators"         : {"catalog" : "item", "type" : "Incubator"}
              , "Tattoos"            : {"catalog" : "item", "type" : "Tattoo"}
              , "Omens"              : {"catalog" : "item", "type" : "Omen"}
+             , "Allflame Embers"    : {"catalog" : "item", "type" : "AllflameEmber"}
 
              ; Equipment & Gems
              , "Unique Weapons"     : {"catalog" : "item", "type" : "UniqueWeapon"}
@@ -312,7 +313,7 @@ class Pricer {
                     ? this.addPrice(p.currencyTypeName, "", type, {"price": p.receive.value})
                     : this.addPrice(p.currencyTypeName, "", type, {"price": p.chaosEquivalent})
             } else {
-                if (p.listingCount < 10 || p.sparkline.data.length == 0 || (p.itemClass != 6 && InStr(p.detailsId, "-relic")))
+                if (p.listingCount < 10 || p.sparkLine.data.length == 0 || (p.itemClass != 6 && InStr(p.detailsId, "-relic")))
                     return
 
                 dict.hasKey(p.name) ? db.addTranslation(p.name, RegExReplace(dict[p.name], "\(.+\)"))
