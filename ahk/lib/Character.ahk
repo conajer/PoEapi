@@ -101,7 +101,7 @@ class Flask {
                 return true
             }
         } else { ; IsMana
-            if (Not this.isEnduring || this.endTime <= A_Tickcount) {
+            if (forceToUse || Not this.isEnduring || this.endTime <= A_Tickcount) {
                 SendInput, % this.key
                 this.endTime := A_Tickcount + this.duration
                 return true
@@ -200,6 +200,18 @@ class Character {
                 this.lifeFlaskTime := A_Tickcount
             }
         }
+
+        if (ptask.hasBuff("frozen")) {
+            for i, aFlask in this.flasks {
+                for i, m in aFlask.item.getMods() {
+                    if (m.id ~= "FreezeImmunity") {
+                        aFlask.use(0, true)
+                        break
+                    }
+                }
+            }
+        }
+
         this.life := life
     }
 
