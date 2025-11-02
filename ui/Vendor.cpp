@@ -11,7 +11,7 @@ static std::map<string, int> npc_menu_offsets {
 
 static std::map<string, int> npc_menu2_offsets {
     {"service",    0x2c0},
-       {"list",    0x3e8},
+       {"list",    0x3f0},
     {"name",       0x2d8},
     {"sp_service", 0x2a0},
 };

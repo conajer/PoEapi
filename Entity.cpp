@@ -15,7 +15,7 @@ struct ComponentLookupTable {
 FieldOffsets entity_offsets = {
     {"internal",              0x8},
         {"path",              0x8},
-        {"component_lookup", 0x30},
+        {"component_lookup", 0x28},
     {"component_list",       0x10},
     {"id",                   0x88},
 };
@@ -129,7 +129,7 @@ public:
             path = path_string;
         }
         id = read<int>("id");
-        get_all_components(internal[6]);
+        get_all_components(internal[5]);
         health = get_component<Life>();
         positioned = get_component<Positioned>();
         render = get_component<Render>();

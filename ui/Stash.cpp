@@ -4,7 +4,7 @@
 
 static std::map<string, int> stash_offsets {
     {"tabs",                 0x290},
-        {"active_tab_index", 0x9f8},
+        {"active_tab_index", 0x288},
 };
 
 class Stash : public Element {

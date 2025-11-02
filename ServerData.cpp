@@ -401,8 +401,8 @@ public:
 
     std::map<int, shared_ptr<InventorySlot>>& get_inventory_slots() {
         for (auto addr : read_array<addrtype>("inventory_slots", 0x18)) {
-            int slot_id = PoEMemory::read<int>(addr + 0x10);
-            addrtype slot_ptr = PoEMemory::read<addrtype>(addr);
+            int slot_id = PoEMemory::read<int>(addr);
+            addrtype slot_ptr = PoEMemory::read<addrtype>(addr + 0x8);
             shared_ptr<InventorySlot> slot(new InventorySlot(slot_id, slot_ptr));
             auto i = inventory_slots.find(slot->id);
             if (i == inventory_slots.end() || i->second->address != slot->address)
