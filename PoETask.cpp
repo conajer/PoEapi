@@ -696,15 +696,15 @@ public:
     }
 
     bool toggle_maphack() {
-        const char pattern[] = "66 C7 46 64 ?? 00 C6";
+        const char pattern[] = "41 ?? ?? ?? ?? ?? 05 0f ?? ?? eb ?? 41";
 
         HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, false, process_id);
         if (!handle)
             return false;
 
         if (addrtype addr = find_pattern(pattern)) {
-            byte flag = PoEMemory::read<byte>(addr + 4) ? 0 : 2;
-            if (::write<byte>(handle, addr + 4, &flag, 1)) {
+            byte flag = (PoEMemory::read<byte>(addr + 5) & 0x01) ? 0x74 : 0x75;
+            if (::write<byte>(handle, addr + 5, &flag, 1)) {
                 log(L"Maphack <b style=\"color:blue\">%S</b>.", flag ? L"Enabled" : L"Disabled");
                 CloseHandle(handle);
                 return true;
