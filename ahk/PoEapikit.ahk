@@ -31,7 +31,7 @@ global db := new LocalDB("local.db")
 loadHotkeys()
 global ptask := new PoETask()
 
-global version := "1.16"
+global version := "1.17"
 global poeapiVersion := Format("{}.{}.{}", major_version, minor_version, patchlevel)
 syslog("<b>PoEapikit v{} (" _("Powered by") " PoEapi v{})</b>", version, poeapiVersion)
 
@@ -112,8 +112,13 @@ loadLibrary(filename) {
 }
 
 Attack:
-    if (ptask.InMap)
+    if (ptask.InMap) {
+        if (ptask.isPicking) {
+            ptask.isPicking := false
+            ptask.stopPickup()
+        }
         ptask.player.onAttack()
+    }
 return
 
 QuickDefense:
@@ -128,8 +133,10 @@ LevelupGems:
 return
 
 AutoPickup:
-    if (ptask.InMap)
+    if (ptask.InMap) {
+        ptask.isPicking := true
         ptask.beginPickup()
+    }
 return
 
 OnClipboardChange:
