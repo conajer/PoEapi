@@ -187,8 +187,10 @@ class InventoryGrid extends Element {
         _items := []
         for i, item in this.getItems()
             _items[item.address] := item
-        for i, e in this.childs
+        for i, e in this.childs {
             e.item := _items[e.getItem()]
+            e.index := e.item.index
+        }
 
         return this.childs
     }
