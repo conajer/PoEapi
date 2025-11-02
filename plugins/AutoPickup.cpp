@@ -57,7 +57,7 @@ public:
         set_generic_item_filter(L"Incubator|Scarab$|Quicksilver|Diamond|Basalt|Quartz");
         set_rare_item_filter(L"Jewels|Amulet|Rings|Belts");
         misc_entity_filter.assign(L"Monolith|DelveMineralVein|DelveMineralChest|Switch_Once|CraftingUnlocks|AreaTransition|Heist/Objects|HeistChestRewardRoom");
-        one_shot_filter.assign(L"AreaTransition|Heist/Objects|HeistChestRewardRoom|Strongbox|Waypoint");
+        one_shot_filter.assign(L"AreaTransition|Heist/Objects|HeistChestRewardRoom|Strongbox");
         ignored_chest_filter.assign(L"IzaroChest");
     }
 
