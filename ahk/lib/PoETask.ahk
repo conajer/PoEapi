@@ -138,6 +138,21 @@ class StatGroup {
         return false
     }
 
+    count(item) {
+        if (item) {
+            matched := 0
+            for i, stat in item.getStats() {
+                for k, filter in this.filters
+                    if (filter.match(stat))
+                        matched++
+            }
+
+            return matched
+        }
+
+        return 0
+    }
+
     has(stat) {
         for k, filter in this.filters {
             if (filter.match(stat))
@@ -349,6 +364,10 @@ class PoETask extends AhkObj {
 
     beginPickup() {
         this.plugins["AutoPickup"].beginPickup()
+    }
+
+    stopPickup() {
+        this.plugins["AutoPickup"].stopPickup()
     }
 
     select(name) {
