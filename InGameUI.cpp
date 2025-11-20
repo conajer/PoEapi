@@ -18,7 +18,7 @@
 
 std::map<string, int> in_game_ui_offsets {
     {"overlay_map",         3},
-    {"gem_level_up",        5},
+    {"gem_level_up",        4},
     {"vendor",             25},
     {"skills",             28},
     {"atlas",              29},
