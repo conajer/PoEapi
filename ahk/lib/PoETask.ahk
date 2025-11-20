@@ -481,7 +481,17 @@ class PoETask extends AhkObj {
 
     levelupGems() {
         MouseGetPos, oldX, oldY
-        gems := this.getIngameUI().getChild(5, 2, 1)
+        all := this.getIngameUI().getChild(5, 2, 1, 1)
+        if (all.isVisible()) {
+            all.getChild(1).getPos(x, y)
+            MouseClick(x, y)
+            Sleep, 100
+            leveledGems += 1
+            MouseMove, oldX, oldY, 0
+            return
+        }
+
+        gems :=  this.getIngameUI().getChild(5, 2, 1, 2, 1)
         loop, % gems.getChilds().length() {
             for i, e in gems.getChilds() {
                 if (e.enabled() && e.getChild(2).isVisible()) {
