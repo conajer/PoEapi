@@ -147,7 +147,7 @@ public:
             layout->GetMetrics(&m);
             x = x - m.width * align / 2;
             if (background)
-                fill_rect(x, y, x + m.width, y + m.height, background, alpha);
+                fill_rect(x - 2, y, x + m.width + 4, y + m.height, background, alpha);
             brush->SetColor(D2D1::ColorF(rgb, alpha));
             rt->DrawTextLayout({x, y}, layout, brush.Get());
             layout->Release();
@@ -166,7 +166,7 @@ public:
             layout->GetMetrics(&m);
             x = x - m.width * align / 2;
             if (background)
-                fill_rect(x, y, x + m.width, y + m.height, background, alpha);
+                fill_rect(x - 2, y, x + m.width + 4, y + m.height, background, alpha);
             brush->SetColor(D2D1::ColorF(rgb, alpha));
             rt->DrawTextLayout({x, y}, layout, brush.Get());
             layout->Release();
