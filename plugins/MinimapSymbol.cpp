@@ -99,7 +99,7 @@ public:
         ignored_delve_chests(L"Armour|Weapon|Generic|NoDrops|Encounter"),
         heist_regex(L"HeistChest(Secondary|RewardRoom(Agility|BruteForce|CounterThaumaturge|Deception|Demolition|Engineering|LockPicking|Perception|TrapDisarmament|))(.*)(Military|Robot|Science|Thug)"),
         ignored_heist_chests(L"Armour|Weapons|Corrupted|Gems|Jewellery|Jewels|QualityCurrency|Talisman|Trinkets|Uniques"),
-        valuable_beasts(L"Vivid Vulture|Wild Bristle Matron|Craicic Chimeral|Wild Hellion Alpha|Vivid Watcher"),
+        valuable_beasts(L"Craicic Croaker|Black Mórrigan|Fenumal Plagued Arachnid|Wild Bristle Matron|Vivid Vulture|Wild Hellion Alpha"),
         valuable_strongboxes(L"Cartographer|Divination|Scarab|VaalTempleChest")
     {
         add_property(L"showMonsters", &show_monsters, AhkBool);
@@ -179,9 +179,7 @@ public:
         if (e->rarity >= 2) {
             if (show_beast && e->is_beast) {
                 if (std::regex_search(e->name(), valuable_beasts))
-                    poe->draw_text(e->name(), x, y + 10, 0xC70039, 0x0c0c0c, 1.0, 1);
-                else
-                    poe->draw_text(e->name(), x, y + 10, 0xffff52, 0x0c0c0c, 1.0, 1);
+                    poe->draw_text(e->name(), x, y + 10, 0xC70039, 0xffffff, 1.0, 1);
             } else if (index == 3 && show_life) {
                 if (e->path.find(L"Spirit") == wstring::npos || e->path.find(L"MonsterChest") == wstring::npos) {
                     wchar_t buffer[16];
