@@ -13,7 +13,7 @@ public:
 
     std::vector<string> item_types = {
         "Stack",                // Currency/DivinationCard items
-        "Map",                  // Maps
+        "MapKey",               // Maps
         "Quest",                // Quest items
         "HeistContract",        // Heist contracts
         "HeistBlueprint",       // Heist blueprints
@@ -108,6 +108,9 @@ public:
 
     bool check_item(addrtype address) {
         Item item(address);
+
+        if (item.path.find(L"GoldCoin") != wstring::npos)
+            return false;
 
         if (item.has_component(item_types) >= 0)
             return true;
