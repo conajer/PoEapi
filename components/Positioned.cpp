@@ -34,7 +34,7 @@ public:
     }
 
     bool is_minion() {
-        return read<short>("is_neutral") & 0x8001;
+        return (read<short>("is_neutral") & 0xffff) == 0x8001;
     }
 
     Point grid_position() {

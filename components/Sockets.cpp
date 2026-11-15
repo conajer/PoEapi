@@ -5,8 +5,8 @@
 /* Sockets component offsets */
 
 static std::map<string, int> sockets_component_offsets {
-    {"sockets", 0x18},
-    {"links",   0x60},
+    {"sockets", 0x10},
+    {"links",   0x28},
 };
 
 class Sockets : public Component {

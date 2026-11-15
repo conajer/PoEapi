@@ -6,14 +6,14 @@ static std::map<string, int> modifier_offsets {
     {"value",          0x0},
     {"internal",      0x28},
         {"id",         0x0},
-        {"type",       0xc},
-        {"req_level", 0x1c},
-        {"stats",     0x20},
-        {"domain",    0x60},
-        {"name",      0x64},
-        {"gen_type",  0x6c},
-        {"group",     0x70},
-        {"stat_vals", 0x78},
+        {"type",       0xa},
+        {"req_level", 0x1a},
+        {"stats",     0x1e},
+        {"domain",    0x58},
+        {"name",      0x62},
+        {"gen_type",  0x6a},
+        {"group",     0x6e},
+        {"stat_vals", 0x7e},
 };
 
 class Modifier : public RemoteMemoryObject, public AhkObj {
@@ -81,15 +81,15 @@ static std::map<string, int> mods_component_offsets {
     {"enchant_mods",         0xf0},
     {"stats",               0x210},
         {"implicit_stats",    0x8},
-        {"enchant_stats",    0x48},
-        {"explicit_stats",  0x108},
+        {"enchant_stats",    0x50},
+        {"explicit_stats",  0x110},
         {"crafted_stats",   0x148},
         {"fractured_stats", 0x188},
-    {"item_level",          0x248},
-    {"required_level",      0x24c},
-    {"is_mirrored",         0x26d},
-    {"is_split",            0x26e},
-    {"is_synthesised",      0x273},
+    {"item_level",          0x2b8},
+    {"required_level",      0x2bc},
+    {"is_mirrored",         0x2dd},
+    {"is_split",            0x2de},
+    {"is_synthesised",      0x2e3},
 };
 
 class Mods : public Component {
@@ -173,11 +173,11 @@ public:
         if (!explicit_stats.empty())
             return;
 
-        implicit_stats = read_array<wstring>("stats", "implicit_stats", 0x20);
-        enchant_stats = read_array<wstring>("stats", "enchant_stats", 0x20);
-        explicit_stats = read_array<wstring>("stats", "explicit_stats", 0x20);
-        crafted_stats = read_array<wstring>("stats", "crafted_stats", 0x20);
-        fractured_stats = read_array<wstring>("stats", "fractured_stats", 0x20);
+        implicit_stats = read_array<wstring>("stats", "implicit_stats", 0x28);
+        enchant_stats = read_array<wstring>("stats", "enchant_stats", 0x28);
+        explicit_stats = read_array<wstring>("stats", "explicit_stats", 0x28);
+        //crafted_stats = read_array<wstring>("stats", "crafted_stats", 0x28);
+        //fractured_stats = read_array<wstring>("stats", "fractured_stats", 0x28);
     }
 
     void to_print() {

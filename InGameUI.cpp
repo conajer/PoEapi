@@ -19,39 +19,38 @@
 std::map<string, int> in_game_ui_offsets {
     {"overlay_map",         3},
     {"gem_level_up",        4},
-    {"vendor",             25},
-    {"skills",             28},
-    {"atlas",              29},
-    {"atlas_skills",       30},
-    {"inventory",          45},
-        {"grid",        0x498},
-    {"stash",              47},
-        {"tabs",        0x3a8},
-    {"expedition",         55},
-    {"card_trade",         79},
-    {"temple",             83},
-    {"delve_chart",        89},
-    {"syndicate",          91},
-    {"horticrafting",     102},
-    {"heist_locker",      105},
-    {"favours",           106},
-    {"expedition_locker", 108},
-    {"Necropolis Locker", 109},
-    {"purchase",          111},
-    {"purchase2",         112},
-    {"sell",              113},
-    {"sell2",             114},
-    {"trade",             115},
-    {"rewards",           127},
-    {"item_note",         190},
-    {"chat",            0x540},
-    {"notifications",   0xc00},
-    {"lefe_panel",      0x5f8},
-    {"right_panel",     0x600},
-    {"panel_flags",     0x608},
-    {"entity_list",     0x6e8},
-        {"root",        0x4e8},
-        {"count",       0x4f0},
+    {"vendor",             26},
+    {"skills",             29},
+    {"atlas",              30},
+    {"atlas_skills",       31},
+    {"inventory",          47},
+        {"grid",        0x4c0},
+    {"stash",              48},
+        {"tabs",        0x3d0},
+    {"expedition",         57},
+    {"card_trade",         80},
+    {"temple",             85},
+    {"delve_chart",        92},
+    {"syndicate",          94},
+    {"horticrafting",     105},
+    {"heist_locker",      108},
+    {"favours",           109},
+    {"expedition_locker", 111},
+    {"Necropolis Locker", 113},
+    {"purchase",          116},
+    {"purchase2",         117},
+    {"sell",              118},
+    {"sell2",             119},
+    {"trade",             120},
+    {"item_note",         199},
+    {"chat",            0x568},
+    {"notifications",   0xc90},
+    {"lefe_panel",      0x630},
+    {"right_panel",     0x638},
+    {"panel_flags",     0x640},
+    {"entity_list",     0x720},
+        {"root",        0x510},
+        {"count",       0x518},
 };
 
 class InGameUI : public Element {
@@ -129,7 +128,13 @@ public:
     }
 
     Stash* get_stash() {
-        if (shared_ptr<Element> e = get_child("stash")) {
+        int stash_index = (*offsets)["stash"];
+        shared_ptr<Element> e = get_child(std::vector<int>{stash_index, 1});
+
+        if (e && e->get_text() != L"Stash")
+            stash_index++;
+
+        if (e = get_child(stash_index)) {
             addrtype addr = PoEMemory::read<addrtype>(e->address + (*offsets)["tabs"]);
             if (!stash || stash->address != addr)
                 stash = unique_ptr<Stash>(new Stash(addr));
@@ -248,7 +253,7 @@ public:
                 break;
 
             addrtype label = PoEMemory::read<addrtype>(next + 0x10);
-            if (!(PoEMemory::read<byte>(label + 0x1e9) & 0x8))
+            if (!(PoEMemory::read<byte>(label + 0x1e1) & 0x8))
                 continue;
 
             addrtype entity_address = PoEMemory::read<addrtype>(next + 0x18);
