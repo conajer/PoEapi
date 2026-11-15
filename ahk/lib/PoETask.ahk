@@ -546,13 +546,8 @@ class PoETask extends AhkObj {
         }
 
         if (this.stash.isOpened()) {
-            e := ptask.getIngameUI().getChild(36, 4, 4, 1)
-            highlighted := e.getText()
             for i, e in this.stash.Tab.getChilds() {
                 if (e.isVisible()) {
-                    if (highlighted && Not e.isHighlighted)
-                        continue
-
                     if (this.checkStats(e.item))
                         e.draw("", "red", 0)
                     this.displayItemPrice(e, shift)
@@ -639,6 +634,10 @@ class PoETask extends AhkObj {
     onStashChanged(isOpened, tabIndex) {
         if (isOpened) {
             this.stash.Tab.getChilds()
+            if (this.stash.Tab.childs.count() == 0) {
+                this.stash.__getTabs()
+                this.stash.Tab.getChilds()
+            }
         } else {
             this.c.clear()
         }
